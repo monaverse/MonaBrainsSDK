@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ca96e315aaefc34bbd03c093251d257, type: 3}
+  m_Name: MoveUp
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 3250164503775543334
+  _id: Move Up
+  _name: Move Up
+  _category: Movement
+  references:
+    version: 2
+    RefIds:
+    - rid: 3250164503775543334
+      type: {class: MoveUpInstructionTile, ns: Mona.Brains.Tiles.Actions.Movement, asm: com.monaverse.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
+        _distance: 1
+        _distanceValueName: 
+        _easing: 1
+        _mode: 1
+        _value: 1
+        _valueValueName: 
