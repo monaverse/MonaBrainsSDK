@@ -16,14 +16,14 @@ MonoBehaviour:
     rid: 3250164503775543312
   _id: BroadcastMessageToSelf
   _name: "Broadcast Message\n To Self"
-  _category: Action/Broadcasting
+  _category: Broadcasting
   references:
     version: 2
     RefIds:
     - rid: 3250164503775543312
       type: {class: BroadcastMessageToSelfInstructionTile, ns: Mona.Brains.Tiles.Actions.Broadcasting, asm: com.monaverse.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: BroadcastMessageToSelf
+        _name: "Broadcast Message\n To Self"
+        _category: Action/Broadcasting
         _message: 

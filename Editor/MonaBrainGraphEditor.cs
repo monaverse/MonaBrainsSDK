@@ -32,8 +32,11 @@ namespace Mona.Brains.UIEditors
         private void HandleCallback(SerializedObject so)
         {
             so.ApplyModifiedProperties();
-            EditorUtility.SetDirty(target);
-            Undo.RecordObject(target, "change brain");
+            if (target != null)
+            {
+                EditorUtility.SetDirty(target);
+                Undo.RecordObject(target, "change brain");
+            }
             //Debug.Log($"{nameof(HandleCallback)}");
         }
     }

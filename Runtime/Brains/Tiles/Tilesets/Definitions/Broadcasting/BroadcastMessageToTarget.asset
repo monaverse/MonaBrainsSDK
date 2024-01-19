@@ -16,15 +16,15 @@ MonoBehaviour:
     rid: 3250164503775543315
   _id: BroadcastMessageToTarget
   _name: "Broadcast Message\n To Target"
-  _category: Action/Broadcasting
+  _category: Broadcasting
   references:
     version: 2
     RefIds:
     - rid: 3250164503775543315
       type: {class: BroadcastMessageToTargetInstructionTile, ns: Mona.Brains.Tiles.Actions.Broadcasting, asm: com.monaverse.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: BroadcastMessageToTarget
+        _name: "Broadcast Message\n To Target"
+        _category: Action/Broadcasting
         _message: 
         _targetValue: 
