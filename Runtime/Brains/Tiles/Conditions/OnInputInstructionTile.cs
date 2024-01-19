@@ -3,6 +3,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Input;
 using Mona.SDK.Brains.Tiles.Conditions.Enums;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using System;

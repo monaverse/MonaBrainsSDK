@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 659285b3afd7dc94b9d9ca89e01b7316
+guid: 0f1fca7479e7c9e459684f196b763cb8
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -9,6 +9,6 @@ ScriptedImporter:
   assetBundleVariant: 
   script: {fileID: 11500000, guid: 8404be70184654265930450def6a9037, type: 3}
   generateWrapperCode: 1
-  wrapperCodePath: Assets/Mona/VisualScriptGraphs/MonaSDK/Core/Input/Inputs.cs
+  wrapperCodePath: Mona/SDK/Brains/Core/Input/Inputs.cs
   wrapperClassName: Inputs
-  wrapperCodeNamespace: Mona
+  wrapperCodeNamespace: Mona.SDK.Brains.Core.Input
