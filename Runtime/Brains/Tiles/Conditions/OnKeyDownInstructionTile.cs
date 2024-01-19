@@ -1,13 +1,13 @@
-using Mona.Brains.Core;
-using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Tiles.Conditions.Interfaces;
+using Mona.SDK.Brains.Core;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Mona.Brains.Tiles.Conditions
+namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
     public class OnKeyDownInstructionTile : InstructionTile, IOnKeyDownInstructionTile, IConditionInstructionTile, IStartableInstructionTile

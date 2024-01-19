@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Mona.Brains.Core.ScriptableObjects
+namespace Mona.SDK.Brains.Core.ScriptableObjects
 {
     [CreateAssetMenu(menuName = "Mona Brains/Utils/Mona Tags")]
     public class MonaTags : ScriptableObject, IMonaTags

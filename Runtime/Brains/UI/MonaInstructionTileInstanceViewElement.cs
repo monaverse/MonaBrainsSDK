@@ -1,9 +1,9 @@
 ﻿using UnityEngine.UIElements;
 using UnityEngine;
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Enums;
 
-namespace Mona.Brains.UIElements
+namespace Mona.SDK.Brains.UIElements
 {
     public class MonaInstructionTileInstanceViewElement : VisualElement
     {

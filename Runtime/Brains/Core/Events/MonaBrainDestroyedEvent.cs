@@ -1,6 +1,6 @@
-﻿using Mona.Brains.Core.Brain;
+﻿using Mona.SDK.Brains.Core.Brain;
 
-namespace Mona.Brains.Core.Events
+namespace Mona.SDK.Brains.Core.Events
 {
     public struct MonaBrainDestroyedEvent
     {

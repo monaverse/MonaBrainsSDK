@@ -1,10 +1,10 @@
-﻿using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Control;
+﻿using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Control;
 using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Mona.Brains.UIElements
+namespace Mona.SDK.Brains.UIElements
 {
     public class MonaBrainPageVisualElement : VisualElement, IDisposable
     {

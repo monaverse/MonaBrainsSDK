@@ -1,11 +1,11 @@
-﻿using Mona.Brains.Core;
-using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Enums;
-using Mona.Brains.Tiles.Actions.Broadcasting.Interfaces;
+﻿using Mona.SDK.Brains.Core;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Tiles.Actions.Broadcasting.Interfaces;
 using System;
 using UnityEngine;
 
-namespace Mona.Brains.Tiles.Actions.Broadcasting
+namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 {
     [Serializable]
     public class BroadcastMessageToSelfInstructionTile : BroadcastMessageInstructionTile, IBroadcastMessageToSelfInstructionTile

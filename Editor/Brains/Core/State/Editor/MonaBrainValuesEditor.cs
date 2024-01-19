@@ -1,9 +1,9 @@
-﻿using Mona.Brains.Core.State.UIElements;
-using Mona.Core.State.UIEditors;
+﻿using Mona.SDK.Brains.Core.State.UIElements;
+using Mona.SDK.Core.State.UIEditors;
 using UnityEditor;
 using UnityEngine.UIElements;
 
-namespace Mona.Brains.Core.State.UIEditors
+namespace Mona.SDK.Brains.Core.State.UIEditors
 {
     [CustomEditor(typeof(MonaBrainValues))]
     public class MonaBrainValuesEditor : Editor

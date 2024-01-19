@@ -1,7 +1,7 @@
-using Mona.Brains.Tiles.Actions.Movement.Enums;
+using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
 using System;
 
-namespace Mona.Brains.Tiles.Actions.Movement
+namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
     public class RollRightInstructionTile : RotateLocalInstructionTile

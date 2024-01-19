@@ -1,4 +1,4 @@
-﻿namespace Mona.Brains.Core
+﻿namespace Mona.SDK.Brains.Core
 {
     public class MonaBrainConstants
     {

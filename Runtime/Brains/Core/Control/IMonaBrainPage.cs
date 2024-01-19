@@ -1,8 +1,8 @@
-﻿using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Enums;
+﻿using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Enums;
 using System.Collections.Generic;
 
-namespace Mona.Brains.Core.Control
+namespace Mona.SDK.Brains.Core.Control
 {
     public interface IMonaBrainPage
     {

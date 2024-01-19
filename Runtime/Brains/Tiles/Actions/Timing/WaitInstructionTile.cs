@@ -1,14 +1,14 @@
-﻿using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core;
+﻿using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core;
 using UnityEngine;
 using System;
 using Unity.VisualScripting;
-using Mona.Brains.Core.Events;
-using Mona.Brains.Tiles.Actions.Timing.Interfaces;
+using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Brains.Tiles.Actions.Timing.Interfaces;
 
-namespace Mona.Brains.Tiles.Actions.Timing
+namespace Mona.SDK.Brains.Tiles.Actions.Timing
 {
     [Serializable]
     public class WaitInstructionTile : InstructionTile, IWaitInstructionTile, IActionInstructionTile

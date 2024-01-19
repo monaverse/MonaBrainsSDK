@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Mona.Brains.Core
+namespace Mona.SDK.Brains.Core
 {
     public class BrainPropertyValueName : System.Attribute
     {

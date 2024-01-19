@@ -1,8 +1,8 @@
-﻿using Mona.Core.Body.Enums;
-using Mona.Brains.Core.Tiles;
+﻿using Mona.SDK.Core.Body.Enums;
+using Mona.SDK.Brains.Core.Tiles;
 using UnityEngine;
 
-namespace Mona.Brains.Tiles.Actions.General.Interfaces
+namespace Mona.SDK.Brains.Tiles.Actions.General.Interfaces
 {
     public interface IGlueToMonaPlayerInstructionTile : IInstructionTileWithPreload
     {

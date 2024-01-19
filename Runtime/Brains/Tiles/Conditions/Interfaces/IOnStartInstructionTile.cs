@@ -1,6 +1,6 @@
-﻿using Mona.Brains.Core.Tiles;
+﻿using Mona.SDK.Brains.Core.Tiles;
 
-namespace Mona.Brains.Tiles.Conditions.Interfaces
+namespace Mona.SDK.Brains.Tiles.Conditions.Interfaces
 {
     public interface IOnStartInstructionTile : IInstructionTileWithPreload
     {

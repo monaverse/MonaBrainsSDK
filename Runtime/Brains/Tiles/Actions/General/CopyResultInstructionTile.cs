@@ -1,12 +1,12 @@
-﻿using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core.Enums;
-using Mona.Brains.Core;
+﻿using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core;
 using UnityEngine;
 using System;
-using Mona.Brains.Core.Brain;
-using Mona.Brains.Tiles.Actions.General.Interfaces;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 
-namespace Mona.Brains.Tiles.Actions.General
+namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
     public class CopyResultInstructionTile : InstructionTile, ICopyResultInstructionTile, IActionInstructionTile

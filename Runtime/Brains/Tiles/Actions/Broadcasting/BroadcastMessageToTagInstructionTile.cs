@@ -1,14 +1,14 @@
-﻿using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core;
+﻿using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core;
 using System;
 using UnityEngine;
-using Mona.Brains.Core.Brain;
-using Mona.Brains.Tiles.Actions.Broadcasting.Interfaces;
-using Mona.Core.Body;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Tiles.Actions.Broadcasting.Interfaces;
+using Mona.SDK.Core.Body;
 using System.Collections.Generic;
 
-namespace Mona.Brains.Tiles.Actions.Broadcasting
+namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 {
     [Serializable]
     public class BroadcastMessageToTagInstructionTile : BroadcastMessageInstructionTile, IBroadcastMessageToTagInstructionTile

@@ -1,8 +1,8 @@
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core.Tiles.ScriptableObjects;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using UnityEngine;
 
-namespace Mona.Brains.Tiles.Conditions.ScriptableObjects
+namespace Mona.SDK.Brains.Tiles.Conditions.ScriptableObjects
 {
     [CreateAssetMenu(menuName = "Mona Brains/Tiles/Conditions/OnKey", fileName = "OnKey")]
     public class OnKeyInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition

@@ -1,7 +1,7 @@
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Tiles.Conditions.Enums;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Tiles.Conditions.Enums;
 
-namespace Mona.Brains.Tiles.Conditions.Interfaces
+namespace Mona.SDK.Brains.Tiles.Conditions.Interfaces
 {
     public interface IOnInputInstructionTile : IInstructionTileWithPreload
     {

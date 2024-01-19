@@ -1,15 +1,14 @@
-﻿using Mona.Core.Body;
-using Mona.Brains.Core.Control;
-using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.ScriptableObjects;
-using Mona.Brains.Core.State;
-using Mona.Core.Events;
+﻿using Mona.SDK.Core.Body;
+using Mona.SDK.Brains.Core.Control;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.ScriptableObjects;
+using Mona.SDK.Brains.Core.State;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Mona.Brains.Core.Events;
+using Mona.SDK.Brains.Core.Events;
 
-namespace Mona.Brains.Core.Brain
+namespace Mona.SDK.Brains.Core.Brain
 {
     public interface IMonaBrain : IMonaTagged
     {

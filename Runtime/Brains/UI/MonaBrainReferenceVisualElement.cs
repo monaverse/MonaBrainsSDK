@@ -1,9 +1,9 @@
-﻿using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.ScriptableObjects;
+﻿using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.ScriptableObjects;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
-namespace Mona.Brains.UIElements
+namespace Mona.SDK.Brains.UIElements
 {
     public class MonaBrainReferenceVisualElement : VisualElement
     {

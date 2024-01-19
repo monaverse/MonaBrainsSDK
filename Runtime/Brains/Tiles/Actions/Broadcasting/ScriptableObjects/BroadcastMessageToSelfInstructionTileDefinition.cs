@@ -1,9 +1,9 @@
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core.Tiles.ScriptableObjects;
-using Mona.Brains.Tiles.Actions.Broadcasting;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
+using Mona.SDK.Brains.Tiles.Actions.Broadcasting;
 using UnityEngine;
 
-namespace Mona.Brains.Tiles.Actions.Broadcasting.ScriptableObjects
+namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting.ScriptableObjects
 {
     [CreateAssetMenu(menuName = "Mona Brains/Tiles/Broadcasting/BroadcastMessageToSelf", fileName = "BroadcastMessageToSelf")]
     public class BroadcastMessageToSelfInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition

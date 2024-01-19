@@ -1,7 +1,7 @@
-﻿using Mona.Brains.Core.Control;
+﻿using Mona.SDK.Brains.Core.Control;
 using UnityEngine.UIElements;
 
-namespace Mona.Brains.UIElements
+namespace Mona.SDK.Brains.UIElements
 {
     public class MonaPageInstanceViewElement : VisualElement
     {

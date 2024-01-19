@@ -1,4 +1,4 @@
-﻿namespace Mona.Brains.Core.Events
+﻿namespace Mona.SDK.Brains.Core.Events
 {
     public struct MonaCorePageTickEvent
     {

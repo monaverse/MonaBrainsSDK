@@ -1,6 +1,6 @@
-﻿using Mona.Brains.Core.Tiles;
+﻿using Mona.SDK.Brains.Core.Tiles;
 
-namespace Mona.Brains.Tiles.Actions.Timing.Interfaces
+namespace Mona.SDK.Brains.Tiles.Actions.Timing.Interfaces
 { 
     public interface IWaitInstructionTile : IInstructionTile
     {

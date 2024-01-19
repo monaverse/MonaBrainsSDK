@@ -1,8 +1,8 @@
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core.Tiles.ScriptableObjects;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using UnityEngine;
 
-namespace Mona.Brains.Tiles.Actions.Timing.ScriptableObjects
+namespace Mona.SDK.Brains.Tiles.Actions.Timing.ScriptableObjects
 {
     [CreateAssetMenu(menuName = "Mona Brains/Tiles/Timing/Wait", fileName = "Wait")]
     public class WaitInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition

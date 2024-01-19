@@ -1,13 +1,13 @@
-using Mona.Brains.Core.Events;
-using Mona.Core;
-using Mona.Core.Body;
-using Mona.Core.Events;
+using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Core;
+using Mona.SDK.Core.Body;
+using Mona.SDK.Core.Events;
 using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Mona.Brains.Core.Brain
+namespace Mona.SDK.Brains.Core.Brain
 {
     public interface IMonaBrainPlayer
     {

@@ -1,11 +1,11 @@
-﻿using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.Tiles;
+﻿using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Tiles;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Mona.Brains.Core.Control
+namespace Mona.SDK.Brains.Core.Control
 {
     public interface IInstruction
     {

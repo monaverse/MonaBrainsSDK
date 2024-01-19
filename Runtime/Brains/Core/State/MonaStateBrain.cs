@@ -1,9 +1,9 @@
-﻿using Mona.Brains.Core.Brain;
-using Mona.Core.State.Structs;
+﻿using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Core.State.Structs;
 using System;
 using UnityEngine;
 
-namespace Mona.Brains.Core.State.Structs
+namespace Mona.SDK.Brains.Core.State.Structs
 {
     [Serializable]
     public class MonaStateBrain : IMonaStateValue, IMonaStateBrainValue

@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System;
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core;
-using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Enums;
-using Mona.Brains.Tiles.Conditions.Interfaces;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 
-namespace Mona.Brains.Tiles.Conditions
+namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
     public class OnMessageInstructionTile : InstructionTile, IOnMessageInstructionTile, IConditionInstructionTile, IStartableInstructionTile

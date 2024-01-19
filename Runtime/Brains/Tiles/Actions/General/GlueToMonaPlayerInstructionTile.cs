@@ -1,16 +1,16 @@
 ﻿using UnityEngine;
 using System;
 using Unity.VisualScripting;
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core;
-using Mona.Brains.Core.Enums;
-using Mona.Core.Body.Enums;
-using Mona.Brains.Core.Brain;
-using Mona.Core.Body;
-using Mona.Core.Events;
-using Mona.Brains.Tiles.Actions.General.Interfaces;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Core.Body.Enums;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Core.Body;
+using Mona.SDK.Core.Events;
+using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 
-namespace Mona.Brains.Tiles.Actions.General
+namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
     public class GlueToMonaPlayerInstructionTile : InstructionTile, IGlueToMonaPlayerInstructionTile, IDisposable, IActionInstructionTile

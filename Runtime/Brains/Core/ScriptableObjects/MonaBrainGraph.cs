@@ -1,16 +1,16 @@
-﻿using Mona.Core.Body;
-using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Control;
-using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.State;
+﻿using Mona.SDK.Core.Body;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Control;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.State;
 using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using Mona.Brains.Core.Events;
-using Mona.Core.State.Structs;
+using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Core.State.Structs;
 
-namespace Mona.Brains.Core.ScriptableObjects
+namespace Mona.SDK.Brains.Core.ScriptableObjects
 {
     [CreateAssetMenu(menuName = "Mona Brains/Graph", fileName = "BrainGraph")]
     [Serializable]

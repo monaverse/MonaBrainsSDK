@@ -1,4 +1,4 @@
-namespace Mona.Brains.Core.Enums 
+namespace Mona.SDK.Brains.Core.Enums 
 { 
     public enum InstructionTileResult
     {

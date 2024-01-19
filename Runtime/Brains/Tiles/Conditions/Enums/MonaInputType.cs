@@ -1,4 +1,4 @@
-﻿namespace Mona.Brains.Tiles.Conditions.Enums
+﻿namespace Mona.SDK.Brains.Tiles.Conditions.Enums
 {
     public enum MonaInputType
     {

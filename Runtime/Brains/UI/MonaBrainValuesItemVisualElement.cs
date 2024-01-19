@@ -1,11 +1,11 @@
-﻿using Mona.Brains.Core.State.Structs;
-using Mona.Core;
-using Mona.Core.State.Structs;
-using Mona.Core.State.UIElements;
+﻿using Mona.SDK.Brains.Core.State.Structs;
+using Mona.SDK.Core;
+using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core.State.UIElements;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
 
-namespace Mona.Brains.Core.State.UIElements
+namespace Mona.SDK.Brains.Core.State.UIElements
 {
     public class MonaBrainValuesItemVisualElement : MonaStateItemVisualElement
     {

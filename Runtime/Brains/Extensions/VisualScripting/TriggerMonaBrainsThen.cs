@@ -1,7 +1,7 @@
-using Mona.Brains.Core;
-using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.Events;
+using Mona.SDK.Brains.Core;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Events;
 using Unity.VisualScripting;
 
 [UnitTitle("TriggerMonaBrainsThen")]

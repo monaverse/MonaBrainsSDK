@@ -1,8 +1,8 @@
-﻿using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Control;
-using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.ScriptableObjects;
-using Mona.Core.State.UIElements;
+﻿using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Control;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.ScriptableObjects;
+using Mona.SDK.Core.State.UIElements;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -10,7 +10,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Mona.Brains.UIElements
+namespace Mona.SDK.Brains.UIElements
 {
     public class MonaBrainGraphVisualElement : VisualElement, IDisposable
     {

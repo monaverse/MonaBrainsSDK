@@ -1,11 +1,11 @@
-using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.ScriptableObjects;
-using Mona.Brains.UIElements;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.ScriptableObjects;
+using Mona.SDK.Brains.UIElements;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
-namespace Mona.Brains.UIEditors
+namespace Mona.SDK.Brains.UIEditors
 {
     [CustomEditor(typeof(MonaBrainGraph))]
     public class MonaBrainGraphEditor : Editor

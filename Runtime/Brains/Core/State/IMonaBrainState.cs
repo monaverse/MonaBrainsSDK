@@ -1,7 +1,7 @@
-﻿using Mona.Brains.Core.Brain;
-using Mona.Core.State;
+﻿using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Core.State;
 
-namespace Mona.Brains.Core.State
+namespace Mona.SDK.Brains.Core.State
 {
     public interface IMonaBrainState : IMonaState
     {

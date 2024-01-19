@@ -1,10 +1,10 @@
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core.Tiles.ScriptableObjects;
-using Mona.Brains.Tiles.Actions.Movement;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
+using Mona.SDK.Brains.Tiles.Actions.Movement;
 using System;
 using UnityEngine;
 
-namespace Mona.Brains.Tiles.Actions.Movement.ScriptableObjects
+namespace Mona.SDK.Brains.Tiles.Actions.Movement.ScriptableObjects
 {
     [CreateAssetMenu(menuName = "Mona Brains/Tiles/Movement/RollLeft", fileName = "RollLeft")]
     public class RollLeftInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition

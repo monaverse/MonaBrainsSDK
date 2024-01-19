@@ -1,14 +1,14 @@
-﻿using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core;
+﻿using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core;
 using UnityEngine;
 using System;
 using Unity.VisualScripting;
-using Mona.Brains.Core.Events;
-using Mona.Brains.Tiles.Actions.Extensions.Interfaces;
-using Mona.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Brains.Tiles.Actions.Extensions.Interfaces;
+using Mona.SDK.Brains.Core.Brain;
 
-namespace Mona.Brains.Tiles.Actions.Extensions
+namespace Mona.SDK.Brains.Tiles.Actions.Extensions
 {
     [Serializable]
     public class VisualScriptingInstructionTile : InstructionTile, IVisualScriptInstructionTile, IActionInstructionTile

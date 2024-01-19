@@ -1,9 +1,9 @@
-﻿using Mona.Core.Body;
+﻿using Mona.SDK.Core.Body;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Mona.Brains.Tiles.Conditions.Behaviours
+namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 {
     public class SphereColliderTriggerBehaviour : MonoBehaviour
     {

@@ -1,13 +1,13 @@
-﻿using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Tiles.Conditions;
-using Mona.Brains.Tiles.Conditions.Interfaces;
+﻿using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Tiles.Conditions;
+using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Mona.Brains.Core.Control
+namespace Mona.SDK.Brains.Core.Control
 {
     [Serializable]
     public class Instruction : IInstruction

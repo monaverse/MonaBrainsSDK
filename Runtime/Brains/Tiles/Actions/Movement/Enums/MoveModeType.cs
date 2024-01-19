@@ -1,4 +1,4 @@
-﻿namespace Mona.Brains.Tiles.Actions.Movement.Enums
+﻿namespace Mona.SDK.Brains.Tiles.Actions.Movement.Enums
 {
     public enum MoveModeType
     {

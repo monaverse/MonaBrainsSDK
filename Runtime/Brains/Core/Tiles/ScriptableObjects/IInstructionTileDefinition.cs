@@ -1,6 +1,6 @@
-﻿using Mona.Brains.Core.Tiles;
+﻿using Mona.SDK.Brains.Core.Tiles;
 
-namespace Mona.Brains.Core.Tiles.ScriptableObjects
+namespace Mona.SDK.Brains.Core.Tiles.ScriptableObjects
 {
     public interface IInstructionTileDefinition
     {

@@ -1,8 +1,8 @@
-﻿using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core.Tiles.ScriptableObjects;
+﻿using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using System.Collections.Generic;
 
-namespace Mona.Brains.Core.ScriptableObjects
+namespace Mona.SDK.Brains.Core.ScriptableObjects
 {
     public interface IInstructionTileSet
     {

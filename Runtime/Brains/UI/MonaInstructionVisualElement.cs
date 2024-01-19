@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
-using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Control;
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core.Tiles.ScriptableObjects;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Control;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using System;
 
-namespace Mona.Brains.UIElements
+namespace Mona.SDK.Brains.UIElements
 {
     public class MonaInstructionVisualElement : VisualElement
     {

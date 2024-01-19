@@ -1,12 +1,12 @@
-using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.State.Structs;
-using Mona.Brains.Core.Events;
-using Mona.Core.State;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.State.Structs;
+using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Core.State;
 using Unity.VisualScripting;
 using UnityEngine;
 using System;
 
-namespace Mona.Brains.Core.State
+namespace Mona.SDK.Brains.Core.State
 {
     [Serializable]
     public class MonaBrainState : MonaState, IMonaBrainState

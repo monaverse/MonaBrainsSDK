@@ -1,8 +1,8 @@
 ﻿using UnityEngine.UIElements;
 using UnityEngine;
-using Mona.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Brain;
 
-namespace Mona.Brains.UIElements
+namespace Mona.SDK.Brains.UIElements
 {
     public class MonaBrainInstanceVisualElement : VisualElement
     {

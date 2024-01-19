@@ -1,10 +1,10 @@
 using UnityEditor;
 using UnityEngine.UIElements;
-using Mona.Brains.Core.Brain;
-using Mona.Brains.UIElements;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.UIElements;
 using UnityEngine;
 
-namespace Mona.Brains.UIEditors
+namespace Mona.SDK.Brains.UIEditors
 {
     [CustomEditor(typeof(MonaBrainRunner))]
     public class MonaBrainRunnerEditor : Editor

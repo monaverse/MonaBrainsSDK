@@ -1,7 +1,7 @@
-﻿using Mona.Brains.Core.Brain;
+﻿using Mona.SDK.Brains.Core.Brain;
 using UnityEngine;
 
-namespace Mona.Brains.Core.Tiles
+namespace Mona.SDK.Brains.Core.Tiles
 {
     public interface IInstructionTileWithPreload : IInstructionTile
     {

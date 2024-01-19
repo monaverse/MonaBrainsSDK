@@ -1,7 +1,7 @@
-﻿using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Enums;
+﻿using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Enums;
 
-namespace Mona.Brains.Core.Events
+namespace Mona.SDK.Brains.Core.Events
 {
     public struct MonaBrainsDoEvent
     {

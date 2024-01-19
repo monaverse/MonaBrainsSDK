@@ -2,12 +2,12 @@ using UnityEngine;
 using Unity.VisualScripting;
 using System.Collections.Generic;
 using System;
-using Mona.Brains.Core.ScriptableObjects;
-using Mona.Core.Events;
-using Mona.Core.Body;
-using Mona.Brains.Core.Events;
+using Mona.SDK.Brains.Core.ScriptableObjects;
+using Mona.SDK.Core.Events;
+using Mona.SDK.Core.Body;
+using Mona.SDK.Brains.Core.Events;
 
-namespace Mona.Brains.Core.Brain
+namespace Mona.SDK.Brains.Core.Brain
 {
     public partial class MonaBrainRunner : MonoBehaviour, IMonaBrainRunner, IMonaTagged
     {

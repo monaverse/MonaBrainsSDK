@@ -1,12 +1,12 @@
-using Mona.Brains.Core;
-using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Events;
-using Mona.Brains.Core.State;
-using Mona.Core.Body;
+using Mona.SDK.Brains.Core;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Brains.Core.State;
+using Mona.SDK.Core.Body;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Mona.Brains.VisualScripting.Units.Events
+namespace Mona.SDK.Brains.VisualScripting.Units.Events
 {
     [UnitTitle("OnMonaBrainsDo")]
     [UnitSubtitle("Events")]

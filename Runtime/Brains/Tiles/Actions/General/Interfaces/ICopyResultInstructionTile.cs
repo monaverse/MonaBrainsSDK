@@ -1,7 +1,7 @@
-﻿using Mona.Brains.Core.Enums;
-using Mona.Brains.Core.Tiles;
+﻿using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Tiles;
 
-namespace Mona.Brains.Tiles.Actions.General.Interfaces
+namespace Mona.SDK.Brains.Tiles.Actions.General.Interfaces
 {
     public interface ICopyResultInstructionTile : IInstructionTileWithPreload
     {

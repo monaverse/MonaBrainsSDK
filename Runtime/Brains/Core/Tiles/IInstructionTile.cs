@@ -1,10 +1,10 @@
-﻿using Mona.Brains.Core.Brain;
-using Mona.Brains.Core.Enums;
+﻿using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Enums;
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Mona.Brains.Core.Tiles
+namespace Mona.SDK.Brains.Core.Tiles
 {
     public interface IInstructionTile : IGraphElementData
     {

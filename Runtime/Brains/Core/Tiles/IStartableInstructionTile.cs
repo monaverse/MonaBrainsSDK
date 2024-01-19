@@ -1,4 +1,4 @@
-﻿namespace Mona.Brains.Core.Tiles
+﻿namespace Mona.SDK.Brains.Core.Tiles
 {
     public interface IStartableInstructionTile
     {

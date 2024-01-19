@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Mona.Brains.Core.ScriptableObjects
+namespace Mona.SDK.Brains.Core.ScriptableObjects
 {
     public interface IMonaTags
     {

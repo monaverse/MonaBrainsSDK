@@ -1,14 +1,14 @@
-﻿using Mona.Brains.Core;
-using Mona.Brains.Core.Tiles;
+﻿using Mona.SDK.Brains.Core;
+using Mona.SDK.Brains.Core.Tiles;
 using System;
 using System.Reflection;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
-using Mona.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Brain;
 
-namespace Mona.Brains.UIElements
+namespace Mona.SDK.Brains.UIElements
 {
     public class MonaInstructionTileVisualElement : VisualElement
     {

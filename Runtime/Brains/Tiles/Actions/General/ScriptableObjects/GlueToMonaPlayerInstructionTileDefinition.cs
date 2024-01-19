@@ -1,8 +1,8 @@
-using Mona.Brains.Core.Tiles;
-using Mona.Brains.Core.Tiles.ScriptableObjects;
+using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using UnityEngine;
 
-namespace Mona.Brains.Tiles.Actions.General.ScriptableObjects
+namespace Mona.SDK.Brains.Tiles.Actions.General.ScriptableObjects
 {
     [CreateAssetMenu(menuName = "Mona Brains/Tiles/General/GlueToMonaPlayer", fileName = "GlueToMonaPlayer")]
     public class GlueToMonaPlayerInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition
