@@ -9,7 +9,9 @@
         "GUID:3314e621c9a62ba4d84be929610ad14c"
     ],
     "includePlatforms": [],
-    "excludePlatforms": [],
+    "excludePlatforms": [
+        "EmbeddedLinux"
+    ],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],

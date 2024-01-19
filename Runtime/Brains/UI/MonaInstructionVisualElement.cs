@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
-using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using System;
+
+#if UNITY_EDITOR
+using UnityEditor.UIElements;
+#endif
 
 namespace Mona.SDK.Brains.UIElements
 {
@@ -15,9 +18,10 @@ namespace Mona.SDK.Brains.UIElements
         private IInstruction _instruction;
 
         private ScrollView _scrollView;
-        private ToolbarMenu _toolbarMenu;
 
+#if UNITY_EDITOR
         private ToolbarMenu _addTileMenu;
+#endif
 
         public MonaInstructionVisualElement()
         {
@@ -32,10 +36,11 @@ namespace Mona.SDK.Brains.UIElements
             _scrollView.style.height = Length.Percent(100);
             _scrollView.style.width = Length.Percent(100);
             Add(_scrollView);
-
+#if UNITY_EDITOR
             _addTileMenu = new ToolbarMenu();
             _addTileMenu.text = "+ ";
             Add(_addTileMenu);
+#endif
         }
 
         private void AddTile(IInstructionTile tile)
@@ -135,7 +140,7 @@ namespace Mona.SDK.Brains.UIElements
                 Debug.LogError($"Please assign a tile set to this brain");
                 return;
             }
-
+#if UNITY_EDITOR
             _addTileMenu.menu.ClearItems();
             for (var i = 0; i < _brain.TileSet.ConditionTiles.Count; i++)
             {
@@ -151,6 +156,7 @@ namespace Mona.SDK.Brains.UIElements
                 if (AllowTile(def.Tile))
                     _addTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => AddTile(def.Tile));
             }
+#endif
         }
 
         private void CopyToTile(IInstructionTileDefinition def)

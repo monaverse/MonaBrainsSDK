@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.UIEditors
 {
+#if UNITY_EDITOR
     [CustomEditor(typeof(MonaBrainRunner))]
     public class MonaBrainRunnerEditor : Editor
     {
@@ -21,4 +22,5 @@ namespace Mona.SDK.Brains.UIEditors
             return _root;
         }
     }
+#endif
 }

@@ -5,10 +5,14 @@ using Mona.SDK.Brains.Core.ScriptableObjects;
 using Mona.SDK.Core.State.UIElements;
 using System;
 using System.Collections.Generic;
-using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.UIElements;
+#endif
+
 
 namespace Mona.SDK.Brains.UIElements
 {
@@ -42,7 +46,9 @@ namespace Mona.SDK.Brains.UIElements
 
         private Foldout _foldOut;
         private DropdownField _tileSetField;
+#if UNITY_EDITOR
         private ObjectField _monaTagsField;
+#endif
 
         private MonaStateVisualElement _defaultStateVisualElement;
 
@@ -265,7 +271,9 @@ namespace Mona.SDK.Brains.UIElements
                 return;
             }
 
+#if UNITY_EDITOR
             _monaTagsField.value = (MonaTags)_brain.MonaTagSource;
+#endif
             _tileSetField.value = ((InstructionTileSet)_brain.TileSet) != null ? ((InstructionTileSet)_brain.TileSet).Version : "Select a Tileset";
 
             _root.style.display = DisplayStyle.Flex;
@@ -323,6 +331,7 @@ namespace Mona.SDK.Brains.UIElements
 
             if (_brain.MonaTagSource == null)
             {
+#if UNITY_EDITOR
                 string[] guids = AssetDatabase.FindAssets("t:MonaTags", null);
                 foreach (string guid in guids)
                 {
@@ -330,6 +339,7 @@ namespace Mona.SDK.Brains.UIElements
                     _monaTagsField.value = (MonaTags)_brain.MonaTagSource;
                     break;
                 }
+#endif
             }
             
             var versions = GetTileSets();
@@ -353,14 +363,16 @@ namespace Mona.SDK.Brains.UIElements
 
         private List<InstructionTileSet> GetTileSets()
         {
-            string[] guids = AssetDatabase.FindAssets("t:InstructionTileSet", null);
             var versions = new List<InstructionTileSet>();
+#if UNITY_EDITOR
+            string[] guids = AssetDatabase.FindAssets("t:InstructionTileSet", null);
             foreach (string guid in guids)
             {
                 var asset = (InstructionTileSet)AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guid), typeof(InstructionTileSet));
                 versions.Add(asset);
             }
             versions.Sort((a, b) => -a.Version.CompareTo(b.Version));
+#endif
             return versions;
         }
     }

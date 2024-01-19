@@ -1,10 +1,10 @@
 ﻿using Mona.SDK.Brains.Core.State.UIElements;
-using Mona.SDK.Core.State.UIEditors;
 using UnityEditor;
 using UnityEngine.UIElements;
 
 namespace Mona.SDK.Brains.Core.State.UIEditors
 {
+#if UNITY_EDITOR
     [CustomEditor(typeof(MonaBrainValues))]
     public class MonaBrainValuesEditor : Editor
     {
@@ -16,4 +16,5 @@ namespace Mona.SDK.Brains.Core.State.UIEditors
             return root;
         }
     }
+#endif
 }

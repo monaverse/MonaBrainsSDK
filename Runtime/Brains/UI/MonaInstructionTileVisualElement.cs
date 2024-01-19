@@ -2,11 +2,15 @@
 using Mona.SDK.Brains.Core.Tiles;
 using System;
 using System.Reflection;
-using UnityEditor.UIElements;
+
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Brain;
+
+#if UNITY_EDITOR
+using UnityEditor.UIElements;
+#endif
 
 namespace Mona.SDK.Brains.UIElements
 {
@@ -28,7 +32,9 @@ namespace Mona.SDK.Brains.UIElements
         private ScrollView _valuesExtended;
 
         private Label _label;
+#if UNITY_EDITOR
         private ToolbarMenu _toolbarMenu;
+#endif
         private bool _extended;
 
         private ListView _instructionListView;
@@ -52,12 +58,14 @@ namespace Mona.SDK.Brains.UIElements
             _label.style.marginRight = 5;
             _toolBar.Add(_label);
 
+#if UNITY_EDITOR
             _toolbarMenu = new ToolbarMenu();
             _toolbarMenu.text = null;
             _toolbarMenu.style.width = 12;
             _toolbarMenu.style.paddingLeft = 1;
             _toolbarMenu.style.paddingRight = 1;
             _toolBar.Add(_toolbarMenu);
+#endif
 
             Add(_toolBar);
 
@@ -115,12 +123,13 @@ namespace Mona.SDK.Brains.UIElements
         private void HandleMore()
         {            
             _extended = !_extended;
-
+#if UNITY_EDITOR
             _toolbarMenu.menu.RemoveItemAt(0);
             if(_extended)
                 _toolbarMenu.menu.InsertAction(0, MonaBrainConstants.MENU_HIDE, (evt) => HandleMore());
             else
                 _toolbarMenu.menu.InsertAction(0, MonaBrainConstants.MENU_SHOW, (evt) => HandleMore());
+#endif
             _valuesExtended.style.display = _extended ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
@@ -342,6 +351,7 @@ namespace Mona.SDK.Brains.UIElements
 
         private void BuildMenu(int tileIndex, int instructionTileCount)
         {
+#if UNITY_EDITOR
             _toolbarMenu.menu.ClearItems();
 
             if(_valuesExtended.childCount > 0)
@@ -354,6 +364,7 @@ namespace Mona.SDK.Brains.UIElements
             _toolbarMenu.menu.AppendSeparator();
 
             _toolbarMenu.menu.AppendAction(MonaBrainConstants.MENU_DELETE_TILE, (evt) => HandleDelete(tileIndex));
+#endif
         }
 
         private void SetStyle(IInstructionTile tile)

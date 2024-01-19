@@ -1,12 +1,16 @@
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.ScriptableObjects;
 using Mona.SDK.Brains.UIElements;
+using UnityEngine.UIElements;
+
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.UIElements;
-using UnityEngine.UIElements;
+#endif
 
 namespace Mona.SDK.Brains.UIEditors
 {
+#if UNITY_EDITOR
     [CustomEditor(typeof(MonaBrainGraph))]
     public class MonaBrainGraphEditor : Editor
     {
@@ -40,4 +44,5 @@ namespace Mona.SDK.Brains.UIEditors
             //Debug.Log($"{nameof(HandleCallback)}");
         }
     }
+#endif
 }
