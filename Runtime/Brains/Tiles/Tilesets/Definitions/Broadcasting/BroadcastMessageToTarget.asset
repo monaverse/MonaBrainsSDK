@@ -21,7 +21,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 3250164503775543315
-      type: {class: BroadcastMessageToTargetInstructionTile, ns: Mona.Brains.Tiles.Actions.Broadcasting, asm: com.monaverse.brains.runtime}
+      type: {class: BroadcastMessageToTargetInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Broadcasting, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: BroadcastMessageToTarget
         _name: "Broadcast Message\n To Target"

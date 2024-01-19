@@ -23,7 +23,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 3250164503775543319
-      type: {class: OnKeyDownInstructionTile, ns: Mona.Brains.Tiles.Conditions, asm: com.monaverse.brains.runtime}
+      type: {class: OnKeyDownInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: 
         _name: 

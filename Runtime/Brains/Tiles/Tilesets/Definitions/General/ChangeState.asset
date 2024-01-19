@@ -21,7 +21,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 3250164503775543324
-      type: {class: ChangeStateInstructionTile, ns: Mona.Brains.Tiles.Actions.General, asm: com.monaverse.brains.runtime}
+      type: {class: ChangeStateInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: 
         _name: 

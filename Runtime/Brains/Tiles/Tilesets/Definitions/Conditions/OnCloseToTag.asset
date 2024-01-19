@@ -21,7 +21,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 3250164503775543316
-      type: {class: OnCloseToTagInstructionTile, ns: Mona.Brains.Tiles.Conditions, asm: com.monaverse.brains.runtime}
+      type: {class: OnCloseToTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: 
         _name: 

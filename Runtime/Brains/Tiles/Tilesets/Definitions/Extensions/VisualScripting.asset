@@ -21,7 +21,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 3250164503775543323
-      type: {class: VisualScriptingInstructionTile, ns: Mona.Brains.Tiles.Actions.Extensions, asm: com.monaverse.brains.runtime}
+      type: {class: VisualScriptingInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Extensions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: 
         _name: 

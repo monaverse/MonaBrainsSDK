@@ -21,7 +21,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 3250164503775543340
-      type: {class: SpinLeftInstructionTile, ns: Mona.Brains.Tiles.Actions.Movement, asm: com.monaverse.brains.runtime}
+      type: {class: SpinLeftInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: 
         _name: 

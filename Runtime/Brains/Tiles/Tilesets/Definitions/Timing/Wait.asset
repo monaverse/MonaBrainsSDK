@@ -21,7 +21,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 3250164503775543343
-      type: {class: WaitInstructionTile, ns: Mona.Brains.Tiles.Actions.Timing, asm: com.monaverse.brains.runtime}
+      type: {class: WaitInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Timing, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: 
         _name: 

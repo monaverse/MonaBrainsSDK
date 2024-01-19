@@ -149,6 +149,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if (_state == null)
             {
                 _state = gameObject.AddComponent<MonaBrainValues>().State;
+                if (_defaultState == null)
+                    _defaultState = new MonaBrainState();
                 _state.Values = _defaultState.Values;
             }
         }
