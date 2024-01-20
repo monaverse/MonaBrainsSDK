@@ -25,6 +25,7 @@ namespace Mona.SDK.Brains.Core.State
             SetGameObject(gameObject);
         }
 
+        public void SetNetworkState(INetworkMonaState state) => _state.SetNetworkState(state);
         public List<IMonaStateValue> Values { get => _state.Values; set => _state.Values = value; }
 
         public void SetGameObject(GameObject gameObject) => _state.SetGameObject(gameObject);
