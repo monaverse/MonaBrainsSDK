@@ -2,6 +2,7 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Events;
+using Mona.SDK.Core.Network;
 using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -46,6 +47,14 @@ namespace Mona.SDK.Brains.Core.Brain
             EventBus.Register<MonaBrainSpawnedEvent>(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
             EventBus.Register<MonaBrainDestroyedEvent>(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
             EventBus.Register<MonaPlayerJoinedEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
+        }
+
+        private void Start()
+        {
+#if UNITY_EDITOR
+            IMonaNetworkSpawner mockSpawner = null;
+            EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT), new NetworkSpawnerStartedEvent(mockSpawner));
+#endif
         }
 
         private void OnDestroy()

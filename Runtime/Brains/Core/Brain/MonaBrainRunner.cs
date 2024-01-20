@@ -6,6 +6,7 @@ using Mona.SDK.Brains.Core.ScriptableObjects;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Core;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -20,6 +21,8 @@ namespace Mona.SDK.Brains.Core.Brain
         private List<IMonaBrain> _brainInstances = new List<IMonaBrain>();
         public List<IMonaBrain> BrainInstances => _brainInstances;
 
+        private IMonaBody _body;
+
         private bool _began;
         public bool Began => _began;
 
@@ -32,8 +35,18 @@ namespace Mona.SDK.Brains.Core.Brain
             return false;
         }
 
+        private Action<MonaStateAuthorityChangedEvent> OnStateAuthorityChanged;
+
         private void Awake()
         {
+            _body = GetComponent<IMonaBody>();
+            if (_body == null)
+                _body = gameObject.AddComponent<MonaBody>();
+            _body.OnStarted += HandleStarted;
+
+            OnStateAuthorityChanged = HandleStateAuthorityChanged;
+            EventBus.Register(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT), OnStateAuthorityChanged);
+
             PreloadBrains();
         }
 
@@ -52,19 +65,28 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
-        private void Start()
+        private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
+        {
+            if (evt.HasControl)
+                BeginBrains();
+        }
+
+        private void HandleStarted()
         {
             BeginBrains();
         }
 
         private void BeginBrains()
         {
-            _began = true;
-            if(_brainInstances.Count > 0)
-                Debug.Log($"{nameof(BeginBrains)}");
-            OnBegin?.Invoke(this);
-            for (var i = 0; i < _brainInstances.Count; i++)
-                _brainInstances[i].Begin();
+            if (!_began && _body.HasControl())
+            {
+                _began = true;
+                if (_brainInstances.Count > 0)
+                    Debug.Log($"{nameof(BeginBrains)}");
+                OnBegin?.Invoke(this);
+                for (var i = 0; i < _brainInstances.Count; i++)
+                    _brainInstances[i].Begin();
+            }
         }
 
         private void OnDestroy()

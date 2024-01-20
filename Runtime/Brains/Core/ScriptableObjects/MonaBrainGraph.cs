@@ -216,11 +216,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void ExecuteCorePageInstructions(InstructionEventTypes eventType)
         {
+            if (!_body.HasControl()) return;
             CorePage.ExecuteInstructions(eventType);
         }
 
         private void ExecuteStatePageInstructions(InstructionEventTypes eventType)
         {
+            if (!_body.HasControl()) return;
             for (var i = 0; i < StatePages.Count; i++)
             {
                 if (StatePages[i].Name == BrainState)
