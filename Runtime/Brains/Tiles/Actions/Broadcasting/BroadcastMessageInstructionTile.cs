@@ -22,7 +22,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
         protected void BroadcastMessage(IMonaBrain sender, string message, IMonaBrain target)
         {
-            Debug.Log($"{nameof(BroadcastMessage)} '{message}' to ({target.Name}) from ({sender.Name}) on frame {Time.frameCount}");
+            //Debug.Log($"{nameof(BroadcastMessage)} '{message}' to ({target.Name}) from ({sender.Name}) on frame {Time.frameCount}");
             EventBus.Trigger<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, target), new MonaBroadcastMessageEvent(message, sender, Time.frameCount));
         }
 

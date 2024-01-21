@@ -190,7 +190,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleBroadcastMessage(MonaBroadcastMessageEvent evt)
         {
-            Debug.Log($"{nameof(HandleBroadcastMessage)} '{evt.Message}' received by ({Name}) on frame {Time.frameCount}");
+            //Debug.Log($"{nameof(HandleBroadcastMessage)} '{evt.Message}' received by ({Name}) on frame {Time.frameCount}");
             if (!HasMessage(evt.Message))
                 _messages.Add(evt);
 

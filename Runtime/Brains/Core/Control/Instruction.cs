@@ -144,6 +144,10 @@ namespace Mona.SDK.Brains.Core.Control
         public void AddTile(IInstructionTile tile)
         {
             var instance = (IInstructionTile)Activator.CreateInstance(tile.TileType);
+            instance.Id = tile.Id;
+            instance.Name = tile.Name;
+            instance.Category = tile.Category;
+
             CopyBrainProperties(tile, instance);
 
             if(instance is IConditionInstructionTile)
@@ -190,6 +194,10 @@ namespace Mona.SDK.Brains.Core.Control
         public void ReplaceTile(int i, IInstructionTile tile)
         {
             var instance = (IInstructionTile)Activator.CreateInstance(tile.TileType);
+            instance.Id = tile.Id;
+            instance.Name = tile.Name;
+            instance.Category = tile.Category;
+
             CopyBrainProperties(InstructionTiles[i], instance);
             InstructionTiles[i] = instance;
         }
@@ -210,11 +218,6 @@ namespace Mona.SDK.Brains.Core.Control
                 var sourceProperty = source.GetType().GetProperty(property.Name);
                 property.SetValue(target, sourceProperty.GetValue(source));
             }
-
-            target.Id = source.Id;
-            target.Name = source.Name;
-            target.Category = source.Category;
-
         }
     }
 }

@@ -82,6 +82,11 @@ namespace Mona.SDK.Brains.UIElements
                     _instruction.MoveTileLeft(i);
                     RefreshInstructionTiles();
                 };
+                view.OnReplace += (i, tile) =>
+                {
+                    _instruction.ReplaceTile(i, tile);
+                    RefreshInstructionTiles();
+                };
                 view.SetInstructionTile(_brain, tile, i, _instruction.InstructionTiles.Count);
                 _scrollView.Add(view);
             }

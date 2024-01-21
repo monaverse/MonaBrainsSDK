@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 
 #if UNITY_EDITOR
 using UnityEditor.UIElements;
@@ -19,6 +20,8 @@ namespace Mona.SDK.Brains.UIElements
         public event Action<int> OnDelete;
         public event Action<int> OnLeft;
         public event Action<int> OnRight;
+        public event Action<int, IInstructionTile> OnReplace;
+
         public event Action OnHeight;
 
         private IMonaBrain _brain;
@@ -300,7 +303,7 @@ namespace Mona.SDK.Brains.UIElements
             {
                 var target = new TextField();
                 var value = (string)targetProperty.GetValue(_tile);
-                Debug.Log($"{nameof(AddTargetFieldIfExists)} {targetProperty.Name} {value}");
+                //Debug.Log($"{nameof(AddTargetFieldIfExists)} {targetProperty.Name} {value}");
                 target.style.width = 80;
                 target.style.flexDirection = FlexDirection.Column;
                 target.labelElement.style.color = Color.black;
@@ -364,7 +367,55 @@ namespace Mona.SDK.Brains.UIElements
             _toolbarMenu.menu.AppendSeparator();
 
             _toolbarMenu.menu.AppendAction(MonaBrainConstants.MENU_DELETE_TILE, (evt) => HandleDelete(tileIndex));
+
+            RefreshTileMenu();
 #endif
+        }
+
+        private bool AllowTile(IInstructionTile tile)
+        {
+            if (_tile is IConditionInstructionTile)
+                return tile is IConditionInstructionTile;
+            else if(_tile is IActionInstructionTile)
+                return tile is IActionInstructionTile;
+            return true;
+        }
+
+        private void RefreshTileMenu()
+        {
+            if (_brain.TileSet == null)
+            {
+                Debug.LogError($"Please assign a tile set to this brain");
+                return;
+            }
+#if UNITY_EDITOR
+            for (var i = 0; i < _brain.TileSet.ConditionTiles.Count; i++)
+            {
+                var def = _brain.TileSet.ConditionTiles[i];
+                CopyToTile(def);
+                if (AllowTile(def.Tile))
+                    _toolbarMenu.menu.AppendAction($"Replace Tile/{def.Category}/{def.Name}", (action) => HandleReplace(def.Tile));
+            }
+            for (var i = 0; i < _brain.TileSet.ActionTiles.Count; i++)
+            {
+                var def = _brain.TileSet.ActionTiles[i];
+                CopyToTile(def);
+                if (AllowTile(def.Tile))
+                    _toolbarMenu.menu.AppendAction($"Replace Tile/{def.Category}/{def.Name}", (action) => HandleReplace(def.Tile));
+            }
+#endif
+        }
+
+        private void HandleReplace(IInstructionTile tile)
+        {
+            OnReplace?.Invoke(_index, tile);
+        }
+
+        private void CopyToTile(IInstructionTileDefinition def)
+        {
+            def.Tile.Id = def.Id;
+            def.Tile.Name = def.Name;
+            def.Tile.Category = def.Category;
         }
 
         private void SetStyle(IInstructionTile tile)
