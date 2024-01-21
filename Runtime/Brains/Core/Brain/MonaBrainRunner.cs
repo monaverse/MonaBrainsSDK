@@ -39,15 +39,23 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void Awake()
         {
+            CacheComponents();
+            AddDelegates();
+            PreloadBrains();
+        }
+
+        private void CacheComponents()
+        {
             _body = GetComponent<IMonaBody>();
             if (_body == null)
                 _body = gameObject.AddComponent<MonaBody>();
             _body.OnStarted += HandleStarted;
+        }
 
+        private void AddDelegates()
+        {
             OnStateAuthorityChanged = HandleStateAuthorityChanged;
-            EventBus.Register(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT), OnStateAuthorityChanged);
-
-            PreloadBrains();
+            EventBus.Register(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _body), OnStateAuthorityChanged);
         }
 
         private void PreloadBrains()
@@ -91,7 +99,13 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void OnDestroy()
         {
+            RemoveDelegates();
             UnloadBrains();
+        }
+
+        private void RemoveDelegates()
+        {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _body), OnStateAuthorityChanged);
         }
 
         private void UnloadBrains()
