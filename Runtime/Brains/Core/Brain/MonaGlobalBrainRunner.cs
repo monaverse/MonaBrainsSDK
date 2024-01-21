@@ -51,7 +51,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void Start()
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !OLYMPIA
             IMonaNetworkSpawner mockSpawner = null;
             EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT), new NetworkSpawnerStartedEvent(mockSpawner));
 #endif
