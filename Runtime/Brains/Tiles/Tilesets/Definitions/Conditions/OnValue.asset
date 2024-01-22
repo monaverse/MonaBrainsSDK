@@ -16,16 +16,16 @@ MonoBehaviour:
     rid: 3250164566709764097
   _id: OnValue
   _name: OnValue
-  _category: Condition
+  _category: Condition/Value
   references:
     version: 2
     RefIds:
     - rid: 3250164566709764097
       type: {class: OnValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnValue
+        _name: OnValue
+        _category: Condition
         _valueName: 
         _operator: 0
         _amount: 0

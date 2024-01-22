@@ -5,5 +5,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Interfaces
 {
     public interface IOnValueChangedInstructionTile
     {
+        string ValueName { get; set; }
     }
 }

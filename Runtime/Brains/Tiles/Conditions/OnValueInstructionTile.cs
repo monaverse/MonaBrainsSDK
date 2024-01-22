@@ -15,7 +15,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     {
         public const string ID = "OnValue";
         public const string NAME = "OnValue";
-        public const string CATEGORY = "Condition";
+        public const string CATEGORY = "Condition/Value";
         public override Type TileType => typeof(OnValueInstructionTile);
 
         [SerializeField] private string _valueName;
