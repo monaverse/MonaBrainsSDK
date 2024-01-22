@@ -1,5 +1,6 @@
 ﻿using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace Mona.SDK.Brains.Core.Control
 
         List<IInstructionTile> InstructionTiles { get; }
         void Preload(IMonaBrain brain);
-        void Execute(InstructionEventTypes eventType);
+        void Execute(InstructionEventTypes eventType, IInstructionEvent evt);
         void AddTile(IInstructionTile tile);
         void ReplaceTile(int i, IInstructionTile tile);
         void DeleteTile(int i);

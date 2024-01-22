@@ -1,5 +1,6 @@
 ﻿using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
@@ -62,14 +63,14 @@ namespace Mona.SDK.Brains.Core.Control
             tile.SetThenCallback(callback);
         }
 
-        public void Execute(InstructionEventTypes eventType)
+        public void Execute(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
             if (IsRunning()) return;
 
             if (_instructionTiles.Count == 0)
                 return;
             
-            if (ExecuteFirstTile(eventType) == InstructionTileResult.Success)
+            if (ExecuteFirstTile(eventType, evt) == InstructionTileResult.Success)
             {
                 OnReset?.Invoke(this);
                 if (ExecuteRemainingConditionals() == InstructionTileResult.Success)
@@ -77,7 +78,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType)
+        private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
             var tile = InstructionTiles[0];
             if (tile is IConditionInstructionTile)
@@ -101,9 +102,18 @@ namespace Mona.SDK.Brains.Core.Control
                         if (tile is IInputInstructionTile)
                             return tile.Do();
                         break;
+                    case InstructionEventTypes.Trigger:
+                        if (tile is ITriggerInstructionTile && IsValidTriggerType((ITriggerInstructionTile)tile, (MonaTriggerEvent)evt))
+                            return tile.Do();
+                        break;
                 }
             }
             return InstructionTileResult.Failure;
+        }
+
+        private bool IsValidTriggerType(ITriggerInstructionTile tile, MonaTriggerEvent evt)
+        {
+            return tile.TriggerTypes.Contains(evt.Type);
         }
 
         private InstructionTileResult ExecuteRemainingConditionals()

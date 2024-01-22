@@ -103,6 +103,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private List<MonaBroadcastMessageEvent> _messages = new List<MonaBroadcastMessageEvent>();
 
+        private Action<MonaTriggerEvent> OnMonaTrigger;
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
         private Action<MonaBroadcastMessageEvent> OnBroadcastMessage;
         private Action<MonaHasInputTickEvent> OnInputTick;
@@ -164,6 +165,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void AddEventDelegates()
         {
+            OnMonaTrigger = HandleMonaTrigger;
+            EventBus.Register<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
+
             OnMonaValueChanged = HandleMonaValueChanged;
             EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
 
@@ -197,6 +201,12 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             ExecuteCorePageInstructions(InstructionEventTypes.Start);
             ExecuteStatePageInstructions(InstructionEventTypes.Start);
             _state.Set(MonaBrainConstants.ON_STARTING, false, false);
+        }
+
+        private void HandleMonaTrigger(MonaTriggerEvent evt)
+        {
+            ExecuteCorePageInstructions(InstructionEventTypes.Trigger, evt);
+            ExecuteStatePageInstructions(InstructionEventTypes.Trigger, evt);
         }
 
         private void HandleMonaValueChanged(MonaValueChangedEvent evt)
@@ -237,20 +247,20 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             _state.Set(MonaBrainConstants.ON_STARTING, false, false);
         }
 
-        private void ExecuteCorePageInstructions(InstructionEventTypes eventType)
+        private void ExecuteCorePageInstructions(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
             if (!_body.HasControl()) return;
-            CorePage.ExecuteInstructions(eventType);
+            CorePage.ExecuteInstructions(eventType, evt);
         }
 
-        private void ExecuteStatePageInstructions(InstructionEventTypes eventType)
+        private void ExecuteStatePageInstructions(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
             if (!_body.HasControl()) return;
             for (var i = 0; i < StatePages.Count; i++)
             {
                 if (StatePages[i].Name == BrainState)
                 {
-                    StatePages[i].ExecuteInstructions(eventType);
+                    StatePages[i].ExecuteInstructions(eventType, evt);
                     break;
                 }
             }

@@ -1,5 +1,10 @@
-﻿using Mona.SDK.Core.Body;
+﻿using Mona.SDK.Brains.Core;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Core.Body;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,6 +19,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         }
 
         private SphereCollider _collider;
+        private IMonaBrain _brain;
         private List<IMonaBody> _bodies = new List<IMonaBody>();
         private List<IMonaBody> _foundBodies = new List<IMonaBody>();
         private List<ForwardBodyStruct> _foundBodiesInFieldOfView = new List<ForwardBodyStruct>();
@@ -29,6 +35,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             if (_collider != null)
                 Destroy(_collider);
             _collider = null;
+        }
+
+        public void SetBrain(IMonaBrain brain)
+        {
+            _brain = brain;
         }
 
         public void SetRadius(float radius)
@@ -91,7 +102,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             var body = other.GetComponentInParent<IMonaBody>();
             if(body != null)
             {
-                AddBody(body);
+                AddBody(body); 
+                EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerEnter));
             }
         }
 
@@ -101,19 +113,20 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             if(body != null)
             {
                 RemoveBody(body);
+                EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerExit));
             }
         }
 
         private void AddBody(IMonaBody body)
         {
-            Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {body.LocalId}");
+            //Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {body.LocalId}");
             if (!_bodies.Contains(body))
                 _bodies.Add(body);
         }
 
         private void RemoveBody(IMonaBody body)
         {
-            Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.LocalId}");
+            //Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.LocalId}");
             if (_bodies.Contains(body))
                 _bodies.Remove(body);
         }

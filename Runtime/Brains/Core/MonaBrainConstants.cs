@@ -33,6 +33,7 @@
         public const string STATE_CHANGED_EVENT = "OnMonaStateChangedEvent";
         public const string STATE_AUTHORITY_CHANGED_EVENT = "OnMOnaStateAuthorityChangedEvent";
 
+        public const string TRIGGER_EVENT = "OnMonaTriggerEvent";
         public const string BROADCAST_MESSAGE_EVENT = "OnMonaBroadcastMessageEvent";
         public const string INPUT_TICK_EVENT = "OnMonaInputTickEvent";
 

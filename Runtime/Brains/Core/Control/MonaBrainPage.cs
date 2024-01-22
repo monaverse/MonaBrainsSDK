@@ -1,5 +1,6 @@
 ﻿using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Events;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,12 +38,12 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        public void ExecuteInstructions(InstructionEventTypes eventType)
+        public void ExecuteInstructions(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
             for (var i = 0; i < Instructions.Count;i++)
             {
                 var instruction = Instructions[i];
-                instruction.Execute(eventType);
+                instruction.Execute(eventType, evt);
             }
         }
 
