@@ -9,23 +9,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6893075175dc2d74c8449e02d768a18e, type: 3}
-  m_Name: OnCloseToTag
+  m_Script: {fileID: 11500000, guid: 0ae2f9ad3099a354e8710254c0f46d1b, type: 3}
+  m_Name: OnFar
   m_EditorClassIdentifier: 
   _tile:
-    rid: 3250164503775543316
-  _id: OnCloseToTag
-  _name: On Close To Tag
+    rid: 3250164585997533185
+  _id: OnFar
+  _name: On Far
   _category: Condition
   references:
     version: 2
     RefIds:
-    - rid: 3250164503775543316
-      type: {class: OnCloseToTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
+    - rid: 3250164585997533185
+      type: {class: OnFarInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: 
         _name: 
         _category: 
         _tag: 
         _distance: 2
-        _fieldOfView: 45
+        _distanceValueName: 

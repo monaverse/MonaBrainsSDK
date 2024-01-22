@@ -205,6 +205,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleMonaTrigger(MonaTriggerEvent evt)
         {
+            Debug.Log($"{nameof(HandleMonaTrigger)} {evt.Type}");
             ExecuteCorePageInstructions(InstructionEventTypes.Trigger, evt);
             ExecuteStatePageInstructions(InstructionEventTypes.Trigger, evt);
         }

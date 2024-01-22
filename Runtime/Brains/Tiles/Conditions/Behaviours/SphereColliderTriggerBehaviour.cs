@@ -20,8 +20,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private SphereCollider _collider;
         private IMonaBrain _brain;
+        private string _monaTag;
         private List<IMonaBody> _bodies = new List<IMonaBody>();
-        private List<IMonaBody> _foundBodies = new List<IMonaBody>();
         private List<ForwardBodyStruct> _foundBodiesInFieldOfView = new List<ForwardBodyStruct>();
 
         private void Awake()
@@ -42,6 +42,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             _brain = brain;
         }
 
+        public void SetMonaTag(string monaTag)
+        {
+            _monaTag = monaTag;
+        }
+
         public void SetRadius(float radius)
         {
             _collider.radius = radius;
@@ -57,32 +62,19 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             return null;
         }
 
-        public List<IMonaBody> FindBodiesWithMonaTag(string tag)
-        {
-            _foundBodies.Clear();
-            _foundBodies = new List<IMonaBody>();
-            for (var i = 0; i < _bodies.Count; i++)
-            {
-                if (_bodies[i].HasMonaTag(tag))
-                    _foundBodies.Add(_bodies[i]);
-            }
-            return _foundBodies;
-        }
-
         private List<ForwardBodyStruct> FindBodiesWithMonaTagInFieldOfView(string tag, float fieldOfView = 45f)
         {
             _foundBodiesInFieldOfView.Clear();
-            _foundBodies = FindBodiesWithMonaTag(tag);
             var dotValue = -1f + ((1f-Mathf.Abs(fieldOfView / 180f))*2f);
-            for(var i = 0;i < _foundBodies.Count; i++)
+            for(var i = 0;i < _bodies.Count; i++)
             {
-                var dir = (_foundBodies[i].GetPosition() - transform.position);
+                var dir = (_bodies[i].GetPosition() - transform.position);
                     dir.y = 0;
                 var fwd = transform.forward;
                     fwd.y = 0;
                 var dot = Vector3.Dot(dir.normalized, fwd.normalized);
                 if (dot > dotValue)
-                    _foundBodiesInFieldOfView.Add(new ForwardBodyStruct() { dot = dot, body = _foundBodies[i] });
+                    _foundBodiesInFieldOfView.Add(new ForwardBodyStruct() { dot = dot, body = _bodies[i] });
             }
             return _foundBodiesInFieldOfView;
         }
@@ -97,38 +89,72 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             return bodies[0].body;
         }
 
+        public IMonaBody FindClosestInRangeWithMonaTag(string tag)
+        {
+            return _bodies.Find(x => x.HasMonaTag(tag));
+        }
+
+        public IMonaBody FindClosestOutOfRangeWithMonaTag(string tag)
+        {
+            var bodies = MonaBody.FindByTag(tag);
+            IMonaBody closest = null;
+            float closestDistance = Mathf.Infinity;
+            for(var i = 0;i < bodies.Count;i++)
+            {
+                var pos = bodies[i].GetPosition();
+                var d = Vector3.Distance(pos, _brain.Body.GetPosition());
+                if (d > _collider.radius)
+                {
+                    if(d < closestDistance)
+                    {
+                        closest = bodies[i];
+                        closestDistance = d;
+                    }
+                }
+            }
+            return closest;
+        }
+
         private void OnTriggerEnter(Collider other)
         {
             var body = other.GetComponentInParent<IMonaBody>();
-            if(body != null)
+            if(body != null && body.HasMonaTag(_monaTag))
             {
-                AddBody(body); 
-                EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerEnter));
+                if(AddBody(body))
+                    EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerEnter));
             }
         }
 
         private void OnTriggerExit(Collider other)
         {
             var body = other.GetComponentInParent<IMonaBody>();
-            if(body != null)
+            if(body != null && body.HasMonaTag(_monaTag))
             {
-                RemoveBody(body);
-                EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerExit));
+                if(RemoveBody(body))
+                    EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerExit));
             }
         }
 
-        private void AddBody(IMonaBody body)
+        private bool AddBody(IMonaBody body)
         {
             //Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {body.LocalId}");
             if (!_bodies.Contains(body))
+            {
                 _bodies.Add(body);
+                return true;
+            }
+            return false;
         }
 
-        private void RemoveBody(IMonaBody body)
+        private bool RemoveBody(IMonaBody body)
         {
             //Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.LocalId}");
             if (_bodies.Contains(body))
+            {
                 _bodies.Remove(body);
+                return true;
+            }
+            return false;
         }
 
     }

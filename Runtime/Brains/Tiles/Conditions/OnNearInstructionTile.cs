@@ -11,12 +11,12 @@ using UnityEngine;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnCloseToTagInstructionTile : InstructionTile, ITriggerInstructionTile, IOnCloseToTagInstructionTile, IDisposable, IConditionInstructionTile
+    public class OnNearInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, IDisposable, IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile
     {
-        public const string ID = "OnCloseToTag";
-        public const string NAME = "On Close To Tag";
+        public const string ID = "OnNear";
+        public const string NAME = "On Near";
         public const string CATEGORY = "Condition";
-        public override Type TileType => typeof(OnCloseToTagInstructionTile);
+        public override Type TileType => typeof(OnNearInstructionTile);
 
         [SerializeField] private string _tag;
         [BrainPropertyMonaTag(true)] public string MonaTag { get => _tag; set => _tag = value; }
@@ -38,7 +38,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnTriggerEnter };
         public List<MonaTriggerType> TriggerTypes => _triggerTypes;
 
-        public OnCloseToTagInstructionTile() { }
+        public OnNearInstructionTile() { }
 
         public void Preload(IMonaBrain brainInstance)
         {
@@ -47,6 +47,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             {
                 _collider = _brain.GameObject.AddComponent<SphereColliderTriggerBehaviour>();
                 _collider.SetBrain(_brain);
+                _collider.SetMonaTag(_tag);
             }
         }
 
@@ -67,7 +68,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             var body = _collider.FindForwardMostBodyWithMonaTagInFieldOfView(_tag, _fieldOfView);
             if (body != null)
             {
-                Debug.Log($"{nameof(OnCloseToTagInstructionTile)}.{nameof(Do)} found: {body}");
+                //Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {body}");
                 _brain.State.Set(MonaBrainConstants.RESULT_TARGET, body);
                 return Complete(InstructionTileResult.Success);
             }
