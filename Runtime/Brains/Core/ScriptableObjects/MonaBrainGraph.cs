@@ -32,6 +32,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private GameObject _gameObject;
         public GameObject GameObject => _gameObject;
 
+        private IMonaBrainRunner _runner;
+
         private IMonaBody _body;
         public IMonaBody Body => _body;
 
@@ -134,16 +136,17 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             return new MonaBroadcastMessageEvent();
         }
 
-        public void Preload(GameObject gameObject)
+        public void Preload(GameObject gameObject, IMonaBrainRunner runner)
         {
-            CacheReferences(gameObject);
+            CacheReferences(gameObject, runner);
             PreloadPages();
             AddEventDelegates();
         }
 
-        private void CacheReferences(GameObject gameObject)
+        private void CacheReferences(GameObject gameObject, IMonaBrainRunner runner)
         {
             _gameObject = gameObject;
+            _runner = runner;
 
             _body = gameObject.GetComponent<IMonaBody>();
             if (_body == null)
@@ -209,10 +212,15 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if (!HasMessage(evt.Message))
                 _messages.Add(evt);
 
+            _runner.WaitFrame(ExecuteMessage, evt);
+        }
+
+        private void ExecuteMessage(IBrainMessageEvent evt)
+        { 
             ExecuteCorePageInstructions(InstructionEventTypes.Message);
             ExecuteStatePageInstructions(InstructionEventTypes.Message);
 
-            _messages.Remove(evt);
+            _messages.Remove((MonaBroadcastMessageEvent)evt);
         }
 
         private void HandleInputTick(MonaHasInputTickEvent evt)

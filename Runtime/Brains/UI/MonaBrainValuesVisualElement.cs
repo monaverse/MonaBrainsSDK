@@ -1,5 +1,7 @@
 ﻿using Mona.SDK.Core.State;
 using Mona.SDK.Core.State.Structs;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,6 +11,7 @@ namespace Mona.SDK.Brains.Core.State.UIElements
     {
         private IMonaBrainState _state;
         private ListView _list;
+        private Dictionary<IMonaStateValue, Action> _changeListeners = new Dictionary<IMonaStateValue, Action>();
 
         public MonaBrainValuesVisualElement()
         {
@@ -34,6 +37,20 @@ namespace Mona.SDK.Brains.Core.State.UIElements
             _list.showFoldoutHeader = false;
             _list.showAddRemoveFooter = true;
             _list.reorderable = false;
+            _list.bindItem += (elem, i) =>
+            {
+                var value = _state.Values[i];
+                _changeListeners[value] = () =>
+                {
+                    ((MonaBrainValuesItemVisualElement)elem).Refresh();
+                };
+                value.OnChange += _changeListeners[value];
+            };
+            _list.unbindItem += (elem, i) =>
+            {
+                var value = _state.Values[i];
+                value.OnChange -= _changeListeners[value];
+            };
             _list.itemsAdded += (items) =>
             {
                 foreach (var e in items)

@@ -8,6 +8,10 @@ namespace Mona.SDK.Brains.Core.State.Structs
     [Serializable]
     public class MonaStateBrain : IMonaStateValue, IMonaStateBrainValue
     {
+        public event Action OnChange = delegate { };
+
+        public void Change() => OnChange();
+
         [SerializeField]
         private string _name;
 

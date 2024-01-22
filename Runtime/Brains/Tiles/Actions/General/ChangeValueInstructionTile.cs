@@ -67,7 +67,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 ChangeVector2Value(state, _valueName, ((IMonaStateVector2Value)value).Value, _operator, _amount);
             else if (value is IMonaStateVector2Value)
                 ChangeVector3Value(state, _valueName, ((IMonaStateVector3Value)value).Value, _operator, _amount);
-            return false;
+            return true;
         }
 
         private void ChangeFloatValue(IMonaBrainState state, string name, float value, ValueChangeType op, float amount)

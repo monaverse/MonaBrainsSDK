@@ -72,8 +72,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
             _remaining -= deltaTime;
             if(_remaining <= 0)
             {
-                Complete(InstructionTileResult.Success, true);
                 _isRunning = false;
+                Complete(InstructionTileResult.Success, true);
             }
         }
 

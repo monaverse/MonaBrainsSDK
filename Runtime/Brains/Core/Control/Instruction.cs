@@ -220,7 +220,8 @@ namespace Mona.SDK.Brains.Core.Control
                         continue;
                 }
                 var sourceProperty = source.GetType().GetProperty(property.Name);
-                property.SetValue(target, sourceProperty.GetValue(source));
+                if(sourceProperty != null)
+                    property.SetValue(target, sourceProperty.GetValue(source));
             }
         }
     }

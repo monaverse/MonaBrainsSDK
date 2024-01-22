@@ -11,7 +11,7 @@ using Mona.SDK.Brains.Core.State;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnValueInstructionTile : InstructionTile, IOnValueInstructionTile, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile
+    public class OnValueInstructionTile : InstructionTile, IInstructionTileWithPreload, IOnValueInstructionTile, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile
     {
         public const string ID = "OnValue";
         public const string NAME = "OnValue";

@@ -7,6 +7,7 @@ using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core;
+using System.Collections;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -58,6 +59,17 @@ namespace Mona.SDK.Brains.Core.Brain
             EventBus.Register(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _body), OnStateAuthorityChanged);
         }
 
+        public void WaitFrame(Action<IBrainMessageEvent> callback, IBrainMessageEvent evt)
+        {
+            StartCoroutine(DoWaitFrame(callback, evt));
+        }
+
+        private IEnumerator DoWaitFrame(Action<IBrainMessageEvent> callback, IBrainMessageEvent evt)
+        { 
+            yield return null;
+            callback(evt);
+        }
+
         private void PreloadBrains()
         {
             for (var i = 0; i < _brainGraphs.Count; i++)
@@ -66,7 +78,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 var instance = (IMonaBrain)Instantiate(_brainGraphs[i]);
                 if (instance != null)
                 {
-                    instance.Preload(gameObject);
+                    instance.Preload(gameObject, this);
                     _brainInstances.Add(instance);
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT, new MonaBrainSpawnedEvent(instance)));
                 }

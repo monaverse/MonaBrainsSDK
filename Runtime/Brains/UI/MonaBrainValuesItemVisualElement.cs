@@ -9,7 +9,7 @@ namespace Mona.SDK.Brains.Core.State.UIElements
 {
     public class MonaBrainValuesItemVisualElement : MonaStateItemVisualElement
     {
-        protected override void Refresh()
+        public override void Refresh()
         {
             base.Refresh();
 
