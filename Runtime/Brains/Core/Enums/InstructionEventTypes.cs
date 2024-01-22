@@ -5,6 +5,7 @@
         Start=0,
         State=1,
         Message=2,
-        Input=3
+        Input=3,
+        Value=4
     }
 }

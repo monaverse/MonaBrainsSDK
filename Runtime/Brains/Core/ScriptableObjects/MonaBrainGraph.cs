@@ -9,6 +9,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core.Events;
+using Mona.SDK.Core;
 
 namespace Mona.SDK.Brains.Core.ScriptableObjects
 {
@@ -99,6 +101,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private List<MonaBroadcastMessageEvent> _messages = new List<MonaBroadcastMessageEvent>();
 
+        private Action<MonaValueChangedEvent> OnMonaValueChanged;
         private Action<MonaBroadcastMessageEvent> OnBroadcastMessage;
         private Action<MonaHasInputTickEvent> OnInputTick;
 
@@ -152,11 +155,15 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 if (_defaultState == null)
                     _defaultState = new MonaBrainState();
                 _state.Values = _defaultState.Values;
+                _state.SetGameObject(_gameObject, this);
             }
         }
 
         private void AddEventDelegates()
         {
+            OnMonaValueChanged = HandleMonaValueChanged;
+            EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
+
             OnBroadcastMessage = HandleBroadcastMessage;
             EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
 
@@ -166,6 +173,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void RemoveEventDelegates()
         {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
             EventBus.Unregister(new EventHook(MonaBrainConstants.INPUT_TICK_EVENT, this), OnInputTick);
 
@@ -186,6 +194,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             ExecuteCorePageInstructions(InstructionEventTypes.Start);
             ExecuteStatePageInstructions(InstructionEventTypes.Start);
             _state.Set(MonaBrainConstants.ON_STARTING, false, false);
+        }
+
+        private void HandleMonaValueChanged(MonaValueChangedEvent evt)
+        {
+            if (evt.Name == MonaBrainConstants.RESULT_STATE) return;
+            ExecuteCorePageInstructions(InstructionEventTypes.Value);
+            ExecuteStatePageInstructions(InstructionEventTypes.Value);
         }
 
         private void HandleBroadcastMessage(MonaBroadcastMessageEvent evt)

@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _version: 0.0.1
   _conditionTiles:
-  - {fileID: 11400000, guid: 028b38a447baf1844b7a3c16073c99ab, type: 2}
+  - {fileID: 11400000, guid: f99938dad8e48d54092793f99c79935d, type: 2}
+  - {fileID: 11400000, guid: bd4567cef507ddc42a90effa497218b3, type: 2}
   - {fileID: 11400000, guid: 37fd1936f082ca445bd7c6c25142aeec, type: 2}
+  - {fileID: 11400000, guid: 921de3dc5641c5c41bb74fa8f590059c, type: 2}
+  - {fileID: 11400000, guid: 028b38a447baf1844b7a3c16073c99ab, type: 2}
   - {fileID: 11400000, guid: 166585b58cc9fe8408fc2e00e02782c9, type: 2}
   - {fileID: 11400000, guid: 1ae9a947314852d4aa96387a1ca8f384, type: 2}
-  - {fileID: 11400000, guid: bd4567cef507ddc42a90effa497218b3, type: 2}
-  - {fileID: 11400000, guid: f99938dad8e48d54092793f99c79935d, type: 2}
   - {fileID: 11400000, guid: 6aa0b0b1c41708a449548387be63297a, type: 2}
   _actionTiles:
   - {fileID: 11400000, guid: 658d1cffaf122aa459d3dbf5257f40bf, type: 2}
@@ -28,6 +29,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3ba8bae5b4a929b4885bc01281b4cc6c, type: 2}
   - {fileID: 11400000, guid: cbf9488af21576a47a1dd60bf137617a, type: 2}
   - {fileID: 11400000, guid: f7cd32016e17e20459619049121c93e6, type: 2}
+  - {fileID: 11400000, guid: 17dd341a6d3920f4b8a201995f283d3a, type: 2}
   - {fileID: 11400000, guid: 0f4b03d009af3014baa958a6a7ff9474, type: 2}
   - {fileID: 11400000, guid: e99e72dcafae0744f945f102bef040ec, type: 2}
   - {fileID: 11400000, guid: 0a0e04e0ed70db545a5534d7567a6587, type: 2}

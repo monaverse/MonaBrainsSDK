@@ -93,6 +93,10 @@ namespace Mona.SDK.Brains.Core.Control
                         if (tile is IOnMessageInstructionTile)
                             return tile.Do();
                         break;
+                    case InstructionEventTypes.Value:
+                        if (tile is IOnValueChangedInstructionTile)
+                            return tile.Do();
+                        break;
                     case InstructionEventTypes.Input:
                         if (tile is IInputInstructionTile)
                             return tile.Do();

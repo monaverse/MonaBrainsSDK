@@ -27,7 +27,6 @@
         public const string STATE_PAGE_TICK_EVENT = "OnMonaStatePageTickEvent";
         public const string FIXED_TICK_EVENT = "OnMonaBodyFixedTickEvent";
 
-        public const string BRAIN_CHANGED_EVENT = "OnMonaBrainChangedEvent";
         public const string MONA_BRAINS_DO_EVENT = "OnMonaBrainsDoEvent";
         public const string MONA_BRAINS_THEN_EVENT = "OnMonaBrainsThenEvent";
 
@@ -45,6 +44,8 @@
         public const string NOTHING_CLOSE_BY = "Nothing Close By";
         public const string NO_INPUT = "No Input";
         public const string NO_MESSAGE = "No Message";
+        public const string INVALID_VALUE = "Value Invalid";
+        public const string NO_VALUE = "No Value by that Name";
         public const string NOT_STARTED = "Not Started";
 
         public const string TILE_MENU_LABEL = "...";

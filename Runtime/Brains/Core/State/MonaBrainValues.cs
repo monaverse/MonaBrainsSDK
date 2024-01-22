@@ -29,6 +29,7 @@ namespace Mona.SDK.Brains.Core.State
         public List<IMonaStateValue> Values { get => _state.Values; set => _state.Values = value; }
 
         public void SetGameObject(GameObject gameObject) => _state.SetGameObject(gameObject);
+        public void SetGameObject(GameObject gameObject, IMonaBrain brain) => _state.SetGameObject(gameObject, brain);
         public IMonaStateValue CreateValue(string variableName, Type type, int i) => _state.CreateValue(variableName, type, i);
         public IMonaBody GetBody(string variableName) => _state.GetBody(variableName);
         public IMonaBrain GetBrain(string variableName) => _state.GetBrain(variableName);
@@ -36,6 +37,7 @@ namespace Mona.SDK.Brains.Core.State
         public float GetFloat(string variableName) => _state.GetFloat(variableName);
         public int GetInt(string variableName) => _state.GetInt(variableName);
         public string GetString(string variableName) => _state.GetString(variableName);
+        public IMonaStateValue GetValue(string variableName) => _state.GetValue(variableName);
         public IMonaStateValue GetValue(string variableName, Type type) => _state.GetValue(variableName, type);
         public Vector2 GetVector2(string variableName) => _state.GetVector2(variableName);
         public Vector3 GetVector3(string variableName) => _state.GetVector3(variableName);

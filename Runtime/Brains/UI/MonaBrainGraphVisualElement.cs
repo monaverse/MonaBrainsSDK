@@ -264,6 +264,28 @@ namespace Mona.SDK.Brains.UIElements
 
         private void Refresh()
         {
+#if UNITY_EDITOR
+            if (_brain.TileSet == null || _brain.TileSet.ToString() == "null")
+            {
+                var versions = GetTileSets();
+                _brain.TileSet = versions[0];
+            }
+
+            if (_brain.MonaTagSource == null || _brain.MonaTagSource.ToString() == "null")
+            {
+                string[] guids = AssetDatabase.FindAssets("t:MonaTags", null);
+                foreach (string guid in guids)
+                {
+                    _brain.MonaTagSource = (MonaTags)AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guid), typeof(MonaTags));
+                    _monaTagsField.value = (MonaTags)_brain.MonaTagSource;
+                    break;
+                }
+            }
+
+            if (_brain.MonaTags.Count == 0)
+                _brain.MonaTags.Add(_brain.MonaTagSource.Tags[0]);
+#endif
+
             if (_brain.MonaTagSource == null || _brain.TileSet == null)
             {
                 _root.style.display = DisplayStyle.None;
@@ -329,30 +351,12 @@ namespace Mona.SDK.Brains.UIElements
             _name.value = _brain.Name;
             _property.value = (MonaBrainPropertyType)_brain.PropertyType;
 
-            if (_brain.MonaTagSource == null)
-            {
-#if UNITY_EDITOR
-                string[] guids = AssetDatabase.FindAssets("t:MonaTags", null);
-                foreach (string guid in guids)
-                {
-                    _brain.MonaTagSource = (MonaTags)AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guid), typeof(MonaTags));
-                    _monaTagsField.value = (MonaTags)_brain.MonaTagSource;
-                    break;
-                }
-#endif
-            }
-            
             var versions = GetTileSets();
             _tileSetField.choices = versions.ConvertAll<string>(x => x.Version);
             _tileSetField.choices.Insert(0, "Latest Version");
 
             _defaultStateVisualElement.SetState(_brain.DefaultState);
 
-            if (_brain.TileSet == null)
-                _brain.TileSet = versions[0];
-
-            if (_brain.MonaTags.Count == 0)
-                _brain.MonaTags.Add(_brain.MonaTagSource.Tags[0]);
             _monaTagListView.itemsSource = _brain.MonaTags;
             _monaTagListView.Q<Foldout>().value = false;
             _monaTagListView.Rebuild();

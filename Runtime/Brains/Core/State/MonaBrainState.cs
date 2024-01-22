@@ -5,13 +5,27 @@ using Mona.SDK.Core.State;
 using Unity.VisualScripting;
 using UnityEngine;
 using System;
+using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core;
+using Mona.SDK.Core.Events;
 
 namespace Mona.SDK.Brains.Core.State
 {
     [Serializable]
     public class MonaBrainState : MonaState, IMonaBrainState
     {
-        public MonaBrainState() : base() { }
+        private IMonaBrain _brain;
+
+        public MonaBrainState(GameObject gameObject = null, IMonaBrain brain = null) : base(gameObject)
+        {
+            _brain = brain;
+        }
+
+        public void SetGameObject(GameObject gameObject, IMonaBrain brain)
+        {
+            SetGameObject(gameObject);
+            _brain = brain;
+        }
 
         public void Set(string name, IMonaBrain value)
         {
@@ -20,7 +34,7 @@ namespace Mona.SDK.Brains.Core.State
             if (propValue.Value != value)
             {
                 propValue.Value = value;
-                FireBrainEvent(name, propValue.Value);
+                FireValueEvent(name, prop);
             }
         }
 
@@ -30,9 +44,10 @@ namespace Mona.SDK.Brains.Core.State
             return ((IMonaStateBrainValue)prop).Value;
         }
 
-        private void FireBrainEvent(string variableName, IMonaBrain value)
+        protected override void FireValueEvent(string variableName, IMonaStateValue value)
         {
-            EventBus.Trigger<MonaBrainChangedEvent>(new EventHook(MonaBrainConstants.BRAIN_CHANGED_EVENT, _monaBody), new MonaBrainChangedEvent(variableName, value));
+            base.FireValueEvent(variableName, value);
+            EventBus.Trigger<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain), new MonaValueChangedEvent(variableName, value));
         }
     }
 }
