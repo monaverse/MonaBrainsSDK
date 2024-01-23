@@ -17,7 +17,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     [Serializable]
     public class OnInputInstructionTile : InstructionTile, IOnInputInstructionTile, IDisposable, IConditionInstructionTile, IStartableInstructionTile, IInputInstructionTile
     {
-        public const string ID = "OnKeyDown";
+        public const string ID = "OnInput";
         public const string NAME = "On Input";
         public const string CATEGORY = "Condition/Input";
         public override Type TileType => typeof(OnInputInstructionTile);
