@@ -1,13 +1,12 @@
 using Mona.SDK.Brains.Core.Tiles;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Mona.SDK.Brains.Tiles.Conditions.Enums;
+using UnityEngine.InputSystem;
 
 namespace Mona.SDK.Brains.Tiles.Conditions.Interfaces
 {
     public interface IOnKeyInstructionTile : IInstructionTile
     {
-        KeyCode KeyCode { get; set; }
+        Key Key { get; set; }
+        MonaInputState InputState { get; set; }
     }
 }

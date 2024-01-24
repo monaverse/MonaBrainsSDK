@@ -83,10 +83,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private void ConfigureInput()
         {
-            _inputManager = _brain.GameObject.GetComponent<PlayerInput>();
-            if (_inputManager == null)
-                _inputManager = _brain.GameObject.AddComponent<PlayerInput>();
-
+            _inputManager = MonaGlobalBrainRunner.Instance.GetPlayerInput();
             _inputManager.onDeviceLost += OnDeviceLost;
             _inputManager.onDeviceRegained += OnDeviceRegained;
 

@@ -40,9 +40,15 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void Awake()
         {
+            EnsureGlobalRunnerExists();
             CacheComponents();
             AddDelegates();
             PreloadBrains();
+        }
+
+        private void EnsureGlobalRunnerExists()
+        {
+            MonaGlobalBrainRunner.Init();
         }
 
         private void CacheComponents()

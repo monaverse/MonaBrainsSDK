@@ -26,4 +26,5 @@ MonoBehaviour:
         _id: 
         _name: 
         _category: 
-        _keyCode: 0
+        _key: 1
+        _inputState: 2

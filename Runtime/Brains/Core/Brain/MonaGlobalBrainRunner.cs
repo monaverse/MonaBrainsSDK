@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -38,8 +39,45 @@ namespace Mona.SDK.Brains.Core.Brain
         public IMonaBody PlayerBody => _playerBody;
         public int PlayerId => _playerId;
 
+        private PlayerInput _playerInput;
+        public PlayerInput PlayerInput { get => _playerInput; set => _playerInput = value; }
+
+        private static MonaGlobalBrainRunner _instance;
+        public static MonaGlobalBrainRunner Instance {
+            get
+            {
+                Init();
+                return _instance;
+            }
+            private set
+            {
+                _instance = value;
+            }
+        }
+
+        public static void Init()
+        {
+            if (_instance == null)
+            {
+                var go = new GameObject();
+                _instance = go.AddComponent<MonaGlobalBrainRunner>();
+                go.name = nameof(MonaGlobalBrainRunner);
+                go.transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
+            }
+        }
+
+        public PlayerInput GetPlayerInput()
+        {
+            _playerInput = GetComponent<PlayerInput>();
+            if (_playerInput == null)
+                _playerInput = gameObject.AddComponent<PlayerInput>();
+            return _playerInput;
+        }
+
         private void Awake()
         {
+            Instance = this;
+
             OnBrainSpawned = HandleBrainSpawned;
             OnBrainDestroyed = HandleBrainDestroyed;
             OnMonaPlayerJoined = HandleMonaPlayerJoined;
