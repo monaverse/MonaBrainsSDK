@@ -173,6 +173,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             OnBroadcastMessage = HandleBroadcastMessage;
             EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
+            EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
 
             OnInputTick = HandleInputTick;
             EventBus.Register<MonaHasInputTickEvent>(new EventHook(MonaBrainConstants.INPUT_TICK_EVENT, this), OnInputTick);
@@ -183,6 +184,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             EventBus.Unregister(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
             EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
+            EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
             EventBus.Unregister(new EventHook(MonaBrainConstants.INPUT_TICK_EVENT, this), OnInputTick);
 
             OnInputTick = null;

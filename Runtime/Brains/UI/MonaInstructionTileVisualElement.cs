@@ -282,6 +282,20 @@ namespace Mona.SDK.Brains.UIElements
                     field.RegisterValueChangedCallback((evt) => property.SetValue(_tile, (Enum)evt.newValue));
                     container.Add(field);
                 }
+#if UNITY_EDITOR
+                else if (property.PropertyType == typeof(Color))
+                {
+                    var type = property.PropertyType;
+                    var field = new ColorField();
+                    field.style.width = 100;
+                    field.style.flexDirection = FlexDirection.Column;
+                    field.labelElement.style.color = Color.black;
+                    field.label = property.Name;
+                    field.value = (Color)property.GetValue(_tile);
+                    field.RegisterValueChangedCallback((evt) => property.SetValue(_tile, (Color)evt.newValue));
+                    container.Add(field);
+                }
+#endif
             }
         }
 

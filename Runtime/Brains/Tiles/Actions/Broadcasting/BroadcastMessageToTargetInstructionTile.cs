@@ -5,6 +5,9 @@ using System;
 using UnityEngine;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Tiles.Actions.Broadcasting.Interfaces;
+using Mona.SDK.Brains.Core.State.Structs;
+using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 {
@@ -33,10 +36,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
         public override InstructionTileResult Do()
         {
-            IMonaBrain targetBrain = _brain.State.GetBrain(_targetValue);
-            
-            if (targetBrain != null)
-                BroadcastMessage(_brain, _message, targetBrain);
+            var value = _brain.State.GetValue(_targetValue);
+            if (value is IMonaStateBrainValue)
+            {
+                IMonaBrain targetBrain = ((IMonaStateBrainValue)value).Value;
+                if (targetBrain != null)
+                    BroadcastMessage(_brain, _message, targetBrain);
+            }
+            else
+            {
+                IMonaBody targetBody = ((IMonaStateBodyValue)value).Value;
+                if (targetBody != null)
+                    BroadcastMessage(_brain, _message, targetBody);
+            }
 
             return Complete(InstructionTileResult.Success);
         }
