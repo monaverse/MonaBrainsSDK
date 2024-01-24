@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d87a0b8e421edfd43bb5142115f6492a, type: 3}
-  m_Name: Tileset.0.0.1
+  m_Name: Tileset.0.1.0
   m_EditorClassIdentifier: 
-  _version: 0.0.1
+  _version: 0.1.0
   _conditionTiles:
   - {fileID: 11400000, guid: f99938dad8e48d54092793f99c79935d, type: 2}
   - {fileID: 11400000, guid: bd4567cef507ddc42a90effa497218b3, type: 2}
