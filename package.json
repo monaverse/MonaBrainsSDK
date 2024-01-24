@@ -1,6 +1,6 @@
 {
     "name": "com.monaverse.brainssdk",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "displayName": "Mona Brains SDK",
     "description": "The Mona Brains SDK allows non-coders to build multi-player interactive games on the Mona web platform.",
     "unity": "2022.3",
