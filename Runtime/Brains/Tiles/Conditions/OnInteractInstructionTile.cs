@@ -22,7 +22,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public const string CATEGORY = "Condition/Input";
         public override Type TileType => typeof(OnInteractInstructionTile);
 
-        private IMonaBrain _brain;
+        protected IMonaBrain _brain;
 
         protected virtual MonaInputState _inputState { get => MonaInputState.Pressed; }
 
@@ -30,7 +30,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private Inputs _inputs;
         private Action<MonaTileTickEvent> OnTileTick;
 
-        private MonaInputState _currentInputState;
+        protected MonaInputState _currentInputState;
 
         public OnInteractInstructionTile() { }
 

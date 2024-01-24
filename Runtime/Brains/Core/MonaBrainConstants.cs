@@ -43,6 +43,7 @@
         public const string ERROR_MISSING_TARGET = "Cannot find Target";
         public const string NOTHING_IN_SIGHT = "Nothing in Sight";
         public const string NOTHING_CLOSE_BY = "Nothing Close By";
+        public const string NO_HIT = "No Hit";
         public const string NO_INPUT = "No Input";
         public const string NO_MESSAGE = "No Message";
         public const string INVALID_VALUE = "Value Invalid";

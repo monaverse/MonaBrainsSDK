@@ -14,6 +14,7 @@ namespace Mona.SDK.Brains.Core.Brain
     public interface IMonaBrainPlayer
     {
         public IMonaBody PlayerBody { get; }
+        public IMonaBody PlayerCamera { get; }
         public int PlayerId { get; }
     }
 
@@ -34,9 +35,11 @@ namespace Mona.SDK.Brains.Core.Brain
         private bool _playerJoined;
 
         private IMonaBody _playerBody;
+        private IMonaBody _playerCamera;
         private int _playerId;
 
         public IMonaBody PlayerBody => _playerBody;
+        public IMonaBody PlayerCamera => _playerCamera;
         public int PlayerId => _playerId;
 
         private PlayerInput _playerInput;
@@ -60,9 +63,10 @@ namespace Mona.SDK.Brains.Core.Brain
             if (_instance == null)
             {
                 var go = new GameObject();
-                _instance = go.AddComponent<MonaGlobalBrainRunner>();
+                var runner = go.AddComponent<MonaGlobalBrainRunner>();
                 go.name = nameof(MonaGlobalBrainRunner);
                 go.transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
+                runner.Awake();
             }
         }
 
@@ -74,17 +78,20 @@ namespace Mona.SDK.Brains.Core.Brain
             return _playerInput;
         }
 
-        private void Awake()
+        public void Awake()
         {
-            Instance = this;
+            if (_instance == null)
+            {
+                Instance = this;
 
-            OnBrainSpawned = HandleBrainSpawned;
-            OnBrainDestroyed = HandleBrainDestroyed;
-            OnMonaPlayerJoined = HandleMonaPlayerJoined;
+                OnBrainSpawned = HandleBrainSpawned;
+                OnBrainDestroyed = HandleBrainDestroyed;
+                OnMonaPlayerJoined = HandleMonaPlayerJoined;
 
-            EventBus.Register<MonaBrainSpawnedEvent>(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
-            EventBus.Register<MonaBrainDestroyedEvent>(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
-            EventBus.Register<MonaPlayerJoinedEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
+                EventBus.Register<MonaBrainSpawnedEvent>(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
+                EventBus.Register<MonaBrainDestroyedEvent>(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
+                EventBus.Register<MonaPlayerJoinedEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
+            }
         }
 
         private void Start()
@@ -122,7 +129,11 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             if (!evt.IsLocal) return;
             _playerBody = evt.PlayerBody;
+            _playerCamera = _playerBody.FindChildByTag(MonaCoreConstants.MONA_TAG_PLAYER_CAMERA);
             _playerId = evt.PlayerId;
+
+            for (var i = 0; i < _brains.Count; i++)
+                _brains[i].SetMonaBrainPlayer(this);
         }
 
         private void Update()

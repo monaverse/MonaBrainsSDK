@@ -86,7 +86,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 {
                     instance.Preload(gameObject, this);
                     _brainInstances.Add(instance);
-                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT, new MonaBrainSpawnedEvent(instance)));
+                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(instance));
                 }
             }
         }
@@ -131,7 +131,7 @@ namespace Mona.SDK.Brains.Core.Brain
             for (var i = 0; i < _brainInstances.Count; i++)
             {
                 var instance = _brainInstances[i];
-                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT, new MonaBrainDestroyedEvent(instance)));
+                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), new MonaBrainDestroyedEvent(instance));
                 instance.Unload();
             }
         }
