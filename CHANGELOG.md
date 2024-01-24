@@ -41,6 +41,7 @@ This first release of Mona Brains SDK establishes a foundation for defining and 
 - BroadcastMessageToTarget
 - VisualScripting
 - ChangeState
+- ChangeColor
 - ChangeValue
 - CopyResult
 - MoveFoward
