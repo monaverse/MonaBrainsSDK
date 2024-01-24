@@ -65,15 +65,21 @@ namespace Mona.SDK.Brains.Core.Brain
             EventBus.Register(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _body), OnStateAuthorityChanged);
         }
 
-        public void WaitFrame(Action<IBrainMessageEvent> callback, IBrainMessageEvent evt)
+        private Dictionary<Type, Coroutine> _coroutine = new Dictionary<Type, Coroutine>();
+        public void WaitFrame(Action<IInstructionEvent> callback, IInstructionEvent evt, Type type)
         {
-            StartCoroutine(DoWaitFrame(callback, evt));
+            if (!_coroutine.ContainsKey(type))
+                _coroutine.Add(type, null);
+
+            if (_coroutine[type] != null) return;
+            _coroutine[type] = StartCoroutine(DoWaitFrame(callback, evt, type));
         }
 
-        private IEnumerator DoWaitFrame(Action<IBrainMessageEvent> callback, IBrainMessageEvent evt)
+        private IEnumerator DoWaitFrame(Action<IInstructionEvent> callback, IInstructionEvent evt, Type type)
         { 
             yield return null;
             callback(evt);
+            _coroutine[type] = null;
         }
 
         private void PreloadBrains()

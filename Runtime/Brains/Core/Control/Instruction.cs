@@ -133,6 +133,7 @@ namespace Mona.SDK.Brains.Core.Control
         private void ExecuteActions()
         {
             _result = InstructionTileResult.Running;
+            if (_firstActionIndex == -1) return;
             var tile = InstructionTiles[_firstActionIndex];
             //Debug.Log($"{nameof(ExecuteActions)} starting");
             _result = ExecuteActionTile(tile);

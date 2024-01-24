@@ -2,9 +2,7 @@
 
 namespace Mona.SDK.Brains.Core.Events
 {
-    public interface IBrainMessageEvent { }
-
-    public struct MonaBroadcastMessageEvent : IBrainMessageEvent
+    public struct MonaBroadcastMessageEvent : IInstructionEvent
     {
         public string Message;
         public IMonaBrain Sender;

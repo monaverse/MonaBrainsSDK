@@ -34,7 +34,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public OnInteractInstructionTile() { }
 
-        public void Preload(IMonaBrain brainInstance)
+        public virtual void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
 

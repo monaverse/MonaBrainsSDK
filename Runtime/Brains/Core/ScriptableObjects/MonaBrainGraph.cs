@@ -194,6 +194,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             CorePage.Preload(this);
             for (var i = 0; i < StatePages.Count; i++)
                 StatePages[i].Preload(this);
+            if(StatePages.Count > 0)
+                BrainState = StatePages[0].Name;
         }
 
         public void Begin()
@@ -206,7 +208,19 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleMonaTrigger(MonaTriggerEvent evt)
         {
-            Debug.Log($"{nameof(HandleMonaTrigger)} {evt.Type}");
+            if (evt.Type == MonaTriggerType.OnFieldOfViewChanged)
+            {
+                _runner.WaitFrame(ExecuteTriggerEvent, evt, typeof(MonaTriggerEvent));
+            }
+            else
+            {
+                ExecuteCorePageInstructions(InstructionEventTypes.Trigger, evt);
+                ExecuteStatePageInstructions(InstructionEventTypes.Trigger, evt);
+            }
+        }
+
+        private void ExecuteTriggerEvent(IInstructionEvent evt)
+        {
             ExecuteCorePageInstructions(InstructionEventTypes.Trigger, evt);
             ExecuteStatePageInstructions(InstructionEventTypes.Trigger, evt);
         }
@@ -224,10 +238,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if (!HasMessage(evt.Message))
                 _messages.Add(evt);
 
-            _runner.WaitFrame(ExecuteMessage, evt);
+            _runner.WaitFrame(ExecuteMessage, evt, typeof(MonaBroadcastMessageEvent));
         }
 
-        private void ExecuteMessage(IBrainMessageEvent evt)
+        private void ExecuteMessage(IInstructionEvent evt)
         { 
             ExecuteCorePageInstructions(InstructionEventTypes.Message);
             ExecuteStatePageInstructions(InstructionEventTypes.Message);

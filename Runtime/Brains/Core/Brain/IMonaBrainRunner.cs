@@ -8,7 +8,7 @@ namespace Mona.SDK.Brains.Core.Brain
     public interface IMonaBrainRunner
     {
         event Action<IMonaBrainRunner> OnBegin;
-        void WaitFrame(Action<IBrainMessageEvent> callback, IBrainMessageEvent evt);
+        void WaitFrame(Action<IInstructionEvent> callback, IInstructionEvent evt, Type type);
 
         List<IMonaBrain> BrainInstances { get; }
     }

@@ -4,6 +4,7 @@ namespace Mona.SDK.Brains.Core.Enums
     {
         OnTriggerEnter=0,
         OnTriggerExit=1,
-        OnTriggerStay=2
+        OnTriggerStay=2,
+        OnFieldOfViewChanged=3,
     }
 }

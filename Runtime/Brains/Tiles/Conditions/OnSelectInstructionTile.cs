@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Brains.Core.Brain;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -24,6 +25,18 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyValueName("Distance")] public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
         
         protected override MonaInputState _inputState { get => MonaInputState.Pressed; }
+
+        public override void Preload(IMonaBrain brainInstance)
+        {
+            base.Preload(brainInstance);
+
+            var colliders = _brain.GameObject.GetComponentsInChildren<Collider>();
+            if (colliders.Length == 0)
+            {
+                _brain.GameObject.AddComponent<BoxCollider>();
+            }
+
+        }
 
         public override InstructionTileResult Do()
         {
