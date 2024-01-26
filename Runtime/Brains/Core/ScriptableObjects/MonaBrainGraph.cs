@@ -67,18 +67,18 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public void AddTag(string tag)
         {
-            if (!HasMonaTag(tag))
-                MonaTags.Add(tag);
             if (!_body.HasMonaTag(tag))
                 _body.MonaTags.Add(tag);
+            if (!HasMonaTag(tag))
+                MonaTags.Add(tag);
         }
 
         public void RemoveTag(string tag)
         {
-            if (HasMonaTag(tag))
-                MonaTags.Remove(tag);
             if (_body.HasMonaTag(tag))
                 _body.MonaTags.Remove(tag);
+            if (HasMonaTag(tag))
+                MonaTags.Remove(tag);
         }
 
         [SerializeField]
