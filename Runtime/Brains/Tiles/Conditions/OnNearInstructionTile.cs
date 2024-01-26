@@ -11,7 +11,7 @@ using UnityEngine;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnNearInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, IDisposable, IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile
+    public class OnNearInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile
     {
         public const string ID = "OnNear";
         public const string NAME = "On Near";
@@ -51,13 +51,19 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
         }
 
-        public void Dispose()
+        public override void Unload()
         {
-            GameObject.Destroy(_collider);
+            if (_collider != null)
+            {
+                _collider.Dispose();
+                GameObject.Destroy(_collider);
+            }
         }
 
         public override InstructionTileResult Do()
         {
+            if (_collider == null) return InstructionTileResult.Failure;
+
             if (!string.IsNullOrEmpty(_distanceValueName))
                 _distance = _brain.State.GetFloat(_distanceValueName);
 

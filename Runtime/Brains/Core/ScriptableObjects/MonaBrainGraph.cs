@@ -65,6 +65,22 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public bool HasMonaTag(string tag) => MonaTags.Contains(tag);
 
+        public void AddTag(string tag)
+        {
+            if (!HasMonaTag(tag))
+                MonaTags.Add(tag);
+            if (!_body.HasMonaTag(tag))
+                _body.MonaTags.Add(tag);
+        }
+
+        public void RemoveTag(string tag)
+        {
+            if (HasMonaTag(tag))
+                MonaTags.Remove(tag);
+            if (_body.HasMonaTag(tag))
+                _body.MonaTags.Remove(tag);
+        }
+
         [SerializeField]
         private MonaTags _monaTagSource;
         public IMonaTags MonaTagSource { get => _monaTagSource; set => _monaTagSource = (MonaTags)value; }
@@ -308,6 +324,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public void Unload()
         {
+            CorePage.Unload();
+            for (var i = 0; i < _statePages.Count; i++)
+                _statePages[i].Unload();
             RemoveEventDelegates();
         }
     }

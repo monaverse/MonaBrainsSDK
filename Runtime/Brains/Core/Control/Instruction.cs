@@ -31,6 +31,7 @@ namespace Mona.SDK.Brains.Core.Control
         public bool IsRunning() => _result == InstructionTileResult.Running;
 
         private int _firstActionIndex = -1;
+        private bool _unloaded;
 
         public Instruction()
         {
@@ -168,6 +169,7 @@ namespace Mona.SDK.Brains.Core.Control
 
         private InstructionTileResult ExecuteActionTile(IInstructionTile tile)
         {
+            if (_unloaded) return InstructionTileResult.Failure;
             if(tile == null)
             {
                 _result = InstructionTileResult.Success;
@@ -326,6 +328,13 @@ namespace Mona.SDK.Brains.Core.Control
                 if(sourceProperty != null)
                     property.SetValue(target, sourceProperty.GetValue(source));
             }
+        }
+
+        public void Unload()
+        {
+            _unloaded = true;
+            for (var i = 0; i < _instructionTiles.Count; i++)
+                _instructionTiles[i].Unload();
         }
     }
 }

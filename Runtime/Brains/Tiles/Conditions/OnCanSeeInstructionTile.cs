@@ -11,7 +11,7 @@ using UnityEngine;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnCanSeeInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, IDisposable, IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile
+    public class OnCanSeeInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile
     {
         public const string ID = "OnCanSee";
         public const string NAME = "On Can See";
@@ -52,9 +52,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
         }
 
-        public void Dispose()
+        public override void Unload()
         {
-            GameObject.Destroy(_collider);
+            if (_collider != null)
+            {
+                _collider.Dispose();
+                GameObject.Destroy(_collider);
+            }
         }
 
         public override InstructionTileResult Do()

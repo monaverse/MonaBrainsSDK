@@ -61,5 +61,7 @@ namespace Mona.SDK.Brains.Core.Tiles
         }
 
         public abstract InstructionTileResult Do();
+
+        public virtual void Unload() { }
     }
 }

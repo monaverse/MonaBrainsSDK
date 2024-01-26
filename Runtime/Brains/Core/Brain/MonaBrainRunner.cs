@@ -11,6 +11,7 @@ using System.Collections;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
+    [RequireComponent(typeof(MonaBody))]
     public partial class MonaBrainRunner : MonoBehaviour, IMonaBrainRunner, IMonaTagged
     {
         [Serializable]

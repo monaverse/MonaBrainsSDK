@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 {
-    public class SphereColliderTriggerBehaviour : MonoBehaviour
+    public class SphereColliderTriggerBehaviour : MonoBehaviour, IDisposable
     {
         private struct ForwardBodyStruct
         {
@@ -47,12 +47,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             EventBus.Register(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);
         }
 
-        private void OnDestroy()
+        public void Dispose()
         {
             if (_collider != null)
                 Destroy(_collider);
             _collider = null;
-
 
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);

@@ -36,6 +36,8 @@ namespace Mona.SDK.Brains.Core.Brain
         IMonaBrainState DefaultState { get; }
 
         List<string> MonaTags { get; }
+        void AddTag(string tag);
+        void RemoveTag(string tag);
 
         bool HasMessage(string message);
         void SetMonaBrainPlayer(IMonaBrainPlayer player);

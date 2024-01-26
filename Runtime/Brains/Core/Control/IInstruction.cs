@@ -27,5 +27,6 @@ namespace Mona.SDK.Brains.Core.Control
         void MoveTileLeft(int i);
         bool HasConditional();
         void Deselect();
+        void Unload();
     }
 }
