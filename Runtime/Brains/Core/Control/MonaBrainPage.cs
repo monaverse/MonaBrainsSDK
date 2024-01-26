@@ -3,6 +3,7 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Mona.SDK.Brains.Core.Control
@@ -18,6 +19,8 @@ namespace Mona.SDK.Brains.Core.Control
         private string _name;
 
         public string Name { get => _name; set => _name = value; }
+
+        public bool _hasTickInstruction = false;
 
         public MonaBrainPage()
         {
@@ -35,6 +38,8 @@ namespace Mona.SDK.Brains.Core.Control
             {
                 var instruction = Instructions[i];
                 instruction.Preload(brain);
+                if (!instruction.HasConditional())
+                    _hasTickInstruction = true;
             }
         }
 
@@ -44,6 +49,11 @@ namespace Mona.SDK.Brains.Core.Control
             {
                 var instruction = Instructions[i];
                 instruction.Execute(eventType, evt);
+            }
+
+            if(_hasTickInstruction)
+            {
+                EventBus.Trigger(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), new MonaTickEvent());
             }
         }
 

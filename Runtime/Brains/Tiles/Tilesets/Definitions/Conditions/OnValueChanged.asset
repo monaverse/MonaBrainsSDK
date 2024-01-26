@@ -15,15 +15,15 @@ MonoBehaviour:
   _tile:
     rid: 3250164566709764144
   _id: OnValueChanged
-  _name: OnValueChanged
-  _category: Condition/Value
+  _name: Value Changed
+  _category: Values
   references:
     version: 2
     RefIds:
     - rid: 3250164566709764144
       type: {class: OnValueChangedInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnValueChanged
+        _name: OnValueChanged
+        _category: Condition/Value
         _valueName: 

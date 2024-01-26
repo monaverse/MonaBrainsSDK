@@ -1,6 +1,7 @@
 ﻿using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Control;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,6 +9,9 @@ namespace Mona.SDK.Brains.UIElements
 {
     public class MonaBrainPageVisualElement : VisualElement, IDisposable
     {
+        public event Action<List<IInstruction>> OnSelectedInstructionsChanged = delegate { };
+        public event Action<IInstruction, int> OnTileIndexClicked = delegate { };
+
         private IMonaBrain _brain;
         private IMonaBrainPage _page;
 
@@ -25,9 +29,25 @@ namespace Mona.SDK.Brains.UIElements
             _instructionListView.showAddRemoveFooter = true;
             _instructionListView.reorderMode = ListViewReorderMode.Animated;
             _instructionListView.reorderable = true;
+            _instructionListView.selectionChanged += (items) =>
+            {
+                for (var i = 0; i < _page.Instructions.Count; i++)
+                    _page.Instructions[i].Deselect();
+                var list = new List<IInstruction>();
+                foreach (var e in items)
+                    list.Add((IInstruction)e);
+                OnSelectedInstructionsChanged(list);
+            };
+            _instructionListView.bindItem += (elem, i) =>
+            {
+                if (elem is MonaInstructionVisualElement)
+                    ((MonaInstructionVisualElement)elem).OnTileIndexClicked += HandleTileIndexClicked;
+            };
             _instructionListView.unbindItem += (elem, i) =>
             {
-                if(elem is MonaInstructionVisualElement)
+                if (elem is MonaInstructionVisualElement)
+                    ((MonaInstructionVisualElement)elem).OnTileIndexClicked -= HandleTileIndexClicked;
+                if (elem is MonaInstructionVisualElement)
                     ((MonaInstructionVisualElement)elem).ClearInstruction();
             };
             _instructionListView.itemsAdded += (items) =>
@@ -36,6 +56,12 @@ namespace Mona.SDK.Brains.UIElements
                     _page.Instructions[e] = new Instruction();
             };
             Add(_instructionListView);
+        }
+
+        private void HandleTileIndexClicked(IInstruction instruction, int i)
+        {
+            _instructionListView.selectedIndex = _page.Instructions.IndexOf(instruction);
+            OnTileIndexClicked(instruction, i);
         }
 
         public void Dispose()

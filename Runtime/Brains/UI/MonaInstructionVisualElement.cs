@@ -14,6 +14,8 @@ namespace Mona.SDK.Brains.UIElements
 {
     public class MonaInstructionVisualElement : VisualElement
     {
+        public event Action<IInstruction, int> OnTileIndexClicked = delegate { };
+
         private IMonaBrain _brain;
         private IInstruction _instruction;
 
@@ -22,6 +24,8 @@ namespace Mona.SDK.Brains.UIElements
 #if UNITY_EDITOR
         private ToolbarMenu _addTileMenu;
 #endif
+
+        private int _scrollToIndex;
 
         public MonaInstructionVisualElement()
         {
@@ -39,19 +43,25 @@ namespace Mona.SDK.Brains.UIElements
 #if UNITY_EDITOR
             _addTileMenu = new ToolbarMenu();
             _addTileMenu.text = "+ ";
-            Add(_addTileMenu);
+            //Add(_addTileMenu);
 #endif
         }
 
-        private void AddTile(IInstructionTile tile)
+        public void AddTile(IInstructionTile tile, int i)
         {
-            _instruction.AddTile(tile);
-            RefreshInstructionTiles();
+            _instruction.AddTile(tile, i);
             RefreshMenu();
         }
-
-        private void RefreshInstructionTiles()
+        
+        public void ClearBorders()
         {
+            for (var i = 0; i < _instruction.InstructionTiles.Count; i++)
+                ((MonaInstructionTileVisualElement)_scrollView.contentContainer.ElementAt(i)).SetBorder(2, Color.black);
+        }
+
+        private void RefreshInstructionTiles(int scrollIndex)
+        {
+            _scrollToIndex = scrollIndex;
             for (var i = _instruction.InstructionTiles.Count - 1; i >= 0; i--)
             {
                 if (_instruction.InstructionTiles[i] == null)
@@ -63,32 +73,38 @@ namespace Mona.SDK.Brains.UIElements
             {
                 var tile = _instruction.InstructionTiles[i];
                 var view = new MonaInstructionTileVisualElement();
+                view.OnClicked += (c) =>
+                {
+                    ClearBorders();
+                    OnTileIndexClicked(_instruction, c);
+                };
                 view.OnDelete += (i) =>
                 {
                     _instruction.DeleteTile(i);
-                    RefreshInstructionTiles();
                 };
                 view.OnRight += (i) =>
                 {
                     if (_instruction.InstructionTiles[i] is IConditionInstructionTile && _instruction.InstructionTiles[i - 1] is IActionInstructionTile)
                         return;
                     _instruction.MoveTileRight(i);
-                    RefreshInstructionTiles();
                 };
                 view.OnLeft += (i) =>
                 {
                     if (_instruction.InstructionTiles[i] is IActionInstructionTile && _instruction.InstructionTiles[i - 1] is IConditionInstructionTile)
                         return;
                     _instruction.MoveTileLeft(i);
-                    RefreshInstructionTiles();
                 };
                 view.OnReplace += (i, tile) =>
                 {
                     _instruction.ReplaceTile(i, tile);
-                    RefreshInstructionTiles();
                 };
                 view.SetInstructionTile(_brain, tile, i, _instruction.InstructionTiles.Count);
                 _scrollView.Add(view);
+                _scrollView.schedule.Execute(() =>
+                {
+                    if (_scrollView.contentContainer.childCount > _scrollToIndex)
+                        _scrollView.ScrollTo(_scrollView.contentContainer.ElementAt(_scrollToIndex));
+                }).ExecuteLater(100);
             }
         }
 
@@ -99,20 +115,34 @@ namespace Mona.SDK.Brains.UIElements
             _brain.OnMigrate += HandleMigrate;
 
             _instruction = instruction;
-            RefreshInstructionTiles();
+            _instruction.OnRefresh -= RefreshInstructionTiles;
+            _instruction.OnRefresh += RefreshInstructionTiles;
+
+            _instruction.OnDeselect -= HandleDeselect;
+            _instruction.OnDeselect += HandleDeselect;
+
+            RefreshInstructionTiles(0);
             RefreshMenu();
         }
 
         public void ClearInstruction()
         {
             //Debug.Log($"{nameof(MonaInstructionVisualElement)} ClearInstruction");
+            _instruction.OnRefresh -= RefreshInstructionTiles;
             _brain.OnMigrate -= HandleMigrate;
+            _instruction.OnDeselect -= HandleDeselect;
+        }
+
+        private void HandleDeselect()
+        {
+            for (var i = 0; i < _instruction.InstructionTiles.Count; i++)
+                ((MonaInstructionTileVisualElement)_scrollView.contentContainer.ElementAt(i)).SetBorder(2, Color.black);
         }
 
         private void HandleMigrate()
         {
             MigrateTiles();
-            RefreshMenu();
+            //RefreshMenu();
         }
 
         public void MigrateTiles()
@@ -132,10 +162,13 @@ namespace Mona.SDK.Brains.UIElements
 
         private bool AllowTile(IInstructionTile tile)
         {
+            return true;
+            /*
             if (_instruction.InstructionTiles.Count == 0)
                 return tile is IStartableInstructionTile;
             else
                 return true;
+            */
         }
 
         private void RefreshMenu() 
@@ -152,14 +185,14 @@ namespace Mona.SDK.Brains.UIElements
                 var def = _brain.TileSet.ConditionTiles[i];
                 CopyToTile(def);
                 if(AllowTile(def.Tile))
-                    _addTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => AddTile(def.Tile));
+                    _addTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => AddTile(def.Tile, -1));
             }
             for (var i = 0; i < _brain.TileSet.ActionTiles.Count; i++)
             {
                 var def = _brain.TileSet.ActionTiles[i];
                 CopyToTile(def);
                 if (AllowTile(def.Tile))
-                    _addTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => AddTile(def.Tile));
+                    _addTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => AddTile(def.Tile, -1));
             }
 #endif
         }

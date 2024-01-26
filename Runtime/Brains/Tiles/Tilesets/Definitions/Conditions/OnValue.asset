@@ -15,8 +15,8 @@ MonoBehaviour:
   _tile:
     rid: 3250164566709764097
   _id: OnValue
-  _name: OnValue
-  _category: Condition/Value
+  _name: Is Value
+  _category: Values
   references:
     version: 2
     RefIds:
@@ -25,7 +25,7 @@ MonoBehaviour:
       data:
         _id: OnValue
         _name: OnValue
-        _category: Condition
+        _category: Condition/Value
         _valueName: 
         _operator: 0
         _amount: 0

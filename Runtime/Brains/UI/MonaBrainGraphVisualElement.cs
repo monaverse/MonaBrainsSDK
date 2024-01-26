@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
+using Mona.SDK.Brains.Core.Tiles;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -28,7 +30,8 @@ namespace Mona.SDK.Brains.UIElements
         private IInstructionTileSet _tileSet;
         private IMonaTags _monaTags;
 
-        private VisualElement _root;
+        private ScrollView _leftColumn;
+        private VisualElement _rightColumn;
         private MonaBrainPageVisualElement _corePage;
         private VisualElement _tabToolbar;
         private VisualElement _tabs;
@@ -51,6 +54,11 @@ namespace Mona.SDK.Brains.UIElements
 #endif
 
         private MonaStateVisualElement _defaultStateVisualElement;
+
+        private ListView _tileListView;
+        private List<TileMenuItem> _tileSource = new List<TileMenuItem>();
+        private List<IInstruction> _selectedInstructions;
+        private int _selectedTileIndex = -1;
 
         private Foldout CreateHeading(string text)
         {
@@ -94,15 +102,21 @@ namespace Mona.SDK.Brains.UIElements
 
         public MonaBrainGraphVisualElement()
         {
-            _root = new VisualElement();
-            _root.style.flexDirection = FlexDirection.Column;
+            style.flexDirection = FlexDirection.Row;
+
+            _leftColumn = new ScrollView();
+            _leftColumn.style.flexDirection = FlexDirection.Column;
+            _leftColumn.style.flexGrow = 1;
+            _leftColumn.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+            _leftColumn.verticalScrollerVisibility = ScrollerVisibility.Auto;
+            Add(_leftColumn);
 
             _name = new TextField("Brain Name");
             _name.RegisterValueChangedCallback((evt) => _brain.Name = (string)evt.newValue);
-            _root.Add(_name);
+            _leftColumn.Add(_name);
             _property = new EnumField("Property", MonaBrainPropertyType.Default);
             _property.RegisterValueChangedCallback((evt) => _brain.PropertyType = (MonaBrainPropertyType)evt.newValue);
-            _root.Add(_property);
+            _leftColumn.Add(_property);
 
             _monaTagListView = new ListView(null, 120, () => new MonaTagReferenceVisualElement(_brain), (elem, i) => ((MonaTagReferenceVisualElement)elem).SetValue(i, _brain.MonaTags[i]));
             _monaTagListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
@@ -118,17 +132,19 @@ namespace Mona.SDK.Brains.UIElements
                     _brain.MonaTags[e] = _brain.MonaTagSource.Tags[0];
                 }
             };
-            _root.Add(_monaTagListView);
+            _leftColumn.Add(_monaTagListView);
 
             _corePageContainer = CreateHeading("Brain Core Page Instructions");
             _corePageContainer.value = true;
-            _root.Add(_corePageContainer);
+            _leftColumn.Add(_corePageContainer);
 
             _corePage = new MonaBrainPageVisualElement();
+            _corePage.OnSelectedInstructionsChanged += HandleSelectedInstructions;
+            _corePage.OnTileIndexClicked += HandleTileIndexClicked;
             _corePageContainer.Add(_corePage);
 
             _activePagesHeading = CreateHeading("All Brain State Pages");
-            _root.Add(_activePagesHeading);
+            _leftColumn.Add(_activePagesHeading);
 
             _tabToolbar = new VisualElement();
             _tabToolbar.style.width = Length.Percent(100);
@@ -195,11 +211,10 @@ namespace Mona.SDK.Brains.UIElements
                 DeleteStatePage();
             };
             _activePageContainer.Add(_btnDeletePage);
-            Add(_root);
 
 
             _defaultValuesHeading = CreateHeading("Brain Default Values");
-            _root.Add(_defaultValuesHeading);
+            _leftColumn.Add(_defaultValuesHeading);
 
             _defaultStateVisualElement = new MonaStateVisualElement();
             _defaultValuesHeading.Add(_defaultStateVisualElement);
@@ -230,10 +245,211 @@ namespace Mona.SDK.Brains.UIElements
                 Refresh();
             });
             _foldOut.Add(_monaTagsField);
-            Add(_foldOut);
+            _leftColumn.Add(_foldOut);
+#endif
+
+            _rightColumn = new VisualElement();
+            _rightColumn.style.width = 150;
+            _rightColumn.style.backgroundColor = Color.black;
+            Add(_rightColumn);
+
+            _tileListView = new ListView(null, 34, () => new TileMenuItemVisualElement(), (elem, i) =>
+            {
+                var item = (TileMenuItemVisualElement)elem;
+                item.SetItem(_tileSource[i]);
+                Debug.Log($"Bind: {i} {_tileSource[i]}");
+            });
+            _tileListView.selectionChanged += (items) =>
+            {
+                foreach(var item in items)
+                {
+                    var menuItem = (TileMenuItem)item;
+                    if (!menuItem.IsCategory)
+                        menuItem.Action();
+                }
+                _tileListView.selectedIndex = -1;
+            };
+            _tileListView.style.flexGrow = 1;
+            _rightColumn.Add(_tileListView);
+            //Add(_root);
+        }
+
+        public class TileMenuItem
+        {
+            public string Label;
+            public Action Action;
+            public bool IsCategory;
+            public bool IsHeader;
+            public bool IsCondition;
+            public override string ToString()
+            {
+                return Label;
+            }
+
+        }
+
+        public class TileMenuItemVisualElement : VisualElement
+        {
+            private TileMenuItem _item;
+            public TileMenuItem Item => _item;
+            private Label _label;
+
+            public TileMenuItemVisualElement()
+            {
+                style.flexDirection = FlexDirection.Row;
+                style.flexGrow = 1;
+                style.color = Color.HSVToRGB(.5f, .2f, .1f);
+                _label = new Label();
+                _label.style.flexWrap = Wrap.Wrap;
+                Add(_label);
+            }
+
+            private void SetRadius(float r) => _label.style.borderBottomLeftRadius = _label.style.borderBottomRightRadius = _label.style.borderTopLeftRadius = _label.style.borderTopRightRadius = r;
+
+            public void SetItem(TileMenuItem item)
+            {
+                _item = item;
+                _label.style.flexGrow = 1;
+                _label.style.unityFontStyleAndWeight = FontStyle.Normal;
+                _label.style.marginBottom = _label.style.marginLeft = _label.style.marginRight = 2;
+                _label.style.paddingLeft = 4;
+                _label.text = _item.Label;
+                _label.style.unityTextAlign = TextAnchor.MiddleLeft;
+                SetRadius(3);
+
+                if (_item.IsCondition)
+                {
+                    _label.style.backgroundColor = Color.HSVToRGB(.5f, .2f, .9f);
+                    _label.style.color = Color.HSVToRGB(.5f, .2f, .1f);
+                }
+                else
+                {
+                    _label.style.backgroundColor = Color.HSVToRGB(.4f, .2f, .9f);
+                    _label.style.color = Color.HSVToRGB(.4f, .2f, .1f);
+                }
+
+                if (_item.IsCategory)
+                {
+                    _label.style.unityTextAlign = TextAnchor.MiddleRight;
+                    _label.text = _item.Label.ToUpper();
+                    SetRadius(0);
+                    if (_item.IsHeader)
+                    {
+                        _label.style.backgroundColor = Color.HSVToRGB(.5f, 0f, .1f);
+                        _label.style.color = Color.HSVToRGB(1f, 0f, 1f);
+                        _label.style.unityFontStyleAndWeight = FontStyle.Bold;
+                    }
+                    else
+                    {
+                        if (_item.IsCondition)
+                        {
+                            _label.style.backgroundColor = Color.HSVToRGB(.5f, .1f, .3f);
+                            _label.style.color = Color.HSVToRGB(.5f, .2f, .5f);
+                        }
+                        else
+                        {
+                            _label.style.backgroundColor = Color.HSVToRGB(.4f, .1f, .3f);
+                            _label.style.color = Color.HSVToRGB(.4f, .2f, .5f);
+                        }
+
+                        _label.style.color = Color.HSVToRGB(1f, 0f, 1f);
+                        _label.style.unityFontStyleAndWeight = FontStyle.Bold;
+                    }
+                }
+            }
+        }
+
+        private void RefreshMenu()
+        {
+            if (_brain.TileSet == null)
+            {
+                Debug.LogError($"Please assign a tile set to this brain");
+                return;
+            }
+#if UNITY_EDITOR
+            _tileSource = new List<TileMenuItem>();
+            _tileSource.Add(new TileMenuItem() { Label = "WHEN TILES", IsCategory = true, IsHeader = true });
+            
+            string lastCategory = null;
+            var tiles = _brain.TileSet.ConditionTiles;
+            tiles.Sort((a, b) =>
+            {
+                if (a.Category.CompareTo(b.Category) == 0)
+                    return a.Name.CompareTo(b.Name);
+                else
+                    return a.Category.CompareTo(b.Category);
+            });
+
+            for (var i = 0; i < tiles.Count; i++)
+            {
+                var def = tiles[i];
+                CopyToTile(def);
+                if(def.Category != lastCategory)
+                {
+                    _tileSource.Add(new TileMenuItem() { Label = def.Category, IsCategory = true, IsCondition = true });
+                    lastCategory = def.Category;
+                }    
+                _tileSource.Add(new TileMenuItem() { Label = $"{def.Name}", IsCondition = true, Action = () => AddTileToSelectedInstructions(def.Tile) });
+            }
+            
+            _tileSource.Add(new TileMenuItem() { Label = "THEN DO TILES", IsCategory = true, IsHeader = true });
+
+            var tiles2 = _brain.TileSet.ActionTiles;
+            tiles2.Sort((a, b) =>
+            {
+                if (a.Category.CompareTo(b.Category) == 0)
+                    return a.Name.CompareTo(b.Name);
+                else
+                    return a.Category.CompareTo(b.Category);
+            });
+
+            lastCategory = null;
+            for (var i = 0; i < tiles2.Count; i++)
+            {
+                var def = tiles2[i];
+                CopyToTile(def);
+                if (def.Category != lastCategory)
+                {
+                    _tileSource.Add(new TileMenuItem() { Label = def.Category, IsCategory = true });
+                    lastCategory = def.Category;
+                }
+                _tileSource.Add(new TileMenuItem() { Label = $"{def.Name}", Action = () => AddTileToSelectedInstructions(def.Tile) });
+            }
+            _tileListView.itemsSource = _tileSource;
+            _tileListView.RefreshItems();
 #endif
         }
 
+        private void AddTileToSelectedInstructions(IInstructionTile tile)
+        {
+            if (_selectedInstructions != null && _selectedInstructions.Count > 0)
+            {
+                for (var i = 0; i < _selectedInstructions.Count; i++)
+                    _selectedInstructions[i].AddTile(tile, _selectedTileIndex);
+                _selectedTileIndex = -1;
+            }
+        }
+
+        private void HandleSelectedInstructions(List<IInstruction> instructions)
+        {
+            _selectedInstructions = instructions;
+            _selectedTileIndex = -1;
+            Debug.Log($"selected instructions {instructions.Count}");
+        }
+
+        private void HandleTileIndexClicked(IInstruction instruction, int i)
+        {
+            _selectedInstructions = new List<IInstruction>() { instruction };
+            _selectedTileIndex = i;
+            Debug.Log($"Clicked tile {i}");
+        }
+
+        private void CopyToTile(IInstructionTileDefinition def)
+        {
+            def.Tile.Id = def.Id;
+            def.Tile.Name = def.Name;
+            def.Tile.Category = def.Category;
+        }
         public void Dispose()
         {
             _corePage.Dispose();
@@ -288,7 +504,7 @@ namespace Mona.SDK.Brains.UIElements
 
             if (_brain.MonaTagSource == null || _brain.TileSet == null)
             {
-                _root.style.display = DisplayStyle.None;
+                _leftColumn.style.display = DisplayStyle.None;
                 _foldOut.value = true;
                 return;
             }
@@ -298,7 +514,7 @@ namespace Mona.SDK.Brains.UIElements
 #endif
             _tileSetField.value = ((InstructionTileSet)_brain.TileSet) != null ? ((InstructionTileSet)_brain.TileSet).Version : "Select a Tileset";
 
-            _root.style.display = DisplayStyle.Flex;
+            _leftColumn.style.display = DisplayStyle.Flex;
             _corePage.SetPage(_brain, _brain.CorePage);
 
             _tabs.Clear();
@@ -363,6 +579,7 @@ namespace Mona.SDK.Brains.UIElements
 
 
             Refresh();
+            RefreshMenu();
         }
 
         private List<InstructionTileSet> GetTileSets()

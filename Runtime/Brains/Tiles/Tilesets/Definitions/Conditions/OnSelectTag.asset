@@ -15,17 +15,17 @@ MonoBehaviour:
   _tile:
     rid: 3250164610271543365
   _id: OnSelectTag
-  _name: On Select Tag
-  _category: Condition/Input
+  _name: Select Tag
+  _category: Input
   references:
     version: 2
     RefIds:
     - rid: 3250164610271543365
       type: {class: OnSelectTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnSelectTag
+        _name: On Select Tag
+        _category: Condition/Input
         _monaTag: 
         _distance: 100
         _distanceValueName: 

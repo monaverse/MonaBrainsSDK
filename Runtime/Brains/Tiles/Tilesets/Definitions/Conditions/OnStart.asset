@@ -15,14 +15,14 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543321
   _id: OnStart
-  _name: On Start
-  _category: Condition
+  _name: Start
+  _category: General
   references:
     version: 2
     RefIds:
     - rid: 3250164503775543321
       type: {class: OnStartInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnStart
+        _name: On Start
+        _category: Condition

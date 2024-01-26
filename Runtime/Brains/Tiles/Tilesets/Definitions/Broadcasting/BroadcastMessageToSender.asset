@@ -15,8 +15,8 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543313
   _id: BroadcastMessageToSender
-  _name: "Broadcast Message\n To Sender"
-  _category: Broadcasting
+  _name: Message Sender
+  _category: Messaging
   references:
     version: 2
     RefIds:
@@ -25,5 +25,5 @@ MonoBehaviour:
       data:
         _id: BroadcastMessageToSender
         _name: "Broadcast Message\n To Sender"
-        _category: Action/Broadcasting
+        _category: Broadcasting
         _message: 

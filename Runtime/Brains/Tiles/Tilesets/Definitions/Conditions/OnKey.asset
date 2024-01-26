@@ -15,16 +15,16 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543318
   _id: OnKey
-  _name: On Key
-  _category: Condition/Input
+  _name: Keyboard
+  _category: Input
   references:
     version: 2
     RefIds:
     - rid: 3250164503775543318
       type: {class: OnKeyInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnKey
+        _name: On Key
+        _category: Condition/Input
         _key: 1
         _inputState: 2

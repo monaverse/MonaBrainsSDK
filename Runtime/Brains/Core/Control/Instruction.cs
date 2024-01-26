@@ -14,6 +14,8 @@ namespace Mona.SDK.Brains.Core.Control
     public class Instruction : IInstruction
     {
         public event Action<IInstruction> OnReset = delegate { };
+        public event Action<int> OnRefresh = delegate { };
+        public event Action OnDeselect = delegate { };
 
         [SerializeReference]
         private List<IInstructionTile> _instructionTiles = new List<IInstructionTile>();
@@ -25,10 +27,15 @@ namespace Mona.SDK.Brains.Core.Control
 
         public bool IsRunning() => _result == InstructionTileResult.Running;
 
-        private int _firstActionIndex = 0;
+        private int _firstActionIndex = -1;
 
         public Instruction()
         {
+        }
+
+        public void Deselect()
+        {
+            OnDeselect?.Invoke();
         }
 
         public void Preload(IMonaBrain brain)
@@ -50,6 +57,16 @@ namespace Mona.SDK.Brains.Core.Control
                 if (i < InstructionTiles.Count - 1)
                     tile.NextExecutionTile = InstructionTiles[i + 1];
             } 
+        }
+
+        public bool HasConditional()
+        {
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                if (InstructionTiles[i] is IConditionInstructionTile)
+                    return true;
+            }
+            return false;
         }
 
         private void PreloadActionTile(IInstructionTile tile)
@@ -106,6 +123,10 @@ namespace Mona.SDK.Brains.Core.Control
                         if (tile is ITriggerInstructionTile && IsValidTriggerType((ITriggerInstructionTile)tile, (MonaTriggerEvent)evt))
                             return tile.Do();
                         break;
+                    case InstructionEventTypes.Tick:
+                        if (tile is IActionInstructionTile)
+                            return tile.Do();
+                        break;
                 }
             }
             return InstructionTileResult.Failure;
@@ -156,7 +177,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        public void AddTile(IInstructionTile tile)
+        public void AddTile(IInstructionTile tile, int i)
         {
             var instance = (IInstructionTile)Activator.CreateInstance(tile.TileType);
             instance.Id = tile.Id;
@@ -171,17 +192,45 @@ namespace Mona.SDK.Brains.Core.Control
                 if(idx > -1)
                 {
                     InstructionTiles.Insert(idx+1, instance);
+                    OnRefresh(idx+1);
+                    return;
+                }
+                else
+                {
+                    InstructionTiles.Insert(0, instance);
+                    OnRefresh(0);
                     return;
                 }
             }
 
-            InstructionTiles.Add(instance);
+            if (i == -1)
+            {
+                InstructionTiles.Add(instance);
+                OnRefresh(InstructionTiles.Count - 1);
+            }
+            else
+            {
+                if (i < InstructionTiles.Count && InstructionTiles[i] is IConditionInstructionTile && instance is IActionInstructionTile)
+                {
+                    var actionIndex = InstructionTiles.FindIndex(x => x is IActionInstructionTile);
+                    InstructionTiles.Insert(actionIndex > -1 ? actionIndex : i+1, instance);
+                    OnRefresh(i);
+                }
+                else
+                {
+                    InstructionTiles.Insert(i, instance);
+                    OnRefresh(i);
+                }
+            }
         }
 
         public void DeleteTile(int i)
         {
             if (i >= 0 && i < InstructionTiles.Count)
+            {
                 InstructionTiles.RemoveAt(i);
+                OnRefresh(Mathf.Min(i, InstructionTiles.Count-1));
+            }
         }
 
         public void MoveTileRight(int sourceIndex)
@@ -191,7 +240,9 @@ namespace Mona.SDK.Brains.Core.Control
                 var targetTile = InstructionTiles[sourceIndex + 1];
                 var sourceTile = InstructionTiles[sourceIndex];
                 InstructionTiles.RemoveAt(sourceIndex);
-                InstructionTiles.Insert(InstructionTiles.IndexOf(targetTile)+1, sourceTile);
+                int i = InstructionTiles.IndexOf(targetTile) + 1;
+                InstructionTiles.Insert(i, sourceTile);
+                OnRefresh(i);
             }
         }
 
@@ -202,7 +253,9 @@ namespace Mona.SDK.Brains.Core.Control
                 var targetTile = InstructionTiles[sourceIndex - 1];
                 var sourceTile = InstructionTiles[sourceIndex];
                 InstructionTiles.RemoveAt(sourceIndex);
-                InstructionTiles.Insert(InstructionTiles.IndexOf(targetTile), sourceTile);
+                var i = InstructionTiles.IndexOf(targetTile);
+                InstructionTiles.Insert(i, sourceTile);
+                OnRefresh(i);
             }
         }
 
@@ -215,6 +268,7 @@ namespace Mona.SDK.Brains.Core.Control
 
             CopyBrainProperties(InstructionTiles[i], instance);
             InstructionTiles[i] = instance;
+            OnRefresh(i);
         }
 
         private void CopyBrainProperties(IInstructionTile source, IInstructionTile target)

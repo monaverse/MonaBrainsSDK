@@ -17,6 +17,7 @@ namespace Mona.SDK.Brains.UIElements
 {
     public class MonaInstructionTileVisualElement : VisualElement
     {
+        public event Action<int> OnClicked;
         public event Action<int> OnDelete;
         public event Action<int> OnLeft;
         public event Action<int> OnRight;
@@ -41,6 +42,7 @@ namespace Mona.SDK.Brains.UIElements
         private bool _extended;
 
         private ListView _instructionListView;
+        private IManipulator _click;
 
         public MonaInstructionTileVisualElement()
         {
@@ -108,6 +110,18 @@ namespace Mona.SDK.Brains.UIElements
 
         }
 
+        public void SetBorder(int i, Color c)
+        {
+            style.borderBottomWidth = style.borderTopWidth = style.borderLeftWidth = style.borderRightWidth = i;
+            style.borderBottomColor = style.borderTopColor = style.borderLeftColor = style.borderRightColor = c;
+        }
+
+        private void HandleClick(int i)
+        {
+            OnClicked?.Invoke(i);
+            SetBorder(2, Color.white);
+        }
+
         private void HandleLeft(int i)
         {
             OnLeft?.Invoke(i);
@@ -141,6 +155,12 @@ namespace Mona.SDK.Brains.UIElements
             _brain = brain;
             _tile = tile;
             _index = tileIndex;
+
+            if (_click != null)
+                this.RemoveManipulator(_click);
+
+            _click = new Clickable(evt => HandleClick(tileIndex));
+            this.AddManipulator(_click);
 
             if (_tile == null) return;
 
@@ -438,8 +458,7 @@ namespace Mona.SDK.Brains.UIElements
             style.minWidth = 100;
             style.minHeight = 120;
             style.borderBottomLeftRadius = style.borderBottomRightRadius = style.borderTopLeftRadius = style.borderTopRightRadius = 5;
-            style.borderBottomWidth = style.borderTopWidth = style.borderLeftWidth = style.borderRightWidth = 2;
-            style.borderBottomColor = style.borderTopColor = style.borderLeftColor = style.borderRightColor = Color.black;
+            SetBorder(2, Color.black);
             style.paddingRight = style.paddingLeft = 5;
             style.paddingTop = style.paddingBottom = 5;
 

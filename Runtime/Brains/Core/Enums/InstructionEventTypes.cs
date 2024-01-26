@@ -7,6 +7,7 @@
         Message=2,
         Input=3,
         Value=4,
-        Trigger=5
+        Trigger=5,
+        Tick=6,
     }
 }

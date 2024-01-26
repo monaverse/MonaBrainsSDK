@@ -15,16 +15,16 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543314
   _id: BroadcastMessageToTag
-  _name: "Broadcast Message\n To Tag"
-  _category: Broadcasting
+  _name: Message Tag
+  _category: Messaging
   references:
     version: 2
     RefIds:
     - rid: 3250164503775543314
       type: {class: BroadcastMessageToTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Broadcasting, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: BroadcastMessageToTag
+        _name: "Broadcast Message\n To Tag"
+        _category: Broadcasting
         _message: 
         _Tag: 

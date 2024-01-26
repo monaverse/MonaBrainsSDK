@@ -11,14 +11,18 @@ namespace Mona.SDK.Brains.Core.Control
     public interface IInstruction
     {
         event Action<IInstruction> OnReset;
+        event Action<int> OnRefresh;
+        event Action OnDeselect;
 
         List<IInstructionTile> InstructionTiles { get; }
         void Preload(IMonaBrain brain);
         void Execute(InstructionEventTypes eventType, IInstructionEvent evt);
-        void AddTile(IInstructionTile tile);
+        void AddTile(IInstructionTile tile, int i);
         void ReplaceTile(int i, IInstructionTile tile);
         void DeleteTile(int i);
         void MoveTileRight(int i);
         void MoveTileLeft(int i);
+        bool HasConditional();
+        void Deselect();
     }
 }

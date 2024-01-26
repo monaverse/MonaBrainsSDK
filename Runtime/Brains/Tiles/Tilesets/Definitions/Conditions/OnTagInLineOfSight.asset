@@ -15,10 +15,8 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543322
   _id: OnTagInLineOfSight
-  _name: 'On Tag In
-
-    Line Of Sight'
-  _category: Condition
+  _name: Tag In Line Of Sight
+  _category: Vision
   references:
     version: 2
     RefIds:

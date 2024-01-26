@@ -103,6 +103,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private List<MonaBroadcastMessageEvent> _messages = new List<MonaBroadcastMessageEvent>();
 
+        private Action<MonaTickEvent> OnMonaTick;
         private Action<MonaTriggerEvent> OnMonaTrigger;
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
         private Action<MonaBroadcastMessageEvent> OnBroadcastMessage;
@@ -165,6 +166,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void AddEventDelegates()
         {
+            OnMonaTick = HandleMonaTick;
+            EventBus.Register<MonaTickEvent>(new EventHook(MonaBrainConstants.TICK_EVENT, this), OnMonaTick);
+
             OnMonaTrigger = HandleMonaTrigger;
             EventBus.Register<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
 
@@ -181,10 +185,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void RemoveEventDelegates()
         {
+            EventBus.Unregister(new EventHook(MonaBrainConstants.TICK_EVENT, this), OnMonaTick);
             EventBus.Unregister(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
             EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
+
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
+
             EventBus.Unregister(new EventHook(MonaBrainConstants.INPUT_TICK_EVENT, this), OnInputTick);
 
             OnInputTick = null;
@@ -206,6 +213,17 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             ExecuteCorePageInstructions(InstructionEventTypes.Start);
             ExecuteStatePageInstructions(InstructionEventTypes.Start);
             _state.Set(MonaBrainConstants.ON_STARTING, false, false);
+        }
+
+        private void HandleMonaTick(MonaTickEvent evt)
+        {
+            _runner.WaitFrame(ExecuteTickEvent, evt, typeof(MonaTickEvent));
+        }
+
+        private void ExecuteTickEvent(IInstructionEvent evt)
+        { 
+            ExecuteCorePageInstructions(InstructionEventTypes.Tick);
+            ExecuteStatePageInstructions(InstructionEventTypes.Tick);
         }
 
         private void HandleMonaTrigger(MonaTriggerEvent evt)

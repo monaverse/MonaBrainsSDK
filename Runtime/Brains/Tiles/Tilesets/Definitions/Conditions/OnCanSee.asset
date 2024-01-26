@@ -15,17 +15,17 @@ MonoBehaviour:
   _tile:
     rid: 3250164610271543382
   _id: OnCanSee
-  _name: On Can See
-  _category: Condition
+  _name: Can See
+  _category: Vision
   references:
     version: 2
     RefIds:
     - rid: 3250164610271543382
       type: {class: OnCanSeeInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnCanSee
+        _name: On Can See
+        _category: Condition
         _tag: 
         _fieldOfView: 45
         _fieldOfViewValueName: 
