@@ -36,7 +36,12 @@ namespace Mona.SDK.Brains.UIElements
 
         public MonaInstructionVisualElement()
         {
-            _click = new Clickable(() => HandleDeselect());
+            _click = new Clickable(() =>
+            {
+                HandleDeselect();
+                OnTileIndexClicked(_instruction, -1);
+            });
+
             this.AddManipulator(_click);
 
             style.flexDirection = FlexDirection.Row;
