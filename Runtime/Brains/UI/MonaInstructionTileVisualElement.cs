@@ -17,7 +17,7 @@ namespace Mona.SDK.Brains.UIElements
 {
     public class MonaInstructionTileVisualElement : VisualElement
     {
-        public event Action<int> OnClicked;
+        public event Action<int, bool> OnClicked;
         public event Action<int> OnDelete;
         public event Action<int> OnLeft;
         public event Action<int> OnRight;
@@ -36,6 +36,7 @@ namespace Mona.SDK.Brains.UIElements
         private ScrollView _valuesExtended;
 
         private Label _label;
+        private Label _labelMore;
 #if UNITY_EDITOR
         private ToolbarMenu _toolbarMenu;
 #endif
@@ -43,6 +44,7 @@ namespace Mona.SDK.Brains.UIElements
 
         private ListView _instructionListView;
         private IManipulator _click;
+        private IManipulator _clickLabel;
 
         public MonaInstructionTileVisualElement()
         {
@@ -63,14 +65,9 @@ namespace Mona.SDK.Brains.UIElements
             _label.style.marginRight = 5;
             _toolBar.Add(_label);
 
-#if UNITY_EDITOR
-            _toolbarMenu = new ToolbarMenu();
-            _toolbarMenu.text = null;
-            _toolbarMenu.style.width = 12;
-            _toolbarMenu.style.paddingLeft = 1;
-            _toolbarMenu.style.paddingRight = 1;
-            _toolBar.Add(_toolbarMenu);
-#endif
+            _labelMore = new Label();
+            _labelMore.text = "[...]";
+            _labelMore.style.unityFontStyleAndWeight = FontStyle.Bold;
 
             Add(_toolBar);
 
@@ -110,43 +107,33 @@ namespace Mona.SDK.Brains.UIElements
 
         }
 
-        public void SetBorder(int i, Color c)
+        public void Select(bool expand)
+        {
+            if(expand && _valuesExtended.childCount > 0)
+                Extend(true);
+            SetBorder(2, Color.white);
+        }
+
+        public void Deselect()
+        {
+            Extend(false);
+            SetBorder(2, Color.black);
+        }
+
+        private void SetBorder(int i, Color c)
         {
             style.borderBottomWidth = style.borderTopWidth = style.borderLeftWidth = style.borderRightWidth = i;
             style.borderBottomColor = style.borderTopColor = style.borderLeftColor = style.borderRightColor = c;
         }
 
-        private void HandleClick(int i)
+        private void HandleClick(int i, bool expand)
         {
-            OnClicked?.Invoke(i);
-            SetBorder(2, Color.white);
+            OnClicked?.Invoke(i, expand);
         }
 
-        private void HandleLeft(int i)
-        {
-            OnLeft?.Invoke(i);
-        }
-
-        private void HandleRight(int i)
-        {
-            OnRight?.Invoke(i);
-        }
-
-        private void HandleDelete(int i)
-        {
-            OnDelete?.Invoke(i);
-        }
-
-        private void HandleMore()
+        private void Extend(bool extend)
         {            
-            _extended = !_extended;
-#if UNITY_EDITOR
-            _toolbarMenu.menu.RemoveItemAt(0);
-            if(_extended)
-                _toolbarMenu.menu.InsertAction(0, MonaBrainConstants.MENU_HIDE, (evt) => HandleMore());
-            else
-                _toolbarMenu.menu.InsertAction(0, MonaBrainConstants.MENU_SHOW, (evt) => HandleMore());
-#endif
+            _extended = extend;
             _valuesExtended.style.display = _extended ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
@@ -158,17 +145,25 @@ namespace Mona.SDK.Brains.UIElements
 
             if (_click != null)
                 this.RemoveManipulator(_click);
+            if (_clickLabel != null)
+                _labelMore.AddManipulator(_clickLabel);
 
-            _click = new Clickable(evt => HandleClick(tileIndex));
+            _click = new Clickable(evt => HandleClick(tileIndex, false));
             this.AddManipulator(_click);
+
+            _clickLabel = new Clickable(evt => HandleClick(tileIndex, true));
+            _labelMore.AddManipulator(_clickLabel);
 
             if (_tile == null) return;
 
             SetStyle(_tile);
-            _label.text = _tile.Name;
-
             BuildValueEditor();
-            BuildMenu(tileIndex, instructionTileCount);
+
+            _label.text = _tile.Name;
+            if (_valuesExtended.childCount > 0 && _labelMore.parent == null)
+                _toolBar.Add(_labelMore);
+            else if(_labelMore.parent != null)
+                _toolBar.Remove(_labelMore);
         }
 
         private void BuildValueEditor()
@@ -386,65 +381,6 @@ namespace Mona.SDK.Brains.UIElements
             }
         }
 
-        private void BuildMenu(int tileIndex, int instructionTileCount)
-        {
-#if UNITY_EDITOR
-            _toolbarMenu.menu.ClearItems();
-
-            if(_valuesExtended.childCount > 0)
-                _toolbarMenu.menu.AppendAction(MonaBrainConstants.MENU_SHOW, (evt) => HandleMore());
-            if(tileIndex > 0)
-                _toolbarMenu.menu.AppendAction(MonaBrainConstants.MENU_MOVE_LEFT, (evt) => HandleLeft(tileIndex));
-            if(tileIndex < instructionTileCount - 1)
-                _toolbarMenu.menu.AppendAction(MonaBrainConstants.MENU_MOVE_RIGHT, (evt) => HandleRight(tileIndex));
-
-            _toolbarMenu.menu.AppendSeparator();
-
-            _toolbarMenu.menu.AppendAction(MonaBrainConstants.MENU_DELETE_TILE, (evt) => HandleDelete(tileIndex));
-
-            RefreshTileMenu();
-#endif
-        }
-
-        private bool AllowTile(IInstructionTile tile)
-        {
-            if (_tile is IConditionInstructionTile)
-                return tile is IConditionInstructionTile;
-            else if(_tile is IActionInstructionTile)
-                return tile is IActionInstructionTile;
-            return true;
-        }
-
-        private void RefreshTileMenu()
-        {
-            if (_brain.TileSet == null)
-            {
-                Debug.LogError($"Please assign a tile set to this brain");
-                return;
-            }
-#if UNITY_EDITOR
-            for (var i = 0; i < _brain.TileSet.ConditionTiles.Count; i++)
-            {
-                var def = _brain.TileSet.ConditionTiles[i];
-                CopyToTile(def);
-                if (AllowTile(def.Tile))
-                    _toolbarMenu.menu.AppendAction($"Replace Tile/{def.Category}/{def.Name}", (action) => HandleReplace(def.Tile));
-            }
-            for (var i = 0; i < _brain.TileSet.ActionTiles.Count; i++)
-            {
-                var def = _brain.TileSet.ActionTiles[i];
-                CopyToTile(def);
-                if (AllowTile(def.Tile))
-                    _toolbarMenu.menu.AppendAction($"Replace Tile/{def.Category}/{def.Name}", (action) => HandleReplace(def.Tile));
-            }
-#endif
-        }
-
-        private void HandleReplace(IInstructionTile tile)
-        {
-            OnReplace?.Invoke(_index, tile);
-        }
-
         private void CopyToTile(IInstructionTileDefinition def)
         {
             def.Tile.Id = def.Id;
@@ -464,11 +400,11 @@ namespace Mona.SDK.Brains.UIElements
 
             if (tile is IActionInstructionTile)
             {
-                style.backgroundColor = new Color(149f / 255f, 209f / 255f, 139f / 255f);
+                style.backgroundColor = Color.HSVToRGB(.4f, .4f, .9f);
             }
             else if (tile is IConditionInstructionTile)
             {
-                style.backgroundColor = new Color(108f / 255f, 173f / 255f, 201f / 255f);
+                style.backgroundColor = Color.HSVToRGB(.5f, .4f, .9f);
                 if (tile is IStartableInstructionTile && _index == 0)
                     style.borderBottomLeftRadius = style.borderTopLeftRadius = 30;
             }

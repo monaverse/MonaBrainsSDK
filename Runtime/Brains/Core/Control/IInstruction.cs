@@ -14,6 +14,8 @@ namespace Mona.SDK.Brains.Core.Control
         event Action<int> OnRefresh;
         event Action OnDeselect;
 
+        bool IsRunning();
+
         List<IInstructionTile> InstructionTiles { get; }
         void Preload(IMonaBrain brain);
         void Execute(InstructionEventTypes eventType, IInstructionEvent evt);

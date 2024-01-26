@@ -167,7 +167,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private void AddEventDelegates()
         {
             OnMonaTick = HandleMonaTick;
-            EventBus.Register<MonaTickEvent>(new EventHook(MonaBrainConstants.TICK_EVENT, this), OnMonaTick);
+            EventBus.Register<MonaTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT, this), OnMonaTick);
 
             OnMonaTrigger = HandleMonaTrigger;
             EventBus.Register<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
@@ -185,7 +185,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void RemoveEventDelegates()
         {
-            EventBus.Unregister(new EventHook(MonaBrainConstants.TICK_EVENT, this), OnMonaTick);
+            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT, this), OnMonaTick);
             EventBus.Unregister(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
             EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
 

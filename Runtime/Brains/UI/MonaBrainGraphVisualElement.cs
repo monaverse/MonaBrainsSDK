@@ -63,7 +63,7 @@ namespace Mona.SDK.Brains.UIElements
         private Foldout CreateHeading(string text)
         {
             var foldOut = new Foldout();
-            foldOut.style.marginLeft = 0;
+            foldOut.style.marginLeft = -12;
             foldOut.style.marginTop = 3;
             foldOut.text = text;
             foldOut.RegisterCallback<GeometryChangedEvent>((evt) =>
@@ -71,6 +71,7 @@ namespace Mona.SDK.Brains.UIElements
                 var content = foldOut.Q<VisualElement>(className: "unity-foldout__toggle");
                 if (content != null)
                 {
+                    content.style.marginLeft = 12;
                     content.style.fontSize = 14;
                     content.style.unityFontStyleAndWeight = FontStyle.Bold;
                     content.style.backgroundColor = Color.HSVToRGB(.48f, .4f, .4f);
@@ -78,8 +79,8 @@ namespace Mona.SDK.Brains.UIElements
                     content.style.borderBottomLeftRadius = content.style.borderBottomRightRadius = content.style.borderTopLeftRadius = content.style.borderTopRightRadius = 3;
                 }
                 content = foldOut.Q<VisualElement>(className: "unity-foldout__content");
-                if(content != null)
-                    content.style.marginLeft = 0;
+               // if(content != null)
+                    //content.style.marginLeft = 0;
             });
             foldOut.value = false;
             return foldOut;
@@ -107,6 +108,7 @@ namespace Mona.SDK.Brains.UIElements
             _leftColumn = new ScrollView();
             _leftColumn.style.flexDirection = FlexDirection.Column;
             _leftColumn.style.flexGrow = 1;
+            _leftColumn.style.paddingRight = 3;
             _leftColumn.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
             _leftColumn.verticalScrollerVisibility = ScrollerVisibility.Auto;
             Add(_leftColumn);
@@ -199,6 +201,8 @@ namespace Mona.SDK.Brains.UIElements
             _tabToolbar.Add(_btnNewPage);
 
             _activeStatePage = new MonaBrainPageVisualElement();
+            _activeStatePage.OnSelectedInstructionsChanged += HandleSelectedInstructions;
+            _activeStatePage.OnTileIndexClicked += HandleTileIndexClicked;
             _activePageContainer.Add(_activeStatePage);
 
             _btnDeletePage = new Button();
@@ -251,13 +255,14 @@ namespace Mona.SDK.Brains.UIElements
             _rightColumn = new VisualElement();
             _rightColumn.style.width = 150;
             _rightColumn.style.backgroundColor = Color.black;
+            _rightColumn.style.paddingLeft = 5;
             Add(_rightColumn);
 
             _tileListView = new ListView(null, 34, () => new TileMenuItemVisualElement(), (elem, i) =>
             {
                 var item = (TileMenuItemVisualElement)elem;
                 item.SetItem(_tileSource[i]);
-                Debug.Log($"Bind: {i} {_tileSource[i]}");
+                //Debug.Log($"Bind: {i} {_tileSource[i]}");
             });
             _tileListView.selectionChanged += (items) =>
             {
@@ -319,12 +324,12 @@ namespace Mona.SDK.Brains.UIElements
 
                 if (_item.IsCondition)
                 {
-                    _label.style.backgroundColor = Color.HSVToRGB(.5f, .2f, .9f);
+                    _label.style.backgroundColor = Color.HSVToRGB(.5f, .4f, .9f);
                     _label.style.color = Color.HSVToRGB(.5f, .2f, .1f);
                 }
                 else
                 {
-                    _label.style.backgroundColor = Color.HSVToRGB(.4f, .2f, .9f);
+                    _label.style.backgroundColor = Color.HSVToRGB(.4f, .4f, .9f);
                     _label.style.color = Color.HSVToRGB(.4f, .2f, .1f);
                 }
 

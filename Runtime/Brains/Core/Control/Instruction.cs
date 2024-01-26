@@ -6,6 +6,7 @@ using Mona.SDK.Brains.Tiles.Conditions;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Mona.SDK.Brains.Core.Control
@@ -13,6 +14,8 @@ namespace Mona.SDK.Brains.Core.Control
     [Serializable]
     public class Instruction : IInstruction
     {
+        private IMonaBrain _brain;
+
         public event Action<IInstruction> OnReset = delegate { };
         public event Action<int> OnRefresh = delegate { };
         public event Action OnDeselect = delegate { };
@@ -40,6 +43,7 @@ namespace Mona.SDK.Brains.Core.Control
 
         public void Preload(IMonaBrain brain)
         {
+            _brain = brain;
             _firstActionIndex = -1;
             for (var i = 0; i < InstructionTiles.Count; i++)
             {
@@ -98,13 +102,15 @@ namespace Mona.SDK.Brains.Core.Control
         private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
             var tile = InstructionTiles[0];
-            if (tile is IConditionInstructionTile)
+            //if (tile is IConditionInstructionTile)
             {
                 switch (eventType)
                 {
                     case InstructionEventTypes.Start:
                     case InstructionEventTypes.State:
                         if (tile is IOnStartInstructionTile)
+                            return tile.Do();
+                        else if (tile is IActionInstructionTile)
                             return tile.Do();
                         break;
                     case InstructionEventTypes.Message:
@@ -165,6 +171,11 @@ namespace Mona.SDK.Brains.Core.Control
             if(tile == null)
             {
                 _result = InstructionTileResult.Success;
+                if (!HasConditional())
+                {
+                    //Debug.Log($"TICK IT");
+                    EventBus.Trigger(new EventHook(MonaBrainConstants.TILE_TICK_EVENT, _brain), new MonaTickEvent());
+                }
                 return InstructionTileResult.Success;
             }
             else

@@ -11,6 +11,8 @@ namespace Mona.SDK.Brains.Core.Control
     [Serializable]
     public class MonaBrainPage : IMonaBrainPage
     {
+        private IMonaBrain _brain;
+
         [SerializeReference]
         public List<IInstruction> _instructions = new List<IInstruction>();
         public List<IInstruction> Instructions => _instructions;
@@ -19,8 +21,6 @@ namespace Mona.SDK.Brains.Core.Control
         private string _name;
 
         public string Name { get => _name; set => _name = value; }
-
-        public bool _hasTickInstruction = false;
 
         public MonaBrainPage()
         {
@@ -34,12 +34,11 @@ namespace Mona.SDK.Brains.Core.Control
 
         public void Preload(IMonaBrain brain)
         {
+            _brain = brain;
             for (var i = 0; i < Instructions.Count; i++)
             {
                 var instruction = Instructions[i];
                 instruction.Preload(brain);
-                if (!instruction.HasConditional())
-                    _hasTickInstruction = true;
             }
         }
 
@@ -49,11 +48,6 @@ namespace Mona.SDK.Brains.Core.Control
             {
                 var instruction = Instructions[i];
                 instruction.Execute(eventType, evt);
-            }
-
-            if(_hasTickInstruction)
-            {
-                EventBus.Trigger(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), new MonaTickEvent());
             }
         }
 
