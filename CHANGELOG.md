@@ -1,3 +1,9 @@
+# MonaBrainsSDK 0.2.0
+
+### Improvements
+ - UI/U Improvements to Brain Editing in Unity which make inserting/removing/moving/updating tiles much more efficient.
+ - Instructions no longer need conditionals to execute.
+
 # MonaBrainsSDK 0.1.0
 
 This first release of Mona Brains SDK establishes a foundation for defining and running Mona Brains in the Monaverse.
