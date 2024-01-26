@@ -21,6 +21,12 @@ namespace Mona.SDK.Brains.UIEditors
             _root.Add(_brainRunnerElement);
             return _root;
         }
+
+        public void OnDestroy()
+        {
+            if (_brainRunnerElement != null)
+                _brainRunnerElement.Dispose();
+        }
     }
 #endif
 }

@@ -1,10 +1,11 @@
 ﻿using Mona.SDK.Brains.Core.Brain;
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Mona.SDK.Brains.UIElements
 {
-    public class MonaBrainRunnerVisualElement : VisualElement
+    public class MonaBrainRunnerVisualElement : VisualElement, IDisposable
     {
         private MonaBrainRunner _runner;
 
@@ -53,6 +54,11 @@ namespace Mona.SDK.Brains.UIElements
 
             if (_runner.Began)
                 HandleBegin(runner);
+        }
+
+        public void Dispose()
+        {
+            _brainsListView.Clear();
         }
 
         private void HandleBegin(IMonaBrainRunner runner)
