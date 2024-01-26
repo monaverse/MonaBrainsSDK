@@ -22,6 +22,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         public event Action OnMigrate;
 
         [SerializeField]
+        private Guid _guid = Guid.NewGuid();
+        public Guid Guid { get => _guid; set => _guid = value; }
+
+        [SerializeField]
         private string _name;
         public string Name { get => _name; set => _name = value; }
 

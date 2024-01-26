@@ -13,6 +13,23 @@ namespace Mona.SDK.Brains.Core.Brain
 {
     public partial class MonaBrainRunner : MonoBehaviour, IMonaBrainRunner, IMonaTagged
     {
+        [Serializable]
+        public struct ResetTransform
+        {
+            public Vector3 Position;
+            public Quaternion Rotation;
+            public Transform Transform;
+            public Transform Parent;
+
+            public ResetTransform(Transform transform)
+            {
+                Transform = transform;
+                Parent = transform.parent;
+                Position = transform.position;
+                Rotation = transform.rotation;
+            }
+        }
+
         public event Action<IMonaBrainRunner> OnBegin;
 
         [SerializeField]
@@ -24,8 +41,12 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private IMonaBody _body;
 
+        private List<ResetTransform> _transformDefaults = new List<ResetTransform>();
+
         private bool _began;
         public bool Began => _began;
+
+        private Action<MonaBrainReloadEvent> OnHotReload;
 
         public bool HasMonaTag(string tag) {
             for(var i = 0;i < _brainInstances.Count;i++)
@@ -43,6 +64,7 @@ namespace Mona.SDK.Brains.Core.Brain
             EnsureGlobalRunnerExists();
             CacheComponents();
             AddDelegates();
+            AddHotReloadDelegates();
             PreloadBrains();
         }
 
@@ -57,6 +79,13 @@ namespace Mona.SDK.Brains.Core.Brain
             if (_body == null)
                 _body = gameObject.AddComponent<MonaBody>();
             _body.OnStarted += HandleStarted;
+
+            //var transforms = GetComponentsInChildren<Transform>(true);
+            //for(var i =0;i < transforms.Length; i++)
+            //{
+            //    _transformDefaults.Add(new ResetTransform(transforms[i]));
+            //}
+            _transformDefaults.Add(new ResetTransform(transform));
         }
 
         private void AddDelegates()
@@ -82,6 +111,19 @@ namespace Mona.SDK.Brains.Core.Brain
             _coroutine[type] = null;
         }
 
+        private void AddHotReloadDelegates()
+        {
+            OnHotReload = HandleHotReload;
+            for (var i = 0; i < _brainGraphs.Count; i++)
+                EventBus.Register<MonaBrainReloadEvent>(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brainGraphs[i].Guid), OnHotReload);
+        }
+
+        private void RemoveHotReloadDelegates()
+        {
+            for (var i = 0; i < _brainGraphs.Count; i++)
+                EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brainGraphs[i].Guid), OnHotReload);
+        }
+
         private void PreloadBrains()
         {
             for (var i = 0; i < _brainGraphs.Count; i++)
@@ -90,6 +132,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 var instance = (IMonaBrain)Instantiate(_brainGraphs[i]);
                 if (instance != null)
                 {
+                    instance.Guid = _brainGraphs[i].Guid;
                     instance.Preload(gameObject, this);
                     _brainInstances.Add(instance);
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(instance));
@@ -97,10 +140,15 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
+        private void HandleHotReload(MonaBrainReloadEvent evt)
+        {
+            RestartBrains();
+        }
+
         private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
         {
             if (evt.HasControl)
-                BeginBrains();
+                RestartBrains();
         }
 
         private void HandleStarted()
@@ -121,8 +169,35 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
+        private void RestartBrains()
+        {
+            _began = false;
+            ResetTransforms();
+            UnloadBrains();
+            PreloadBrains();
+            StartCoroutine(BeginBrainsAgain());
+        }
+
+        private IEnumerator BeginBrainsAgain()
+        {
+            yield return null;
+            BeginBrains();
+        }
+
+        private void ResetTransforms()
+        {
+            for (var i = 0; i < _transformDefaults.Count; i++)
+            {
+                var d = _transformDefaults[i];
+                d.Transform.parent = d.Parent;
+                d.Transform.position = d.Position;
+                d.Transform.rotation = d.Rotation;
+            }
+        }
+
         private void OnDestroy()
         {
+            RemoveHotReloadDelegates();
             RemoveDelegates();
             UnloadBrains();
         }

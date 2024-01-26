@@ -46,6 +46,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private float _time;
 
         private Action<MonaTileTickEvent> OnTick;
+        private Action<MonaBrainReloadEvent> OnHotReload;
 
         private float _speed
         {
@@ -63,7 +64,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         
         public void Preload(IMonaBrain brainInstance)
         {
-            _brain = brainInstance;
+            if (_brain != brainInstance)
+            {
+                _brain = brainInstance;
+                OnHotReload = HandleHotReload;
+                EventBus.Register<MonaBrainReloadEvent>(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brain.Guid), OnHotReload);
+            }
+        }
+
+        private void HandleHotReload(MonaBrainReloadEvent evt)
+        {
+            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+            _time = 0;
+            _movingState = MovingStateType.Stopped;
+            Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(HandleHotReload)} {this}");
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

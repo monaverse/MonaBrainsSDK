@@ -8,6 +8,8 @@ using UnityEngine.UIElements;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
+using Mona.SDK.Brains.Core.Events;
+using Unity.VisualScripting;
 
 #if UNITY_EDITOR
 using UnityEditor.UIElements;
@@ -166,6 +168,11 @@ namespace Mona.SDK.Brains.UIElements
                 _toolBar.Remove(_labelMore);
         }
 
+        private void Changed()
+        {
+            EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brain.Guid), new MonaBrainReloadEvent());
+        }
+
         private void BuildValueEditor()
         {
             _propertyValues.Clear();
@@ -202,6 +209,7 @@ namespace Mona.SDK.Brains.UIElements
                     {
                         field.value = (string)evt.newValue;
                         property.SetValue(_tile, field.value);
+                        Changed();
                     });
                     fieldContainer.Add(field);
                 }
@@ -213,7 +221,10 @@ namespace Mona.SDK.Brains.UIElements
                     field.labelElement.style.color = Color.black;
                     field.label = property.Name;
                     field.value = (string)property.GetValue(_tile);
-                    field.RegisterValueChangedCallback((evt) => property.SetValue(_tile, (string)evt.newValue));
+                    field.RegisterValueChangedCallback((evt) => {
+                        property.SetValue(_tile, (string)evt.newValue);
+                        Changed();
+                    });
                     fieldContainer.Add(field);
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
@@ -226,7 +237,10 @@ namespace Mona.SDK.Brains.UIElements
                     field.labelElement.style.color = Color.black;
                     field.label = property.Name;
                     field.value = (float)property.GetValue(_tile);
-                    field.RegisterValueChangedCallback((evt) => property.SetValue(_tile, (float)evt.newValue));
+                    field.RegisterValueChangedCallback((evt) => {
+                        property.SetValue(_tile, (float)evt.newValue);
+                        Changed();
+                    });
                     fieldContainer.Add(field);
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
@@ -239,7 +253,11 @@ namespace Mona.SDK.Brains.UIElements
                     field.labelElement.style.color = Color.black;
                     field.label = property.Name;
                     field.value = (int)property.GetValue(_tile);
-                    field.RegisterValueChangedCallback((evt) => property.SetValue(_tile, (int)evt.newValue));
+                    field.RegisterValueChangedCallback((evt) =>
+                    {
+                        property.SetValue(_tile, (int)evt.newValue);
+                        Changed();
+                    });
                     fieldContainer.Add(field);
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
@@ -252,7 +270,11 @@ namespace Mona.SDK.Brains.UIElements
                     field.labelElement.style.color = Color.black;
                     field.label = property.Name;
                     field.value = (bool)property.GetValue(_tile);
-                    field.RegisterValueChangedCallback((evt) => property.SetValue(_tile, (bool)evt.newValue));
+                    field.RegisterValueChangedCallback((evt) =>
+                    {
+                        property.SetValue(_tile, (bool)evt.newValue);
+                        Changed();
+                    });
                     fieldContainer.Add(field);
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
@@ -266,9 +288,13 @@ namespace Mona.SDK.Brains.UIElements
                     field.style.color = Color.black;
                     field.label = property.Name;
                     field.value = (Vector2)property.GetValue(_tile);
-                    field.RegisterValueChangedCallback((evt) => property.SetValue(_tile, (Vector2)evt.newValue));
+                    field.RegisterValueChangedCallback((evt) =>
+                    {
+                        property.SetValue(_tile, (Vector2)evt.newValue);
+                        Changed();
+                    });
                     fieldContainer.Add(field);
-                    
+
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
                 }
                 else if (property.PropertyType == typeof(Vector3))
@@ -280,7 +306,11 @@ namespace Mona.SDK.Brains.UIElements
                     field.style.color = Color.black;
                     field.label = property.Name;
                     field.value = (Vector3)property.GetValue(_tile);
-                    field.RegisterValueChangedCallback((evt) => property.SetValue(_tile, (Vector3)evt.newValue));
+                    field.RegisterValueChangedCallback((evt) =>
+                    {
+                        property.SetValue(_tile, (Vector3)evt.newValue);
+                        Changed();
+                    });
                     fieldContainer.Add(field);
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
@@ -294,7 +324,11 @@ namespace Mona.SDK.Brains.UIElements
                     field.labelElement.style.color = Color.black;
                     field.label = property.Name;
                     field.value = (Enum)Enum.Parse(type, property.GetValue(_tile).ToString());
-                    field.RegisterValueChangedCallback((evt) => property.SetValue(_tile, (Enum)evt.newValue));
+                    field.RegisterValueChangedCallback((evt) =>
+                    {
+                        property.SetValue(_tile, (Enum)evt.newValue);
+                        Changed();
+                    });
                     container.Add(field);
                 }
 #if UNITY_EDITOR
@@ -307,7 +341,11 @@ namespace Mona.SDK.Brains.UIElements
                     field.labelElement.style.color = Color.black;
                     field.label = property.Name;
                     field.value = (Color)property.GetValue(_tile);
-                    field.RegisterValueChangedCallback((evt) => property.SetValue(_tile, (Color)evt.newValue));
+                    field.RegisterValueChangedCallback((evt) =>
+                    {
+                        property.SetValue(_tile, (Color)evt.newValue);
+                        Changed();
+                    });
                     container.Add(field);
                 }
 #endif

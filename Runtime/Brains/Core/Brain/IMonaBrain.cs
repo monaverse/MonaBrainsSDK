@@ -15,6 +15,8 @@ namespace Mona.SDK.Brains.Core.Brain
         event Action<string, IMonaBrain> OnStateChanged;
         event Action OnMigrate;
 
+        Guid Guid { get; set; }
+
         string Name { get; set; }
         MonaBrainPropertyType PropertyType { get; set; }
 

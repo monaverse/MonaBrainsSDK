@@ -7,11 +7,12 @@ using System;
 using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.Timing.Interfaces;
+using Mona.SDK.Brains.Core.Brain;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Timing
 {
     [Serializable]
-    public class WaitInstructionTile : InstructionTile, IWaitInstructionTile, IActionInstructionTile
+    public class WaitInstructionTile : InstructionTile, IWaitInstructionTile, IActionInstructionTile, IInstructionTileWithPreload
     {
         public const string ID = "Wait";
         public const string NAME = "Wait";
@@ -25,13 +26,31 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
         public float Seconds { get => _seconds; set => _seconds = value; }
 
         private Action<MonaTileTickEvent> OnTick;
+        private Action<MonaBrainReloadEvent> OnHotReload;
 
         private float _remaining;
 
         private bool _isRunning;
 
+        private IMonaBrain _brain;
+
         public WaitInstructionTile()
         {
+        }
+
+        public void Preload(IMonaBrain brainInstance)
+        {
+            if (_brain != brainInstance)
+            {
+                _brain = brainInstance;
+                OnHotReload = HandleHotReload;
+                EventBus.Register<MonaBrainReloadEvent>(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brain.Guid), OnHotReload);
+            }
+        }
+
+        private void HandleHotReload(MonaBrainReloadEvent evt)
+        {
+            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

@@ -45,6 +45,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Quaternion _end;
 
         private Action<MonaTileTickEvent> OnTick;
+        private Action<MonaBrainReloadEvent> OnHotReload;
 
         private float _speed
         {
@@ -62,7 +63,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public void Preload(IMonaBrain brainInstance)
         {
-            _brain = brainInstance;
+            if (_brain != brainInstance)
+            {
+                _brain = brainInstance;
+                OnHotReload = HandleHotReload;
+                EventBus.Register<MonaBrainReloadEvent>(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brain.Guid), OnHotReload);
+            }
+        }
+
+        private void HandleHotReload(MonaBrainReloadEvent evt)
+        {
+            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

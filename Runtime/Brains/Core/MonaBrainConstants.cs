@@ -20,6 +20,7 @@
 
         public const string BRAIN_SPAWNED_EVENT = "OnMonaBrainSpawnedEvent";
         public const string BRAIN_DESTROYED_EVENT = "OnMonaBrainDestroyedEvent";
+        public const string BRAIN_RELOAD_EVENT = "OnMonaBrainReloadEvent";
 
         public const string TILE_TICK_EVENT = "OnTileTickEvent";
         public const string TILE_LATE_TICK_EVENT = "OnTileLateTickEvent";
