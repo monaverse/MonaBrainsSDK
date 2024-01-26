@@ -18,15 +18,15 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             public Vector3 Position;
             public Quaternion Rotation;
-            public Transform Transform;
             public Transform Parent;
+            public IMonaBody Body;
 
-            public ResetTransform(Transform transform)
+            public ResetTransform(IMonaBody body)
             {
-                Transform = transform;
-                Parent = transform.parent;
-                Position = transform.position;
-                Rotation = transform.rotation;
+                Body = body;
+                Parent = body.ActiveTransform.parent;
+                Position = body.ActiveTransform.position;
+                Rotation = body.ActiveTransform.rotation;
             }
         }
 
@@ -80,12 +80,8 @@ namespace Mona.SDK.Brains.Core.Brain
                 _body = gameObject.AddComponent<MonaBody>();
             _body.OnStarted += HandleStarted;
 
-            //var transforms = GetComponentsInChildren<Transform>(true);
-            //for(var i =0;i < transforms.Length; i++)
-            //{
-            //    _transformDefaults.Add(new ResetTransform(transforms[i]));
-            //}
-            _transformDefaults.Add(new ResetTransform(transform));
+            _transformDefaults.Clear();
+            _transformDefaults.Add(new ResetTransform(_body));
         }
 
         private void AddDelegates()
@@ -189,9 +185,9 @@ namespace Mona.SDK.Brains.Core.Brain
             for (var i = 0; i < _transformDefaults.Count; i++)
             {
                 var d = _transformDefaults[i];
-                d.Transform.parent = d.Parent;
-                d.Transform.position = d.Position;
-                d.Transform.rotation = d.Rotation;
+                d.Body.ActiveTransform.SetParent(d.Parent);
+                d.Body.ActiveTransform.position = d.Position;
+                d.Body.ActiveTransform.rotation = d.Rotation;
             }
         }
 
