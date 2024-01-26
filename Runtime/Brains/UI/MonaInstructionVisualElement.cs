@@ -24,11 +24,10 @@ namespace Mona.SDK.Brains.UIElements
 #if UNITY_EDITOR
         private ToolbarMenu _replaceTileMenu;
         private VisualElement _toolBar;
-#endif
-
         private ToolbarButton _btnDelete;
         private ToolbarButton _btnMoveLeft;
         private ToolbarButton _btnMoveRight;
+#endif
 
         private int _scrollToIndex;
         private int _selectedTile;
@@ -108,12 +107,14 @@ namespace Mona.SDK.Brains.UIElements
 #endif
         }
 
+#if UNITY_EDITOR
         private void StyleButton(ToolbarButton btn)
         {
             btn.style.unityTextAlign = TextAnchor.MiddleCenter;
             btn.style.unityFontStyleAndWeight = FontStyle.Bold;
             btn.style.fontSize = 12;
         }
+#endif
 
         public void AddTile(IInstructionTile tile, int i)
         {
@@ -172,18 +173,22 @@ namespace Mona.SDK.Brains.UIElements
         private void ShowMenu(int i)
         {
             _selectedTile = i;
+#if UNITY_EDITOR
             if (_toolBar.parent == null)
                 Add(_toolBar);
-
             _btnMoveLeft.SetEnabled(i != 0);
             _btnMoveRight.SetEnabled(i != _instruction.InstructionTiles.Count-1);
+#endif
+
         }
 
         private void HideMenu()
         {
             _selectedTile = -1;
+#if UNITY_EDITOR
             if (_toolBar.parent != null)
                 Remove(_toolBar);
+#endif
         }
 
         public void SetInstruction(IMonaBrain brain, IInstruction instruction)
