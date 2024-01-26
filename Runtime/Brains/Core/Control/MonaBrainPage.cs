@@ -22,14 +22,19 @@ namespace Mona.SDK.Brains.Core.Control
 
         public string Name { get => _name; set => _name = value; }
 
+        [SerializeField]
+        private bool _isCore;
+        public bool IsCore { get => _isCore; set => _isCore = value; }
+
         public MonaBrainPage()
         {
 
         }
 
-        public MonaBrainPage(string name)
+        public MonaBrainPage(string name, bool isCore)
         {
             _name = name;
+            _isCore = isCore;
         }
 
         public void Preload(IMonaBrain brain)

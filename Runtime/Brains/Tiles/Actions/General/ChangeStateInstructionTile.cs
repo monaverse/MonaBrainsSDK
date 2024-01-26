@@ -9,7 +9,7 @@ using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
-    public class ChangeStateInstructionTile : InstructionTile, IChangeStateInstructionTile, IActionInstructionTile
+    public class ChangeStateInstructionTile : InstructionTile, IChangeStateInstructionTile, IActionInstructionTile, IActionStateEndInstructionTile
     {
         public const string ID = "ChangeState";
         public const string NAME = "Change State";

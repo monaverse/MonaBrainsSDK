@@ -188,7 +188,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        public void AddTile(IInstructionTile tile, int i)
+        public void AddTile(IInstructionTile tile, int i, bool isCore)
         {
             var instance = (IInstructionTile)Activator.CreateInstance(tile.TileType);
             instance.Id = tile.Id;
@@ -214,6 +214,21 @@ namespace Mona.SDK.Brains.Core.Control
                 }
             }
 
+            if (!isCore)
+            {
+                if (instance is IActionStateEndInstructionTile)
+                {
+                    if (HasEndTile()) return;
+                    i = -1;
+                }
+                else
+                {
+                    var idx = InstructionTiles.FindLastIndex(x => x is IActionStateEndInstructionTile);
+                    if (i > idx)
+                        i = idx;
+                }
+            }
+
             if (i == -1)
             {
                 InstructionTiles.Add(instance);
@@ -233,6 +248,11 @@ namespace Mona.SDK.Brains.Core.Control
                     Changed(i);
                 }
             }
+        }
+
+        public bool HasEndTile()
+        {
+            return InstructionTiles.FindLastIndex(x => x is IActionStateEndInstructionTile) > -1;
         }
 
         private void Changed(int i)

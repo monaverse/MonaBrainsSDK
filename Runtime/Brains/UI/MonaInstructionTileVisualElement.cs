@@ -10,6 +10,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using Mona.SDK.Brains.Core.Events;
 using Unity.VisualScripting;
+using Mona.SDK.Brains.Core.Control;
 
 #if UNITY_EDITOR
 using UnityEditor.UIElements;
@@ -28,6 +29,7 @@ namespace Mona.SDK.Brains.UIElements
         public event Action OnHeight;
 
         private IMonaBrain _brain;
+        private IMonaBrainPage _page;
         private IInstructionTile _tile;
         private int _index;
 
@@ -139,9 +141,10 @@ namespace Mona.SDK.Brains.UIElements
             _valuesExtended.style.display = _extended ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
-        public void SetInstructionTile(IMonaBrain brain, IInstructionTile tile, int tileIndex, int instructionTileCount)
+        public void SetInstructionTile(IMonaBrain brain, IMonaBrainPage page, IInstructionTile tile, int tileIndex, int instructionTileCount)
         {
             _brain = brain;
+            _page = page;
             _tile = tile;
             _index = tileIndex;
 
@@ -439,6 +442,8 @@ namespace Mona.SDK.Brains.UIElements
             if (tile is IActionInstructionTile)
             {
                 style.backgroundColor = Color.HSVToRGB(.4f, .4f, .9f);
+                if (tile is IActionStateEndInstructionTile && !_page.IsCore)
+                    style.borderBottomRightRadius = style.borderTopRightRadius = 30;
             }
             else if (tile is IConditionInstructionTile)
             {

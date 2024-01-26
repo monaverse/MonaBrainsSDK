@@ -52,7 +52,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private int _priority;
 
         [SerializeReference]
-        private IMonaBrainPage _corePage = new MonaBrainPage();
+        private IMonaBrainPage _corePage = new MonaBrainPage("Core", true);
         public IMonaBrainPage CorePage => _corePage;
 
         [SerializeReference]

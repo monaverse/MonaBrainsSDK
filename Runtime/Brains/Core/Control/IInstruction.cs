@@ -15,11 +15,12 @@ namespace Mona.SDK.Brains.Core.Control
         event Action OnDeselect;
 
         bool IsRunning();
+        bool HasEndTile();
 
         List<IInstructionTile> InstructionTiles { get; }
         void Preload(IMonaBrain brain);
         void Execute(InstructionEventTypes eventType, IInstructionEvent evt);
-        void AddTile(IInstructionTile tile, int i);
+        void AddTile(IInstructionTile tile, int i, bool isCore);
         void ReplaceTile(int i, IInstructionTile tile);
         void DeleteTile(int i);
         void MoveTileRight(int i);

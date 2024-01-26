@@ -18,6 +18,7 @@ namespace Mona.SDK.Brains.UIElements
 
         private IMonaBrain _brain;
         private IInstruction _instruction;
+        private IMonaBrainPage _page;
 
         private ScrollView _scrollView;
 
@@ -42,11 +43,11 @@ namespace Mona.SDK.Brains.UIElements
                 OnTileIndexClicked(_instruction, -1);
             });
 
-            this.AddManipulator(_click);
 
             style.flexDirection = FlexDirection.Row;
             style.minHeight = 120;
             _scrollView = new ScrollView();
+            _scrollView.AddManipulator(_click);
             _scrollView.mode = ScrollViewMode.Horizontal;
             _scrollView.contentContainer.style.flexDirection = FlexDirection.Row;
             _scrollView.verticalScrollerVisibility = ScrollerVisibility.Hidden;
@@ -121,9 +122,9 @@ namespace Mona.SDK.Brains.UIElements
         }
 #endif
 
-        public void AddTile(IInstructionTile tile, int i)
+        public void AddTile(IInstructionTile tile, int i, bool isCore)
         {
-            _instruction.AddTile(tile, i);
+            _instruction.AddTile(tile, i, isCore);
             RefreshMenu();
         }
         
@@ -151,7 +152,7 @@ namespace Mona.SDK.Brains.UIElements
                 {
                     Select(c, expand);
                 };
-                view.SetInstructionTile(_brain, tile, i, _instruction.InstructionTiles.Count);
+                view.SetInstructionTile(_brain, _page, tile, i, _instruction.InstructionTiles.Count);
                 _scrollView.Add(view);
                 _scrollView.schedule.Execute(() =>
                 {
@@ -181,8 +182,20 @@ namespace Mona.SDK.Brains.UIElements
 #if UNITY_EDITOR
             if (_toolBar.parent == null)
                 Add(_toolBar);
-            _btnMoveLeft.SetEnabled(i != 0);
-            _btnMoveRight.SetEnabled(i != _instruction.InstructionTiles.Count-1);
+
+            if (!_page.IsCore && _instruction.HasEndTile() && i == _instruction.InstructionTiles.Count - 1)
+            {
+                _btnMoveLeft.SetEnabled(false);
+                _btnMoveRight.SetEnabled(false);
+                return;
+            }
+            else
+                _btnMoveLeft.SetEnabled(i != 0);
+
+            if(!_page.IsCore && _instruction.HasEndTile())
+                _btnMoveRight.SetEnabled(i != _instruction.InstructionTiles.Count - 2);
+            else
+                _btnMoveRight.SetEnabled(i != _instruction.InstructionTiles.Count - 1);
 #endif
 
         }
@@ -196,11 +209,13 @@ namespace Mona.SDK.Brains.UIElements
 #endif
         }
 
-        public void SetInstruction(IMonaBrain brain, IInstruction instruction)
+        public void SetInstruction(IMonaBrain brain, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brain;
             _brain.OnMigrate -= HandleMigrate;
             _brain.OnMigrate += HandleMigrate;
+
+            _page = page;
 
             _instruction = instruction;
             _instruction.OnRefresh -= RefreshInstructionTiles;
@@ -284,14 +299,14 @@ namespace Mona.SDK.Brains.UIElements
                 var def = _brain.TileSet.ConditionTiles[i];
                 CopyToTile(def);
                 if(AllowTile(def.Tile))
-                    _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => AddTile(def.Tile, -1));
+                    _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => AddTile(def.Tile, -1, _page.IsCore));
             }
             for (var i = 0; i < _brain.TileSet.ActionTiles.Count; i++)
             {
                 var def = _brain.TileSet.ActionTiles[i];
                 CopyToTile(def);
                 if (AllowTile(def.Tile))
-                    _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => AddTile(def.Tile, -1));
+                    _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => AddTile(def.Tile, -1, _page.IsCore));
             }
 #endif
         }

@@ -87,7 +87,7 @@ namespace Mona.SDK.Brains.UIElements
 
         private void BindInstructionItem(MonaInstructionVisualElement elem, int i)
         {
-            elem.SetInstruction(_brain, _page.Instructions[i]);
+            elem.SetInstruction(_brain, _page, _page.Instructions[i]);
         }
     }
 }

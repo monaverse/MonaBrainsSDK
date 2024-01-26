@@ -430,9 +430,14 @@ namespace Mona.SDK.Brains.UIElements
             if (_selectedInstructions != null && _selectedInstructions.Count > 0)
             {
                 for (var i = 0; i < _selectedInstructions.Count; i++)
-                    _selectedInstructions[i].AddTile(tile, _selectedTileIndex);
+                    _selectedInstructions[i].AddTile(tile, _selectedTileIndex, IsInstructionOnCorePage(_selectedInstructions[i]));
                 _selectedTileIndex = -1;
             }
+        }
+
+        private bool IsInstructionOnCorePage(IInstruction instruction)
+        {
+            return _brain.CorePage.Instructions.IndexOf(instruction) > -1;
         }
 
         private void HandleSelectedInstructions(List<IInstruction> instructions)
@@ -468,7 +473,7 @@ namespace Mona.SDK.Brains.UIElements
 
         private void AddStatePage()
         {
-            var page = new MonaBrainPage($"State{_brain.StatePages.Count}");
+            var page = new MonaBrainPage($"State{_brain.StatePages.Count}", false);
             page.AddInstruction(new Instruction());
             _brain.StatePages.Add(page);
             _selectedTab = _brain.StatePages.Count - 1;

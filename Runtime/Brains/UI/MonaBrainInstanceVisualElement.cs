@@ -31,6 +31,8 @@ namespace Mona.SDK.Brains.UIElements
             _brainContainer.Add(new Label("Core Page"));
             _brainContainer.Add(new MonaPageInstanceViewElement(_brain.CorePage));
 
+            _brain.CorePage.IsCore = true;
+
             _activeStatePage = new Label($"Active State Page:");
             _brainContainer.Add(_activeStatePage);
 
