@@ -238,7 +238,8 @@ namespace Mona.SDK.Brains.Core.Control
         private void Changed(int i)
         {
             OnRefresh(i);
-            EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brain.Guid), new MonaBrainReloadEvent());
+            if(_brain != null)
+                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brain.Guid), new MonaBrainReloadEvent());
         }
 
         public void DeleteTile(int i)
