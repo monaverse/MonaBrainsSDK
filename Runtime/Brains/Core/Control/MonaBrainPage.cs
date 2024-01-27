@@ -56,6 +56,18 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
+        public void Pause()
+        {
+            for (var i = 0; i < _instructions.Count; i++)
+                _instructions[i].Pause();
+        }
+
+        public void Resume()
+        {
+            for (var i = 0; i < _instructions.Count; i++)
+                _instructions[i].Resume();
+        }
+
         public void Unload()
         {
             for (var i = 0; i < _instructions.Count; i++)

@@ -45,6 +45,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         void Preload(GameObject gameObject, IMonaBrainRunner runner);
         void Begin();
+        void Pause();
+        void Resume();
         void Unload();
 
         IInstructionTileSet TileSet { get; set; }

@@ -13,7 +13,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
 
     [Serializable]
-    public class MoveLocalInstructionTile : InstructionTile, IMoveLocalInstructionTile, IActionInstructionTile
+    public class MoveLocalInstructionTile : InstructionTile, IMoveLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile
     {
         public override Type TileType => typeof(MoveLocalInstructionTile);
 
@@ -70,6 +70,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
             Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Unload)}");
+        }
+
+        public void Pause()
+        {
+            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+        }
+
+        public void Resume()
+        {
+            if(_movingState == MovingStateType.Moving)
+            {
+                EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+            }
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

@@ -21,10 +21,6 @@ namespace Mona.SDK.Brains.UIElements
     public class MonaInstructionTileVisualElement : VisualElement
     {
         public event Action<int, bool> OnClicked;
-        public event Action<int> OnDelete;
-        public event Action<int> OnLeft;
-        public event Action<int> OnRight;
-        public event Action<int, IInstructionTile> OnReplace;
 
         public event Action OnHeight;
 

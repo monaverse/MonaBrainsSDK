@@ -13,5 +13,7 @@ namespace Mona.SDK.Brains.Core.Control
         void Preload(IMonaBrain brain);
         void ExecuteInstructions(InstructionEventTypes eventType, IInstructionEvent evt = null);
         void Unload();
+        void Pause();
+        void Resume();
     }
 }

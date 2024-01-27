@@ -125,7 +125,6 @@ namespace Mona.SDK.Brains.UIElements
         public void AddTile(IInstructionTile tile, int i, bool isCore)
         {
             _instruction.AddTile(tile, i, isCore);
-            RefreshMenu();
         }
         
         public void ClearBorders()
@@ -179,6 +178,7 @@ namespace Mona.SDK.Brains.UIElements
         private void ShowMenu(int i)
         {
             _selectedTile = i;
+            RefreshMenu();
 #if UNITY_EDITOR
             if (_toolBar.parent == null)
                 Add(_toolBar);
@@ -275,13 +275,12 @@ namespace Mona.SDK.Brains.UIElements
 
         private bool AllowTile(IInstructionTile tile)
         {
-            return true;
-            /*
-            if (_instruction.InstructionTiles.Count == 0)
-                return tile is IStartableInstructionTile;
+            if (_selectedTile < 0) return false;
+            if (_selectedTile > _instruction.InstructionTiles.Count-1) return false;
+            if (_instruction.InstructionTiles[_selectedTile] is IActionInstructionTile)
+                return tile is IActionInstructionTile;
             else
-                return true;
-            */
+                return tile is IConditionInstructionTile;
         }
 
         private void RefreshMenu() 
@@ -299,14 +298,14 @@ namespace Mona.SDK.Brains.UIElements
                 var def = _brain.TileSet.ConditionTiles[i];
                 CopyToTile(def);
                 if(AllowTile(def.Tile))
-                    _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => AddTile(def.Tile, -1, _page.IsCore));
+                    _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => _instruction.ReplaceTile(_selectedTile, def.Tile));
             }
             for (var i = 0; i < _brain.TileSet.ActionTiles.Count; i++)
             {
                 var def = _brain.TileSet.ActionTiles[i];
                 CopyToTile(def);
                 if (AllowTile(def.Tile))
-                    _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => AddTile(def.Tile, -1, _page.IsCore));
+                    _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => _instruction.ReplaceTile(_selectedTile, def.Tile));
             }
 #endif
         }

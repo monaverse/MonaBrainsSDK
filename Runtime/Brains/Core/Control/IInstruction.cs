@@ -28,5 +28,7 @@ namespace Mona.SDK.Brains.Core.Control
         bool HasConditional();
         void Deselect();
         void Unload();
+        void Pause();
+        void Resume();
     }
 }

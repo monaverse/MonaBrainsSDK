@@ -32,6 +32,7 @@ namespace Mona.SDK.Brains.Core.Control
 
         private int _firstActionIndex = -1;
         private bool _unloaded;
+        private bool _paused;
 
         public Instruction()
         {
@@ -170,7 +171,8 @@ namespace Mona.SDK.Brains.Core.Control
         private InstructionTileResult ExecuteActionTile(IInstructionTile tile)
         {
             if (_unloaded) return InstructionTileResult.Failure;
-            if(tile == null)
+            if (_paused) return InstructionTileResult.Failure;
+            if (tile == null)
             {
                 _result = InstructionTileResult.Success;
                 if (!HasConditional())
@@ -327,6 +329,28 @@ namespace Mona.SDK.Brains.Core.Control
                 var sourceProperty = source.GetType().GetProperty(property.Name);
                 if(sourceProperty != null)
                     property.SetValue(target, sourceProperty.GetValue(source));
+            }
+        }
+
+        public void Pause()
+        {
+            _paused = true;
+            for (var i = 0; i < _instructionTiles.Count; i++)
+            {
+                var tile = _instructionTiles[i];
+                if (tile is IPauseableInstructionTile)
+                    ((IPauseableInstructionTile)tile).Pause();
+            }
+        }
+
+        public void Resume()
+        {
+            _paused = false;
+            for (var i = 0; i < _instructionTiles.Count; i++)
+            {
+                var tile = _instructionTiles[i];
+                if (tile is IPauseableInstructionTile)
+                    ((IPauseableInstructionTile)tile).Resume();
             }
         }
 

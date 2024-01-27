@@ -235,6 +235,20 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             _state.Set(MonaBrainConstants.ON_STARTING, false, false);
         }
 
+        public void Pause()
+        {
+            CorePage.Pause();
+            for (var i = 0; i < _statePages.Count; i++)
+                _statePages[i].Pause();
+        }
+
+        public void Resume()
+        {
+            CorePage.Resume();
+            for (var i = 0; i < _statePages.Count; i++)
+                _statePages[i].Resume();
+        }
+
         private void HandleMonaTick(MonaTickEvent evt)
         {
             _runner.WaitFrame(ExecuteTickEvent, evt, typeof(MonaTickEvent));

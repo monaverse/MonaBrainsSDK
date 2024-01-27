@@ -12,7 +12,7 @@ using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class RotateLocalInstructionTile : InstructionTile, IRotateLocalInstructionTile, IActionInstructionTile
+    public class RotateLocalInstructionTile : InstructionTile, IRotateLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile
     {
         public override Type TileType => typeof(RotateLocalInstructionTile);
 
@@ -69,6 +69,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
             Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Unload)}");
+        }
+
+        public void Pause()
+        {
+            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+        }
+
+        public void Resume()
+        {
+            if (_movingState == MovingStateType.Moving)
+            {
+                EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+            }
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

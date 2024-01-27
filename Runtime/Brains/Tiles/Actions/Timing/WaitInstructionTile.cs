@@ -12,7 +12,7 @@ using Mona.SDK.Brains.Core.Brain;
 namespace Mona.SDK.Brains.Tiles.Actions.Timing
 {
     [Serializable]
-    public class WaitInstructionTile : InstructionTile, IWaitInstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class WaitInstructionTile : InstructionTile, IWaitInstructionTile, IActionInstructionTile, IInstructionTileWithPreload, IPauseableInstructionTile
     {
         public const string ID = "Wait";
         public const string NAME = "Wait";
@@ -45,6 +45,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
         public override void Unload()
         {
             EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+        }
+
+        public void Pause()
+        {
+            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+        }
+
+        public void Resume()
+        {
+            if (_isRunning)
+            {
+                EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+            }
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)
