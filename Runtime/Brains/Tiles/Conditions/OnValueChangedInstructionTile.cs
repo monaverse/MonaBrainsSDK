@@ -17,8 +17,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     public class OnValueChangedInstructionTile : InstructionTile, IInstructionTileWithPreload, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile
     {
         public const string ID = "OnValueChanged";
-        public const string NAME = "OnValueChanged";
-        public const string CATEGORY = "Condition/Value";
+        public const string NAME = "Value Has Changed";
+        public const string CATEGORY = "Values";
         public override Type TileType => typeof(OnValueChangedInstructionTile);
 
         [SerializeField] private string _valueName;

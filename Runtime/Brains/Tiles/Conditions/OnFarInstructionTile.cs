@@ -14,8 +14,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     public class OnFarInstructionTile : InstructionTile, ITriggerInstructionTile, IOnFarInstructionTile, IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile
     {
         public const string ID = "OnFar";
-        public const string NAME = "On Far";
-        public const string CATEGORY = "Condition";
+        public const string NAME = "Far";
+        public const string CATEGORY = "Proximity";
         public override Type TileType => typeof(OnFarInstructionTile);
 
         [SerializeField] private string _tag;

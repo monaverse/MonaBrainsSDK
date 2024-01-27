@@ -17,8 +17,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     public class OnValueEvenInstructionTile : InstructionTile, IInstructionTileWithPreload, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile
     {
         public const string ID = "OnValueEven";
-        public const string NAME = "OnValueEven";
-        public const string CATEGORY = "Condition/Value";
+        public const string NAME = "Value Is Even";
+        public const string CATEGORY = "Values";
         public override Type TileType => typeof(OnValueEvenInstructionTile);
 
         [SerializeField] private string _valueName;

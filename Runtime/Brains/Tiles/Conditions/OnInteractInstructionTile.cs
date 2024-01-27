@@ -18,8 +18,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     public class OnInteractInstructionTile : InstructionTile, IOnInteractInstructionTile, IDisposable, IConditionInstructionTile, IStartableInstructionTile, IInputInstructionTile
     {
         public const string ID = "OnInteract";
-        public const string NAME = "On Interact";
-        public const string CATEGORY = "Condition/Input";
+        public const string NAME = "Interact";
+        public const string CATEGORY = "Input";
         public override Type TileType => typeof(OnInteractInstructionTile);
 
         protected IMonaBrain _brain;

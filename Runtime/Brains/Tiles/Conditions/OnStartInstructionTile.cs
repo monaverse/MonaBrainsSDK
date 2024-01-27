@@ -11,8 +11,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     public class OnStartInstructionTile : InstructionTile, IOnStartInstructionTile, IConditionInstructionTile, IStartableInstructionTile
     {
         public const string ID = "OnStart";
-        public const string NAME = "On Start";
-        public const string CATEGORY = "Condition";
+        public const string NAME = "Start";
+        public const string CATEGORY = "General";
         public override Type TileType => typeof(OnStartInstructionTile);
 
         private IMonaBrain _brain;

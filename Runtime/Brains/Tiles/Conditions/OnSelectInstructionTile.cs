@@ -14,8 +14,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     public class OnSelectInstructionTile : OnInteractInstructionTile
     {
         public new const string ID = "OnSelect";
-        public new const string NAME = "On Select";
-        public new const string CATEGORY = "Condition/Input";
+        public new const string NAME = "Select";
+        public new const string CATEGORY = "Input";
         public override Type TileType => typeof(OnSelectInstructionTile);
 
         [SerializeField] private float _distance = 100f;

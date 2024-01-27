@@ -20,8 +20,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     public class OnKeyInstructionTile : InstructionTile, IOnInteractInstructionTile, IDisposable, IConditionInstructionTile, IStartableInstructionTile, IInputInstructionTile
     {
         public const string ID = "OnKey";
-        public const string NAME = "On Key";
-        public const string CATEGORY = "Condition/Input";
+        public const string NAME = "Keyboard";
+        public const string CATEGORY = "Input";
         public override Type TileType => typeof(OnKeyInstructionTile);
 
         [SerializeField] private Key _key = Key.Space;

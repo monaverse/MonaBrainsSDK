@@ -14,8 +14,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     public class OnCanSeeInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile
     {
         public const string ID = "OnCanSee";
-        public const string NAME = "On Can See";
-        public const string CATEGORY = "Condition";
+        public const string NAME = "Can See";
+        public const string CATEGORY = "Vision";
         public override Type TileType => typeof(OnCanSeeInstructionTile);
 
         [SerializeField] private string _tag;

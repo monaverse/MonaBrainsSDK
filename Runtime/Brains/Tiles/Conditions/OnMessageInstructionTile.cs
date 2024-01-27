@@ -12,8 +12,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     public class OnMessageInstructionTile : InstructionTile, IOnMessageInstructionTile, IConditionInstructionTile, IStartableInstructionTile
     {
         public const string ID = "OnMessage";
-        public const string NAME = "OnMessage";
-        public const string CATEGORY = "Condition";
+        public const string NAME = "Has Message";
+        public const string CATEGORY = "General";
         public override Type TileType => typeof(OnMessageInstructionTile);
 
         [SerializeField]
