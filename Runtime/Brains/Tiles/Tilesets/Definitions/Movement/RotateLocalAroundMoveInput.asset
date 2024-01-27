@@ -16,16 +16,16 @@ MonoBehaviour:
     rid: 3250164503775543338
   _id: RotateLocalAroundMoveInput
   _name: "Rotate Local Around\n Move Input"
-  _category: Movement
+  _category: Rotation
   references:
     version: 2
     RefIds:
     - rid: 3250164503775543338
       type: {class: RotateLocalAroundMoveInputInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: RotateLocalAroundMoveInput
+        _name: "Rotate Local Around\n Move Input"
+        _category: Movement
         _value: 0
         _mode: 0
         _listenForTick: 0

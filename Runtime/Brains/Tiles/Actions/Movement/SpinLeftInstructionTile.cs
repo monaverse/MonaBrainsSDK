@@ -8,7 +8,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
     {
         public const string ID = "Spin Left";
         public const string NAME = "Spin Left";
-        public const string CATEGORY = "Movement";
+        public const string CATEGORY = "Rotation";
         public override Type TileType => typeof(SpinLeftInstructionTile);
 
         public override RotateDirectionType DirectionType => RotateDirectionType.SpinLeft;

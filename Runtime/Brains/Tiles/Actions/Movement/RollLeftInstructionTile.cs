@@ -8,7 +8,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
     {
         public const string ID = "Roll Left";
         public const string NAME = "Roll Left";
-        public const string CATEGORY = "Movement";
+        public const string CATEGORY = "Rotation";
         public override Type TileType => typeof(RollLeftInstructionTile);
 
         public override RotateDirectionType DirectionType => RotateDirectionType.RollLeft;

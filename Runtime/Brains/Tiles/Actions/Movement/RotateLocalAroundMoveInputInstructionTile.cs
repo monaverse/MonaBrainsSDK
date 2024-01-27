@@ -16,7 +16,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
     {
         public const string ID = "RotateLocalAroundMoveInput";
         public const string NAME = "Rotate Local Around\n Move Input";
-        public const string CATEGORY = "Movement";
+        public const string CATEGORY = "Rotation";
         public override Type TileType => typeof(RotateLocalAroundMoveInputInstructionTile);
 
         [SerializeField]

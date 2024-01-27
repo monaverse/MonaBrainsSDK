@@ -16,16 +16,16 @@ MonoBehaviour:
     rid: 3250164503775543341
   _id: Spin Right
   _name: Spin Right
-  _category: Movement
+  _category: Rotation
   references:
     version: 2
     RefIds:
     - rid: 3250164503775543341
       type: {class: SpinRightInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: Spin Right
+        _name: Spin Right
+        _category: Movement
         _angle: 90
         _angleValueName: 
         _easing: 1

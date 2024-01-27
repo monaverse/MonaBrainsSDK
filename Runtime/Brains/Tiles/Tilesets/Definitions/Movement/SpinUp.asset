@@ -16,16 +16,16 @@ MonoBehaviour:
     rid: 3250164503775543342
   _id: Spin Up
   _name: Spin Up
-  _category: Movement
+  _category: Rotation
   references:
     version: 2
     RefIds:
     - rid: 3250164503775543342
       type: {class: SpinUpInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: Spin Up
+        _name: Spin Up
+        _category: Movement
         _angle: 90
         _angleValueName: 
         _easing: 1

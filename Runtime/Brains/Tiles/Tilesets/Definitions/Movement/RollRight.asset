@@ -16,16 +16,16 @@ MonoBehaviour:
     rid: 3250164503775543336
   _id: Roll Right
   _name: Roll Right
-  _category: Movement
+  _category: Rotation
   references:
     version: 2
     RefIds:
     - rid: 3250164503775543336
       type: {class: RollRightInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: Roll Right
+        _name: Roll Right
+        _category: Movement
         _angle: 90
         _angleValueName: 
         _easing: 1
