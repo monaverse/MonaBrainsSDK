@@ -14,7 +14,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
     {
         public const string ID = "ResumeBodyByTag";
         public const string NAME = "Resume Body By Tag";
-        public const string CATEGORY = "General";
+        public const string CATEGORY = "Pausing";
         public override Type TileType => typeof(ResumeBodyByTagInstructionTile);
 
         [SerializeField]
@@ -22,15 +22,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyMonaTag]
         public string Tag { get => _tag; set => _tag = value; }
 
-        private IMonaBrain _brain;
-        private string _stateProperty;
-
         public ResumeBodyByTagInstructionTile() { }
-
-        public void Preload(IMonaBrain brain)
-        {
-            _brain = brain;
-        }
 
         public override InstructionTileResult Do()
         {

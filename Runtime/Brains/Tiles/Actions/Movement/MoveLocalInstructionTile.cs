@@ -75,6 +75,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public void Pause()
         {
             EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+            Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Pause)}");
         }
 
         public void Resume()
@@ -82,6 +83,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if(_movingState == MovingStateType.Moving)
             {
                 EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+                Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Resume)}");
             }
         }
 
@@ -102,6 +104,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override InstructionTileResult Do()
         {
             _direction = GetDirectionVector(DirectionType);
+            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
 
             if (!string.IsNullOrEmpty(_distanceValueName))
                 _distance = _brain.State.GetFloat(_distanceValueName);

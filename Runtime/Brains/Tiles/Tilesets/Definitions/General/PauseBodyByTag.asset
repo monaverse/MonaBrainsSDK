@@ -16,14 +16,14 @@ MonoBehaviour:
     rid: 3250164677034377303
   _id: PauseBodyByTag
   _name: Pause Body By Tag
-  _category: General
+  _category: Pausing
   references:
     version: 2
     RefIds:
     - rid: 3250164677034377303
       type: {class: PauseBodyByTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: PauseBodyByTag
+        _name: Pause Body By Tag
+        _category: General
         _tag: 

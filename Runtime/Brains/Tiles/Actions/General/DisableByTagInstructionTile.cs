@@ -22,15 +22,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyMonaTag]
         public string Tag { get => _tag; set => _tag = value; }
 
-        private IMonaBrain _brain;
-        private string _stateProperty;
-
         public DisableByTagInstructionTile() { }
-
-        public void Preload(IMonaBrain brain)
-        {
-            _brain = brain;
-        }
 
         public override InstructionTileResult Do()
         {
