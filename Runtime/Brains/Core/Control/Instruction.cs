@@ -113,7 +113,10 @@ namespace Mona.SDK.Brains.Core.Control
                         if (tile is IOnStartInstructionTile)
                             return tile.Do();
                         else if (tile is IActionInstructionTile)
+                        {
+                            _result = InstructionTileResult.Running;
                             return tile.Do();
+                        }
                         break;
                     case InstructionEventTypes.Message:
                         if (tile is IOnMessageInstructionTile)
@@ -133,7 +136,10 @@ namespace Mona.SDK.Brains.Core.Control
                         break;
                     case InstructionEventTypes.Tick:
                         if (tile is IActionInstructionTile)
+                        {
+                            _result = InstructionTileResult.Running;
                             return tile.Do();
+                        }
                         break;
                 }
             }
