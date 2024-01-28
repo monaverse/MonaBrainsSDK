@@ -176,7 +176,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void HandleStarted()
         {
-            BeginBrains();
+            StartCoroutine(BeginBrains());
         }
 
         private void HandleResumed()
@@ -202,8 +202,9 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
-        private void BeginBrains()
+        private IEnumerator BeginBrains()
         {
+            yield return null;
             if (!_began && _body.HasControl())
             {
                 _began = true;

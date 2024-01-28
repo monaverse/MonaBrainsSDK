@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543327
   _id: GlueToMonaPlayer
-  _name: "Glue To\n Mona Player"
+  _name: Glue To Mona Player
   _category: General
   references:
     version: 2
@@ -23,9 +23,9 @@ MonoBehaviour:
     - rid: 3250164503775543327
       type: {class: GlueToMonaPlayerInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: GlueToMonaPlayer
+        _name: "Glue To\n Mona Player"
+        _category: General
         _monaPart: 8
         _offset: {x: 0, y: 0, z: 0}
         _scale: {x: 1, y: 1, z: 1}
