@@ -1,7 +1,9 @@
 ﻿using Mona.SDK.Brains.Core.Brain;
+using System;
 
 namespace Mona.SDK.Brains.Core.Events
 {
+    [Serializable]
     public struct MonaBroadcastMessageEvent : IInstructionEvent
     {
         public string Message;

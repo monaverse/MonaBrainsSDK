@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164566709764152
   _id: OnValueOdd
-  _name: Value Odd
+  _name: Value Is Odd
   _category: Values
   references:
     version: 2
@@ -24,6 +24,6 @@ MonoBehaviour:
       type: {class: OnValueOddInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: OnValueOdd
-        _name: OnValueOdd
-        _category: Condition/Value
+        _name: Value Is Odd
+        _category: Values
         _valueName: 

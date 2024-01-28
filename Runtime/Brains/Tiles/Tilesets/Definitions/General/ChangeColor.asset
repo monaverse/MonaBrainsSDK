@@ -16,18 +16,17 @@ MonoBehaviour:
     rid: 3250164610271543464
   _id: ChangeColor
   _name: Change Color
-  _category: General
+  _category: Visuals
   references:
     version: 2
     RefIds:
     - rid: 3250164610271543464
       type: {class: ChangeColorInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: ChangeColor
+        _name: Change Color
+        _category: General
         _color: {r: 1, g: 1, b: 1, a: 1}
         _easing: 1
-        _mode: 1
         _duration: 1
         _durationValueName: 

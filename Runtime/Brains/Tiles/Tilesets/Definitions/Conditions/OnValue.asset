@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164566709764097
   _id: OnValue
-  _name: Is Value
+  _name: Value Is
   _category: Values
   references:
     version: 2
@@ -24,8 +24,8 @@ MonoBehaviour:
       type: {class: OnValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: OnValue
-        _name: OnValue
-        _category: Condition/Value
+        _name: Value Is
+        _category: Values
         _valueName: 
         _operator: 0
         _amount: 0

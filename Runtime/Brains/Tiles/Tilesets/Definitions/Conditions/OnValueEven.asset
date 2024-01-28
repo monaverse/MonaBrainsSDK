@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164566709764150
   _id: OnValueEven
-  _name: Value Event
+  _name: Value Is Even
   _category: Values
   references:
     version: 2
@@ -24,6 +24,6 @@ MonoBehaviour:
       type: {class: OnValueEvenInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: OnValueEven
-        _name: OnValueEven
-        _category: Condition/Value
+        _name: Value Is Even
+        _category: Values
         _valueName: 

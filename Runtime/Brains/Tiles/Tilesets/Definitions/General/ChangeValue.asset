@@ -16,16 +16,16 @@ MonoBehaviour:
     rid: 3250164566709764105
   _id: ChangeValue
   _name: ChangeValue
-  _category: General
+  _category: Values
   references:
     version: 2
     RefIds:
     - rid: 3250164566709764105
       type: {class: ChangeValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: ChangeValue
+        _name: ChangeValue
+        _category: General
         _valueName: 
         _operator: 0
         _amount: 0
