@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a76ed741c9e10d45a71945c4d61d01c, type: 3}
+  m_Name: ApplyForceBackward
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 3250164677034377626
+  _id: ApplyForceBackward
+  _name: Apply Force Backward
+  _category: Physics
+  references:
+    version: 2
+    RefIds:
+    - rid: 3250164677034377626
+      type: {class: ApplyForceBackwardInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
+        _force: 1
+        _forceValueName: 
+        _duration: 0
+        _durationValueName: 
+        _dragType: 1
+        _drag: 0.2
+        _angularDrag: 0.2
+        _friction: 0.5
+        _bounce: 0.2
