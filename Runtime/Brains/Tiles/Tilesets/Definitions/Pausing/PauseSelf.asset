@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed7a4028195c35546b95dd5647894b8a, type: 3}
+  m_Name: PauseSelf
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 3250164677034377520
+  _id: PauseSelf
+  _name: Pause Self
+  _category: Pausing
+  references:
+    version: 2
+    RefIds:
+    - rid: 3250164677034377520
+      type: {class: PauseSelfInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
+        _Self: 

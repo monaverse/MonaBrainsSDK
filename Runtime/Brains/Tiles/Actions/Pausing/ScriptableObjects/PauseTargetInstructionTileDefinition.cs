@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General.ScriptableObjects
 {
-    [CreateAssetMenu(menuName = "Mona Brains/Tiles/General/PauseTarget", fileName = "PauseTarget")]
+    [CreateAssetMenu(menuName = "Mona Brains/Tiles/Pausing/PauseTarget", fileName = "PauseTarget")]
     public class PauseTargetInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition
     {
         [SerializeReference] protected IInstructionTile _tile = new PauseTargetInstructionTile();

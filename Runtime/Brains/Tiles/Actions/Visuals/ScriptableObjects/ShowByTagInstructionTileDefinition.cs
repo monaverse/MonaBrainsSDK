@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General.ScriptableObjects
 {
-    [CreateAssetMenu(menuName = "Mona Brains/Tiles/General/ShowByTag", fileName = "ShowByTag")]
+    [CreateAssetMenu(menuName = "Mona Brains/Tiles/Visuals/ShowByTag", fileName = "ShowByTag")]
     public class ShowByTagInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition
     {
         [SerializeReference] protected IInstructionTile _tile = new ShowByTagInstructionTile();

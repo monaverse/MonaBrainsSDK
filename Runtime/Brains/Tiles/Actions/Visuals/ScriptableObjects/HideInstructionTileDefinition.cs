@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General.ScriptableObjects
 {
-    [CreateAssetMenu(menuName = "Mona Brains/Tiles/General/Hide", fileName = "Hide")]
+    [CreateAssetMenu(menuName = "Mona Brains/Tiles/Visuals/Hide", fileName = "Hide")]
     public class HideInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition
     {
         [SerializeReference] protected IInstructionTile _tile = new HideInstructionTile();

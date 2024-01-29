@@ -51,6 +51,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             if (_brain.Player != null && _brain.Player.PlayerBody != null)
             {
                 _playerPart = _brain.Player.PlayerBody.FindChildByTag(_part.ToString());
+                if (_playerPart == null) _playerPart = _brain.Player.PlayerBody;
                 _brain.Body.SetScale(_scale, true);
                 _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true, true);
                 _brain.Body.SetParent(_playerPart.ActiveTransform);

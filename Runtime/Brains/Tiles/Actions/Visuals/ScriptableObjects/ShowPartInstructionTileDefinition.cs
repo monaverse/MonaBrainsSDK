@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General.ScriptableObjects
 {
-    [CreateAssetMenu(menuName = "Mona Brains/Tiles/General/ShowPart", fileName = "ShowPart")]
+    [CreateAssetMenu(menuName = "Mona Brains/Tiles/Visuals/ShowPart", fileName = "ShowPart")]
     public class ShowPartInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition
     {
         [SerializeReference] protected IInstructionTile _tile = new ShowPartInstructionTile();
