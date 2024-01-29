@@ -26,8 +26,19 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         [SerializeField]
         public List<ScriptableObject> _actionTiles = new List<ScriptableObject>();
 
-        public List<IInstructionTileDefinition> ConditionTiles => _conditionTiles.ConvertAll<IInstructionTileDefinition>(x => (IInstructionTileDefinition)x);
-        public List<IInstructionTileDefinition> ActionTiles => _actionTiles.ConvertAll<IInstructionTileDefinition>(x => (IInstructionTileDefinition)x);
+        public List<IInstructionTileDefinition> ConditionTiles => _conditionTiles.ConvertAll<IInstructionTileDefinition>(x =>
+        {
+            if (x != null)
+                return (IInstructionTileDefinition)x;
+            else
+                return null;
+        });
+        public List<IInstructionTileDefinition> ActionTiles => _actionTiles.ConvertAll<IInstructionTileDefinition>(x => {
+            if (x != null)
+                return (IInstructionTileDefinition)x;
+            else
+                return null;
+        });
 
         public IInstructionTileDefinition Find(string id)
         {

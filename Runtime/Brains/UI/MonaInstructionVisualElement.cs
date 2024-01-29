@@ -296,6 +296,7 @@ namespace Mona.SDK.Brains.UIElements
             for (var i = 0; i < _brain.TileSet.ConditionTiles.Count; i++)
             {
                 var def = _brain.TileSet.ConditionTiles[i];
+                if (def == null) continue;
                 CopyToTile(def);
                 if(AllowTile(def.Tile))
                     _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => _instruction.ReplaceTile(_selectedTile, def.Tile));
@@ -303,6 +304,7 @@ namespace Mona.SDK.Brains.UIElements
             for (var i = 0; i < _brain.TileSet.ActionTiles.Count; i++)
             {
                 var def = _brain.TileSet.ActionTiles[i];
+                if (def == null) continue;
                 CopyToTile(def);
                 if (AllowTile(def.Tile))
                     _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => _instruction.ReplaceTile(_selectedTile, def.Tile));

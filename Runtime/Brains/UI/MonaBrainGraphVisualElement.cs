@@ -379,6 +379,7 @@ namespace Mona.SDK.Brains.UIElements
             var tiles = _brain.TileSet.ConditionTiles;
             tiles.Sort((a, b) =>
             {
+                if (a == null || b == null) return -1;
                 if (a.Category.CompareTo(b.Category) == 0)
                     return a.Name.CompareTo(b.Name);
                 else
@@ -388,6 +389,7 @@ namespace Mona.SDK.Brains.UIElements
             for (var i = 0; i < tiles.Count; i++)
             {
                 var def = tiles[i];
+                if (def == null) continue;
                 CopyToTile(def);
                 if(def.Category != lastCategory)
                 {
@@ -402,6 +404,7 @@ namespace Mona.SDK.Brains.UIElements
             var tiles2 = _brain.TileSet.ActionTiles;
             tiles2.Sort((a, b) =>
             {
+                if (a == null || b == null) return -1;
                 if (a.Category.CompareTo(b.Category) == 0)
                     return a.Name.CompareTo(b.Name);
                 else
@@ -412,6 +415,7 @@ namespace Mona.SDK.Brains.UIElements
             for (var i = 0; i < tiles2.Count; i++)
             {
                 var def = tiles2[i];
+                if (def == null) continue;
                 CopyToTile(def);
                 if (def.Category != lastCategory)
                 {
