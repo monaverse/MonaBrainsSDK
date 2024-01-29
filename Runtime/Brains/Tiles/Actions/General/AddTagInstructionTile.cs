@@ -9,7 +9,7 @@ using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
-    public class AddTagInstructionTile : InstructionTile, IChangeTagInstructionTile, IActionInstructionTile
+    public class AddTagInstructionTile : InstructionTile, IChangeTagInstructionTile, IActionInstructionTile, IInstructionTileWithPreload
     {
         public const string ID = "AddTag";
         public const string NAME = "Add Tag";

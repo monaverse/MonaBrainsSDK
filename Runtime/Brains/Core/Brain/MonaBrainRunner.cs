@@ -37,6 +37,12 @@ namespace Mona.SDK.Brains.Core.Brain
         private List<MonaBrainGraph> _brainGraphs = new List<MonaBrainGraph>();
         public List<MonaBrainGraph> BrainGraphs => _brainGraphs;
 
+        public void SetBrainGraphs(List<MonaBrainGraph> graphs)
+        {
+            _brainGraphs = graphs;
+            PreloadBrains();
+        }
+
         private List<IMonaBrain> _brainInstances = new List<IMonaBrain>();
         public List<IMonaBrain> BrainInstances => _brainInstances;
 
@@ -172,6 +178,11 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             if (evt.HasControl)
                 RestartBrains();
+        }
+
+        public void StartBrains()
+        {
+            HandleStarted();
         }
 
         private void HandleStarted()

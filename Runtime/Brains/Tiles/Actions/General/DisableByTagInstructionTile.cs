@@ -28,7 +28,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             var bodies = MonaBody.FindByTag(_tag);
             for (var i = 0; i < bodies.Count; i++)
-                bodies[i].ActiveTransform.gameObject.SetActive(false);
+                bodies[i].SetActive(false);
             //Debug.Log($"{nameof(ChangeStateInstructionTile)} state: {_changeState}");
             return Complete(InstructionTileResult.Success);
         }

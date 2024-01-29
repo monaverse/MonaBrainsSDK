@@ -1,4 +1,5 @@
 using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Brains.Core.ScriptableObjects;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Events;
@@ -22,9 +23,6 @@ namespace Mona.SDK.Brains.Core.Brain
     {
         private List<IMonaBrain> _brains = new List<IMonaBrain>();
 
-        [SerializeField]
-        private int _brainsPerTick = -1;
-
         private int _currentBrainIndex = 0;
         private bool _tickLateUpdate;
 
@@ -44,6 +42,10 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private PlayerInput _playerInput;
         public PlayerInput PlayerInput { get => _playerInput; set => _playerInput = value; }
+
+        [SerializeField]
+        private List<MonaBrainGraph> _brainGraphs = new List<MonaBrainGraph>();
+        public List<MonaBrainGraph> BrainGraphs => _brainGraphs;
 
         private static MonaGlobalBrainRunner _instance;
         public static MonaGlobalBrainRunner Instance {
@@ -94,6 +96,14 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
+        private void AttachBrainsToLocalPlayer()
+        {
+            if(BrainGraphs.Count > 0)
+            {
+
+            }
+        }
+
         private void Start()
         {
 #if UNITY_EDITOR && !OLYMPIA
@@ -132,8 +142,23 @@ namespace Mona.SDK.Brains.Core.Brain
             _playerCamera = _playerBody.FindChildByTag(MonaCoreConstants.MONA_TAG_PLAYER_CAMERA);
             _playerId = evt.PlayerId;
 
+            AttachBrainsToLocalPlayer(_playerBody);
+
             for (var i = 0; i < _brains.Count; i++)
                 _brains[i].SetMonaBrainPlayer(this);
+        }
+
+        private void AttachBrainsToLocalPlayer(IMonaBody body)
+        {
+            if(BrainGraphs.Count > 0)
+            {
+                var runner = body.Transform.GetComponent<IMonaBrainRunner>();
+                if (runner == null)
+                    runner = body.Transform.AddComponent<MonaBrainRunner>();
+
+                runner.SetBrainGraphs(BrainGraphs);
+                runner.StartBrains();
+            }
         }
 
         private void Update()

@@ -29,6 +29,20 @@ namespace Mona.SDK.Brains.UIElements
 #endif
         }
 
+        public MonaBrainReferenceVisualElement(MonaGlobalBrainRunner runner)
+        {
+            if (runner == null) return;
+#if UNITY_EDITOR
+            _objectField = new ObjectField();
+            _objectField.objectType = typeof(MonaBrainGraph);
+            _objectField.RegisterValueChangedCallback((evt) =>
+            {
+                runner.BrainGraphs[_listIndex] = (MonaBrainGraph)evt.newValue;
+            });
+            Add(_objectField);
+#endif
+        }
+
         public void SetValue(int idx, IMonaBrain graph)
         {
             _listIndex = idx;
