@@ -1,3 +1,71 @@
+# MonaBrainsSDK 0.3.0
+
+40+ New Tiles for controlling Visuals, Pausing Brains, and basic Physics forces
+
+### Bug Fixes
+- Fixed When user clicks on instruction area, instruction is selected and current tile is deselected.
+- Fixed `ChangeState` tile no longer allows tiles after itself in an instruction for State Pages in a `MonaBrainGraph`
+- Fixed Ensure that `Unload()` properly unloads brains before hotswap reloading.
+- Fixed Disposed element error in `MonaBrainRunnerEditor`
+- Fixed issue when only one tile on `Instruction` was causing issues with brain execution because `Instruction` result state was never switched to running.
+- Fixed default categories and naming for all tiles
+- Fixed Null check if tileset is missing tile reference
+
+### Improvements
+- Allow Attaching `MonaBrainGraph` to LocalPlayer object
+
+** GENERAL **
+- Added `AddTag(string tag)` instruction tile
+- Added `RemoveTag(string tag)` instruction tile
+- Added `EnableByTag(string tag)` instruction tile
+- Added `DisableByTag(string tag)` instruction tile
+- Added `DisableTarget(string target)` instruction tile
+- Added `EnableTarget(string target)` instruction tile
+- Added `EnablePart(string part)` instruction tile
+- Added `DisablePart(string part)` instruction tile
+
+** PAUSING ** 
+- Added `PauseBodyByTag(string tag)` instruction tile
+- Added `ResumeBodyByTag(string tag)` instruction tile
+- Added `PauseTarget(string target)` instruction tile
+- Added `ResumeTarget(string target)` instruction tile
+- Added `PauseSelf()` instruction tile
+
+** VISUALS ** 
+- Added `ShowByTag(string tag)` instruction tile
+- Added `HideByTag(string tag)` instruction tile
+- Added `Show()` instruction tile
+- Added `Hide()` instruction tile
+- Added `ShowByTag(string tag)` instruction tile
+- Added `HideByTag(string tag)` instruction tile
+- Added `ShowTarget(string target)` instruction tile
+- Added `HideTarget(string target)` instruction tile
+- Added `ShowPart(string part)` instruction tile
+- Added `HidePart(string part)` instruction tile
+
+** PHYSICS **
+- Added `AttachToPart(string part, Vector3 offset, Vector3 scale)` instruction tile
+- Added `AttachToTag(string tag, Vector3 offset, Vector3 scale)` instruction tile
+- Added `AttachToTagPart(string tag, string part, Vector3 offset, Vector3 scale)` instruction tile
+- Added `AttachToTarget(string target, Vector3 offset, Vector3 scale)` instruction tile
+- Added `AttachToTargetPart(string target, string part, Vector3 offset, Vector3 scale)` instruction tile
+- Added `AttachToPlayerPart(string part, Vector3 offset, Vector3 scale)` instruction tile
+- Added `Deattach()` instruction tile
+- Added `ApplyForceForward(float duration, DragType dragType, float drag, float angularDrag, float friction, float bounce)` instruction tile
+- Added `ApplyForceBackward(float duration, DragType dragType, float drag, float angularDrag, float friction, float bounce)` instruction tile
+- Added `ApplyForceRight(float duration, DragType dragType, float drag, float angularDrag, float friction, float bounce)` instruction tile
+- Added `ApplyForceLeft(float duration, DragType dragType, float drag, float angularDrag, float friction, float bounce)` instruction tile
+- Added `ApplyForceUp(float duration, DragType dragType, float drag, float angularDrag, float friction, float bounce)` instruction tile
+- Added `ApplyForceDown(float duration, DragType dragType, float drag, float angularDrag, float friction, float bounce)` instruction tile
+- Added `ApplyForcePush(float duration, DragType dragType, float drag, float angularDrag, float friction, float bounce)` instruction tile
+- Added `ApplyForcePull(float duration, DragType dragType, float drag, float angularDrag, float friction, float bounce)` instruction tile
+- Added `ApplyForceAway(float duration, DragType dragType, float drag, float angularDrag, float friction, float bounce)` instruction tile
+- Added `ApplyForceToward(float duration, DragType dragType, float drag, float angularDrag, float friction, float bounce)` instruction tile
+- Added `ApplyForceAlongMoveInput(float duration, DragType dragType, float drag, float angularDrag, float friction, float bounce)` instruction tile
+
+
+---
+
 # MonaBrainsSDK 0.2.0
 
 ### Improvements
