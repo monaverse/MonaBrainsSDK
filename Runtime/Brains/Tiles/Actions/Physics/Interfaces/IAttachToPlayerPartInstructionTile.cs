@@ -2,14 +2,12 @@
 using Mona.SDK.Brains.Core.Tiles;
 using UnityEngine;
 
-namespace Mona.SDK.Brains.Tiles.Actions.General.Interfaces
+namespace Mona.SDK.Brains.Tiles.Actions.Physics.Interfaces
 {
-    public interface IDissolveGlueInstructionTile : IInstructionTileWithPreload
+    public interface IAttachToPlayerPartInstructionTile : IInstructionTileWithPreload
     {
         MonaPlayerBodyParts Part { get; set; }
-        string Target { get; set; }
         Vector3 Offset { get; set; }
         Vector3 Scale { get; set; }
-        bool LetFall { get; set; }
     }
 }

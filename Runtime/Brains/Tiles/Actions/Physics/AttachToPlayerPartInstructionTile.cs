@@ -8,23 +8,23 @@ using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Events;
-using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
+using Mona.SDK.Brains.Tiles.Actions.Physics.Interfaces;
 using Mona.SDK.Core;
 
-namespace Mona.SDK.Brains.Tiles.Actions.General
+namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
     [Serializable]
-    public class GlueToMonaPlayerInstructionTile : InstructionTile, IGlueToMonaPlayerInstructionTile, IActionInstructionTile
+    public class AttachToPlayerPartInstructionTile : InstructionTile, IAttachToPlayerPartInstructionTile, IActionInstructionTile
     {
-        public const string ID = "GlueToMonaPlayer";
-        public const string NAME = "Glue To Mona Player";
-        public const string CATEGORY = "General";
-        public override Type TileType => typeof(GlueToMonaPlayerInstructionTile);
+        public const string ID = "AttachToPlayerPart";
+        public const string NAME = "Attach To Player Part";
+        public const string CATEGORY = "Physics";
+        public override Type TileType => typeof(AttachToPlayerPartInstructionTile);
 
         [SerializeField]
-        private MonaPlayerBodyParts _monaPart = MonaPlayerBodyParts.Camera;
+        private MonaPlayerBodyParts _part = MonaPlayerBodyParts.Camera;
         [BrainPropertyEnum(true)]
-        public MonaPlayerBodyParts MonaPart { get => _monaPart; set => _monaPart = value; }
+        public MonaPlayerBodyParts Part { get => _part; set => _part = value; }
 
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
@@ -39,7 +39,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private IMonaBrain _brain;
         private IMonaBody _playerPart;
 
-        public GlueToMonaPlayerInstructionTile() { }
+        public AttachToPlayerPartInstructionTile() { }
 
         public void Preload(IMonaBrain brainInstance) 
         {
@@ -50,8 +50,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             if (_brain.Player != null && _brain.Player.PlayerBody != null)
             {
-                _playerPart = _brain.Player.PlayerBody.FindChildByTag(_monaPart.ToString());
+                _playerPart = _brain.Player.PlayerBody.FindChildByTag(_part.ToString());
                 _brain.Body.SetScale(_scale, true);
+                _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true, true);
                 _brain.Body.SetParent(_playerPart.ActiveTransform);
                 _brain.Body.SetPosition(_playerPart.ActiveTransform.position + _playerPart.ActiveTransform.parent.TransformDirection(_offset), true, true);
                 _brain.Body.SetRotation(_playerPart.ActiveTransform.rotation, true, true);

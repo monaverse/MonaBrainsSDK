@@ -10,22 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1977c25d44fc0fc4f86258bd5d492b56, type: 3}
-  m_Name: GlueToMonaPlayer
+  m_Name: AttachToPlayerPart
   m_EditorClassIdentifier: 
   _tile:
-    rid: 3250164503775543327
-  _id: GlueToMonaPlayer
-  _name: Glue To Mona Player
-  _category: General
+    rid: 3250164677034377495
+  _id: AttachToPlayerPart
+  _name: Attach To Player Part
+  _category: Physics
   references:
     version: 2
     RefIds:
-    - rid: 3250164503775543327
-      type: {class: GlueToMonaPlayerInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
+    - rid: 3250164677034377495
+      type: {class: AttachToPlayerPartInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: GlueToMonaPlayer
-        _name: "Glue To\n Mona Player"
-        _category: General
-        _monaPart: 8
+        _id: 
+        _name: 
+        _category: 
+        _part: 8
         _offset: {x: 0, y: 0, z: 0}
         _scale: {x: 1, y: 1, z: 1}
