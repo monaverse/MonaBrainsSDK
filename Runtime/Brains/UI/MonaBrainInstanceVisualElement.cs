@@ -46,7 +46,7 @@ namespace Mona.SDK.Brains.UIElements
             _brainContainer.Add(_activePageContainer);
             Add(_brainContainer);
 
-            HandleStateChanged(null, _brain);
+            HandleStateChanged(_brain.BrainState, _brain);
         }
 
         private void HandleStateChanged(string state, IMonaBrain brain)

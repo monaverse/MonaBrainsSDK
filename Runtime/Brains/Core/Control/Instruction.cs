@@ -43,7 +43,7 @@ namespace Mona.SDK.Brains.Core.Control
             OnDeselect?.Invoke();
         }
 
-        public void Preload(IMonaBrain brain)
+        public void Preload(IMonaBrain brain, IMonaBrainPage page)
         {
             _brain = brain;
             _firstActionIndex = -1;
@@ -52,6 +52,8 @@ namespace Mona.SDK.Brains.Core.Control
                 var tile = InstructionTiles[i];
                 if (tile is IInstructionTileWithPreload)
                     ((IInstructionTileWithPreload)tile).Preload(brain);
+                else if (tile is IInstructionTileWithPreloadAndPage)
+                    ((IInstructionTileWithPreloadAndPage)tile).Preload(brain, page);
 
                 if (tile is IActionInstructionTile)
                 {
@@ -234,7 +236,7 @@ namespace Mona.SDK.Brains.Core.Control
                 else
                 {
                     var idx = InstructionTiles.FindLastIndex(x => x is IActionStateEndInstructionTile);
-                    if (i > idx)
+                    if (idx > i)
                         i = idx;
                 }
             }

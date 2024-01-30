@@ -7,6 +7,7 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using Mona.SDK.Brains.Tiles.Conditions.Enums;
 using Mona.SDK.Brains.Core.State;
+using Mona.SDK.Core.State.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -19,7 +20,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override Type TileType => typeof(OnValueInstructionTile);
 
         [SerializeField] private string _valueName;
-        [BrainProperty(true)] public string ValueName { get => _valueName; set => _valueName = value; }
+        [BrainPropertyValue(typeof(IMonaStateFloatValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
 
         [SerializeField] private ValueOperatorType _operator = ValueOperatorType.Equal;
         [BrainPropertyEnum(false)] public ValueOperatorType Operator { get => _operator; set => _operator = value; }

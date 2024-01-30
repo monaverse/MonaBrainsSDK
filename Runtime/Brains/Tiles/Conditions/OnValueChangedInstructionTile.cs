@@ -22,7 +22,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override Type TileType => typeof(OnValueChangedInstructionTile);
 
         [SerializeField] private string _valueName;
-        [BrainProperty(true)] public string ValueName { get => _valueName; set => _valueName = value; }
+        [BrainPropertyValue(true)] public string ValueName { get => _valueName; set => _valueName = value; }
 
         private IMonaBrain _brain;
         private float _lastFloat;

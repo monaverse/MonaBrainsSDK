@@ -69,13 +69,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override void Unload()
         {
             EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
-            Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Unload)}");
+            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Unload)}");
         }
 
         public void Pause()
         {
             EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
-            Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Pause)}");
+            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Pause)}");
         }
 
         public void Resume()
@@ -83,7 +83,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if(_movingState == MovingStateType.Moving)
             {
                 EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
-                Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Resume)}");
+                //Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Resume)}");
             }
         }
 

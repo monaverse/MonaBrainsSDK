@@ -195,8 +195,26 @@ namespace Mona.SDK.Brains.UIElements
                 container.Add(fieldContainer);
 
                 var isTag = (BrainPropertyMonaTag)property.GetCustomAttribute(typeof(BrainPropertyMonaTag), true);
+                var isValue = (BrainPropertyValue)property.GetCustomAttribute(typeof(BrainPropertyValue), true);
 
-                if (isTag != null)
+                if (isValue != null)
+                {
+                    var values = _brain.DefaultState.Values.FindAll(x => isValue.Type.IsAssignableFrom(_brain.DefaultState.GetValue(x.Name).GetType())).ConvertAll<string>(x => x.Name);
+                    var field = new DropdownField(values, 0);
+                    field.style.width = 100;
+                    field.style.flexDirection = FlexDirection.Column;
+                    field.labelElement.style.color = Color.black;
+                    field.label = property.Name;
+                    field.value = (string)property.GetValue(_tile);
+                    field.RegisterValueChangedCallback((evt) =>
+                    {
+                        field.value = (string)evt.newValue;
+                        property.SetValue(_tile, field.value);
+                        Changed();
+                    });
+                    fieldContainer.Add(field);
+                }
+                else if (isTag != null)
                 {
                     var field = new DropdownField(_brain.MonaTagSource.Tags, 0);
                     field.style.width = 100;

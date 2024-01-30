@@ -313,7 +313,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             OnStateChanged?.Invoke(value, this);
             _state.Set(MonaBrainConstants.ON_STARTING, true, false);
-            ExecuteStatePageInstructions(InstructionEventTypes.Start);
+            ExecuteStatePageInstructions(InstructionEventTypes.State);
             _state.Set(MonaBrainConstants.ON_STARTING, false, false);
         }
 
@@ -330,10 +330,17 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             {
                 if (StatePages[i].Name == BrainState)
                 {
+                    //don't trigger events from inactive state pages
+                    if (evt is MonaTriggerEvent && !IsActiveStatePage(((MonaTriggerEvent)evt).Page, StatePages[i])) continue;
                     StatePages[i].ExecuteInstructions(eventType, evt);
                     break;
                 }
             }
+        }
+
+        private bool IsActiveStatePage(IMonaBrainPage page, IMonaBrainPage activePage)
+        {
+            return page != null && (page.IsCore || page == activePage);
         }
 
         public void Unload()

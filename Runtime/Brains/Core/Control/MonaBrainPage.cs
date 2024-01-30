@@ -43,7 +43,7 @@ namespace Mona.SDK.Brains.Core.Control
             for (var i = 0; i < Instructions.Count; i++)
             {
                 var instruction = Instructions[i];
-                instruction.Preload(brain);
+                instruction.Preload(brain, this);
             }
         }
 

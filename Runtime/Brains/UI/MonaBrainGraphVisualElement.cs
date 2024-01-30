@@ -540,6 +540,9 @@ namespace Mona.SDK.Brains.UIElements
                 button.tabIndex = i;
                 button.clicked += () =>
                 {
+                    if(_selectedInstructions != null)
+                        _selectedInstructions.Clear();
+                    _selectedTileIndex = -1;
                     _selectedTab = button.tabIndex;
                     Refresh();
                 };

@@ -1,5 +1,6 @@
 using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions.Behaviours;
@@ -40,13 +41,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public OnNearInstructionTile() { }
 
-        public void Preload(IMonaBrain brainInstance)
+        public void Preload(IMonaBrain brainInstance, IMonaBrainPage page)
         {
             _brain = brainInstance;
             if (_collider == null)
             {
                 _collider = _brain.GameObject.AddComponent<SphereColliderTriggerBehaviour>();
                 _collider.SetBrain(_brain);
+                _collider.SetPage(page);
                 _collider.SetMonaTag(_tag);
             }
         }
@@ -74,7 +76,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             var body = _collider.FindForwardMostBodyWithMonaTagInFieldOfView(_tag, _fieldOfView);
             if (body != null)
             {
-                //Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {body}");
+                Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {body}");
                 _brain.State.Set(MonaBrainConstants.RESULT_TARGET, body);
                 return Complete(InstructionTileResult.Success);
             }

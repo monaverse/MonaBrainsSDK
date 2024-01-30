@@ -18,7 +18,7 @@ namespace Mona.SDK.Brains.Core.Control
         bool HasEndTile();
 
         List<IInstructionTile> InstructionTiles { get; }
-        void Preload(IMonaBrain brain);
+        void Preload(IMonaBrain brain, IMonaBrainPage page);
         void Execute(InstructionEventTypes eventType, IInstructionEvent evt);
         void AddTile(IInstructionTile tile, int i, bool isCore);
         void ReplaceTile(int i, IInstructionTile tile);

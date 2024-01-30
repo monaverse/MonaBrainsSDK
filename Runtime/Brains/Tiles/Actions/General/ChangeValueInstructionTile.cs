@@ -20,7 +20,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override Type TileType => typeof(ChangeValueInstructionTile);
 
         [SerializeField] private string _valueName;
-        [BrainProperty(true)] public string ValueName { get => _valueName; set => _valueName = value; }
+        [BrainPropertyValue(typeof(IMonaStateFloatValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
 
         [SerializeField] private ValueChangeType _operator = ValueChangeType.Set;
         [BrainPropertyEnum(false)] public ValueChangeType Operator { get => _operator; set => _operator = value; }

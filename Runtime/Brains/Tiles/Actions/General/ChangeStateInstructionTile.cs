@@ -22,7 +22,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public string State { get => _changeState; set => _changeState = value; }
 
         private IMonaBrain _brain;
-        private string _stateProperty;
 
         public ChangeStateInstructionTile() { }
 
