@@ -65,7 +65,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     }
                     else
                     {
-                        if (_brain.LoggingEnabled)
+                        if (_brain.LoggingEnabled && body != null)
                             Debug.Log($"selected other body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
 
                         _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, (IMonaBody)null);

@@ -64,11 +64,19 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             if (_instance == null)
             {
-                var go = new GameObject();
-                var runner = go.AddComponent<MonaGlobalBrainRunner>();
-                go.name = nameof(MonaGlobalBrainRunner);
-                go.transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
-                runner.Awake();
+                var existing = GameObject.FindObjectOfType<MonaGlobalBrainRunner>();
+                if (existing != null)
+                {
+                    existing.Awake();
+                }
+                else
+                {
+                    var go = new GameObject();
+                    var runner = go.AddComponent<MonaGlobalBrainRunner>();
+                    go.name = nameof(MonaGlobalBrainRunner);
+                    go.transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
+                    runner.Awake();
+                }
             }
         }
 

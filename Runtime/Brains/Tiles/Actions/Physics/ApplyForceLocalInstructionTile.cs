@@ -53,7 +53,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         private Vector3 _direction;
 
-        private IMonaBrain _brain;
+        protected IMonaBrain _brain;
 
         private MovingStateType _movingState;
         private float _time;
@@ -115,13 +115,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             }
         }
 
-        public override InstructionTileResult Do()
+        protected virtual IMonaBody GetTarget()
         {
             IMonaBody target = _brain.Body;
-            switch(DirectionType)
+            switch (DirectionType)
             {
-                case PushDirectionType.Pull:
-                case PushDirectionType.Push:
                 case PushDirectionType.Toward:
                 case PushDirectionType.Away:
                     var value = _brain.State.GetValue(MonaBrainConstants.RESULT_TARGET);
@@ -131,6 +129,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                         target = ((IMonaStateBodyValue)value).Value;
                     break;
             }
+            return target;
+        }
+
+        protected virtual bool ApplyForceToTarget()
+        {
+            return false;
+        }
+
+        public override InstructionTileResult Do()
+        {
+            var target = GetTarget();
 
             _direction = GetDirectionVector(DirectionType, target);
             //Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.Do {DirectionType}");
@@ -143,13 +152,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
             if (_duration == 0f)
             {
-                _brain.Body.SetDragType(_dragType);
-                _brain.Body.SetDrag(_drag);
-                _brain.Body.SetAngularDrag(_angularDrag);
-                _brain.Body.SetFriction(_friction);
-                _brain.Body.SetBounce(_bounce);
+                var body = _brain.Body;
+                if (ApplyForceToTarget())
+                    body = target;
+                body.SetDragType(_dragType);
+                body.SetDrag(_drag);
+                body.SetAngularDrag(_angularDrag);
+                body.SetFriction(_friction);
+                body.SetBounce(_bounce);
 
-                _brain.Body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
+
+                body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -179,13 +194,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             if (_movingState == MovingStateType.Moving)
             {
-                _brain.Body.SetDragType(_dragType);
-                _brain.Body.SetDrag(_drag);
-                _brain.Body.SetAngularDrag(_angularDrag);
-                _brain.Body.SetFriction(_friction);
-                _brain.Body.SetBounce(_bounce);
+                IMonaBody body = _brain.Body;
+                if (ApplyForceToTarget())
+                    body = GetTarget();
+                body.SetDragType(_dragType);
+                body.SetDrag(_drag);
+                body.SetAngularDrag(_angularDrag);
+                body.SetFriction(_friction);
+                body.SetBounce(_bounce);
 
-                _brain.Body.ApplyForce(_direction * deltaTime, ForceMode.Acceleration, true);
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"ApplyForce to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
+
+                body.ApplyForce(_direction * deltaTime, ForceMode.Acceleration, true);
 
                 if(_time >= 1f)
                 {
@@ -214,7 +235,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 case PushDirectionType.Pull: return _brain.Body.GetPosition() - body.GetPosition();
                 case PushDirectionType.Away: return _brain.Body.GetPosition() - body.GetPosition();
                 case PushDirectionType.Toward: return body.GetPosition() - _brain.Body.GetPosition();
-                case PushDirectionType.UseInput: return InputMoveDirection;
+                case PushDirectionType.UseInput: return new Vector3(InputMoveDirection.x, 0f, InputMoveDirection.y);
                 default: return Vector3.zero;
             }
         }

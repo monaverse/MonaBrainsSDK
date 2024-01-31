@@ -10,22 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 58903447b2cd5224a9f6f6464fd956a4, type: 3}
-  m_Name: Pull
+  m_Name: PullTarget
   m_EditorClassIdentifier: 
   _tile:
-    rid: 3250164677034377625
-  _id: Pull
-  _name: Pull
+    rid: 3250164786554994693
+  _id: PullTarget
+  _name: Pull Target
   _category: Physics
   references:
     version: 2
     RefIds:
-    - rid: 3250164677034377625
-      type: {class: PullInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+    - rid: 3250164786554994693
+      type: {class: PullTargetInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: Pull
+        _name: Pull
+        _category: Physics
         _force: 1
         _forceValueName: 
         _duration: 0
@@ -35,3 +35,4 @@ MonoBehaviour:
         _angularDrag: 0.2
         _friction: 0.5
         _bounce: 0.2
+        _target: 

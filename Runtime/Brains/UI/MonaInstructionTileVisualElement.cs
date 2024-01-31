@@ -346,7 +346,9 @@ namespace Mona.SDK.Brains.UIElements
                         property.SetValue(_tile, (Enum)evt.newValue);
                         Changed();
                     });
-                    container.Add(field);
+                    fieldContainer.Add(field);
+
+                    AddTargetFieldIfExists(fieldContainer, field, properties, property);
                 }
 #if UNITY_EDITOR
                 else if (property.PropertyType == typeof(Color))

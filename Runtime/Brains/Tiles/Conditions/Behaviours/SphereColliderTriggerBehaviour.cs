@@ -270,9 +270,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         {
             if (body != null && body.HasMonaTag(_monaTag))
             {
-                //Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {body.LocalId}");
-                if (!_bodiesIndex.ContainsKey(body) && body.Intersects(_collider))
+                if (!_bodiesIndex.ContainsKey(body))// && body.Intersects(_collider))
                 {
+                    if(_brain.LoggingEnabled)
+                        Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _bodiesIndex.Add(body, true);
                     _bodies.Add(body);
                     EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerEnter));
@@ -286,9 +287,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         {
             if (body != null && body.HasMonaTag(_monaTag))
             {
-                //Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.LocalId}");
-                if (_bodiesIndex.ContainsKey(body) && !body.Intersects(_collider))
+                if (_bodiesIndex.ContainsKey(body))// && !body.Intersects(_collider))
                 {
+                    if (_brain.LoggingEnabled)
+                        Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _bodiesIndex.Remove(body);
                     _bodies.Remove(body);
                     EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerExit));

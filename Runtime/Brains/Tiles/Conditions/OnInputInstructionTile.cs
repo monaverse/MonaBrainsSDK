@@ -24,12 +24,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override Type TileType => typeof(OnInputInstructionTile);
 
         [SerializeField]
-        private MonaInputType _inputType;
+        private MonaInputType _inputType = MonaInputType.Action;
         [BrainPropertyEnum(true)]
         public MonaInputType InputType { get => _inputType; set => _inputType = value; }
 
         [SerializeField]
-        private MonaInputState _inputState = MonaInputState.None;
+        private MonaInputState _inputState = MonaInputState.Pressed;
         [BrainPropertyEnum(false)]
         public MonaInputState InputState { get => _inputState; set => _inputState = value; }
 
@@ -62,7 +62,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (_active != active)
             {
                 _active = active;
-                UpdateActive();
+                if(_brain != null)
+                    UpdateActive();
             }
         }
 
@@ -71,11 +72,15 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (!_active) return;
             OnTileTick = HandleTileTick;
             EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTileTick);
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(OnInputInstructionTile)}.{nameof(UpdateActive)} {_active}");
         }
 
         public void Pause()
         {
             EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTileTick);
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(OnInputInstructionTile)}.{nameof(Pause)} input paused");
         }
 
         public void Resume()
@@ -215,6 +220,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (_inputState == _currentInputState)
             {
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(OnInputInstructionTile)}.{nameof(Do)} input active {_currentInputState} {_inputType}");
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);

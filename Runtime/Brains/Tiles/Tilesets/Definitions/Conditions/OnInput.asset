@@ -13,18 +13,18 @@ MonoBehaviour:
   m_Name: OnInput
   m_EditorClassIdentifier: 
   _tile:
-    rid: 3250164503775543317
-  _id: OnKeyDown
+    rid: 3250164769144701326
+  _id: OnInput
   _name: Mona Input
   _category: Input
   references:
     version: 2
     RefIds:
-    - rid: 3250164503775543317
+    - rid: 3250164769144701326
       type: {class: OnInputInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: OnKeyDown
-        _name: On Input
-        _category: Condition/Input
-        _inputType: 0
-        _inputState: 0
+        _id: 
+        _name: 
+        _category: 
+        _inputType: 3
+        _inputState: 2
