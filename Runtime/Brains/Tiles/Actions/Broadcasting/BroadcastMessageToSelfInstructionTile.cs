@@ -3,6 +3,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Tiles.Actions.Broadcasting.Interfaces;
+using Mona.SDK.Core.Body;
 using System;
 using UnityEngine;
 
@@ -31,7 +32,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
         public override InstructionTileResult Do()
         {
-            BroadcastMessage(_brain, _message, _brain);
+            Debug.Log($"{nameof(BroadcastMessageToSelfInstructionTile)} {_message}");
+            if (_brain.Body is IMonaBodyPart)
+            {
+                IMonaBody parent = _brain.Body.Parent;
+                if (parent != null)
+                    BroadcastMessage(_brain, _message, parent);
+            }
+            else
+            {
+                BroadcastMessage(_brain, _message, _brain.Body);
+            }
+
             return Complete(InstructionTileResult.Success);
         }
     }

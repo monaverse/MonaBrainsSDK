@@ -56,7 +56,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             if (part != null)
             {
                 _brain.Body.SetScale(_scale, true);
-                _brain.Body.SetParent(part.ActiveTransform);
+                _brain.Body.SetTransformParent(part.ActiveTransform);
                 _brain.Body.SetPosition(part.ActiveTransform.position + part.ActiveTransform.parent.TransformDirection(_offset), true, true);
                 _brain.Body.SetRotation(part.ActiveTransform.rotation, true, true);
             }

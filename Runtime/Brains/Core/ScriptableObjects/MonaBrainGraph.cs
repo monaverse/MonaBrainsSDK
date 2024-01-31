@@ -39,6 +39,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private IMonaBrainRunner _runner;
 
         private IMonaBody _body;
+        private IMonaBody _bodyParent;
         public IMonaBody Body => _body;
 
         private IMonaBrainState _state;
@@ -58,6 +59,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         [SerializeReference]
         private List<IMonaBrainPage> _statePages = new List<IMonaBrainPage>();
         public List<IMonaBrainPage> StatePages => _statePages;
+
+        private IMonaBrainPage _activeStatePage;
 
         [SerializeField]
         protected List<string> _monaTags = new List<string>();
@@ -123,6 +126,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private List<MonaBroadcastMessageEvent> _messages = new List<MonaBroadcastMessageEvent>();
 
+        private Action<MonaBodyParentChangedEvent> OnBodyParentChanged;
         private Action<MonaTickEvent> OnMonaTick;
         private Action<MonaTriggerEvent> OnMonaTrigger;
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
@@ -163,6 +167,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             CacheReferences(gameObject, runner);
             PreloadPages();
             AddEventDelegates();
+            AddHierarchyDelgates();
         }
 
         private void CacheReferences(GameObject gameObject, IMonaBrainRunner runner)
@@ -171,6 +176,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             _runner = runner;
 
             _body = gameObject.GetComponent<IMonaBody>();
+            _bodyParent = _body.Parent;
             if (_body == null)
                 _body = gameObject.AddComponent<MonaBody>();
 
@@ -186,6 +192,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void AddEventDelegates()
         {
+            OnBodyParentChanged = HandleBodyParentChanged;
+            EventBus.Register<MonaBodyParentChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
+
             OnMonaTick = HandleMonaTick;
             EventBus.Register<MonaTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT, this), OnMonaTick);
 
@@ -203,8 +212,17 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             EventBus.Register<MonaHasInputTickEvent>(new EventHook(MonaBrainConstants.INPUT_TICK_EVENT, this), OnInputTick);
         }
 
+        private void AddHierarchyDelgates()
+        {
+            if (_bodyParent != null)
+                EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
+        }
+
+
         private void RemoveEventDelegates()
         {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
+
             EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT, this), OnMonaTick);
             EventBus.Unregister(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
             EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
@@ -218,8 +236,17 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             OnBroadcastMessage = null;
         }
 
+        private void RemoveHierarchyDelegates()
+        {
+            {
+                if (_bodyParent != null)
+                    EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
+            }
+        }
+
         private void PreloadPages()
         {
+            CorePage.SetActive(true);
             CorePage.Preload(this);
             for (var i = 0; i < StatePages.Count; i++)
                 StatePages[i].Preload(this);
@@ -247,6 +274,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             CorePage.Resume();
             for (var i = 0; i < _statePages.Count; i++)
                 _statePages[i].Resume();
+        }
+        
+        private void HandleBodyParentChanged(MonaBodyParentChangedEvent evt)
+        {
+            RemoveHierarchyDelegates();
+            _bodyParent = _body.Parent;
+            AddHierarchyDelgates();
         }
 
         private void HandleMonaTick(MonaTickEvent evt)
@@ -311,10 +345,26 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleStatePropertyChanged(string value)
         {
+            SetActiveStatePage(value);
+
             OnStateChanged?.Invoke(value, this);
             _state.Set(MonaBrainConstants.ON_STARTING, true, false);
             ExecuteStatePageInstructions(InstructionEventTypes.State);
             _state.Set(MonaBrainConstants.ON_STARTING, false, false);
+        }
+
+        private void SetActiveStatePage(string value)
+        {
+            _activeStatePage = null;
+            for (var i = 0; i < StatePages.Count; i++)
+            {
+                StatePages[i].SetActive(false);
+                if (StatePages[i].Name == BrainState)
+                {
+                    StatePages[i].SetActive(true);
+                    _activeStatePage = StatePages[i];
+                }
+            }
         }
 
         private void ExecuteCorePageInstructions(InstructionEventTypes eventType, IInstructionEvent evt = null)
@@ -326,21 +376,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private void ExecuteStatePageInstructions(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
             if (!_body.HasControl()) return;
-            for (var i = 0; i < StatePages.Count; i++)
-            {
-                if (StatePages[i].Name == BrainState)
-                {
-                    //don't trigger events from inactive state pages
-                    if (evt is MonaTriggerEvent && !IsActiveStatePage(((MonaTriggerEvent)evt).Page, StatePages[i])) continue;
-                    StatePages[i].ExecuteInstructions(eventType, evt);
-                    break;
-                }
-            }
-        }
-
-        private bool IsActiveStatePage(IMonaBrainPage page, IMonaBrainPage activePage)
-        {
-            return page != null && (page.IsCore || page == activePage);
+            if (_activeStatePage != null)
+                _activeStatePage.ExecuteInstructions(eventType, evt);
         }
 
         public void Unload()
@@ -349,6 +386,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             for (var i = 0; i < _statePages.Count; i++)
                 _statePages[i].Unload();
             RemoveEventDelegates();
+            RemoveHierarchyDelegates();
         }
     }
 }

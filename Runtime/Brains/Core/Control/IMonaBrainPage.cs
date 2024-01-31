@@ -9,7 +9,10 @@ namespace Mona.SDK.Brains.Core.Control
     {
         List<IInstruction> Instructions { get; }
         string Name { get; set; }
-        bool IsCore { get; set; }
+        bool IsCore { get; }
+        bool IsActive { get; }
+        void SetActive(bool active);
+        void SetIsCore(bool core);
         void Preload(IMonaBrain brain);
         void ExecuteInstructions(InstructionEventTypes eventType, IInstructionEvent evt = null);
         void Unload();

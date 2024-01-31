@@ -12,7 +12,9 @@ using UnityEngine;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnNearInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile
+    public class OnNearInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, 
+        IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IInstructionTileActivate,
+        IPauseableInstructionTile
     {
         public const string ID = "OnNear";
         public const string NAME = "Near";
@@ -35,6 +37,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private IMonaBrain _brain;
         private SphereColliderTriggerBehaviour _collider;
         private GameObject _gameObject;
+        private bool _active;
 
         private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnTriggerEnter };
         public List<MonaTriggerType> TriggerTypes => _triggerTypes;
@@ -50,7 +53,35 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _collider.SetBrain(_brain);
                 _collider.SetPage(page);
                 _collider.SetMonaTag(_tag);
+                UpdateActive();
             }
+        }
+
+        public void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                UpdateActive();
+            }
+        }
+
+        public void Pause()
+        {
+            if (_collider != null)
+                _collider.SetActive(false);
+        }
+
+        public void Resume()
+        {
+            UpdateActive();
+        }
+
+        private void UpdateActive()
+        {
+            Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(UpdateActive)} {_active}");
+            if (_collider != null)
+                _collider.SetActive(_active);
         }
 
         public override void Unload()

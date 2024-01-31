@@ -15,7 +15,8 @@ using UnityEngine.InputSystem;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnInputInstructionTile : InstructionTile, IOnInputInstructionTile, IDisposable, IConditionInstructionTile, IStartableInstructionTile, IInputInstructionTile
+    public class OnInputInstructionTile : InstructionTile, IOnInputInstructionTile, IDisposable, IConditionInstructionTile, 
+        IStartableInstructionTile, IInputInstructionTile, IInstructionTileActivate, IPauseableInstructionTile
     {
         public const string ID = "OnInput";
         public const string NAME = "Mona Input";
@@ -39,8 +40,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private PlayerInput _inputManager;
         private Inputs _inputs;
         private Action<MonaTileTickEvent> OnTileTick;
-        private bool _inputUsingGamepad;
-        private bool _wasTicking;
+        private bool _active;
 
         private float _mouseLookSensitivity = 30f;
 
@@ -54,9 +54,33 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             ConfigureInput();
 
+            UpdateActive();
+        }
+
+        public void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                UpdateActive();
+            }
+        }
+
+        private void UpdateActive()
+        {
+            if (!_active) return;
             OnTileTick = HandleTileTick;
             EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTileTick);
+        }
 
+        public void Pause()
+        {
+            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTileTick);
+        }
+
+        public void Resume()
+        {
+            UpdateActive();
         }
 
         private Vector2 _movementDirection
@@ -91,8 +115,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             _inputs.Player.Enable();
 
             _inputManager.ActivateInput();
-
-            RegisterActionChange();
         }
 
         private void ProcessInput(MonaInputType inputType)
@@ -125,7 +147,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             if (_currentInputState != MonaInputState.None && _currentInputState == _inputState)
             {
-                _wasTicking = true;
                 EventBus.Trigger(new EventHook(MonaBrainConstants.INPUT_TICK_EVENT, _brain), new MonaHasInputTickEvent(Time.frameCount));
             }
         }
@@ -188,33 +209,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         void OnDeviceRegained(PlayerInput obj)
         {
             Debug.Log("Input Device Regained");
-        }
-
-        private void RegisterActionChange()
-        {
-            InputSystem.onActionChange += (obj, change) =>
-            {
-                if (change == InputActionChange.ActionPerformed)
-                {
-                    var inputAction = (InputAction)obj;
-                    var lastControl = inputAction.activeControl;
-                    var lastDevice = lastControl.device;
-
-                    OnControlSchemeChanged(lastDevice.displayName);
-                }
-            };
-        }
-
-        public void OnControlSchemeChanged(string device)
-        {
-            if (device == "Mouse" || device == "Keyboard")
-            {
-                _inputUsingGamepad = false;
-            }
-            else
-            {
-                _inputUsingGamepad = true;
-            }
         }
 
         public override InstructionTileResult Do()

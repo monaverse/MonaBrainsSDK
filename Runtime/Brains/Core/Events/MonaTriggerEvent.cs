@@ -7,12 +7,10 @@ namespace Mona.SDK.Brains.Core.Events
     public struct MonaTriggerEvent : IInstructionEvent
     {
         public MonaTriggerType Type;
-        public IMonaBrainPage Page;
 
-        public MonaTriggerEvent(MonaTriggerType type, IMonaBrainPage page)
+        public MonaTriggerEvent(MonaTriggerType type)
         {
             Type = type;
-            Page = page;
         }
     }
 }

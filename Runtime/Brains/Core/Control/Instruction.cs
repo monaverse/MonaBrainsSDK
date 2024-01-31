@@ -67,6 +67,18 @@ namespace Mona.SDK.Brains.Core.Control
             } 
         }
 
+        public void SetActive(bool active)
+        {
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                var tile = InstructionTiles[i];
+                if(tile is IInstructionTileActivate)
+                {
+                    ((IInstructionTileActivate)tile).SetActive(active);
+                }
+            }
+        }
+
         public bool HasConditional()
         {
             for (var i = 0; i < InstructionTiles.Count; i++)

@@ -30,5 +30,6 @@ namespace Mona.SDK.Brains.Core.Control
         void Unload();
         void Pause();
         void Resume();
+        void SetActive(bool active);
     }
 }

@@ -45,11 +45,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public override InstructionTileResult Do()
         {
-            var parent = _brain.Body.GetParent();
+            var parent = _brain.Body.GetTransformParent();
             if (parent != null)
             {
                 var space = GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE);
-                _brain.Body.SetParent(space != null ? space.transform : null);
+                _brain.Body.SetTransformParent(space != null ? space.transform : null);
                 _brain.Body.SetLayer("Default", true, true);
                 _brain.Body.SetPosition(parent.position + parent.rotation * _offset, true, true);
                 _brain.Body.SetRotation(parent.rotation, true, true);

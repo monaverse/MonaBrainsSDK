@@ -82,6 +82,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             _monitorInside = inside;
         }
 
+        public void SetActive(bool active)
+        {
+            _collider.enabled = active;
+        }
+
         public void SetRadius(float radius)
         {
             _collider.radius = radius;
@@ -133,7 +138,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     {
                         //Debug.Log($"in view {body.Transform.name}");
                         _bodiesIndex[body] = true;
-                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged, _page));
+                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
                     }
                 }
                 else
@@ -142,7 +147,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     {
                         //Debug.Log($"out of view {body.Transform.name}");
                         _bodiesIndex[body] = false;
-                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged, _page));
+                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
                     }
                 }
             }
@@ -166,7 +171,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     if (_bodiesIndex[body])
                     {
                         _bodiesIndex[body] = false;
-                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged, _page));
+                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
                     }
                 }
                 else
@@ -174,7 +179,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     if (!_bodiesIndex[body])
                     {
                         _bodiesIndex[body] = true;
-                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged, _page));
+                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
                     }
                 }
             }
@@ -249,16 +254,16 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private void OnTriggerEnter(Collider other)
         {
+            if (!_collider.enabled) return;
             var body = other.GetComponentInParent<IMonaBody>();
-            if(body != null && !_bodiesIndex.ContainsKey(body) && body.Intersects(_collider))
-                AddBody(body);
+            AddBody(body);
         }
 
         private void OnTriggerExit(Collider other)
         {
+            if (!_collider.enabled) return;
             var body = other.GetComponentInParent<IMonaBody>();
-            if (body != null && _bodiesIndex.ContainsKey(body) && !body.Intersects(_collider))
-                RemoveBody(body);
+            RemoveBody(body);
         }
 
         private bool AddBody(IMonaBody body)
@@ -266,11 +271,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             if (body != null && body.HasMonaTag(_monaTag))
             {
                 //Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {body.LocalId}");
-                if (!_bodiesIndex.ContainsKey(body))
+                if (!_bodiesIndex.ContainsKey(body) && body.Intersects(_collider))
                 {
                     _bodiesIndex.Add(body, true);
                     _bodies.Add(body);
-                    EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerEnter, _page));
+                    EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerEnter));
                     return true;
                 }
             }
@@ -282,11 +287,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             if (body != null && body.HasMonaTag(_monaTag))
             {
                 //Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.LocalId}");
-                if (_bodiesIndex.ContainsKey(body))
+                if (_bodiesIndex.ContainsKey(body) && !body.Intersects(_collider))
                 {
                     _bodiesIndex.Remove(body);
                     _bodies.Remove(body);
-                    EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerExit, _page));
+                    EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerExit));
                     return true;
                 }
             }

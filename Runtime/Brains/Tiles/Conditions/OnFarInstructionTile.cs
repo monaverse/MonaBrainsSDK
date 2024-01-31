@@ -11,7 +11,9 @@ using UnityEngine;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnFarInstructionTile : InstructionTile, ITriggerInstructionTile, IOnFarInstructionTile, IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile
+    public class OnFarInstructionTile : InstructionTile, ITriggerInstructionTile, IOnFarInstructionTile, 
+        IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IInstructionTileActivate,
+        IPauseableInstructionTile
     {
         public const string ID = "OnFar";
         public const string NAME = "Far";
@@ -29,6 +31,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private IMonaBrain _brain;
         private SphereColliderTriggerBehaviour _collider;
         private GameObject _gameObject;
+        private bool _active;
 
         private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnTriggerExit };
         public List<MonaTriggerType> TriggerTypes => _triggerTypes;
@@ -43,7 +46,34 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _collider = _brain.GameObject.AddComponent<SphereColliderTriggerBehaviour>();
                 _collider.SetBrain(_brain);
                 _collider.SetMonaTag(_tag);
+                UpdateActive();
             }
+        }
+
+        public void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                UpdateActive();
+            }
+        }
+
+        private void UpdateActive()
+        {
+            if (_collider != null)
+                _collider.SetActive(_active);
+        }
+
+        public void Pause()
+        {
+            if (_collider != null)
+                _collider.SetActive(false);
+        }
+
+        public void Resume()
+        {
+            UpdateActive();
         }
 
         public override void Unload()

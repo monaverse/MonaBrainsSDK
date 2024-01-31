@@ -24,7 +24,11 @@ namespace Mona.SDK.Brains.Core.Control
 
         [SerializeField]
         private bool _isCore;
-        public bool IsCore { get => _isCore; set => _isCore = value; }
+        public bool IsCore => _isCore;
+
+        [SerializeField]
+        private bool _isActive;
+        public bool IsActive => _isActive;
 
         public MonaBrainPage()
         {
@@ -37,6 +41,11 @@ namespace Mona.SDK.Brains.Core.Control
             _isCore = isCore;
         }
 
+        public void SetIsCore(bool core)
+        {
+            _isCore = core;
+        }
+
         public void Preload(IMonaBrain brain)
         {
             _brain = brain;
@@ -44,6 +53,19 @@ namespace Mona.SDK.Brains.Core.Control
             {
                 var instruction = Instructions[i];
                 instruction.Preload(brain, this);
+            }
+        }
+
+        public void SetActive(bool active)
+        {
+            if (_isActive != active)
+            {
+                _isActive = active;
+                for (var i = 0; i < Instructions.Count; i++)
+                {
+                    var instruction = Instructions[i];
+                    instruction.SetActive(active);
+                }
             }
         }
 
