@@ -23,10 +23,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public const string CATEGORY = "Physics";
         public override Type TileType => typeof(AttachToTargetInstructionTile);
 
-        [SerializeField]
-        private string _target = "";
-        [BrainPropertyMonaTag]
-        public string Target { get => _target; set => _target = value; }
+        [SerializeField] private MonaBrainTargetResultType _source = MonaBrainTargetResultType.OnConditionTarget;
+        [SerializeField] private string _target;
+
+        [BrainProperty(true)] public MonaBrainTargetResultType Source { get => _source; set => _source = value; }
+        [BrainPropertyValueName("Source")] public string Target { get => _target; set => _target = value; }
 
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
@@ -49,16 +50,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public override InstructionTileResult Do()
         {
-            var value = _brain.State.GetValue(_target);
-
-            IMonaBody body = null;
-            if(value is IMonaStateBrainValue)
+            IMonaBody body = GetSource();
+            if (!string.IsNullOrEmpty(_target))
             {
-                body = ((IMonaStateBrainValue)value).Value.Body;
-            }
-            else if(value is IMonaStateBodyValue)
-            {
-                body = ((IMonaStateBodyValue)value).Value;
+                var value = _brain.State.GetValue(_target);
+                if (value is IMonaStateBrainValue)
+                    body = ((IMonaStateBrainValue)value).Value.Body;
+                else if (value is IMonaStateBodyValue)
+                    body = ((IMonaStateBodyValue)value).Value;
             }
 
             if (body != null)
@@ -69,6 +68,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 _brain.Body.SetRotation(body.ActiveTransform.rotation, true, true);
             }
             return Complete(InstructionTileResult.Success);
+        }
+
+        private IMonaBody GetSource()
+        {
+            switch (_source)
+            {
+                case MonaBrainTargetResultType.OnConditionTarget:
+                    return _brain.State.GetBody(MonaBrainConstants.RESULT_TARGET);
+                case MonaBrainTargetResultType.OnMessageSender:
+                    var brain = _brain.State.GetBrain(MonaBrainConstants.RESULT_SENDER);
+                    if (brain != null)
+                        return brain.Body;
+                    break;
+                case MonaBrainTargetResultType.OnHitTarget:
+                    return _brain.State.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
+            }
+            return null;
         }
     }
 }

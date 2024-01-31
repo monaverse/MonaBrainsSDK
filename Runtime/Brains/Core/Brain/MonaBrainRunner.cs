@@ -8,6 +8,7 @@ using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core;
 using System.Collections;
+using Mona.SDK.Brains.Core.State;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -271,6 +272,12 @@ namespace Mona.SDK.Brains.Core.Brain
                 var instance = _brainInstances[i];
                 EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), new MonaBrainDestroyedEvent(instance));
                 instance.Unload();
+            }
+
+            var states = gameObject.GetComponents<MonaBrainValues>();
+            for(var i  = 1;i < states.Length; i++)
+            {
+                Destroy(states[i]);
             }
         }
     }

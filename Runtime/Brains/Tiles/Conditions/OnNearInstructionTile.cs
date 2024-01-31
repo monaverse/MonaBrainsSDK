@@ -53,6 +53,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _collider.SetBrain(_brain);
                 _collider.SetPage(page);
                 _collider.SetMonaTag(_tag);
+                _collider.SetRadius(_distance);
                 UpdateActive();
             }
         }

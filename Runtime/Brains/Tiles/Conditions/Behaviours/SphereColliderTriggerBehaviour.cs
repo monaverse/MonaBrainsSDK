@@ -254,14 +254,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!_collider.enabled || other.isTrigger) return;
+            if (_collider == null || !_collider.enabled || other.isTrigger) return;
             var body = other.GetComponentInParent<IMonaBody>();
             AddBody(body);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            if (!_collider.enabled || other.isTrigger) return;
+            if (_collider == null || !_collider.enabled || other.isTrigger) return;
             var body = other.GetComponentInParent<IMonaBody>();
             RemoveBody(body);
         }
