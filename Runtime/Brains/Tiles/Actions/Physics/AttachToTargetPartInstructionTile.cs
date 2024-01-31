@@ -23,10 +23,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public const string CATEGORY = "Physics";
         public override Type TileType => typeof(AttachToTargetPartInstructionTile);
 
+        [SerializeField] private MonaBrainTargetResultType _source = MonaBrainTargetResultType.OnConditionTarget;
         [SerializeField] private string _target;
-        [SerializeField] private string _targetValueName;
-        [BrainProperty(true)] public string Target { get => _target; set => _target = value; }
-        [BrainPropertyValueName] public string TargetValueName { get => _targetValueName; set => _targetValueName = value; }
+
+        [BrainProperty(true)] public MonaBrainTargetResultType Source { get => _source; set => _source = value; }
+        [BrainPropertyValueName("Source")] public string Target { get => _target; set => _target = value; }
 
         [SerializeField]
         private string _part = "Default";
@@ -54,10 +55,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public override InstructionTileResult Do()
         {
-            IMonaBody body = null;
-            if(!string.IsNullOrEmpty(_targetValueName))
+            IMonaBody body = GetSource();
+            if(!string.IsNullOrEmpty(_target))
             {
-                var value = _brain.State.GetValue(_targetValueName);
+                var value = _brain.State.GetValue(_target);
                 if (value is IMonaStateBrainValue)
                     body = ((IMonaStateBrainValue)value).Value.Body;
                 else if (value is IMonaStateBodyValue)
@@ -69,12 +70,30 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 var playerPart = body.FindChildByTag(_part.ToString());
                 if (playerPart == null) playerPart = body;
                 _brain.Body.SetScale(_scale, true);
+                _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
                 _brain.Body.SetTransformParent(playerPart.ActiveTransform);
                 _brain.Body.SetPosition(playerPart.ActiveTransform.position + playerPart.ActiveTransform.parent.TransformDirection(_offset), true, true);
                 _brain.Body.SetRotation(playerPart.ActiveTransform.rotation, true, true);
             }
          
             return Complete(InstructionTileResult.Success);
+        }
+
+        private IMonaBody GetSource()
+        {
+            switch (_source)
+            {
+                case MonaBrainTargetResultType.OnConditionTarget:
+                    return _brain.State.GetBody(MonaBrainConstants.RESULT_TARGET);
+                case MonaBrainTargetResultType.OnMessageSender:
+                    var brain = _brain.State.GetBrain(MonaBrainConstants.RESULT_SENDER);
+                    if (brain != null)
+                        return brain.Body;
+                    break;
+                case MonaBrainTargetResultType.OnHitTarget:
+                    return _brain.State.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
+            }
+            return null;
         }
     }
 }
