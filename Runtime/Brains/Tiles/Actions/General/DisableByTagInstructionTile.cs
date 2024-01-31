@@ -10,7 +10,7 @@ using Mona.SDK.Core.Body;
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
-    public class DisableByTagInstructionTile : InstructionTile, IChangeTagInstructionTile, IActionInstructionTile
+    public class DisableByTagInstructionTile : InstructionTile, IChangeTagInstructionTile, IActionInstructionTile, IInstructionTileWithPreload
     {
         public const string ID = "DisableByTag";
         public const string NAME = "Disable By Tag";
@@ -24,12 +24,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public DisableByTagInstructionTile() { }
 
+        private IMonaBrain _brain;
+        
+        public void Preload(IMonaBrain brain)
+        {
+            _brain = brain;
+        }
+
         public override InstructionTileResult Do()
         {
             var bodies = MonaBody.FindByTag(_tag);
+            if(_brain.LoggingEnabled)
+                Debug.Log($"{nameof(DisableByTagInstructionTile)} tag: {_tag}, bodies: {bodies.Count}");
+
             for (var i = 0; i < bodies.Count; i++)
+            {
                 bodies[i].SetActive(false);
-            //Debug.Log($"{nameof(ChangeStateInstructionTile)} state: {_changeState}");
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(DisableByTagInstructionTile)} {bodies[i].ActiveTransform.name}", bodies[i].ActiveTransform.gameObject);
+            }
             return Complete(InstructionTileResult.Success);
         }
     }

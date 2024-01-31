@@ -79,7 +79,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private void UpdateActive()
         {
-            Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(UpdateActive)} {_active}");
+            if (_brain != null && _brain.LoggingEnabled)
+                Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(UpdateActive)} {_active}");
             if (_collider != null)
                 _collider.SetActive(_active);
         }
@@ -107,7 +108,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             var body = _collider.FindForwardMostBodyWithMonaTagInFieldOfView(_tag, _fieldOfView);
             if (body != null)
             {
-                Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {body}");
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {body}");
                 _brain.State.Set(MonaBrainConstants.RESULT_TARGET, body);
                 return Complete(InstructionTileResult.Success);
             }

@@ -23,6 +23,7 @@ namespace Mona.SDK.Brains.Core.Brain
         string LocalId { get; }
         int Priority { get; }
         string BrainState { get; set;  }
+        bool LoggingEnabled { get; set; }
 
         IMonaBrainPlayer Player { get; }
 

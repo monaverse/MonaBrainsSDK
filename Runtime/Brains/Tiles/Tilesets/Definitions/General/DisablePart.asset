@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164677034377432
   _id: DisablePart
-  _name: Disable By Tag
+  _name: Disable Part
   _category: General
   references:
     version: 2
@@ -23,7 +23,8 @@ MonoBehaviour:
     - rid: 3250164677034377432
       type: {class: DisablePartInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: DisablePart
+        _name: Disable By Tag
+        _category: General
+        _all: 0
         _tag: 

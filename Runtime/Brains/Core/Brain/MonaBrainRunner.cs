@@ -162,6 +162,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 if (instance != null)
                 {
                     instance.Guid = _brainGraphs[i].Guid;
+                    instance.LoggingEnabled = _brainGraphs[i].LoggingEnabled;
                     instance.Preload(gameObject, this);
                     _brainInstances.Add(instance);
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(instance));
@@ -194,7 +195,7 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             if (_began)
             {
-                Debug.Log($"{nameof(HandleResumed)} Resume Brains");
+                //Debug.Log($"{nameof(HandleResumed)} Resume Brains");
                 OnBegin?.Invoke(this);
                 for (var i = 0; i < _brainInstances.Count; i++)
                     _brainInstances[i].Resume();
@@ -206,7 +207,6 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             if(_began)
             {
-                Debug.Log($"{nameof(HandlePaused)} Pause Brains");
                 OnBegin?.Invoke(this);
                 for (var i = 0; i < _brainInstances.Count; i++)
                     _brainInstances[i].Pause();
@@ -219,8 +219,6 @@ namespace Mona.SDK.Brains.Core.Brain
             if (!_began && _body.HasControl())
             {
                 _began = true;
-                if (_brainInstances.Count > 0)
-                    Debug.Log($"{nameof(BeginBrains)}");
                 OnBegin?.Invoke(this);
                 for (var i = 0; i < _brainInstances.Count; i++)
                     _brainInstances[i].Begin();

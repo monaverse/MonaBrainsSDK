@@ -80,13 +80,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public override void Unload()
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
-            Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.{nameof(Unload)}");
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.{nameof(Unload)}");
         }
 
         public void Pause()
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
-            Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.{nameof(Pause)}");
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.{nameof(Pause)}");
         }
 
         public void Resume()
@@ -94,7 +96,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             if(_movingState == MovingStateType.Moving)
             {
                 EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
-                Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.{nameof(Resume)}");
+                if (_brain.LoggingEnabled) 
+                    Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.{nameof(Resume)}");
             }
         }
 

@@ -44,6 +44,7 @@ namespace Mona.SDK.Brains.UIElements
         private TextField _activePageName;
         private VisualElement _activePageContainer;
         private ListView _monaTagListView;
+        private Toggle _toggleAllowLogging;
 
         private Button _btnDeletePage;
 
@@ -250,6 +251,15 @@ namespace Mona.SDK.Brains.UIElements
             });
             _foldOut.Add(_monaTagsField);
             _leftColumn.Add(_foldOut);
+
+            _toggleAllowLogging = new Toggle();
+            _toggleAllowLogging.label = "Allow Console Output";
+            _toggleAllowLogging.RegisterValueChangedCallback((changed) =>
+            {
+                _brain.LoggingEnabled = changed.newValue;
+            });
+            _foldOut.Add(_toggleAllowLogging);
+
 #endif
 
             _rightColumn = new VisualElement();
@@ -495,6 +505,8 @@ namespace Mona.SDK.Brains.UIElements
         private void Refresh()
         {
 #if UNITY_EDITOR
+            _toggleAllowLogging.value = _brain.LoggingEnabled;
+
             if (_brain.TileSet == null || _brain.TileSet.ToString() == "null")
             {
                 var versions = GetTileSets();
@@ -593,7 +605,6 @@ namespace Mona.SDK.Brains.UIElements
             _monaTagListView.itemsSource = _brain.MonaTags;
             _monaTagListView.Q<Foldout>().value = false;
             _monaTagListView.Rebuild();
-
 
             Refresh();
             RefreshMenu();

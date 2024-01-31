@@ -13,7 +13,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
     public class EnablePartInstructionTile : InstructionTile, IChangeTagInstructionTile, IActionInstructionTile, IInstructionTileWithPreload
     {
         public const string ID = "EnablePart";
-        public const string NAME = "Enable By Tag";
+        public const string NAME = "Enable Part";
         public const string CATEGORY = "General";
         public override Type TileType => typeof(EnablePartInstructionTile);
 

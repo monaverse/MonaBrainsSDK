@@ -33,6 +33,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         public MonaBrainPropertyType _propertyType;
         public MonaBrainPropertyType PropertyType { get => _propertyType; set => _propertyType = value; }
 
+        [SerializeField]
+        private bool _loggingEnabled;
+        public bool LoggingEnabled { get => _loggingEnabled; set => _loggingEnabled = value; }
+
         private GameObject _gameObject;
         public GameObject GameObject => _gameObject;
 
@@ -256,6 +260,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public void Begin()
         {
+            //if (LoggingEnabled)
+            //    Debug.Log($"{nameof(Begin)} brain on Body {_body.ActiveTransform.name}", _body.ActiveTransform);
+
             _state.Set(MonaBrainConstants.ON_STARTING, true, false);
             ExecuteCorePageInstructions(InstructionEventTypes.Start);
             ExecuteStatePageInstructions(InstructionEventTypes.Start);
@@ -264,6 +271,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public void Pause()
         {
+            //if (LoggingEnabled)
+            //    Debug.Log($"{nameof(Pause)} brain on Body {_body.ActiveTransform.name}", _body.ActiveTransform);
+
             CorePage.Pause();
             for (var i = 0; i < _statePages.Count; i++)
                 _statePages[i].Pause();
@@ -271,6 +281,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public void Resume()
         {
+           // if (LoggingEnabled)
+            //    Debug.Log($"{nameof(Resume)} brain on Body {_body.ActiveTransform.name}", _body.ActiveTransform);
+
             CorePage.Resume();
             for (var i = 0; i < _statePages.Count; i++)
                 _statePages[i].Resume();

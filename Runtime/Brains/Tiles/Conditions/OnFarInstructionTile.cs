@@ -96,7 +96,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             var body = _collider.FindClosestOutOfRangeWithMonaTag(_tag);
             if (body != null && _collider.FindClosestInRangeWithMonaTag(_tag) == null)
             {
-                Debug.Log($"{nameof(OnFarInstructionTile)}.{nameof(Do)} found: {body}");
+                if(_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(OnFarInstructionTile)}.{nameof(Do)} found: {body}");
                 _brain.State.Set(MonaBrainConstants.RESULT_TARGET, body);
                 return Complete(InstructionTileResult.Success);
             }

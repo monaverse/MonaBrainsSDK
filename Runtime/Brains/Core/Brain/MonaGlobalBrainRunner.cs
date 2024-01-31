@@ -121,7 +121,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void HandleBrainSpawned(MonaBrainSpawnedEvent evt)
         {
-            Debug.Log($"{nameof(HandleBrainSpawned)} {evt.Brain.LocalId}");
+            if (evt.Brain.LoggingEnabled)
+                Debug.Log($"{nameof(HandleBrainSpawned)} {evt.Brain.LocalId}");
             if (!_brains.Contains(evt.Brain))
                 _brains.Add(evt.Brain);
 
@@ -130,7 +131,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void HandleBrainDestroyed(MonaBrainDestroyedEvent evt)
         {
-            Debug.Log($"{nameof(HandleBrainDestroyed)} {evt.Brain.LocalId}");
+            if(evt.Brain.LoggingEnabled)
+                Debug.Log($"{nameof(HandleBrainDestroyed)} {evt.Brain.LocalId}");
             if (_brains.Contains(evt.Brain))
                 _brains.Remove(evt.Brain);
         }
