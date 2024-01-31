@@ -44,7 +44,6 @@
 - Added `HidePart(string part)` instruction tile
 
 ** PHYSICS **
-- Added `AttachToPart(string part, Vector3 offset, Vector3 scale)` instruction tile
 - Added `AttachToTag(string tag, Vector3 offset, Vector3 scale)` instruction tile
 - Added `AttachToTagPart(string tag, string part, Vector3 offset, Vector3 scale)` instruction tile
 - Added `AttachToTarget(string target, Vector3 offset, Vector3 scale)` instruction tile
