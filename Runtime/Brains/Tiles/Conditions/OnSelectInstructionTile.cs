@@ -50,8 +50,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 if (Physics.Raycast(world.origin, world.direction, out hit, _distance, targetRayLayer))
                 {
                     var body = hit.collider.GetComponentInParent<IMonaBody>();
+                    if (_brain.LoggingEnabled && body != null)
+                        Debug.Log($"selected body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+
                     if (body != null && body == _brain.Body)
                     {
+                        if (_brain.LoggingEnabled)
+                            Debug.Log($"selected this body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+
                         _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, body);
                         _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
                         _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
@@ -59,6 +65,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     }
                     else
                     {
+                        if (_brain.LoggingEnabled)
+                            Debug.Log($"selected other body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+
                         _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, (IMonaBody)null);
                         _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, Vector3.zero);
                         _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, Vector3.zero);
