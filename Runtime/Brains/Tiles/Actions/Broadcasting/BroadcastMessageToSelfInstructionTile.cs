@@ -32,7 +32,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
         public override InstructionTileResult Do()
         {
-            Debug.Log($"{nameof(BroadcastMessageToSelfInstructionTile)} {_message}");
+            if(_brain.LoggingEnabled)
+                Debug.Log($"{nameof(BroadcastMessageToSelfInstructionTile)} {_message}");
             if (_brain.Body is IMonaBodyPart)
             {
                 IMonaBody parent = _brain.Body.Parent;

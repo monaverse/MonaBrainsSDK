@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164677034377428
   _id: HidePart
-  _name: Hide By Tag
+  _name: Hide Part
   _category: Visuals
   references:
     version: 2
@@ -23,7 +23,8 @@ MonoBehaviour:
     - rid: 3250164677034377428
       type: {class: HidePartInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: HidePart
+        _name: Hide Part
+        _category: Visuals
+        _all: 0
         _tag: 

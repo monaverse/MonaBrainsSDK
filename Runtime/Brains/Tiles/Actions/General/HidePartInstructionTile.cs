@@ -13,7 +13,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
     public class HidePartInstructionTile : InstructionTile, IChangeTagInstructionTile, IActionInstructionTile, IInstructionTileWithPreload
     {
         public const string ID = "HidePart";
-        public const string NAME = "Hide By Tag";
+        public const string NAME = "Hide Part";
         public const string CATEGORY = "Visuals";
         public override Type TileType => typeof(HidePartInstructionTile);
 
