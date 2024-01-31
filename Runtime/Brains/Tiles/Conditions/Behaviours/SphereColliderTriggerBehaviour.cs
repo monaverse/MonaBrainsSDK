@@ -270,7 +270,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         {
             if (body != null && body.HasMonaTag(_monaTag))
             {
-                if (!_bodiesIndex.ContainsKey(body))// && body.Intersects(_collider))
+                if (!_bodiesIndex.ContainsKey(body) && body.Intersects(_collider))
                 {
                     if(_brain.LoggingEnabled)
                         Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
@@ -287,7 +287,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         {
             if (body != null && body.HasMonaTag(_monaTag))
             {
-                if (_bodiesIndex.ContainsKey(body))// && !body.Intersects(_collider))
+                if (_bodiesIndex.ContainsKey(body) && !body.Intersects(_collider))
                 {
                     if (_brain.LoggingEnabled)
                         Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);

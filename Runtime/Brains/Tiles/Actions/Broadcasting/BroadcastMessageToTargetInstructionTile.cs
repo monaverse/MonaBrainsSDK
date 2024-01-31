@@ -22,9 +22,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
         [SerializeField] private string _message;
         [BrainProperty(true)] public string Message { get => _message; set => _message = value; }
 
+        [SerializeField] private MonaBrainTargetResultType _source = MonaBrainTargetResultType.OnConditionTarget;
         [SerializeField] private string _targetValue;
-        [BrainProperty(true)] public string TargetValue { get => _targetValue; set => _targetValue = value; }
-        
+
+        [BrainProperty(true)] public MonaBrainTargetResultType Source { get => _source; set => _source = value; }
+        [BrainPropertyValueName("Source")] public string TargetValue { get => _targetValue; set => _targetValue = value; }
+
         private IMonaBrain _brain;
 
         public BroadcastMessageToTargetInstructionTile() { }
@@ -36,21 +39,47 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
         public override InstructionTileResult Do()
         {
-            var value = _brain.State.GetValue(_targetValue);
-            if (value is IMonaStateBrainValue)
+            IMonaBody source = GetSource();
+            if (!string.IsNullOrEmpty(_targetValue))
             {
-                IMonaBrain targetBrain = ((IMonaStateBrainValue)value).Value;
-                if (targetBrain != null)
-                    BroadcastMessage(_brain, _message, targetBrain);
+                var value = _brain.State.GetValue(_targetValue);
+                if (value is IMonaStateBrainValue)
+                {
+                    var targetBrain = ((IMonaStateBrainValue)value).Value;
+                    if (targetBrain != null)
+                        BroadcastMessage(_brain, _message, targetBrain);
+                }
+                else
+                {
+                    var targetBody = ((IMonaStateBodyValue)value).Value;
+                    if (targetBody != null)
+                        BroadcastMessage(_brain, _message, targetBody);
+                }
             }
             else
             {
-                IMonaBody targetBody = ((IMonaStateBodyValue)value).Value;
-                if (targetBody != null)
-                    BroadcastMessage(_brain, _message, targetBody);
+                if (source != null)
+                    BroadcastMessage(_brain, _message, source);
             }
 
             return Complete(InstructionTileResult.Success);
+        }
+
+        private IMonaBody GetSource()
+        {
+            switch (_source)
+            {
+                case MonaBrainTargetResultType.OnConditionTarget:
+                    return _brain.State.GetBody(MonaBrainConstants.RESULT_TARGET);
+                case MonaBrainTargetResultType.OnMessageSender:
+                    var brain = _brain.State.GetBrain(MonaBrainConstants.RESULT_SENDER);
+                    if (brain != null)
+                        return brain.Body;
+                    break;
+                case MonaBrainTargetResultType.OnHitTarget:
+                    return _brain.State.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
+            }
+            return null;
         }
     }
 }

@@ -118,7 +118,12 @@ namespace Mona.SDK.Brains.Core.Brain
 
             if (_coroutine[type] != null) return;
             if (gameObject.activeInHierarchy)
-                _coroutine[type] = StartCoroutine(DoWaitFrame(callback, evt, type));
+            {
+                if(evt is MonaTriggerEvent)
+                    StartCoroutine(DoWaitFrame(callback, evt, type));
+                else
+                    _coroutine[type] = StartCoroutine(DoWaitFrame(callback, evt, type));
+            }
             else
                 _list.Add(new WaitFrameQueueItem() { Callback = callback, Evt = evt, Type = type });
         }

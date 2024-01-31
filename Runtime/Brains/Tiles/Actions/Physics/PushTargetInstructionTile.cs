@@ -33,7 +33,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 var value = _brain.State.GetValue(_target);
                 if (value is IMonaStateBrainValue)
                     source = ((IMonaStateBrainValue)value).Value.Body;
-                else
+                else if (value is IMonaStateBodyValue)
                     source = ((IMonaStateBodyValue)value).Value;
             }
             return source;
