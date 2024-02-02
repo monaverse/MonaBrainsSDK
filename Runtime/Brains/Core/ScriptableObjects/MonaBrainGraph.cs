@@ -11,6 +11,7 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
+using Mona.SDK.Brains.Core.Brain.Interfaces;
 
 namespace Mona.SDK.Brains.Core.ScriptableObjects
 {

@@ -1,9 +1,12 @@
+using Mona.SDK.Brains.Core.Brain.Interfaces;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.ScriptableObjects;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Network;
+using Mona.SDK.Core.Network.Enums;
+using Mona.SDK.Core.Network.Interfaces;
 using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -12,15 +15,10 @@ using UnityEngine.InputSystem;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
-    public interface IMonaBrainPlayer
-    {
-        public IMonaBody PlayerBody { get; }
-        public IMonaBody PlayerCamera { get; }
-        public int PlayerId { get; }
-    }
-
     public partial class MonaGlobalBrainRunner : MonoBehaviour, IMonaBrainPlayer
     {
+        public MonaNetworkSettings NetworkSettings = new MonaNetworkSettings();
+
         private List<IMonaBrain> _brains = new List<IMonaBrain>();
 
         private int _currentBrainIndex = 0;
@@ -101,6 +99,8 @@ namespace Mona.SDK.Brains.Core.Brain
                 EventBus.Register<MonaBrainSpawnedEvent>(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
                 EventBus.Register<MonaBrainDestroyedEvent>(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
                 EventBus.Register<MonaPlayerJoinedEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
+
+                EventBus.Trigger<MonaRegisterNetworkSettingsEvent>(new EventHook(MonaCoreConstants.REGISTER_NETWORK_SETTINGS_EVENT), new MonaRegisterNetworkSettingsEvent(NetworkSettings));
             }
         }
 

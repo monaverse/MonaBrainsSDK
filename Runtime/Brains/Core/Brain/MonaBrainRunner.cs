@@ -9,29 +9,13 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core;
 using System.Collections;
 using Mona.SDK.Brains.Core.State;
+using Mona.SDK.Brains.Core.Brain.Structs;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
     [RequireComponent(typeof(MonaBody))]
     public partial class MonaBrainRunner : MonoBehaviour, IMonaBrainRunner, IMonaTagged
     {
-        [Serializable]
-        public struct ResetTransform
-        {
-            public Vector3 Position;
-            public Quaternion Rotation;
-            public Transform Parent;
-            public IMonaBody Body;
-
-            public ResetTransform(IMonaBody body)
-            {
-                Body = body;
-                Parent = body.ActiveTransform.parent;
-                Position = body.ActiveTransform.position;
-                Rotation = body.ActiveTransform.rotation;
-            }
-        }
-
         public event Action<IMonaBrainRunner> OnBegin;
 
         [SerializeField]

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Brains.Core.Brain.Interfaces;
 
 namespace Mona.SDK.Brains.Core.Brain
 {

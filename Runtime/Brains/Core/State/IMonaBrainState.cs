@@ -1,5 +1,6 @@
 ﻿using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Network;
+using Mona.SDK.Core.Network.Interfaces;
 using Mona.SDK.Core.State;
 using UnityEngine;
 
