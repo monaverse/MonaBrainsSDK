@@ -4,7 +4,6 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Core.Input;
-using Mona.SDK.Brains.Tiles.Conditions.Enums;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -13,11 +12,16 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
 using UnityEngine.InputSystem.Controls;
+using Mona.SDK.Core.Input.Enums;
+using Mona.SDK.Core.Input;
+using Mona.SDK.Core.Input.Interfaces;
+using Mona.SDK.Core.Events;
+using Mona.SDK.Core;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnKeyInstructionTile : InstructionTile, IOnInteractInstructionTile, IDisposable, IConditionInstructionTile, IStartableInstructionTile, IInputInstructionTile
+    public class OnKeyInstructionTile : InputInstructionTile
     {
         public const string ID = "OnKey";
         public const string NAME = "Keyboard";
@@ -30,91 +34,51 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] protected MonaInputState _inputState = MonaInputState.Pressed;
         [BrainProperty(true)] public MonaInputState InputState { get => _inputState; set => _inputState = value; }
 
-        private IMonaBrain _brain;
+        protected override MonaInputState GetInputState() => _inputState;
 
-        private PlayerInput _inputManager;
-        private Inputs _inputs;
-        private Action<MonaTileTickEvent> OnTileTick;
+        protected List<IMonaLocalInput> _bodyInputs;
 
-        private MonaInputState _currentInputState;
-
-        public OnKeyInstructionTile() { }
-
-        public void Preload(IMonaBrain brainInstance)
+        protected override void ProcessLocalInput()
         {
-            _brain = brainInstance;
-
-            ConfigureInput();
-
-            OnTileTick = HandleTileTick;
-            EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTileTick);
-
-        }
-
-        public void Dispose()
-        {
-            if (_inputManager != null)
-            {
-                _inputManager.onDeviceLost -= OnDeviceLost;
-                _inputManager.onDeviceRegained -= OnDeviceRegained;
-            }
-            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTileTick);
-        }
-
-        private void ConfigureInput()
-        {
-            _inputManager = MonaGlobalBrainRunner.Instance.GetPlayerInput();
-            _inputManager.onDeviceLost += OnDeviceLost;
-            _inputManager.onDeviceRegained += OnDeviceRegained;
-
-            _inputs = new Inputs();
-            _inputs.Player.Enable();
-
-            _inputManager.ActivateInput();
-        }
-
-        private void ProcessInput()
-        {
+            IMonaLocalInput _input = new MonaLocalKeyInput();
             ProcessKey(Keyboard.current[_key]);
-            if (_currentInputState != MonaInputState.None && _currentInputState == _inputState)
+            if (_currentLocalInputState != MonaInputState.None && _currentLocalInputState == _inputState)
             {
-                EventBus.Trigger(new EventHook(MonaBrainConstants.INPUT_TICK_EVENT, _brain), new MonaHasInputTickEvent(Time.frameCount));
+                _input.Type = MonaInputType.Key;
+                _input.State = _currentLocalInputState;
+                _brain.Body.SetLocalInput(_input);
             }
         }
 
         private void ProcessKey(KeyControl keyControl)
         {
             if (keyControl.wasPressedThisFrame)
-                _currentInputState = MonaInputState.Pressed;
+                _currentLocalInputState = MonaInputState.Pressed;
             else if (keyControl.wasReleasedThisFrame)
-                _currentInputState = MonaInputState.Up;
+                _currentLocalInputState = MonaInputState.Up;
             else if (keyControl.isPressed)
-                _currentInputState = MonaInputState.Held;
+                _currentLocalInputState = MonaInputState.Held;
             else
-                _currentInputState = MonaInputState.None;
+                _currentLocalInputState = MonaInputState.None;
         }
 
-        private void HandleTileTick(MonaTileTickEvent evt)
+        protected override void HandleBodyInput(MonaInputEvent evt)
         {
-            if((_brain.Body == null || _brain.Body.HasControl()))
-                ProcessInput();
-        }
-
-        void OnDeviceLost(PlayerInput obj)
-        {
-            Debug.Log("Input Device Lost");
-        }
-
-        void OnDeviceRegained(PlayerInput obj)
-        {
-            Debug.Log("Input Device Regained");
+            _bodyInputs = evt.Inputs;
         }
 
         public override InstructionTileResult Do()
         {
-            if (_currentInputState == _inputState)
+            if (_bodyInputs != null)
             {
-                return Complete(InstructionTileResult.Success);
+                for (var i = 0; i < _bodyInputs.Count; i++)
+                {
+                    var input = _bodyInputs[i];
+                    if (input is IMonaLocalKeyInput && input.Type == MonaInputType.Key && input.State == GetInputState())
+                    {
+                        return Complete(InstructionTileResult.Success);
+                    }
+                }
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);
         }

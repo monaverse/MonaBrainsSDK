@@ -8,6 +8,8 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
+using Mona.SDK.Core.Events;
+using Mona.SDK.Core;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -24,16 +26,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainProperty]
         public float Value { get => _value; set => _value = value; }
 
-        [SerializeField]
-        private MoveModeType _mode;
-        [BrainPropertyEnum(false)]
-        public MoveModeType Mode { get => _mode; set => _mode = value; }
-
-        [SerializeField]
-        public bool _listenForTick;
-        [BrainProperty(false)]
-        public bool ListenForTick { get => _listenForTick; set => _listenForTick = value; }
-
         public Vector3 _direction;
 
         private IMonaBrain _brain;
@@ -42,7 +34,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private float _timeElapsed;
         public float TimeElapsed => _timeElapsed;
 
-        private Action<MonaTileTickEvent> OnTick;
+        private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
         public float Speed
         {
@@ -65,6 +57,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
+            OnFixedTick = HandleFixedTick;
+            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+        }
+
+        public override void Unload()
+        {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)
@@ -74,8 +73,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _thenCallback = new InstructionTileCallback();
                 _thenCallback.Action = () =>
                 {
-                    if (_listenForTick)
-                        EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
                     if (thenCallback != null) return thenCallback.Action.Invoke();
                     return InstructionTileResult.Success;
                 };
@@ -86,50 +83,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             _direction = _brain.Body.ActiveTransform.forward * InputMoveDirection.y;
             
-            if (MovingState == MovingStateType.Stopped && _mode == MoveModeType.Time)
-                _timeElapsed = 0;
-
-            if (_listenForTick)
-            {
-                if (MovingState == MovingStateType.Stopped)
-                {
-                    OnTick = HandleTick;
-                    EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
-                }
-                MovingState = MovingStateType.Moving;
-                return Complete(InstructionTileResult.Running);
-            }
-            else
-            {
-                Tick(Time.deltaTime);
-                MovingState = MovingStateType.Moving;
-                return Complete(InstructionTileResult.Success);
-            }
+            MovingState = MovingStateType.Moving;
+            return Complete(InstructionTileResult.Success);
         }
 
-        private void HandleTick(MonaTileTickEvent evt)
+        private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
-            Tick(evt.DeltaTime);
+            FixedTick(evt.DeltaTime);
         }
 
-        private void Tick(float deltaTime)
+        private void FixedTick(float deltaTime)
         {
-            switch(_mode)
-            {
-                case MoveModeType.Time: MoveOverTime(deltaTime); break;
-                case MoveModeType.Speed: MoveAtSpeed(deltaTime); break;
-            }
-        }
-
-        private void MoveOverTime(float deltaTime)
-        {
-            if (MovingState == MovingStateType.Moving)
-            {
-                _brain.Body.MoveDirection(_direction * (deltaTime * Speed), true, true);
-                _timeElapsed += deltaTime;
-                if (_timeElapsed >= _value) 
-                    StopMoving();
-            }
+            MoveAtSpeed(deltaTime);
+            MovingState = MovingStateType.Stopped;
         }
 
         private void MoveAtSpeed(float deltaTime)
@@ -137,15 +103,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (MovingState == MovingStateType.Moving)
             {
                 _brain.Body.MoveDirection(_direction * (deltaTime * (_value * Speed)), true, true);
-                StopMoving();
             }
         }
-
-        private void StopMoving()
-        {
-            MovingState = MovingStateType.Stopped;
-            Complete(InstructionTileResult.Success, true);
-        }
-
     }
 }

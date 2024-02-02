@@ -1,12 +1,16 @@
 using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Core.Enums;
-using Mona.SDK.Brains.Tiles.Conditions.Enums;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Core.Input.Enums;
+using Mona.SDK.Core.Input.Interfaces;
+using Mona.SDK.Core.Input;
+using Mona.SDK.Core.Events;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -24,58 +28,91 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainProperty(false)] public float Distance { get => _distance; set => _distance = value; }
         [BrainPropertyValueName("Distance")] public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
         
-        protected override MonaInputState _inputState { get => MonaInputState.Pressed; }
+        protected override MonaInputState GetInputState() => MonaInputState.Pressed;
 
         public override void Preload(IMonaBrain brainInstance)
         {
             base.Preload(brainInstance);
+            AddTargetCollider();
+        }
 
+        private void AddTargetCollider()
+        {
             var colliders = _brain.GameObject.GetComponentsInChildren<Collider>();
             if (colliders.Length == 0)
             {
-                _brain.GameObject.AddComponent<BoxCollider>();
+                var collider = _brain.GameObject.AddComponent<BoxCollider>();
+                collider.isTrigger = true;
             }
+        }
 
+        protected override void ProcessLocalInput()
+        {
+            ProcessButton(_localInputs.Player.Action);
+
+            if (_currentLocalInputState != MonaInputState.None && _currentLocalInputState == GetInputState())
+            {
+                MonaLocalRayInput input = new MonaLocalRayInput();
+                input.Type = MonaInputType.Action;
+                input.State = _currentLocalInputState;
+
+                var mouse = Mouse.current.position.ReadValue();
+                input.Value = _brain.Player.PlayerCamera.Transform.GetComponent<Camera>().ScreenPointToRay(new Vector3(mouse.x, mouse.y, 0f));
+
+                _brain.Body.SetLocalInput(input);
+            }
         }
 
         public override InstructionTileResult Do()
         {
-            if (_currentInputState == _inputState)
+            if (_bodyInputs != null)
             {
-                var targetRayLayer = 1 << 8 | 1 << LayerMask.NameToLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER);
-                targetRayLayer = ~targetRayLayer;
-                var mouse = Mouse.current.position.ReadValue();
-                var world = _brain.Player.PlayerCamera.Transform.GetComponent<Camera>().ScreenPointToRay(new Vector3(mouse.x, mouse.y, 0f));
-                RaycastHit hit;
-                if (Physics.Raycast(world.origin, world.direction, out hit, _distance, targetRayLayer))
+                for (var i = 0; i < _bodyInputs.Count; i++)
                 {
-                    var body = hit.collider.GetComponentInParent<IMonaBody>();
-                    if (_brain.LoggingEnabled && body != null)
-                        Debug.Log($"selected body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
-
-                    if (body != null && body == _brain.Body)
+                    var input = _bodyInputs[i];
+                    if (input is IMonaLocalRayInput && input.Type == MonaInputType.Action && input.State == GetInputState())
                     {
-                        if (_brain.LoggingEnabled)
-                            Debug.Log($"selected this body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
-
-                        _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, body);
-                        _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
-                        _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
-                        return Complete(InstructionTileResult.Success);
+                        if(Raycast((IMonaLocalRayInput)input))
+                            return Complete(InstructionTileResult.Success);
                     }
-                    else
-                    {
-                        if (_brain.LoggingEnabled && body != null)
-                            Debug.Log($"selected other body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
-
-                        _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, (IMonaBody)null);
-                        _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, Vector3.zero);
-                        _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, Vector3.zero);
-                    }
-                    return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_HIT);
                 }
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);
+        }
+
+        private bool Raycast(IMonaLocalRayInput input)
+        {
+            var targetRayLayer = 1 << 8 | 1 << LayerMask.NameToLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER);
+            targetRayLayer = ~targetRayLayer;
+
+            RaycastHit hit;
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(OnSelectInstructionTile)} raycast {input.Value}");
+
+            if (Physics.Raycast(input.Value.origin, input.Value.direction, out hit, _distance, targetRayLayer))
+            {
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(OnSelectInstructionTile)} {hit.point} {hit.collider}");
+
+                var body = hit.collider.GetComponentInParent<IMonaBody>();
+                if (_brain.LoggingEnabled && body != null)
+                    Debug.Log($"selected body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+
+                if (body != null && body == _brain.Body)
+                {
+                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, body);
+                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
+                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
+                    return true;
+                }
+                else
+                {
+                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, (IMonaBody)null);
+                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, Vector3.zero);
+                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, Vector3.zero);
+                }
+            }
+            return false;
         }
     }
 }

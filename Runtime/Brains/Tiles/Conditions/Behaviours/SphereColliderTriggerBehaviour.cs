@@ -30,7 +30,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         private List<IMonaBody> _bodies = new List<IMonaBody>();
         private List<ForwardBodyStruct> _foundBodiesInFieldOfView = new List<ForwardBodyStruct>();
 
-        private Action<MonaTileTickEvent> OnTileTick;
+        private Action<MonaTickEvent> OnTileTick;
         private Action<MonaBodySpawnedEvent> OnBodySpawned;
         private Action<MonaBodyDespawnedEvent> OnBodyDespawned;
 
@@ -57,7 +57,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);
-            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTileTick);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnTileTick);
         }
 
         public void SetBrain(IMonaBrain brain)
@@ -78,7 +78,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         public void MonitorFieldOfView(bool inside)
         {
             OnTileTick = HandleTileTick;
-            EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTileTick);
+            EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnTileTick);
             _monitorInside = inside;
         }
 
@@ -112,7 +112,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             return null;
         }
 
-        private void HandleTileTick(MonaTileTickEvent evt)
+        private void HandleTileTick(MonaTickEvent evt)
         {
             if (_monitorInside)
                 FindBodiesWithMonaTagInFieldOfView(_monaTag, _fieldOfView);

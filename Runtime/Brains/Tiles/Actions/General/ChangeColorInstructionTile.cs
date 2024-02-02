@@ -8,6 +8,8 @@ using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
+using Mona.SDK.Core.Events;
+using Mona.SDK.Core;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -42,7 +44,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private Color _end;
         private float _time;
 
-        private Action<MonaTileTickEvent> OnTick;
+        private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
         private float _speed
         {
@@ -70,7 +72,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 _thenCallback = new InstructionTileCallback();
                 _thenCallback.Action = () =>
                 {
-                    EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+                    EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
                     if(thenCallback != null) return thenCallback.Action.Invoke();
                     return InstructionTileResult.Success;
                 };
@@ -94,20 +96,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 _start = _brain.Body.GetColor();
                 _end = _color;
              
-                OnTick = HandleTick;
-                EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+                OnFixedTick = HandleFixedTick;
+                EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
             }
 
             _movingState = MovingStateType.Moving;
             return Complete(InstructionTileResult.Running);
         }
 
-        private void HandleTick(MonaTileTickEvent evt)
+        private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
-            Tick(evt.DeltaTime);
+            FixedTick(evt.DeltaTime);
         }
 
-        private void Tick(float deltaTime)
+        private void FixedTick(float deltaTime)
         {
             MoveOverTime(deltaTime);
         }

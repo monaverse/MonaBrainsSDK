@@ -198,7 +198,7 @@ namespace Mona.SDK.Brains.Core.Control
                 if (!HasConditional())
                 {
                     //Debug.Log($"TICK IT");
-                    EventBus.Trigger(new EventHook(MonaBrainConstants.TILE_TICK_EVENT, _brain), new MonaTickEvent());
+                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent());
                 }
                 return InstructionTileResult.Success;
             }

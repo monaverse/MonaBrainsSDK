@@ -22,11 +22,8 @@
         public const string BRAIN_DESTROYED_EVENT = "OnMonaBrainDestroyedEvent";
         public const string BRAIN_RELOAD_EVENT = "OnMonaBrainReloadEvent";
 
-        public const string TILE_TICK_EVENT = "OnTileTickEvent";
-        public const string TILE_LATE_TICK_EVENT = "OnTileLateTickEvent";
         public const string CORE_PAGE_TICK_EVENT = "OnMonaCorePageTickEvent";
         public const string STATE_PAGE_TICK_EVENT = "OnMonaStatePageTickEvent";
-        public const string FIXED_TICK_EVENT = "OnMonaBodyFixedTickEvent";
 
         public const string MONA_BRAINS_DO_EVENT = "OnMonaBrainsDoEvent";
         public const string MONA_BRAINS_THEN_EVENT = "OnMonaBrainsThenEvent";
@@ -35,9 +32,9 @@
         public const string STATE_AUTHORITY_CHANGED_EVENT = "OnMOnaStateAuthorityChangedEvent";
 
         public const string TRIGGER_EVENT = "OnMonaTriggerEvent";
-        public const string TICK_EVENT = "OnMonaTickEvent";
         public const string BROADCAST_MESSAGE_EVENT = "OnMonaBroadcastMessageEvent";
-        public const string INPUT_TICK_EVENT = "OnMonaInputTickEvent";
+        public const string PLAYER_INPUT_EVENT = "OnPlayerInputEvent";
+        public const string BRAIN_TICK_EVENT = "OnBrainTickEvent";
 
         public const string ERROR_MISSING_PLAYER = "Cannot find Player";
         public const string ERROR_MISSING_ORIGIN = "Cannot find Origin";

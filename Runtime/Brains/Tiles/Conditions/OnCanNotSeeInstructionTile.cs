@@ -68,6 +68,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private void UpdateActive()
         {
+            if (!_active) return;
             if (_collider != null)
                 _collider.SetActive(_active);
         }

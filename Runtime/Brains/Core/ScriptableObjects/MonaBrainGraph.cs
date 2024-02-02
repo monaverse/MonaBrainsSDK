@@ -131,11 +131,11 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private List<MonaBroadcastMessageEvent> _messages = new List<MonaBroadcastMessageEvent>();
 
         private Action<MonaBodyParentChangedEvent> OnBodyParentChanged;
-        private Action<MonaTickEvent> OnMonaTick;
+        private Action<MonaBrainTickEvent> OnMonaBrainTick;
         private Action<MonaTriggerEvent> OnMonaTrigger;
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
         private Action<MonaBroadcastMessageEvent> OnBroadcastMessage;
-        private Action<MonaHasInputTickEvent> OnInputTick;
+        private Action<MonaBodyFixedTickEvent> OnInputOnFixedTick;
 
         private bool _coreOnStarting;
         private bool _stateOnStarting;
@@ -202,8 +202,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             OnBodyParentChanged = HandleBodyParentChanged;
             EventBus.Register<MonaBodyParentChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
 
-            OnMonaTick = HandleMonaTick;
-            EventBus.Register<MonaTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT, this), OnMonaTick);
+            OnMonaBrainTick = HandleMonaBrainTick;
+            EventBus.Register<MonaBrainTickEvent>(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), OnMonaBrainTick);
 
             OnMonaTrigger = HandleMonaTrigger;
             EventBus.Register<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
@@ -215,8 +215,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
             EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
 
-            OnInputTick = HandleInputTick;
-            EventBus.Register<MonaHasInputTickEvent>(new EventHook(MonaBrainConstants.INPUT_TICK_EVENT, this), OnInputTick);
+            OnInputOnFixedTick = HandleInputOnFixedTick;
+            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _body), OnInputOnFixedTick);
         }
 
         private void AddHierarchyDelgates()
@@ -230,16 +230,16 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
 
-            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT, this), OnMonaTick);
+            EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), OnMonaBrainTick);
             EventBus.Unregister(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
             EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
 
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
 
-            EventBus.Unregister(new EventHook(MonaBrainConstants.INPUT_TICK_EVENT, this), OnInputTick);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _body), OnInputOnFixedTick);
 
-            OnInputTick = null;
+            OnInputOnFixedTick = null;
             OnBroadcastMessage = null;
         }
 
@@ -299,9 +299,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             AddHierarchyDelgates();
         }
 
-        private void HandleMonaTick(MonaTickEvent evt)
+        private void HandleMonaBrainTick(MonaBrainTickEvent evt)
         {
-            _runner.WaitFrame(ExecuteTickEvent, evt, typeof(MonaTickEvent));
+            _runner.WaitFrame(ExecuteTickEvent, evt, typeof(MonaBrainTickEvent));
         }
 
         private void ExecuteTickEvent(IInstructionEvent evt)
@@ -353,8 +353,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             _messages.Remove((MonaBroadcastMessageEvent)evt);
         }
 
-        private void HandleInputTick(MonaHasInputTickEvent evt)
+        private void HandleInputOnFixedTick(MonaBodyFixedTickEvent evt)
         {
+            if (!evt.HasInput) return;
             ExecuteCorePageInstructions(InstructionEventTypes.Input);
             ExecuteStatePageInstructions(InstructionEventTypes.Input);
         }

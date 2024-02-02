@@ -8,12 +8,14 @@ using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
+using Mona.SDK.Core.Events;
+using Mona.SDK.Core;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
 
     [Serializable]
-    public class MoveLocalInstructionTile : InstructionTile, IMoveLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile
+    public class MoveLocalInstructionTile : InstructionTile, IMoveLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, IInstructionTileActivate
     {
         public override Type TileType => typeof(MoveLocalInstructionTile);
 
@@ -44,8 +46,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Vector3 _start;
         private Vector3 _end;
         private float _time;
+        private bool _active;
 
-        private Action<MonaTileTickEvent> OnTick;
+        private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
         private float _speed
         {
@@ -64,27 +67,50 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
+            UpdateActive();
         }
+
+        public void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                if (_brain != null)
+                    UpdateActive();
+            }
+        }
+
+        private void UpdateActive()
+        {
+            if (!_active) return;
+
+            if (_movingState == MovingStateType.Moving)
+            {
+                AddFixedTickDelegate();
+            }
+
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(UpdateActive)} {_active}");
+        }
+
 
         public override void Unload()
         {
-            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
-            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Unload)}");
+            RemoveFixedTickDelegate();
+            if(_brain.LoggingEnabled)
+                Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Unload)}");
         }
 
         public void Pause()
         {
-            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
-            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Pause)}");
+            RemoveFixedTickDelegate();
+            if(_brain.LoggingEnabled)
+                Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Pause)}");
         }
 
         public void Resume()
         {
-            if(_movingState == MovingStateType.Moving)
-            {
-                EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
-                //Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Resume)}");
-            }
+            UpdateActive();
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)
@@ -94,11 +120,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _thenCallback = new InstructionTileCallback();
                 _thenCallback.Action = () =>
                 {
-                    EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
-                    if(thenCallback != null) return thenCallback.Action.Invoke();
+                    RemoveFixedTickDelegate();
+                    if (thenCallback != null) return thenCallback.Action.Invoke();
                     return InstructionTileResult.Success;
                 };
             }
+        }
+
+        private void AddFixedTickDelegate()
+        {
+            OnFixedTick = HandleFixedTick;
+            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+        }
+
+        private void RemoveFixedTickDelegate()
+        {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
         public override InstructionTileResult Do()
@@ -123,16 +160,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _time = 0;
                 _start = _brain.Body.GetPosition();
                 _end = _start + _direction * _distance;
-             
-                OnTick = HandleTick;
-                EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+                AddFixedTickDelegate();
             }
 
             _movingState = MovingStateType.Moving;
             return Complete(InstructionTileResult.Running);
         }
 
-        private void HandleTick(MonaTileTickEvent evt)
+        private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
             Tick(evt.DeltaTime);
         }

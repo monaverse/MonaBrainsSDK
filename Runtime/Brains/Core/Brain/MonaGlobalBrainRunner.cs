@@ -153,19 +153,19 @@ namespace Mona.SDK.Brains.Core.Brain
             _playerId = evt.PlayerId;
 
             AttachBrainsToLocalPlayer(_playerBody);
-
+            
             for (var i = 0; i < _brains.Count; i++)
                 _brains[i].SetMonaBrainPlayer(this);
         }
 
         private void AttachBrainsToLocalPlayer(IMonaBody body)
         {
-            if(BrainGraphs.Count > 0)
-            {
-                var runner = body.Transform.GetComponent<IMonaBrainRunner>();
-                if (runner == null)
-                    runner = body.Transform.AddComponent<MonaBrainRunner>();
+            var runner = body.Transform.GetComponent<IMonaBrainRunner>();
+            if (runner == null)
+                runner = body.Transform.AddComponent<MonaBrainRunner>();
 
+            if (BrainGraphs.Count > 0)
+            {
                 runner.SetBrainGraphs(BrainGraphs);
                 runner.StartBrains();
             }
@@ -173,12 +173,32 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void Update()
         {
-            TriggerTileTick();
+            TriggerTick();
         }
 
-        private void TriggerTileTick()
+        private void FixedUpdate()
         {
-            EventBus.Trigger<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), new MonaTileTickEvent(Time.deltaTime));
+            TriggerFixedTick();
+        }
+
+        private void LateUpdate()
+        {
+            TriggerLateTick();
+        }
+
+        private void TriggerFixedTick()
+        {
+            EventBus.Trigger<MonaFixedTickEvent>(new EventHook(MonaCoreConstants.FIXED_TICK_EVENT), new MonaFixedTickEvent(Time.fixedDeltaTime));
+        }
+
+        private void TriggerTick()
+        {
+            EventBus.Trigger<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), new MonaTickEvent(Time.deltaTime));
+        }
+
+        private void TriggerLateTick()
+        {
+            EventBus.Trigger<MonaLateTickEvent>(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), new MonaLateTickEvent());
         }
     }
 }

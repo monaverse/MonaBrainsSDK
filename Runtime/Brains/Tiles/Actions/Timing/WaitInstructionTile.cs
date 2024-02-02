@@ -8,6 +8,8 @@ using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.Timing.Interfaces;
 using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Core;
+using Mona.SDK.Core.Events;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Timing
 {
@@ -25,13 +27,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
         [BrainProperty]
         public float Seconds { get => _seconds; set => _seconds = value; }
 
-        private Action<MonaTileTickEvent> OnTick;
+        private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
         private float _remaining;
 
         private bool _isRunning;
 
         private IMonaBrain _brain;
+        private bool _active;
 
         public WaitInstructionTile()
         {
@@ -40,24 +43,40 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
+            UpdateActive();
         }
 
+        public void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                UpdateActive();
+            }
+        }
+
+        private void UpdateActive()
+        {
+            if (!_active) return;
+
+            if (_isRunning)
+            {
+                EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            }
+        }
         public override void Unload()
         {
-            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
         public void Pause()
         {
-            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
         public void Resume()
         {
-            if (_isRunning)
-            {
-                EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
-            }
+            UpdateActive();
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)
@@ -68,7 +87,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
                 _thenCallback.Action = () =>
                 {
                     //Debug.Log($"{nameof(WaitInstructionTile)} ThenCallback");
-                    EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+                    EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
                     if (thenCallback != null) return thenCallback.Action.Invoke();
                     return InstructionTileResult.Success;
                 };
@@ -81,19 +100,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
             {
                 _remaining = _seconds;
                 _isRunning = true;
-                OnTick = HandleTick;
-                EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+                OnFixedTick = HandleFixedTick;
+                EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
             }
 
             return Complete(InstructionTileResult.Running);
         }
 
-        private void HandleTick(MonaTileTickEvent evt)
+        private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
-            Tick(evt.DeltaTime);
+            FixedTick(evt.DeltaTime);
         }
 
-        private void Tick(float deltaTime)
+        private void FixedTick(float deltaTime)
         {
             _remaining -= deltaTime;
             if(_remaining <= 0)

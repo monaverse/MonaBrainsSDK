@@ -8,11 +8,13 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
+using Mona.SDK.Core;
+using Mona.SDK.Core.Events;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class RotateLocalInstructionTile : InstructionTile, IRotateLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile
+    public class RotateLocalInstructionTile : InstructionTile, IRotateLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, IInstructionTileActivate
     {
         public override Type TileType => typeof(RotateLocalInstructionTile);
 
@@ -44,7 +46,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Quaternion _start;
         private Quaternion _end;
 
-        private Action<MonaTileTickEvent> OnTick;
+        private bool _active;
+
+        private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
         private float _speed
         {
@@ -63,25 +67,47 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
+            UpdateActive();
         }
 
-        public override void Unload()
+        public void SetActive(bool active)
         {
-            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
-            Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Unload)}");
+            if (_active != active)
+            {
+                _active = active;
+                if (_brain != null)
+                    UpdateActive();
+            }
+        }
+
+        private void UpdateActive()
+        {
+            if (!_active) return;
+
+            OnFixedTick = HandleFixedTick;
+            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(UpdateActive)} {_active}");
         }
 
         public void Pause()
         {
-            EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Pause)} input paused");
         }
 
         public void Resume()
         {
-            if (_movingState == MovingStateType.Moving)
-            {
-                EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
-            }
+            UpdateActive();
+        }
+
+
+        public override void Unload()
+        {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Unload)}");
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)
@@ -91,7 +117,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _thenCallback = new InstructionTileCallback();
                 _thenCallback.Action = () =>
                 {
-                    EventBus.Unregister(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+                    EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
                     if (thenCallback != null) return thenCallback.Action.Invoke();
                     return InstructionTileResult.Success;
                 };
@@ -120,19 +146,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _start = _brain.Body.GetRotation();
                 _end = _start * Quaternion.Euler(_direction * _angle);
 
-                OnTick = HandleTick;
-                EventBus.Register<MonaTileTickEvent>(new EventHook(MonaBrainConstants.TILE_TICK_EVENT), OnTick);
+                OnFixedTick = HandleFixedTick;
+                EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
             }
             _movingState = MovingStateType.Moving;
             return Complete(InstructionTileResult.Running);
         }
 
-        private void HandleTick(MonaTileTickEvent evt)
+        private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
-            Tick(evt.DeltaTime);
+            FixedTick(evt.DeltaTime);
         }
 
-        private void Tick(float deltaTime)
+        private void FixedTick(float deltaTime)
         {
             switch(_mode)
             {

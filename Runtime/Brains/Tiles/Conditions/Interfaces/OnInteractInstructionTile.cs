@@ -3,7 +3,7 @@ using Mona.SDK.Brains.Tiles.Conditions.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Conditions.Interfaces
 {
-    public interface IOnInteractInstructionTile : IInstructionTileWithPreload
+    public interface IOnInteractInstructionTile
     {
     }
 }
