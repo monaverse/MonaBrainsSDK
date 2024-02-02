@@ -5,6 +5,7 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions.Behaviours;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
+using Mona.SDK.Core;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,8 +14,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
     public class OnNearInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, 
-        IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IInstructionTileActivate,
-        IPauseableInstructionTile
+        IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IActivateInstructionTile,
+        IPauseableInstructionTile, IPlayerTriggeredConditional
     {
         public const string ID = "OnNear";
         public const string NAME = "Near";
@@ -33,6 +34,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] private string _fieldOfViewValueName;
         [BrainProperty(false)] public float FieldOfView { get => _fieldOfView; set => _fieldOfView = value; }
         [BrainPropertyValueName("FieldOfView")] public string FieldOfViewValueName { get => _fieldOfViewValueName; set => _fieldOfViewValueName = value; }
+
+        public bool PlayerTriggered => _tag == MonaCoreConstants.TAG_PLAYER;
 
         private IMonaBrain _brain;
         private SphereColliderTriggerBehaviour _collider;

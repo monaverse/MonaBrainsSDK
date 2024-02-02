@@ -130,6 +130,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private List<MonaBroadcastMessageEvent> _messages = new List<MonaBroadcastMessageEvent>();
 
+        private Action<MonaStateAuthorityChangedEvent> OnStateAuthorityChanged;
         private Action<MonaBodyParentChangedEvent> OnBodyParentChanged;
         private Action<MonaBrainTickEvent> OnMonaBrainTick;
         private Action<MonaTriggerEvent> OnMonaTrigger;
@@ -199,6 +200,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void AddEventDelegates()
         {
+            OnStateAuthorityChanged = HandleStateAuthorityChanged;
+            EventBus.Register<MonaStateAuthorityChangedEvent>(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _body), OnStateAuthorityChanged);
+
             OnBodyParentChanged = HandleBodyParentChanged;
             EventBus.Register<MonaBodyParentChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
 
@@ -228,6 +232,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void RemoveEventDelegates()
         {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _body), OnStateAuthorityChanged);
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
 
             EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), OnMonaBrainTick);
@@ -290,6 +295,15 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             CorePage.Resume();
             for (var i = 0; i < _statePages.Count; i++)
                 _statePages[i].Resume();
+        }
+
+        private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
+        {
+            if(evt.HasControl)
+            {
+                ExecuteCorePageInstructions(InstructionEventTypes.Authority);
+                ExecuteStatePageInstructions(InstructionEventTypes.Authority);
+            }    
         }
         
         private void HandleBodyParentChanged(MonaBodyParentChangedEvent evt)
@@ -386,13 +400,11 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void ExecuteCorePageInstructions(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
-            if (!_body.HasControl()) return;
             CorePage.ExecuteInstructions(eventType, evt);
         }
 
         private void ExecuteStatePageInstructions(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
-            if (!_body.HasControl()) return;
             if (_activeStatePage != null)
                 _activeStatePage.ExecuteInstructions(eventType, evt);
         }

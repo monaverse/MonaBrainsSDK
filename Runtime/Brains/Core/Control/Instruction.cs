@@ -30,6 +30,8 @@ namespace Mona.SDK.Brains.Core.Control
 
         public bool IsRunning() => _result == InstructionTileResult.Running;
 
+        private List<IInstructionTile> _needAuthInstructionTiles = new List<IInstructionTile>();
+
         private int _firstActionIndex = -1;
         private bool _unloaded;
         private bool _paused;
@@ -47,9 +49,15 @@ namespace Mona.SDK.Brains.Core.Control
         {
             _brain = brain;
             _firstActionIndex = -1;
+            _needAuthInstructionTiles.Clear();
+
             for (var i = 0; i < InstructionTiles.Count; i++)
             {
                 var tile = InstructionTiles[i];
+
+                if (tile is INeedAuthorityInstructionTile)
+                    _needAuthInstructionTiles.Add(tile);
+
                 if (tile is IInstructionTileWithPreload)
                     ((IInstructionTileWithPreload)tile).Preload(brain);
                 else if (tile is IInstructionTileWithPreloadAndPage)
@@ -72,9 +80,9 @@ namespace Mona.SDK.Brains.Core.Control
             for (var i = 0; i < InstructionTiles.Count; i++)
             {
                 var tile = InstructionTiles[i];
-                if(tile is IInstructionTileActivate)
+                if(tile is IActivateInstructionTile)
                 {
-                    ((IInstructionTileActivate)tile).SetActive(active);
+                    ((IActivateInstructionTile)tile).SetActive(active);
                 }
             }
         }
@@ -88,6 +96,26 @@ namespace Mona.SDK.Brains.Core.Control
             }
             return false;
         }
+
+        private bool IsValidTriggerType(ITriggerInstructionTile tile, MonaTriggerEvent evt)
+        {
+            return tile.TriggerTypes.Contains(evt.Type);
+        }
+
+        private bool HasPlayerTriggeredConditional()
+        {
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                var tile = InstructionTiles[i];
+                if (tile is IPlayerTriggeredConditional && ((IPlayerTriggeredConditional)tile).PlayerTriggered)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool HasTilesNeedingAuthority() => _needAuthInstructionTiles.Count > 0;
 
         private void PreloadActionTile(IInstructionTile tile)
         {
@@ -155,14 +183,48 @@ namespace Mona.SDK.Brains.Core.Control
                             return tile.Do();
                         }
                         break;
+                    case InstructionEventTypes.Authority:
+                        if(HasTilesNeedingAuthority())
+                        {
+                            var progressTile = GetFirstTileInProgress();
+                            if(progressTile == null)
+                            {
+                                if (IsWaitingForAuthority())
+                                {
+                                    var authTile = _needAuthInstructionTiles[0];
+                                    return authTile.Do();
+                                }
+                                else
+                                {
+                                    return tile.Do();
+                                }
+                            }
+                            else
+                            {
+                                return progressTile.Continue();
+                            }
+                        }
+                        break;
                 }
             }
             return InstructionTileResult.Failure;
         }
 
-        private bool IsValidTriggerType(ITriggerInstructionTile tile, MonaTriggerEvent evt)
+        private bool IsWaitingForAuthority() => _result == InstructionTileResult.WaitingForAuthority;
+
+        private IProgressInstructionTile GetFirstTileInProgress()
         {
-            return tile.TriggerTypes.Contains(evt.Type);
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                var tile = InstructionTiles[i];
+                if (tile is IProgressInstructionTile)
+                {
+                    var progressTile = (IProgressInstructionTile)tile;
+                    if (progressTile.InProgress)
+                        return progressTile;
+                }
+            }
+            return null;
         }
 
         private InstructionTileResult ExecuteRemainingConditionals()
@@ -184,7 +246,20 @@ namespace Mona.SDK.Brains.Core.Control
             _result = InstructionTileResult.Running;
             if (_firstActionIndex == -1) return;
             var tile = InstructionTiles[_firstActionIndex];
-            //Debug.Log($"{nameof(ExecuteActions)} starting");
+
+            if (HasPlayerTriggeredConditional())
+            {
+                if (HasTilesNeedingAuthority() && !_brain.Body.HasControl())
+                {
+                    if(_brain.LoggingEnabled)
+                        Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority. requesting control {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
+
+                    _result = InstructionTileResult.WaitingForAuthority;
+                    _brain.Body.TakeControl();
+                    return;
+                }
+            }
+
             _result = ExecuteActionTile(tile);
         }
 

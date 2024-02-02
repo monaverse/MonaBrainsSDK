@@ -15,7 +15,7 @@ namespace Mona.SDK.Brains.Core.Tiles
 {
     [Serializable]
     public abstract class InputInstructionTile : InstructionTile, IInputInstructionTile, IInstructionTileWithPreload, IOnInteractInstructionTile, IConditionInstructionTile,
-        IStartableInstructionTile, IInstructionTileActivate, IPauseableInstructionTile
+        IStartableInstructionTile, IActivateInstructionTile, IPauseableInstructionTile
     {
         protected abstract MonaInputState GetInputState();
 
@@ -35,6 +35,8 @@ namespace Mona.SDK.Brains.Core.Tiles
 
         protected abstract void ProcessLocalInput();
         protected abstract void HandleBodyInput(MonaInputEvent evt);
+
+        public bool PlayerTriggered => true;
 
         public virtual void Preload(IMonaBrain brainInstance)
         {

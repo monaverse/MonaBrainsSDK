@@ -4,6 +4,7 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions.Behaviours;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
+using Mona.SDK.Core;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,8 +13,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
     public class OnFarInstructionTile : InstructionTile, ITriggerInstructionTile, IOnFarInstructionTile, 
-        IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IInstructionTileActivate,
-        IPauseableInstructionTile
+        IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IActivateInstructionTile,
+        IPauseableInstructionTile, IPlayerTriggeredConditional
     {
         public const string ID = "OnFar";
         public const string NAME = "Far";
@@ -27,6 +28,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] private string _distanceValueName;
         [BrainProperty(true)] public float Distance { get => _distance; set => _distance = value; }
         [BrainPropertyValueName("Distance")] public string DistanceValue { get => _distanceValueName; set => _distanceValueName = value; }
+
+        public bool PlayerTriggered => _tag == MonaCoreConstants.TAG_PLAYER;
 
         private IMonaBrain _brain;
         private SphereColliderTriggerBehaviour _collider;

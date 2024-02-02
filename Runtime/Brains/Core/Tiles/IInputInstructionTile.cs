@@ -10,7 +10,7 @@ namespace Mona.SDK.Brains.Core.Tiles
      * - If IMonaBody receives remote input via the Network, then it will send out MonaInputEvent locally
      * - This Interface will listen for MonaInputEvent and use them to evaluate input in the Do method.
      */
-    public interface IInputInstructionTile
+    public interface IInputInstructionTile : IPlayerTriggeredConditional
     { 
         
     }

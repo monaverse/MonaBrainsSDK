@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Core.Tiles
 {
-    public interface IInstructionTileActivate
+    public interface IActivateInstructionTile
     {
         void SetActive(bool active);   
     }
