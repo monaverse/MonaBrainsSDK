@@ -1,15 +1,13 @@
 ﻿using Mona.SDK.Brains.Core.Brain;
-using Mona.SDK.Brains.Core.Enums;
-using Mona.SDK.Brains.Core.Input;
+using Mona.SDK.Brains.Core.Brain.Interfaces;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
+using Mona.SDK.Core.Input;
 using Mona.SDK.Core.Input.Enums;
-using Mona.SDK.Core.Input.Interfaces;
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Mona.SDK.Brains.Core.Tiles
 {
@@ -19,9 +17,6 @@ namespace Mona.SDK.Brains.Core.Tiles
     {
         protected abstract MonaInputState GetInputState();
 
-        private PlayerInput _inputManager;
-        protected Inputs _localInputs;
-
         private Action<MonaTickEvent> OnTick;
         private Action<MonaInputEvent> OnInput;
 
@@ -30,8 +25,7 @@ namespace Mona.SDK.Brains.Core.Tiles
         protected MonaInputState _currentLocalInputState;
 
         protected IMonaBrain _brain;
-
-        public const float DEAD_ZONE = .1f;
+        protected IMonaBrainInput _brainInput;
 
         protected abstract void ProcessLocalInput();
         protected abstract void HandleBodyInput(MonaInputEvent evt);
@@ -49,17 +43,10 @@ namespace Mona.SDK.Brains.Core.Tiles
 
         private void ConfigureInput()
         {
-            _inputManager = MonaGlobalBrainRunner.Instance.GetPlayerInput();
-            _inputManager.onDeviceLost += OnDeviceLost;
-            _inputManager.onDeviceRegained += OnDeviceRegained;
-
-            _localInputs = new Inputs();
-            _localInputs.Player.Enable();
-
-            _inputManager.ActivateInput();
+            _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();
         }
 
-        protected void SetLocalInput(IMonaLocalInput input)
+        protected void SetLocalInput(MonaInput input)
         {
             _brain.Body.SetLocalInput(input);
         }
@@ -74,24 +61,33 @@ namespace Mona.SDK.Brains.Core.Tiles
             }
         }
 
-        private void AddTickDelegate()
+        protected virtual void AddTickDelegate()
         {
             OnTick = HandleTick;
             EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnTick);
 
             OnInput = HandleBodyInput;
             EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+
+            _brainInput.StartListening(_brain.Body);
         }
 
-        private void RemoveTickDelegate()
+        protected virtual void RemoveTickDelegate()
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnTick);
             EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+
+            _brainInput.StopListening(_brain.Body);
         }
 
         private void UpdateActive()
         {
-            if (!_active) return;
+            if (!_active)
+            {
+                RemoveTickDelegate();
+                return;
+            }
+
             AddTickDelegate();
 
             if (_brain.LoggingEnabled)
@@ -111,68 +107,12 @@ namespace Mona.SDK.Brains.Core.Tiles
 
         public override void Unload()
         {
-            if (_inputManager != null)
-            {
-                _inputManager.onDeviceLost -= OnDeviceLost;
-                _inputManager.onDeviceRegained -= OnDeviceRegained;
-            }
             RemoveTickDelegate();
-        }
-
-        protected void ProcessAxis(InputAction action)
-        {
-            var value = action.ReadValue<Vector2>();
-            if (value.magnitude > DEAD_ZONE)
-                PerformInput();
-            else
-                ReleaseInput();
-        }
-
-        protected void ProcessButton(InputAction action)
-        {
-            if (action.IsPressed())
-                PerformInput();
-            else
-                ReleaseInput();
-        }
-
-        private void PerformInput()
-        {
-            if (_currentLocalInputState <= MonaInputState.Up)
-            {
-                _currentLocalInputState = MonaInputState.Pressed;
-            }
-            else if (_currentLocalInputState == MonaInputState.Pressed)
-            {
-                _currentLocalInputState = MonaInputState.Held;
-            }
-        }
-
-        private void ReleaseInput()
-        {
-            if (_currentLocalInputState > MonaInputState.Up)
-            {
-                _currentLocalInputState = MonaInputState.Up;
-            }
-            else if (_currentLocalInputState == MonaInputState.Up)
-            {
-                _currentLocalInputState = MonaInputState.None;
-            }
         }
 
         private void HandleTick(MonaTickEvent evt)
         {
             ProcessLocalInput();
-        }
-
-        void OnDeviceLost(PlayerInput obj)
-        {
-            Debug.Log("Input Device Lost");
-        }
-
-        void OnDeviceRegained(PlayerInput obj)
-        {
-            Debug.Log("Input Device Regained");
         }
 
     }

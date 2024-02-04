@@ -107,7 +107,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override void Unload()
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
-            Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Unload)}");
+            if(_brain.LoggingEnabled)
+                Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Unload)}");
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

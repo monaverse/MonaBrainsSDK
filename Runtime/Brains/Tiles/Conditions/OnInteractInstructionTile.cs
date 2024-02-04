@@ -1,20 +1,12 @@
 using Mona.SDK.Brains.Core;
-using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
-using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
-using Mona.SDK.Brains.Core.Input;
-using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEngine; 
-using UnityEngine.InputSystem;
 using Mona.SDK.Core.Events;
-using Mona.SDK.Core;
 using Mona.SDK.Core.Input.Enums;
+using static Mona.SDK.Brains.Core.Brain.MonaBrainInput;
 using Mona.SDK.Core.Input;
-using Mona.SDK.Core.Input.Interfaces;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -28,39 +20,29 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         protected override MonaInputState GetInputState() => MonaInputState.Pressed;
 
-        protected List<IMonaLocalInput> _bodyInputs;
+        protected MonaInput _bodyInput;
 
         protected override void ProcessLocalInput()
         {
-            IMonaLocalInput _input = new MonaLocalInput();
-            ProcessButton(_localInputs.Player.Action);
+            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, MonaInputType.Action, GetInputState());
             
-            if (_currentLocalInputState != MonaInputState.None && _currentLocalInputState == GetInputState())
+            if (localInput.GetButton(MonaInputType.Action) == GetInputState())
             {
-                _input.Type = MonaInputType.Action;
-                _input.State = _currentLocalInputState;
-                SetLocalInput(_input);
+                SetLocalInput(localInput);
             }
         }
 
         protected override void HandleBodyInput(MonaInputEvent evt)
         {
-            _bodyInputs = evt.Inputs;
+            _bodyInput = evt.Input;
         }
 
         public override InstructionTileResult Do()
         {
-            if (_bodyInputs != null)
+            if (_bodyInput.GetButton(MonaInputType.Action) == GetInputState())
             {
-                for (var i = 0; i < _bodyInputs.Count; i++)
-                {
-                    var input = _bodyInputs[i];
-                    if (input.State == GetInputState())
-                    {
-                        return Complete(InstructionTileResult.Success);
-                    }
-                }
-            }
+                return Complete(InstructionTileResult.Success);
+            }         
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);
         }
     }

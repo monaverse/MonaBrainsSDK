@@ -2,13 +2,10 @@ using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Core.Enums;
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Input.Enums;
-using Mona.SDK.Core.Input;
-using Mona.SDK.Core.Input.Interfaces;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -49,52 +46,45 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         protected override void ProcessLocalInput()
         {
-            ProcessButton(_localInputs.Player.Action);
+            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, MonaInputType.Action, GetInputState());
 
-            if (_currentLocalInputState != MonaInputState.None && _currentLocalInputState == GetInputState())
+            if (localInput.GetButton(MonaInputType.Action) == GetInputState())
             {
-                MonaLocalRayInput input = new MonaLocalRayInput();
-                input.Type = MonaInputType.Action;
-                input.State = _currentLocalInputState;
-
-                var mouse = Mouse.current.position.ReadValue();
-                input.Value = _brain.Player.PlayerCamera.Transform.GetComponent<Camera>().ScreenPointToRay(new Vector3(mouse.x, mouse.y, 0f));
-
-                _brain.Body.SetLocalInput(input);
+                _brain.Body.SetLocalInput(localInput);
             }
         }
 
         public override InstructionTileResult Do()
         {
-            if (_bodyInputs != null)
+            if (_bodyInput.GetButton(MonaInputType.Action) == GetInputState())
             {
-                for (var i = 0; i < _bodyInputs.Count; i++)
-                {
-                    var input = _bodyInputs[i];
-                    if (input is IMonaLocalRayInput && input.Type == MonaInputType.Action && input.State == GetInputState())
-                    {
-                        if(Raycast((IMonaLocalRayInput)input))
-                            return Complete(InstructionTileResult.Success);
-                    }
-                }
+                if (Raycast(_bodyInput.Ray))
+                    return Complete(InstructionTileResult.Success);
+            }
+            else if (_bodyInput.GetButton(MonaInputType.Action) != MonaInputState.None)
+            {
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(OnSelectTagInstructionTile)} button state incorrect {_bodyInput.GetButton(MonaInputType.Action)} is not {GetInputState()}");
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);
         }
 
-        private bool Raycast(IMonaLocalRayInput input)
+        private bool Raycast(Ray ray)
         {
             var targetRayLayer = 1 << 8 | 1 << LayerMask.NameToLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER);
             targetRayLayer = ~targetRayLayer;
 
             RaycastHit hit;
-            if (Physics.Raycast(input.Value.origin, input.Value.direction, out hit, _distance, targetRayLayer))
+            if (Physics.Raycast(ray.origin, ray.direction, out hit, _distance, targetRayLayer))
             {
                 var body = hit.collider.GetComponentInParent<IMonaBody>();
                 if (_brain.LoggingEnabled && body != null)
-                    Debug.Log($"selected body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+                    Debug.Log($"{nameof(OnSelectTagInstructionTile)} selected body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
 
                 if (body != null && body.HasMonaTag(_monaTag))
                 {
+                    if (_brain.LoggingEnabled)
+                        Debug.Log($"{nameof(OnSelectTagInstructionTile)} clicked body with tag {_monaTag} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, body);
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
@@ -106,6 +96,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, Vector3.zero);
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, Vector3.zero);
                 }
+            }
+            else
+            {
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(OnSelectTagInstructionTile)} raycast hit nothing");
             }
             return false;
         }

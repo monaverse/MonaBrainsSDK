@@ -7,10 +7,6 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Input.Enums;
-using Mona.SDK.Core.Input.Interfaces;
-using Mona.SDK.Core.Input;
-using Mona.SDK.Core.Events;
-using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -48,48 +44,42 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         protected override void ProcessLocalInput()
         {
-            ProcessButton(_localInputs.Player.Action);
+            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, MonaInputType.Action, GetInputState());
 
-            if (_currentLocalInputState != MonaInputState.None && _currentLocalInputState == GetInputState())
+            if (localInput.GetButton(MonaInputType.Action) == GetInputState())
             {
-                MonaLocalRayInput input = new MonaLocalRayInput();
-                input.Type = MonaInputType.Action;
-                input.State = _currentLocalInputState;
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(OnSelectInstructionTile)} setlocalinput {_bodyInput.Ray.origin} {_bodyInput.Ray.direction}");
 
-                var mouse = Mouse.current.position.ReadValue();
-                input.Value = _brain.Player.PlayerCamera.Transform.GetComponent<Camera>().ScreenPointToRay(new Vector3(mouse.x, mouse.y, 0f));
-
-                _brain.Body.SetLocalInput(input);
+                _brain.Body.SetLocalInput(localInput);
             }
         }
 
         public override InstructionTileResult Do()
         {
-            if (_bodyInputs != null)
+            if(_bodyInput.GetButton(MonaInputType.Action) == GetInputState())
             {
-                for (var i = 0; i < _bodyInputs.Count; i++)
-                {
-                    var input = _bodyInputs[i];
-                    if (input is IMonaLocalRayInput && input.Type == MonaInputType.Action && input.State == GetInputState())
-                    {
-                        if(Raycast((IMonaLocalRayInput)input))
-                            return Complete(InstructionTileResult.Success);
-                    }
-                }
+                if (Raycast(_bodyInput.Ray))
+                    return Complete(InstructionTileResult.Success);
+            }
+            else if (_bodyInput.GetButton(MonaInputType.Action) != MonaInputState.None)
+            {
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(OnSelectInstructionTile)} button state inccorrect {_bodyInput.GetButton(MonaInputType.Action)} is not {GetInputState()}");
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);
         }
 
-        private bool Raycast(IMonaLocalRayInput input)
+        private bool Raycast(Ray ray)
         {
             var targetRayLayer = 1 << 8 | 1 << LayerMask.NameToLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER);
             targetRayLayer = ~targetRayLayer;
 
             RaycastHit hit;
             if (_brain.LoggingEnabled)
-                Debug.Log($"{nameof(OnSelectInstructionTile)} raycast {input.Value}");
+                Debug.Log($"{nameof(OnSelectInstructionTile)} raycast {_bodyInput.Ray.origin} {_bodyInput.Ray.direction}");
 
-            if (Physics.Raycast(input.Value.origin, input.Value.direction, out hit, _distance, targetRayLayer))
+            if (Physics.Raycast(ray.origin, ray.direction, out hit, _distance, targetRayLayer))
             {
                 if (_brain.LoggingEnabled)
                     Debug.Log($"{nameof(OnSelectInstructionTile)} {hit.point} {hit.collider}");
@@ -111,6 +101,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, Vector3.zero);
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, Vector3.zero);
                 }
+            }
+            else
+            {
+
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(OnSelectInstructionTile)}raycasdt didn't hit anything");
             }
             return false;
         }

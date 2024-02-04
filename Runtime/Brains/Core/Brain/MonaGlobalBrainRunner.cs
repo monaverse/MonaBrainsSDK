@@ -45,6 +45,8 @@ namespace Mona.SDK.Brains.Core.Brain
         private List<MonaBrainGraph> _brainGraphs = new List<MonaBrainGraph>();
         public List<MonaBrainGraph> BrainGraphs => _brainGraphs;
 
+        private MonaBrainInput _brainInput;
+
         private static MonaGlobalBrainRunner _instance;
         public static MonaGlobalBrainRunner Instance {
             get
@@ -78,12 +80,16 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
-        public PlayerInput GetPlayerInput()
+        public MonaBrainInput GetBrainInput()
         {
-            _playerInput = GetComponent<PlayerInput>();
-            if (_playerInput == null)
-                _playerInput = gameObject.AddComponent<PlayerInput>();
-            return _playerInput;
+            if (_brainInput == null)
+            {
+                _brainInput = GetComponent<MonaBrainInput>();
+                if (_brainInput == null)
+                    _brainInput = gameObject.AddComponent<MonaBrainInput>();
+                _brainInput.SetPlayer(this);
+            }
+            return _brainInput;
         }
 
         public void Awake()
@@ -101,14 +107,6 @@ namespace Mona.SDK.Brains.Core.Brain
                 EventBus.Register<MonaPlayerJoinedEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
 
                 EventBus.Trigger<MonaRegisterNetworkSettingsEvent>(new EventHook(MonaCoreConstants.REGISTER_NETWORK_SETTINGS_EVENT), new MonaRegisterNetworkSettingsEvent(NetworkSettings));
-            }
-        }
-
-        private void AttachBrainsToLocalPlayer()
-        {
-            if(BrainGraphs.Count > 0)
-            {
-
             }
         }
 

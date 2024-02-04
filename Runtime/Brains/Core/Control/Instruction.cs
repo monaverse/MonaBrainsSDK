@@ -130,7 +130,12 @@ namespace Mona.SDK.Brains.Core.Control
 
         public void Execute(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
-            if (IsRunning()) return;
+            if (IsRunning())
+            {
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(Execute)} instruction still running");
+                return;
+            }
 
             if (_instructionTiles.Count == 0)
                 return;

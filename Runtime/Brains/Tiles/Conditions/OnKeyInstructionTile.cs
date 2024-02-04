@@ -1,20 +1,11 @@
 using Mona.SDK.Brains.Core;
-using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
-using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
-using Mona.SDK.Brains.Core.Input;
-using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using System;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System;
-using UnityEngine.InputSystem.Controls;
 using Mona.SDK.Core.Input.Enums;
 using Mona.SDK.Core.Input;
-using Mona.SDK.Core.Input.Interfaces;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
 
@@ -36,49 +27,41 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         protected override MonaInputState GetInputState() => _inputState;
 
-        protected List<IMonaLocalInput> _bodyInputs;
+        protected MonaInput _bodyInput;
+        protected int _keyIndex;
+
+        protected override void AddTickDelegate()
+        {
+            base.AddTickDelegate();
+            _keyIndex = _brainInput.StartListeningForKey(_key);
+        }
+
+        protected override void RemoveTickDelegate()
+        {
+            base.RemoveTickDelegate();
+            _brainInput.StopListeningForKey(_key);
+        }
 
         protected override void ProcessLocalInput()
         {
-            IMonaLocalInput _input = new MonaLocalKeyInput();
-            ProcessKey(Keyboard.current[_key]);
-            if (_currentLocalInputState != MonaInputState.None && _currentLocalInputState == _inputState)
-            {
-                _input.Type = MonaInputType.Key;
-                _input.State = _currentLocalInputState;
-                _brain.Body.SetLocalInput(_input);
-            }
-        }
+            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, MonaInputType.Key, GetInputState());
 
-        private void ProcessKey(KeyControl keyControl)
-        {
-            if (keyControl.wasPressedThisFrame)
-                _currentLocalInputState = MonaInputState.Pressed;
-            else if (keyControl.wasReleasedThisFrame)
-                _currentLocalInputState = MonaInputState.Up;
-            else if (keyControl.isPressed)
-                _currentLocalInputState = MonaInputState.Held;
-            else
-                _currentLocalInputState = MonaInputState.None;
+            if (localInput.GetKey(_keyIndex) == GetInputState())
+            {
+                _brain.Body.SetLocalInput(localInput);
+            }
         }
 
         protected override void HandleBodyInput(MonaInputEvent evt)
         {
-            _bodyInputs = evt.Inputs;
+            _bodyInput = evt.Input;
         }
 
         public override InstructionTileResult Do()
         {
-            if (_bodyInputs != null)
+            if (_bodyInput.GetKey(_keyIndex) == GetInputState())
             {
-                for (var i = 0; i < _bodyInputs.Count; i++)
-                {
-                    var input = _bodyInputs[i];
-                    if (input is IMonaLocalKeyInput && input.Type == MonaInputType.Key && input.State == GetInputState())
-                    {
-                        return Complete(InstructionTileResult.Success);
-                    }
-                }
+                return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);
         }

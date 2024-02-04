@@ -18,14 +18,16 @@ namespace Mona.SDK.Brains.Core.State.UIElements
             {
                 _typeField.value = MonaCoreConstants.REFERENCE_TYPE_LABEL;
                 Add(_stringField);
-                _stringField.value = ((IMonaStateBrainValue)value).Value.Name;
+                var brain = ((IMonaStateBrainValue)value).Value;
+                _stringField.value = brain != null ? brain.Name : "Null";
                 _stringField.SetEnabled(false);
             }
             else if (value is IMonaStateBodyValue)
             {
                 _typeField.value = MonaCoreConstants.REFERENCE_TYPE_LABEL;
                 Add(_stringField);
-                _stringField.value = ((IMonaStateBodyValue)value).Value.Transform.name;
+                var body = ((IMonaStateBodyValue)value).Value;
+                _stringField.value = body != null ? body.Transform.name : "Null";
                 _stringField.SetEnabled(false);
             }
         }
