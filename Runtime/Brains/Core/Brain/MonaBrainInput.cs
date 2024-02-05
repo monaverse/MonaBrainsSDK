@@ -109,6 +109,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState = MonaInputState.Pressed)
         {
+            if (_player == null) return default;
+
             if (_lastFrame != Time.frameCount)
             {
                 _lastFrame = Time.frameCount;
@@ -162,6 +164,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
             return new MonaInput()
             {
+                PlayerId = _player.PlayerId,
+
                 Move = _buttons[MonaInputType.Move],
                 Look = _buttons[MonaInputType.Look],
                 Jump = _buttons[MonaInputType.Jump],
