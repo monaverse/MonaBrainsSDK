@@ -178,6 +178,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void HandleStarted()
         {
+            if (!gameObject.activeInHierarchy) return;
             StartCoroutine(BeginBrains());
         }
 

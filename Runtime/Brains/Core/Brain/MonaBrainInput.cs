@@ -140,7 +140,10 @@ namespace Mona.SDK.Brains.Core.Brain
                 }
 
                 var mouse = Mouse.current.position.ReadValue();
-                _ray = _player.PlayerCamera.Transform.GetComponent<Camera>().ScreenPointToRay(new Vector3(mouse.x, mouse.y, 0f));
+                if (_player.PlayerCamera != null)
+                    _ray = _player.PlayerCamera.Transform.GetComponent<Camera>().ScreenPointToRay(new Vector3(mouse.x, mouse.y, 0f));
+                else
+                    _ray = default;
 
                 if (logOutput)
                 {

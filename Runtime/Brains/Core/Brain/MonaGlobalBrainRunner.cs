@@ -149,6 +149,7 @@ namespace Mona.SDK.Brains.Core.Brain
             _playerBody = evt.PlayerBody;
             _playerCamera = _playerBody.FindChildByTag(MonaCoreConstants.MONA_TAG_PLAYER_CAMERA);
             _playerId = evt.PlayerId;
+            Debug.Log($"{nameof(HandleMonaPlayerJoined)} {_playerCamera.ActiveTransform}", _playerCamera.ActiveTransform.gameObject);
 
             AttachBrainsToLocalPlayer(_playerBody);
             

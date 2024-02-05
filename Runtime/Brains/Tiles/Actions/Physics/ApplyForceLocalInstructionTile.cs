@@ -14,6 +14,7 @@ using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Brains.Core.State.Structs;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core.Input;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
@@ -58,7 +59,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private MovingStateType _movingState;
         private float _time;
 
+        private MonaInput _bodyInput;
+
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
+        private Action<MonaInputEvent> OnInput;
 
         private float _speed
         {
@@ -67,7 +71,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public Vector2 InputMoveDirection
         {
-            get => _brain.State.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
+            get => _bodyInput.MoveValue;
         }
         
         public ApplyForceLocalInstructionTile() { }
@@ -81,6 +85,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             OnFixedTick = HandleFixedTick;
             EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT), OnFixedTick);
+
+            OnInput = HandleBodyInput;
+            EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+        }
+
+        protected void HandleBodyInput(MonaInputEvent evt)
+        {
+            _bodyInput = evt.Input;
         }
 
         private void RemoveFixedTickDelegate()

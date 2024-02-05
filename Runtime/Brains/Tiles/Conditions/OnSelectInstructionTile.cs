@@ -49,7 +49,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (localInput.GetButton(MonaInputType.Action) == GetInputState())
             {
                 if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnSelectInstructionTile)} setlocalinput {_bodyInput.Ray.origin} {_bodyInput.Ray.direction}");
+                    Debug.Log($"{nameof(OnSelectInstructionTile)} setlocalinput {localInput.Ray.origin} {localInput.Ray.direction}");
 
                 _brain.Body.SetLocalInput(localInput);
             }
