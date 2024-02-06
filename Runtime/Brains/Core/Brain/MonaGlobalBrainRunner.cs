@@ -17,7 +17,9 @@ namespace Mona.SDK.Brains.Core.Brain
 {
     public partial class MonaGlobalBrainRunner : MonoBehaviour, IMonaBrainPlayer
     {
-        public MonaNetworkSettings NetworkSettings = new MonaNetworkSettings();
+        public MonaNetworkSettings _NetworkSettings = new MonaNetworkSettings();
+
+        public IMonaNetworkSettings NetworkSettings => _NetworkSettings;
 
         private List<IMonaBrain> _brains = new List<IMonaBrain>();
 

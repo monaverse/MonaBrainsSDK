@@ -6,6 +6,7 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Events;
+using Mona.SDK.Core.Network.Enums;
 using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -36,6 +37,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private bool _monitorInside;
         private float _fieldOfView = 180f;
+        private bool _localPlayerOnly;
 
         private void Awake()
         {
@@ -90,6 +92,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         public void SetRadius(float radius)
         {
             _collider.radius = radius;
+        }
+
+        public void SetLocalPlayerOnly(bool b)
+        {
+            _localPlayerOnly = b;
         }
 
         private void HandleBodySpawned(MonaBodySpawnedEvent evt)
@@ -270,6 +277,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         {
             if (body != null && body.HasMonaTag(_monaTag))
             {
+                if(_brain.Player.NetworkSettings.GetNetworkType() == MonaNetworkType.Shared)
+                {
+                    //in shared mode only pay attention to your own player body
+                    if (body.HasMonaTag(MonaBrainConstants.TAG_REMOTE_PLAYER))
+                        return false;
+                }
+
                 if (!_bodiesIndex.ContainsKey(body) && body.Intersects(_collider))
                 {
                     if(_brain.LoggingEnabled)
@@ -287,6 +301,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         {
             if (body != null && body.HasMonaTag(_monaTag))
             {
+                if (_brain.Player.NetworkSettings.GetNetworkType() == MonaNetworkType.Shared)
+                {
+                    //in shared mode only pay attention to your own player body
+                    if (body.HasMonaTag(MonaBrainConstants.TAG_REMOTE_PLAYER))
+                        return false;
+                }
+
                 if (_bodiesIndex.ContainsKey(body) && !body.Intersects(_collider))
                 {
                     if (_brain.LoggingEnabled)

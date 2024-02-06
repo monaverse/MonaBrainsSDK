@@ -6,6 +6,7 @@ namespace Mona.SDK.Brains.Core.Tiles
 {
     public interface INeedAuthorityInstructionTile
     {
-
+        bool HasControl();
+        void TakeControl();
     }
 }

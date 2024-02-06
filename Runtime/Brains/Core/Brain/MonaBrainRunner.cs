@@ -167,8 +167,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
         {
-            if (evt.HasControl)
-                RestartBrains();
+            //RestartBrains();
         }
 
         public void StartBrains()
@@ -207,7 +206,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private IEnumerator BeginBrains()
         {
             yield return null;
-            if (!_began && _body.HasControl())
+            if (!_began)
             {
                 _began = true;
                 OnBegin?.Invoke(this);

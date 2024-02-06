@@ -10,13 +10,14 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
+using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
 
     [Serializable]
     public class MoveLocalInstructionTile : InstructionTile, IMoveLocalInstructionTile, IActionInstructionTile, 
-        IPauseableInstructionTile, IActivateInstructionTile
+        IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile
     {
         public override Type TileType => typeof(MoveLocalInstructionTile);
 
@@ -195,6 +196,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 default:
                     return t;
             }
+        }
+
+        public bool HasControl()
+        {
+            IMonaBody body = _brain.Body;
+            return body.HasControl();
+        }
+
+        public void TakeControl()
+        {
+            IMonaBody body = _brain.Body;
+            body.TakeControl();
         }
 
         private void MoveOverTime(float deltaTime)

@@ -10,11 +10,14 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
+using Mona.SDK.Core.Input;
+using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class MoveLocalTowardsMoveInputInstructionTile : InstructionTile, IMoveLocalTowardsMoveInputInstructionTile, IActionInstructionTile
+    public class MoveLocalTowardsMoveInputInstructionTile : InstructionTile, IMoveLocalTowardsMoveInputInstructionTile, IActionInstructionTile, INeedAuthorityInstructionTile,
+        IActivateInstructionTile, IPauseableInstructionTile
     {
         public const string ID = "MoveLocalTowardsMoveInput";
         public const string NAME = "Move Local Towards\n Move Input";
@@ -33,19 +36,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Vector3 _start;
         private float _timeElapsed;
         public float TimeElapsed => _timeElapsed;
+        private bool _active;
+        private MonaInput _brainInput;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
+        private Action<MonaInputEvent> OnInput;
 
         public float Speed
         {
             get => _brain.State.GetFloat(MonaBrainConstants.SPEED_FACTOR);
         }
 
-        public MovingStateType MovingState
-        {
-            get => (MovingStateType)_brain.State.GetInt(MonaBrainConstants.MOVING_STATE);
-            set => _brain.State.Set(MonaBrainConstants.MOVING_STATE, (int)value);
-        }
+        private MovingStateType _movingState;
 
         public Vector2 InputMoveDirection
         {
@@ -57,13 +59,74 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
-            OnFixedTick = HandleFixedTick;
-            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            UpdateActive();
         }
+
+        public void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                if (_brain != null)
+                    UpdateActive();
+            }
+        }
+
+        private void UpdateActive()
+        {
+            if (!_active)
+            {
+                RemoveDelegates();
+                return;
+            }
+
+            if (_movingState == MovingStateType.Moving)
+            {
+                AddDelegates();
+            }
+
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(MoveLocalTowardsMoveInputInstructionTile)}.{nameof(UpdateActive)} {_active}");
+        }
+
 
         public override void Unload()
         {
+            RemoveDelegates();
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(MoveLocalTowardsMoveInputInstructionTile)}.{nameof(Unload)}");
+        }
+
+        public void Pause()
+        {
+            RemoveDelegates();
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(MoveLocalTowardsMoveInputInstructionTile)}.{nameof(Pause)}");
+        }
+
+        public void Resume()
+        {
+            UpdateActive();
+        }
+
+        private void HandleBodyInput(MonaInputEvent evt)
+        {
+            _brainInput = evt.Input;
+        }
+
+        private void AddDelegates()
+        {
+            OnFixedTick = HandleFixedTick;
+            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+
+            OnInput = HandleBodyInput;
+            EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+        }
+
+        private void RemoveDelegates()
+        {
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)
@@ -82,8 +145,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override InstructionTileResult Do()
         {
             _direction = _brain.Body.ActiveTransform.forward * InputMoveDirection.y;
-            
-            MovingState = MovingStateType.Moving;
+
+            _movingState = MovingStateType.Moving;
             return Complete(InstructionTileResult.Success);
         }
 
@@ -95,12 +158,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private void FixedTick(float deltaTime)
         {
             MoveAtSpeed(deltaTime);
-            MovingState = MovingStateType.Stopped;
+            _movingState = MovingStateType.Stopped;
+        }
+
+        public bool HasControl()
+        {
+            IMonaBody body = _brain.Body;
+            return body.HasControl();
+        }
+
+        public void TakeControl()
+        {
+            IMonaBody body = _brain.Body;
+            body.TakeControl();
         }
 
         private void MoveAtSpeed(float deltaTime)
         {
-            if (MovingState == MovingStateType.Moving)
+            if (_movingState == MovingStateType.Moving)
             {
                 _brain.Body.MoveDirection(_direction * (deltaTime * (_value * Speed)), true, true);
             }

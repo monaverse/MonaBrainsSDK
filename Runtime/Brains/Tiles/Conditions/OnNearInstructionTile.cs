@@ -13,7 +13,7 @@ using UnityEngine;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnNearInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, 
+    public class OnNearInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile,
         IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IActivateInstructionTile,
         IPauseableInstructionTile, IPlayerTriggeredConditional
     {
@@ -35,7 +35,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainProperty(false)] public float FieldOfView { get => _fieldOfView; set => _fieldOfView = value; }
         [BrainPropertyValueName("FieldOfView")] public string FieldOfViewValueName { get => _fieldOfViewValueName; set => _fieldOfViewValueName = value; }
 
-        public bool PlayerTriggered => _tag == MonaCoreConstants.TAG_PLAYER;
+        public bool PlayerTriggered => _brain.HasPlayerTag() || _brain.MonaTagSource.GetTag(_tag).IsPlayerTag;
 
         private IMonaBrain _brain;
         private SphereColliderTriggerBehaviour _collider;
@@ -57,6 +57,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _collider.SetPage(page);
                 _collider.SetMonaTag(_tag);
                 _collider.SetRadius(_distance);
+                _collider.SetLocalPlayerOnly(PlayerTriggered);
                 UpdateActive();
             }
         }

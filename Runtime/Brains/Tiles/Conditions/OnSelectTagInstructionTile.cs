@@ -90,7 +90,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
                     return true;
                 }
-                else
+                else if(_brain.State.GetBody(MonaBrainConstants.RESULT_HIT_TARGET) != null)
                 {
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, (IMonaBody)null);
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, Vector3.zero);

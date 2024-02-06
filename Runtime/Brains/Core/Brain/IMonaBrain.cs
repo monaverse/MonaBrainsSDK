@@ -40,6 +40,7 @@ namespace Mona.SDK.Brains.Core.Brain
         List<string> MonaTags { get; }
         void AddTag(string tag);
         void RemoveTag(string tag);
+        bool HasPlayerTag();
 
         bool HasMessage(string message);
         void SetMonaBrainPlayer(IMonaBrainPlayer player);

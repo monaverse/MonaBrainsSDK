@@ -75,18 +75,35 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public void AddTag(string tag)
         {
-            if (!_body.HasMonaTag(tag))
-                _body.MonaTags.Add(tag);
+            _body.AddTag(tag);
             if (!HasMonaTag(tag))
                 MonaTags.Add(tag);
         }
 
         public void RemoveTag(string tag)
         {
-            if (_body.HasMonaTag(tag))
-                _body.MonaTags.Remove(tag);
+            _body.RemoveTag(tag);
             if (HasMonaTag(tag))
                 MonaTags.Remove(tag);
+        }
+
+        public bool HasPlayerTag()
+        {
+            for(var i = 0;i < _body.MonaTags.Count; i++)
+            {
+                var tag = _body.MonaTags[i];
+                var monaTag = _monaTagSource.GetTag(tag);
+                if (monaTag.IsPlayerTag) return true;
+            }
+
+            for (var i = 0; i < MonaTags.Count; i++)
+            {
+                var tag = MonaTags[i];
+                var monaTag = _monaTagSource.GetTag(tag);
+                if (monaTag.IsPlayerTag) return true;
+            }
+
+            return false;
         }
 
         [SerializeField]
@@ -302,6 +319,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             if(evt.HasControl)
             {
+                Debug.Log($"{nameof(HandleStateAuthorityChanged)} in brain");
                 ExecuteCorePageInstructions(InstructionEventTypes.Authority);
                 ExecuteStatePageInstructions(InstructionEventTypes.Authority);
             }    

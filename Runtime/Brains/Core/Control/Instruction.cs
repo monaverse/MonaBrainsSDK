@@ -4,6 +4,7 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
+using Mona.SDK.Core.Network.Enums;
 using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -116,6 +117,20 @@ namespace Mona.SDK.Brains.Core.Control
         }
 
         private bool HasTilesNeedingAuthority() => _needAuthInstructionTiles.Count > 0;
+        private bool TakeControlIfHasTilesNeedingAuthority()
+        {
+            var need = false;
+            for(var i = 0;i < _needAuthInstructionTiles.Count; i++)
+            {
+                var tile = _needAuthInstructionTiles[i];
+                if (!((INeedAuthorityInstructionTile)tile).HasControl())
+                {
+                    ((INeedAuthorityInstructionTile)tile).TakeControl();
+                    need = true;
+                }
+            }
+            return need;
+        }
 
         private void PreloadActionTile(IInstructionTile tile)
         {
@@ -135,6 +150,12 @@ namespace Mona.SDK.Brains.Core.Control
                 if (_brain.LoggingEnabled)
                     Debug.Log($"{nameof(Execute)} instruction still running");
                 return;
+            }
+
+            if(_result == InstructionTileResult.WaitingForAuthority)
+            {
+                if (eventType != InstructionEventTypes.Authority)
+                    return;
             }
 
             if (_instructionTiles.Count == 0)
@@ -252,15 +273,14 @@ namespace Mona.SDK.Brains.Core.Control
             if (_firstActionIndex == -1) return;
             var tile = InstructionTiles[_firstActionIndex];
 
-            if (HasPlayerTriggeredConditional())
+            if (HasPlayerTriggeredConditional() && _brain.Player.NetworkSettings.GetNetworkType() == MonaNetworkType.Shared)
             {
-                if (HasTilesNeedingAuthority() && !_brain.Body.HasControl())
+                if (TakeControlIfHasTilesNeedingAuthority())
                 {
-                    if(_brain.LoggingEnabled)
+                    //if(_brain.LoggingEnabled)
                         Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority. requesting control {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
 
                     _result = InstructionTileResult.WaitingForAuthority;
-                    _brain.Body.TakeControl();
                     return;
                 }
             }

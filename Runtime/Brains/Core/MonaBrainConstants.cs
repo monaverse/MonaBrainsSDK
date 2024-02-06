@@ -56,5 +56,21 @@
         public const string MENU_SHOW = "Show More Properties";
         public const string MENU_HIDE = "Hide More Properties";
 
+        public const string TAG_DEFAULT = "Default";
+        public const string TAG_PLAYER = "Player";
+        public const string TAG_REMOTE_PLAYER = "RemotePlayer";
+        public const string TAG_CAMERA = "Camera";
+        public const string TAG_HEAD = "Head";
+        public const string TAG_EYES = "Eyes";
+        public const string TAG_TORSO = "Torso";
+        public const string TAG_HIPS = "Hips";
+        public const string TAG_LEFT_HAND = "LeftHand";
+        public const string TAG_RIGHT_HAND = "RightHand";
+        public const string TAG_LEFT_FOOT = "LeftFoot";
+        public const string TAG_RIGHT_FOOT = "RightFoot";
+        public const string TAG_ENEMY = "Enemy";
+        public const string TAG_FRIENDLY = "Friendly";
+        public const string TAG_COLLECTIBLE = "Collectible";
+
     }
 }

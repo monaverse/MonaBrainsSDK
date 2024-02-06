@@ -29,7 +29,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainProperty(true)] public float Distance { get => _distance; set => _distance = value; }
         [BrainPropertyValueName("Distance")] public string DistanceValue { get => _distanceValueName; set => _distanceValueName = value; }
 
-        public bool PlayerTriggered => _tag == MonaCoreConstants.TAG_PLAYER;
+        public bool PlayerTriggered => _brain.HasPlayerTag() || _brain.MonaTagSource.GetTag(_tag).IsPlayerTag;
 
         private IMonaBrain _brain;
         private SphereColliderTriggerBehaviour _collider;
@@ -50,6 +50,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _collider.SetBrain(_brain);
                 _collider.SetMonaTag(_tag);
                 _collider.SetRadius(_distance);
+                _collider.SetLocalPlayerOnly(PlayerTriggered);
                 UpdateActive();
             }
         }

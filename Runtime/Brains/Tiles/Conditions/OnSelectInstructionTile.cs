@@ -48,8 +48,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             if (localInput.GetButton(MonaInputType.Action) == GetInputState())
             {
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnSelectInstructionTile)} setlocalinput {localInput.Ray.origin} {localInput.Ray.direction}");
+                //if (_brain.LoggingEnabled)
+                //    Debug.Log($"{nameof(OnSelectInstructionTile)} setlocalinput {localInput.Ray.origin} {localInput.Ray.direction}");
 
                 _brain.Body.SetLocalInput(localInput);
             }
@@ -64,8 +64,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
             else if (_bodyInput.GetButton(MonaInputType.Action) != MonaInputState.None)
             {
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnSelectInstructionTile)} button state inccorrect {_bodyInput.GetButton(MonaInputType.Action)} is not {GetInputState()}");
+               // if (_brain.LoggingEnabled)
+                //    Debug.Log($"{nameof(OnSelectInstructionTile)} button state inccorrect {_bodyInput.GetButton(MonaInputType.Action)} is not {GetInputState()}");
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);
         }
@@ -76,13 +76,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             targetRayLayer = ~targetRayLayer;
 
             RaycastHit hit;
-            if (_brain.LoggingEnabled)
-                Debug.Log($"{nameof(OnSelectInstructionTile)} raycast {_bodyInput.Ray.origin} {_bodyInput.Ray.direction}");
+            //if (_brain.LoggingEnabled)
+             //   Debug.Log($"{nameof(OnSelectInstructionTile)} raycast {_bodyInput.Ray.origin} {_bodyInput.Ray.direction}");
 
             if (Physics.Raycast(ray.origin, ray.direction, out hit, _distance, targetRayLayer))
             {
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnSelectInstructionTile)} {hit.point} {hit.collider}");
+                //if (_brain.LoggingEnabled)
+                //    Debug.Log($"{nameof(OnSelectInstructionTile)} {hit.point} {hit.collider}");
 
                 var body = hit.collider.GetComponentInParent<IMonaBody>();
                 if (_brain.LoggingEnabled && body != null)
@@ -95,7 +95,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
                     return true;
                 }
-                else
+                else if (_brain.State.GetBody(MonaBrainConstants.RESULT_HIT_TARGET) != null)
                 {
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, (IMonaBody)null);
                     _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, Vector3.zero);
@@ -105,8 +105,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             else
             {
 
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnSelectInstructionTile)}raycasdt didn't hit anything");
+                ////if (_brain.LoggingEnabled)
+                   // Debug.Log($"{nameof(OnSelectInstructionTile)}raycasdt didn't hit anything");
             }
             return false;
         }

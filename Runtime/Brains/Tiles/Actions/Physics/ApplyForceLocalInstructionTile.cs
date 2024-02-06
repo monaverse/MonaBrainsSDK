@@ -20,7 +20,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
 
     [Serializable]
-    public class ApplyForceLocalInstructionTile : InstructionTile, IApplyForceLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile
+    public class ApplyForceLocalInstructionTile : InstructionTile, IApplyForceLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, INeedAuthorityInstructionTile
     {
         public override Type TileType => typeof(ApplyForceLocalInstructionTile);
 
@@ -209,6 +209,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private void Tick(float deltaTime)
         {
             PushOverTime(deltaTime);
+        }
+
+        public virtual bool HasControl()
+        {
+            IMonaBody body = _brain.Body;
+            return body.HasControl();
+        }
+
+        public virtual void TakeControl()
+        {
+            IMonaBody body = _brain.Body;
+            body.TakeControl();
         }
 
         private void PushOverTime(float deltaTime)

@@ -10,12 +10,15 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
+using Mona.SDK.Core.Input;
+using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
 
     [Serializable]
-    public class ChangeColorInstructionTile : InstructionTile, IChangeColorInstructionTile, IActionInstructionTile
+    public class ChangeColorInstructionTile : InstructionTile, IChangeColorInstructionTile, IActionInstructionTile, INeedAuthorityInstructionTile,
+        IActivateInstructionTile, IPauseableInstructionTile
     {
         public const string ID = "ChangeColor";
         public const string NAME = "Change Color";
@@ -45,6 +48,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private float _time;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
+        private Action<MonaInputEvent> OnInput;
 
         private float _speed
         {
@@ -52,10 +56,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         }
 
         private MovingStateType _movingState;
+        private bool _active;
+        private MonaInput _brainInput;
 
         public Vector2 InputMoveDirection
         {
-            get => _brain.State.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
+            get => _brainInput.MoveValue;
         }
         
         public ChangeColorInstructionTile() { }
@@ -63,6 +69,60 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
+
+            UpdateActive();
+        }
+
+        public void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                if (_brain != null)
+                    UpdateActive();
+            }
+        }
+
+        private void UpdateActive()
+        {
+            if (!_active)
+            {
+                RemoveDelegates();
+                return;
+            }
+
+            if (_movingState == MovingStateType.Moving)
+            {
+                AddDelegates();
+            }
+
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(ChangeColorInstructionTile)}.{nameof(UpdateActive)} {_active}");
+        }
+
+
+        public override void Unload()
+        {
+            RemoveDelegates();
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(ChangeColorInstructionTile)}.{nameof(Unload)}");
+        }
+
+        public void Pause()
+        {
+            RemoveDelegates();
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(ChangeColorInstructionTile)}.{nameof(Pause)}");
+        }
+
+        public void Resume()
+        {
+            UpdateActive();
+        }
+
+        private void HandleBodyInput(MonaInputEvent evt)
+        {
+            _brainInput = evt.Input;
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)
@@ -72,11 +132,29 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 _thenCallback = new InstructionTileCallback();
                 _thenCallback.Action = () =>
                 {
-                    EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+                    RemoveDelegates();
                     if(thenCallback != null) return thenCallback.Action.Invoke();
                     return InstructionTileResult.Success;
                 };
             }
+        }
+
+        private void AddDelegates()
+        {
+            OnFixedTick = HandleFixedTick;
+            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+
+            if (DirectionType == MoveDirectionType.UseInput)
+            {
+                OnInput = HandleBodyInput;
+                EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+            }
+        }
+
+        private void RemoveDelegates()
+        {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
         public override InstructionTileResult Do()
@@ -95,9 +173,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 _time = 0;
                 _start = _brain.Body.GetColor();
                 _end = _color;
-             
-                OnFixedTick = HandleFixedTick;
-                EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+
+                AddDelegates();
             }
 
             _movingState = MovingStateType.Moving;
@@ -127,6 +204,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 default:
                     return t;
             }
+        }
+
+        public bool HasControl()
+        {
+            IMonaBody body = _brain.Body;
+            return body.HasControl();
+        }
+
+        public void TakeControl()
+        {
+            IMonaBody body = _brain.Body;
+            body.TakeControl();
         }
 
         private void MoveOverTime(float deltaTime)
