@@ -142,6 +142,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             }
         }
 
+        public virtual IMonaBody GetBodyToControl()
+        {
+            return _brain.Body;
+        }
+
         public override InstructionTileResult Do()
         {
             _direction = _brain.Body.ActiveTransform.forward * InputMoveDirection.y;
@@ -159,18 +164,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             MoveAtSpeed(deltaTime);
             _movingState = MovingStateType.Stopped;
-        }
-
-        public bool HasControl()
-        {
-            IMonaBody body = _brain.Body;
-            return body.HasControl();
-        }
-
-        public void TakeControl()
-        {
-            IMonaBody body = _brain.Body;
-            body.TakeControl();
         }
 
         private void MoveAtSpeed(float deltaTime)

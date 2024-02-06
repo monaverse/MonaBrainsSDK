@@ -14,7 +14,7 @@ using Mona.SDK.Core;
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
     [Serializable]
-    public class AttachToTagInstructionTile : InstructionTile, IAttachToTagInstructionTile, IActionInstructionTile
+    public class AttachToTagInstructionTile : InstructionTile, IAttachToTagInstructionTile, IActionInstructionTile, INeedAuthorityInstructionTile
     {
         public const string ID = "AttachToTag";
         public const string NAME = "Attach To Tag";
@@ -45,13 +45,35 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             _brain = brainInstance;
         }
 
+        public IMonaBody GetBodyToControl()
+        {
+            return _brain.Body;
+        }
+
+        private IMonaBody GetTarget()
+        {
+            if (_brain.MonaTagSource.GetTag(_tag).IsPlayerTag)
+            {
+                return _brain.Player.PlayerBody;
+            }
+            else
+            {
+                var bodies = MonaBody.FindByTag(_tag.ToString());
+                if (bodies != null && bodies.Count > 0)
+                {
+                    var body = bodies[0];
+                    return body;
+                }
+                return null;
+            }
+        }
+
         public override InstructionTileResult Do()
         {
-            var bodies = MonaBody.FindByTag(_tag.ToString());
-            if (bodies != null && bodies.Count > 0)
+            var body = GetTarget();
+            if(body != null)
             {
-                var body = bodies[0];
-                if (body.HasMonaTag(MonaCoreConstants.TAG_PLAYER))
+                if (_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
                 _brain.Body.SetScale(_scale, true);
                 _brain.Body.SetTransformParent(body.ActiveTransform);

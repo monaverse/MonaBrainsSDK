@@ -4,6 +4,9 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
+using Mona.SDK.Core;
+using Mona.SDK.Core.Body;
+using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Network.Enums;
 using System;
 using System.Collections.Generic;
@@ -16,6 +19,7 @@ namespace Mona.SDK.Brains.Core.Control
     public class Instruction : IInstruction
     {
         private IMonaBrain _brain;
+        private IMonaBrainPage _page;
 
         public event Action<IInstruction> OnReset = delegate { };
         public event Action<int> OnRefresh = delegate { };
@@ -49,6 +53,7 @@ namespace Mona.SDK.Brains.Core.Control
         public void Preload(IMonaBrain brain, IMonaBrainPage page)
         {
             _brain = brain;
+            _page = page;
             _firstActionIndex = -1;
             _needAuthInstructionTiles.Clear();
 
@@ -116,20 +121,48 @@ namespace Mona.SDK.Brains.Core.Control
             return false;
         }
 
+        private List<IMonaBody> _waitForAuthBodies = new List<IMonaBody>();
+        private Action<MonaStateAuthorityChangedEvent> OnStateAuthorityChanged;
         private bool HasTilesNeedingAuthority() => _needAuthInstructionTiles.Count > 0;
         private bool TakeControlIfHasTilesNeedingAuthority()
         {
+            _waitForAuthBodies.Clear();
             var need = false;
             for(var i = 0;i < _needAuthInstructionTiles.Count; i++)
             {
                 var tile = _needAuthInstructionTiles[i];
-                if (!((INeedAuthorityInstructionTile)tile).HasControl())
+                var body = ((INeedAuthorityInstructionTile)tile).GetBodyToControl();
+                if (body != null && !body.HasControl())
                 {
-                    ((INeedAuthorityInstructionTile)tile).TakeControl();
+                    OnStateAuthorityChanged = HandleStateAuthorityChanged;
+                    EventBus.Register<MonaStateAuthorityChangedEvent>(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, body), OnStateAuthorityChanged);
+                    _waitForAuthBodies.Add(body);
+
+                    if (_brain.LoggingEnabled)
+                        Debug.Log($"{nameof(Instruction)}.{nameof(TakeControlIfHasTilesNeedingAuthority)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+                    body.TakeControl();
+
                     need = true;
                 }
             }
             return need;
+        }
+
+        private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
+        {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, evt.Body), OnStateAuthorityChanged);
+            _waitForAuthBodies.Remove(evt.Body);
+            if(_brain.LoggingEnabled)
+                Debug.Log($"{nameof(Instruction)}.{nameof(HandleStateAuthorityChanged)} {evt.Body.ActiveTransform.name} {evt.Body.HasControl()}", evt.Body.ActiveTransform.gameObject);
+            if(_waitForAuthBodies.Count == 0)
+            {
+                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Authority));
+            }
+            else
+            {
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(Instruction)}.{nameof(HandleStateAuthorityChanged)} waiting for {_waitForAuthBodies.Count} bodies to complete instruction", evt.Body.ActiveTransform.gameObject);
+            }
         }
 
         private void PreloadActionTile(IInstructionTile tile)
@@ -145,17 +178,16 @@ namespace Mona.SDK.Brains.Core.Control
 
         public void Execute(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
-            if (IsRunning())
-            {
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(Execute)} instruction still running");
-                return;
-            }
-
-            if(_result == InstructionTileResult.WaitingForAuthority)
+            if (_result == InstructionTileResult.WaitingForAuthority)
             {
                 if (eventType != InstructionEventTypes.Authority)
                     return;
+            }
+            else if (IsRunning())
+            {
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction still running", _brain.Body.ActiveTransform.gameObject);
+                return;
             }
 
             if (_instructionTiles.Count == 0)
@@ -179,11 +211,16 @@ namespace Mona.SDK.Brains.Core.Control
                     case InstructionEventTypes.Start:
                     case InstructionEventTypes.State:
                         if (tile is IOnStartInstructionTile)
+                        {
                             return tile.Do();
+                        }
                         else if (tile is IActionInstructionTile)
                         {
-                            _result = InstructionTileResult.Running;
-                            return tile.Do();
+                            if (_brain.Body.HasControl())
+                            {
+                                _result = InstructionTileResult.Running;
+                                return tile.Do();
+                            }
                         }
                         break;
                     case InstructionEventTypes.Message:
@@ -215,18 +252,20 @@ namespace Mona.SDK.Brains.Core.Control
                             var progressTile = GetFirstTileInProgress();
                             if(progressTile == null)
                             {
-                                if (IsWaitingForAuthority())
+                                _result = InstructionTileResult.Running;
+                                if (_firstActionIndex == -1)
                                 {
-                                    var authTile = _needAuthInstructionTiles[0];
-                                    return authTile.Do();
+                                    return tile.Do();
                                 }
                                 else
                                 {
-                                    return tile.Do();
+                                    var actionTile = InstructionTiles[_firstActionIndex];
+                                    return actionTile.Do();
                                 }
                             }
                             else
                             {
+                                _result = InstructionTileResult.Running;
                                 return progressTile.Continue();
                             }
                         }
@@ -235,8 +274,6 @@ namespace Mona.SDK.Brains.Core.Control
             }
             return InstructionTileResult.Failure;
         }
-
-        private bool IsWaitingForAuthority() => _result == InstructionTileResult.WaitingForAuthority;
 
         private IProgressInstructionTile GetFirstTileInProgress()
         {
@@ -269,6 +306,8 @@ namespace Mona.SDK.Brains.Core.Control
 
         private void ExecuteActions()
         {
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(ExecuteActions)} #{_page.Instructions.IndexOf(this)} start instruction", _brain.Body.ActiveTransform.gameObject);
             _result = InstructionTileResult.Running;
             if (_firstActionIndex == -1) return;
             var tile = InstructionTiles[_firstActionIndex];
@@ -298,7 +337,7 @@ namespace Mona.SDK.Brains.Core.Control
                 if (!HasConditional())
                 {
                     //Debug.Log($"TICK IT");
-                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent());
+                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick));
                 }
                 return InstructionTileResult.Success;
             }

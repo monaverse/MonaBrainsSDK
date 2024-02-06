@@ -39,16 +39,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             return source;
         }
 
-        public override bool HasControl()
+        public override IMonaBody GetBodyToControl()
         {
-            IMonaBody body = GetTarget();
-            return body == null ? true : body.HasControl();
-        }
-
-        public override void TakeControl()
-        {
-            IMonaBody body = GetTarget();
-            body?.TakeControl();
+            return GetTarget();
         }
 
         protected override bool ApplyForceToTarget()

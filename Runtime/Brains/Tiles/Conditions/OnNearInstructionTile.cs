@@ -114,7 +114,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (body != null)
             {
                 if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {body}", _brain.Body.ActiveTransform.gameObject);
+                    Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
                 _brain.State.Set(MonaBrainConstants.RESULT_TARGET, body);
                 return Complete(InstructionTileResult.Success);
             }

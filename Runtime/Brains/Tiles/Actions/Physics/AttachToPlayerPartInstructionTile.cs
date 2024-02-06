@@ -14,7 +14,7 @@ using Mona.SDK.Core;
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
     [Serializable]
-    public class AttachToPlayerPartInstructionTile : InstructionTile, IAttachToPlayerPartInstructionTile, IActionInstructionTile
+    public class AttachToPlayerPartInstructionTile : InstructionTile, IAttachToPlayerPartInstructionTile, IActionInstructionTile, INeedAuthorityInstructionTile
     {
         public const string ID = "AttachToPlayerPart";
         public const string NAME = "Attach To Player Part";
@@ -44,6 +44,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public void Preload(IMonaBrain brainInstance) 
         {
             _brain = brainInstance;
+        }
+
+        public IMonaBody GetBodyToControl()
+        {
+            return _brain.Body;
         }
 
         public override InstructionTileResult Do()

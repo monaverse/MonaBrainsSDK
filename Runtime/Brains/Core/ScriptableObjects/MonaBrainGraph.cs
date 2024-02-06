@@ -106,6 +106,18 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             return false;
         }
 
+        public bool HasPlayerTag(List<string> monaTags)
+        {
+            for (var i = 0; i < monaTags.Count; i++)
+            {
+                var tag = monaTags[i];
+                var monaTag = _monaTagSource.GetTag(tag);
+                if (monaTag.IsPlayerTag) return true;
+            }
+            return false;
+        }
+
+
         [SerializeField]
         private MonaTags _monaTagSource;
         public IMonaTags MonaTagSource { get => _monaTagSource; set => _monaTagSource = (MonaTags)value; }
@@ -148,7 +160,6 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private List<MonaBroadcastMessageEvent> _messages = new List<MonaBroadcastMessageEvent>();
 
-        private Action<MonaStateAuthorityChangedEvent> OnStateAuthorityChanged;
         private Action<MonaBodyParentChangedEvent> OnBodyParentChanged;
         private Action<MonaBrainTickEvent> OnMonaBrainTick;
         private Action<MonaTriggerEvent> OnMonaTrigger;
@@ -218,9 +229,6 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void AddEventDelegates()
         {
-            OnStateAuthorityChanged = HandleStateAuthorityChanged;
-            EventBus.Register<MonaStateAuthorityChangedEvent>(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _body), OnStateAuthorityChanged);
-
             OnBodyParentChanged = HandleBodyParentChanged;
             EventBus.Register<MonaBodyParentChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
 
@@ -250,7 +258,6 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void RemoveEventDelegates()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _body), OnStateAuthorityChanged);
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
 
             EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), OnMonaBrainTick);
@@ -315,16 +322,6 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 _statePages[i].Resume();
         }
 
-        private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
-        {
-            if(evt.HasControl)
-            {
-                Debug.Log($"{nameof(HandleStateAuthorityChanged)} in brain");
-                ExecuteCorePageInstructions(InstructionEventTypes.Authority);
-                ExecuteStatePageInstructions(InstructionEventTypes.Authority);
-            }    
-        }
-        
         private void HandleBodyParentChanged(MonaBodyParentChangedEvent evt)
         {
             RemoveHierarchyDelegates();
@@ -338,9 +335,12 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         }
 
         private void ExecuteTickEvent(IInstructionEvent evt)
-        { 
-            ExecuteCorePageInstructions(InstructionEventTypes.Tick);
-            ExecuteStatePageInstructions(InstructionEventTypes.Tick);
+        {
+            var tickEvt = (MonaBrainTickEvent)evt;
+            if(LoggingEnabled)
+                Debug.Log($"{nameof(ExecuteTickEvent)} {tickEvt.Type}", _body.ActiveTransform.gameObject);
+            ExecuteCorePageInstructions(tickEvt.Type);
+            ExecuteStatePageInstructions(tickEvt.Type);
         }
 
         private void HandleMonaTrigger(MonaTriggerEvent evt)

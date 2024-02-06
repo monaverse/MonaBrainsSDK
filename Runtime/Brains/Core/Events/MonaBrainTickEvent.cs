@@ -6,5 +6,10 @@ namespace Mona.SDK.Brains.Core.Events
 {
     public struct MonaBrainTickEvent : IInstructionEvent
     {
+        public InstructionEventTypes Type;
+        public MonaBrainTickEvent(InstructionEventTypes type)
+        {
+            Type = type;
+        }
     }
 }

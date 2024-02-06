@@ -157,6 +157,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
+        public IMonaBody GetBodyToControl()
+        {
+            return _brain.Body;
+        }
+
         public override InstructionTileResult Do()
         {
             if (!string.IsNullOrEmpty(_durationValueName))
@@ -204,18 +209,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 default:
                     return t;
             }
-        }
-
-        public bool HasControl()
-        {
-            IMonaBody body = _brain.Body;
-            return body.HasControl();
-        }
-
-        public void TakeControl()
-        {
-            IMonaBody body = _brain.Body;
-            body.TakeControl();
         }
 
         private void MoveOverTime(float deltaTime)

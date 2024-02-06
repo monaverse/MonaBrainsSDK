@@ -16,7 +16,7 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
     [Serializable]
-    public class AttachToTargetPartInstructionTile : InstructionTile, IAttachToTargetPartInstructionTile, IActionInstructionTile
+    public class AttachToTargetPartInstructionTile : InstructionTile, IAttachToTargetPartInstructionTile, IActionInstructionTile, INeedAuthorityInstructionTile
     {
         public const string ID = "AttachToTargetPart";
         public const string NAME = "Attach To Target Part";
@@ -53,24 +53,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             _brain = brainInstance;
         }
 
+        public IMonaBody GetBodyToControl()
+        {
+            return _brain.Body;
+        }
+
         public override InstructionTileResult Do()
         {
-            IMonaBody body = GetSource();
-            if(!string.IsNullOrEmpty(_target))
-            {
-                var value = _brain.State.GetValue(_target);
-                if (value is IMonaStateBrainValue)
-                    body = ((IMonaStateBrainValue)value).Value.Body;
-                else if (value is IMonaStateBodyValue)
-                    body = ((IMonaStateBodyValue)value).Value;
-            }
+            IMonaBody body = GetTarget();
 
             if (body != null)
             {
                 var playerPart = body.FindChildByTag(_part.ToString());
                 if (playerPart == null) playerPart = body;
                 _brain.Body.SetScale(_scale, true);
-                if(body.HasMonaTag(MonaCoreConstants.TAG_PLAYER))
+                if(_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
                 _brain.Body.SetTransformParent(playerPart.ActiveTransform);
                 _brain.Body.SetPosition(playerPart.ActiveTransform.position + playerPart.ActiveTransform.parent.TransformDirection(_offset), true, true);
@@ -78,6 +75,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             }
          
             return Complete(InstructionTileResult.Success);
+        }
+
+        private IMonaBody GetTarget()
+        {
+            IMonaBody body = GetSource();
+            if (!string.IsNullOrEmpty(_target))
+            {
+                var value = _brain.State.GetValue(_target);
+                if (value is IMonaStateBrainValue)
+                    body = ((IMonaStateBrainValue)value).Value.Body;
+                else if (value is IMonaStateBodyValue)
+                    body = ((IMonaStateBodyValue)value).Value;
+            }
+            return body;
         }
 
         private IMonaBody GetSource()

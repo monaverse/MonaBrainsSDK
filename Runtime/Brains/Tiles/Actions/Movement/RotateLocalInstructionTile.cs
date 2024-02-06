@@ -184,16 +184,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             }
         }
 
-        public bool HasControl()
+        public virtual IMonaBody GetBodyToControl()
         {
-            IMonaBody body = _brain.Body;
-            return body.HasControl();
-        }
-
-        public void TakeControl()
-        {
-            IMonaBody body = _brain.Body;
-            body.TakeControl();
+            return _brain.Body;
         }
 
         private void MoveOverTime(float deltaTime)

@@ -98,6 +98,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private void RemoveFixedTickDelegate()
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
         public override void Unload()
@@ -210,17 +211,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             PushOverTime(deltaTime);
         }
-
-        public virtual bool HasControl()
+        
+        public virtual IMonaBody GetBodyToControl()
         {
-            IMonaBody body = _brain.Body;
-            return body.HasControl();
-        }
-
-        public virtual void TakeControl()
-        {
-            IMonaBody body = _brain.Body;
-            body.TakeControl();
+            return _brain.Body;
         }
 
         private void PushOverTime(float deltaTime)

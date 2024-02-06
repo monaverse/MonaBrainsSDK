@@ -16,7 +16,7 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
     [Serializable]
-    public class AttachToTargetInstructionTile : InstructionTile, IAttachToTargetInstructionTile, IActionInstructionTile
+    public class AttachToTargetInstructionTile : InstructionTile, IAttachToTargetInstructionTile, IActionInstructionTile, INeedAuthorityInstructionTile
     {
         public const string ID = "AttachToTarget";
         public const string NAME = "Attach To Target";
@@ -50,15 +50,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public override InstructionTileResult Do()
         {
-            IMonaBody body = GetSource();
-            if (!string.IsNullOrEmpty(_target))
-            {
-                var value = _brain.State.GetValue(_target);
-                if (value is IMonaStateBrainValue)
-                    body = ((IMonaStateBrainValue)value).Value.Body;
-                else if (value is IMonaStateBodyValue)
-                    body = ((IMonaStateBodyValue)value).Value;
-            }
+            IMonaBody body = GetTarget();
 
             if (body != null)
             {
@@ -70,6 +62,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 _brain.Body.SetRotation(body.ActiveTransform.rotation, true, true);
             }
             return Complete(InstructionTileResult.Success);
+        }
+
+        public IMonaBody GetBodyToControl()
+        {
+            return _brain.Body;
+        }
+
+        private IMonaBody GetTarget()
+        {
+            var body = GetSource();
+            if (!string.IsNullOrEmpty(_target))
+            {
+                var value = _brain.State.GetValue(_target);
+                if (value is IMonaStateBrainValue)
+                    body = ((IMonaStateBrainValue)value).Value.Body;
+                else if (value is IMonaStateBodyValue)
+                    body = ((IMonaStateBodyValue)value).Value;
+            }
+            return body;
         }
 
         private IMonaBody GetSource()
