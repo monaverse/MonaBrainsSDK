@@ -26,7 +26,7 @@ namespace Mona.SDK.Brains.VisualScripting.Units.Events
         public ValueOutput Body;
 
         [DoNotSerialize]
-        public ValueOutput Values;
+        public ValueOutput Variables;
 
         [DoNotSerialize]
         public ValueOutput GameObject;
@@ -42,7 +42,7 @@ namespace Mona.SDK.Brains.VisualScripting.Units.Events
             EventName = ValueInput<string>(nameof(EventName), "Default");
             Brain = ValueOutput<IMonaBrain>(nameof(Brain));
             Body = ValueOutput<MonaBody>(nameof(Body));
-            Values = ValueOutput<MonaBrainState>(nameof(Values));
+            Variables = ValueOutput<MonaBrainVariables>(nameof(Variables));
             GameObject = ValueOutput<GameObject>(nameof(GameObject));
         }
 
@@ -55,7 +55,7 @@ namespace Mona.SDK.Brains.VisualScripting.Units.Events
         {
             flow.SetValue(Brain, args.Brain);
             flow.SetValue(Body, args.Brain.Body);
-            flow.SetValue(Values, args.Brain.State);
+            flow.SetValue(Variables, args.Brain.Variables);
             flow.SetValue(GameObject, args.Brain.GameObject);
             base.AssignArguments(flow, args);
         }

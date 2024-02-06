@@ -45,18 +45,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public float Speed
         {
-            get => _brain.State.GetFloat(MonaBrainConstants.SPEED_FACTOR);
+            get => _brain.Variables.GetFloat(MonaBrainConstants.SPEED_FACTOR);
         }
 
         public MovingStateType MovingState
         {
-            get => (MovingStateType)_brain.State.GetInt(MonaBrainConstants.MOVING_ROTATE_STATE);
-            set => _brain.State.Set(MonaBrainConstants.MOVING_ROTATE_STATE, (int)value);
+            get => (MovingStateType)_brain.Variables.GetInt(MonaBrainConstants.MOVING_ROTATE_STATE);
+            set => _brain.Variables.Set(MonaBrainConstants.MOVING_ROTATE_STATE, (int)value);
         }
 
         public Vector2 InputMoveDirection
         {
-            get => _brain.State.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
+            get => _brain.Variables.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
         }
 
         public RotateLocalAroundMoveInputInstructionTile() { }

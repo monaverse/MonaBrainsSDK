@@ -54,14 +54,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private float _speed
         {
-            get => _brain.State.GetFloat(MonaBrainConstants.SPEED_FACTOR);
+            get => _brain.Variables.GetFloat(MonaBrainConstants.SPEED_FACTOR);
         }
 
         private MovingStateType _movingState;
 
         public Vector2 InputMoveDirection
         {
-            get => _brain.State.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
+            get => _brain.Variables.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
         }
         
         public MoveLocalInstructionTile() { }
@@ -146,10 +146,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
 
             if (!string.IsNullOrEmpty(_distanceValueName))
-                _distance = _brain.State.GetFloat(_distanceValueName);
+                _distance = _brain.Variables.GetFloat(_distanceValueName);
 
             if (!string.IsNullOrEmpty(_valueValueName))
-                _value = _brain.State.GetFloat(_valueValueName);
+                _value = _brain.Variables.GetFloat(_valueValueName);
 
             if (_mode == MoveModeType.Instant)
             {

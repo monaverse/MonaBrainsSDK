@@ -20,7 +20,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override Type TileType => typeof(BoolValueInstructionTile);
 
         [SerializeField] private string _valueName;
-        [BrainPropertyValue(typeof(IMonaStateBoolValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
+        [BrainPropertyValue(typeof(IMonaVariablesBoolValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
 
         [SerializeField] private BoolValueOperatorType _operator = BoolValueOperatorType.Equal;
         [BrainPropertyEnum(false)] public BoolValueOperatorType Operator { get => _operator; set => _operator = value; }
@@ -42,16 +42,16 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override InstructionTileResult Do()
         {
             if (!string.IsNullOrEmpty(_valueValueName))
-                _value = _brain.State.GetBool(_valueValueName);
+                _value = _brain.Variables.GetBool(_valueValueName);
 
-            if (_brain != null && Evaluate(_brain.State))
+            if (_brain != null && Evaluate(_brain.Variables))
             {
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
-        private bool Evaluate(IMonaBrainState state)
+        private bool Evaluate(IMonaBrainVariables state)
         {
             switch(_operator)
             {

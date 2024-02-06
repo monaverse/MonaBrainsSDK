@@ -29,7 +29,7 @@
         public const string MONA_BRAINS_THEN_EVENT = "OnMonaBrainsThenEvent";
 
         public const string STATE_CHANGED_EVENT = "OnMonaStateChangedEvent";
-        public const string STATE_AUTHORITY_CHANGED_EVENT = "OnMOnaStateAuthorityChangedEvent";
+        public const string STATE_AUTHORITY_CHANGED_EVENT = "OnMonaStateAuthorityChangedEvent";
 
         public const string TRIGGER_EVENT = "OnMonaTriggerEvent";
         public const string BROADCAST_MESSAGE_EVENT = "OnMonaBroadcastMessageEvent";

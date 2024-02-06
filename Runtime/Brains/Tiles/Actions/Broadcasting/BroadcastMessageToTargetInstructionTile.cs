@@ -42,16 +42,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
             IMonaBody source = GetSource();
             if (!string.IsNullOrEmpty(_targetValue))
             {
-                var value = _brain.State.GetValue(_targetValue);
-                if (value is IMonaStateBrainValue)
+                var variable = _brain.Variables.GetVariable(_targetValue);
+                if (variable is IMonaVariablesBrainValue)
                 {
-                    var targetBrain = ((IMonaStateBrainValue)value).Value;
+                    var targetBrain = ((IMonaVariablesBrainValue)variable).Value;
                     if (targetBrain != null)
                         BroadcastMessage(_brain, _message, targetBrain);
                 }
                 else
                 {
-                    var targetBody = ((IMonaStateBodyValue)value).Value;
+                    var targetBody = ((IMonaVariablesBodyValue)variable).Value;
                     if (targetBody != null)
                         BroadcastMessage(_brain, _message, targetBody);
                 }
@@ -70,14 +70,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
             switch (_source)
             {
                 case MonaBrainTargetResultType.OnConditionTarget:
-                    return _brain.State.GetBody(MonaBrainConstants.RESULT_TARGET);
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
                 case MonaBrainTargetResultType.OnMessageSender:
-                    var brain = _brain.State.GetBrain(MonaBrainConstants.RESULT_SENDER);
+                    var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
                     if (brain != null)
                         return brain.Body;
                     break;
                 case MonaBrainTargetResultType.OnHitTarget:
-                    return _brain.State.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
             }
             return null;
         }

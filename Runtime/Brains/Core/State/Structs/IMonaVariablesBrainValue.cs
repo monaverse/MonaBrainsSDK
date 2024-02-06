@@ -2,7 +2,7 @@
 
 namespace Mona.SDK.Brains.Core.State.Structs
 {
-    public interface IMonaStateBrainValue
+    public interface IMonaVariablesBrainValue
     { 
         IMonaBrain Value { get; set; }
     }

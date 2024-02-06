@@ -44,14 +44,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public float Speed
         {
-            get => _brain.State.GetFloat(MonaBrainConstants.SPEED_FACTOR);
+            get => _brain.Variables.GetFloat(MonaBrainConstants.SPEED_FACTOR);
         }
 
         private MovingStateType _movingState;
 
         public Vector2 InputMoveDirection
         {
-            get => _brain.State.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
+            get => _brain.Variables.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
         }
 
         public MoveLocalTowardsMoveInputInstructionTile() { }

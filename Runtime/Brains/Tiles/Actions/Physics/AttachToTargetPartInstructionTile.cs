@@ -82,11 +82,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             IMonaBody body = GetSource();
             if (!string.IsNullOrEmpty(_target))
             {
-                var value = _brain.State.GetValue(_target);
-                if (value is IMonaStateBrainValue)
-                    body = ((IMonaStateBrainValue)value).Value.Body;
-                else if (value is IMonaStateBodyValue)
-                    body = ((IMonaStateBodyValue)value).Value;
+                var variable = _brain.Variables.GetVariable(_target);
+                if (variable is IMonaVariablesBrainValue)
+                    body = ((IMonaVariablesBrainValue)variable).Value.Body;
+                else if (variable is IMonaVariablesBodyValue)
+                    body = ((IMonaVariablesBodyValue)variable).Value;
             }
             return body;
         }
@@ -96,14 +96,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             switch (_source)
             {
                 case MonaBrainTargetResultType.OnConditionTarget:
-                    return _brain.State.GetBody(MonaBrainConstants.RESULT_TARGET);
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
                 case MonaBrainTargetResultType.OnMessageSender:
-                    var brain = _brain.State.GetBrain(MonaBrainConstants.RESULT_SENDER);
+                    var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
                     if (brain != null)
                         return brain.Body;
                     break;
                 case MonaBrainTargetResultType.OnHitTarget:
-                    return _brain.State.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
             }
             return null;
         }

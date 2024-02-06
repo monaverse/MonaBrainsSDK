@@ -33,7 +33,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
         public InstructionTileResult Do()
         {
-            var senderAsTarget = _brain.State.GetBrain(MonaBrainConstants.RESULT_SENDER);
+            var senderAsTarget = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
             if(senderAsTarget != null)
                 BroadcastMessage(_brain, _message, senderAsTarget);
             

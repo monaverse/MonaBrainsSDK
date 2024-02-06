@@ -9,9 +9,9 @@ namespace Mona.SDK.Brains.Core.State.UIElements
 {
     public class MonaBrainValuesVisualElement : VisualElement
     {
-        private IMonaBrainState _state;
+        private IMonaBrainVariables _state;
         private ListView _list;
-        private Dictionary<IMonaStateValue, Action> _changeListeners = new Dictionary<IMonaStateValue, Action>();
+        private Dictionary<IMonaVariablesValue, Action> _changeListeners = new Dictionary<IMonaVariablesValue, Action>();
 
         public MonaBrainValuesVisualElement()
         {
@@ -39,7 +39,7 @@ namespace Mona.SDK.Brains.Core.State.UIElements
             _list.reorderable = false;
             _list.bindItem += (elem, i) =>
             {
-                var value = _state.Values[i];
+                var value = _state.VariableList[i];
                 _changeListeners[value] = () =>
                 {
                     ((MonaBrainValuesItemVisualElement)elem).Refresh();
@@ -48,13 +48,13 @@ namespace Mona.SDK.Brains.Core.State.UIElements
             };
             _list.unbindItem += (elem, i) =>
             {
-                var value = _state.Values[i];
+                var value = _state.VariableList[i];
                 value.OnChange -= _changeListeners[value];
             };
             _list.itemsAdded += (items) =>
             {
                 foreach (var e in items)
-                    _state.CreateValue("Default", typeof(MonaStateString), e);
+                    _state.CreateVariable("Default", typeof(MonaVariablesString), e);
             };
             Add(_list);
         }
@@ -64,10 +64,10 @@ namespace Mona.SDK.Brains.Core.State.UIElements
             elem.SetStateItem(_state, i);
         }
 
-        public void SetState(IMonaBrainState state)
+        public void SetState(IMonaBrainVariables state)
         {
             _state = state;
-            _list.itemsSource = _state.Values;
+            _list.itemsSource = _state.VariableList;
             _list.Rebuild();
         }
 

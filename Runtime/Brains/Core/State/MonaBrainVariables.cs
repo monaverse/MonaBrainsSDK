@@ -12,11 +12,11 @@ using Mona.SDK.Core.Events;
 namespace Mona.SDK.Brains.Core.State
 {
     [Serializable]
-    public class MonaBrainState : MonaState, IMonaBrainState
+    public class MonaBrainVariables : MonaVariables, IMonaBrainVariables
     {
         private IMonaBrain _brain;
 
-        public MonaBrainState(GameObject gameObject = null, IMonaBrain brain = null) : base(gameObject)
+        public MonaBrainVariables(GameObject gameObject = null, IMonaBrain brain = null) : base(gameObject)
         {
             _brain = brain;
         }
@@ -29,8 +29,8 @@ namespace Mona.SDK.Brains.Core.State
 
         public void Set(string name, IMonaBrain value)
         {
-            var prop = GetValue(name, typeof(MonaStateBrain));
-            var propValue = ((IMonaStateBrainValue)prop);
+            var prop = GetVariable(name, typeof(MonaVariablesBrain));
+            var propValue = ((IMonaVariablesBrainValue)prop);
             if (propValue.Value != value)
             {
                 propValue.Value = value;
@@ -40,11 +40,11 @@ namespace Mona.SDK.Brains.Core.State
 
         public IMonaBrain GetBrain(string name)
         {
-            var prop = GetValue(name, typeof(MonaStateBrain));
-            return ((IMonaStateBrainValue)prop).Value;
+            var prop = GetVariable(name, typeof(MonaVariablesBrain));
+            return ((IMonaVariablesBrainValue)prop).Value;
         }
 
-        protected override void FireValueEvent(string variableName, IMonaStateValue value)
+        protected override void FireValueEvent(string variableName, IMonaVariablesValue value)
         {
             base.FireValueEvent(variableName, value);
             EventBus.Trigger<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain), new MonaValueChangedEvent(variableName, value));

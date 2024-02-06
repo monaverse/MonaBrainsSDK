@@ -38,58 +38,58 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
-            DefaultValue(_brain.State);
+            DefaultValue(_brain.Variables);
         }
 
-        private void DefaultValue(IMonaBrainState state)
+        private void DefaultValue(IMonaBrainVariables state)
         {
-            var value = state.GetValue(_valueName);
-            if (value is IMonaStateFloatValue)
-                _lastFloat = ((IMonaStateFloatValue)value).Value;
-            else if (value is IMonaStateStringValue)
-                _lastString = ((IMonaStateStringValue)value).Value;
-            else if (value is IMonaStateBoolValue)
-                _lastBool = ((IMonaStateBoolValue)value).Value;
-            else if (value is IMonaStateVector2Value)
-                _lastVector2 = ((IMonaStateVector2Value)value).Value;
-            else if (value is IMonaStateVector3Value)
-                _lastVector3 = ((IMonaStateVector3Value)value).Value;
-            else if (value is IMonaStateBodyValue)
-                _lastBody = ((IMonaStateBodyValue)value).Value;
-            else if (value is IMonaStateBrainValue)
-                _lastBrain = ((IMonaStateBrainValue)value).Value;
+            var variable = state.GetVariable(_valueName);
+            if (variable is IMonaVariablesFloatValue)
+                _lastFloat = ((IMonaVariablesFloatValue)variable).Value;
+            else if (variable is IMonaVariablesStringValue)
+                _lastString = ((IMonaVariablesStringValue)variable).Value;
+            else if (variable is IMonaVariablesBoolValue)
+                _lastBool = ((IMonaVariablesBoolValue)variable).Value;
+            else if (variable is IMonaVariablesVector2Value)
+                _lastVector2 = ((IMonaVariablesVector2Value)variable).Value;
+            else if (variable is IMonaVariablesVector3Value)
+                _lastVector3 = ((IMonaVariablesVector3Value)variable).Value;
+            else if (variable is IMonaVariablesBodyValue)
+                _lastBody = ((IMonaVariablesBodyValue)variable).Value;
+            else if (variable is IMonaVariablesBrainValue)
+                _lastBrain = ((IMonaVariablesBrainValue)variable).Value;
         }
 
         public override InstructionTileResult Do()
         {
-            if (_brain != null && Evaluate(_brain.State))
+            if (_brain != null && Evaluate(_brain.Variables))
             {
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
-        private bool Evaluate(IMonaBrainState state)
+        private bool Evaluate(IMonaBrainVariables state)
         {
-            var value = state.GetValue(_valueName);
-            if(value is IMonaStateFloatValue)
-                return EvaluateValue((IMonaStateFloatValue)value);
-            else if (value is IMonaStateStringValue)
-                return EvaluateValue((IMonaStateStringValue)value);
-            else if (value is IMonaStateBoolValue)
-                return EvaluateValue((IMonaStateBoolValue)value);
-            else if (value is IMonaStateVector2Value)
-                return EvaluateValue((IMonaStateVector2Value)value);
-            else if (value is IMonaStateVector3Value)
-                return EvaluateValue((IMonaStateVector3Value)value);
-            else if (value is IMonaStateBodyValue)
-                return EvaluateValue((IMonaStateBodyValue)value);
-            else if (value is IMonaStateBrainValue)
-                return EvaluateValue((IMonaStateBrainValue)value);
+            var variable = state.GetVariable(_valueName);
+            if(variable is IMonaVariablesFloatValue)
+                return EvaluateValue((IMonaVariablesFloatValue)variable);
+            else if (variable is IMonaVariablesStringValue)
+                return EvaluateValue((IMonaVariablesStringValue)variable);
+            else if (variable is IMonaVariablesBoolValue)
+                return EvaluateValue((IMonaVariablesBoolValue)variable);
+            else if (variable is IMonaVariablesVector2Value)
+                return EvaluateValue((IMonaVariablesVector2Value)variable);
+            else if (variable is IMonaVariablesVector3Value)
+                return EvaluateValue((IMonaVariablesVector3Value)variable);
+            else if (variable is IMonaVariablesBodyValue)
+                return EvaluateValue((IMonaVariablesBodyValue)variable);
+            else if (variable is IMonaVariablesBrainValue)
+                return EvaluateValue((IMonaVariablesBrainValue)variable);
             return false;
         }
 
-        private bool EvaluateValue(IMonaStateFloatValue value)
+        private bool EvaluateValue(IMonaVariablesFloatValue value)
         {
             if (value.Value != _lastFloat)
             {
@@ -99,7 +99,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             return false;
         }
 
-        private bool EvaluateValue(IMonaStateStringValue value)
+        private bool EvaluateValue(IMonaVariablesStringValue value)
         {
             if (value.Value != _lastString)
             {
@@ -109,7 +109,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             return false;
         }
 
-        private bool EvaluateValue(IMonaStateBoolValue value)
+        private bool EvaluateValue(IMonaVariablesBoolValue value)
         {
             if (value.Value != _lastBool)
             {
@@ -119,7 +119,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             return false;
         }
 
-        private bool EvaluateValue(IMonaStateVector2Value value)
+        private bool EvaluateValue(IMonaVariablesVector2Value value)
         {
             if (value.Value != _lastVector2)
             {
@@ -129,7 +129,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             return false;
         }
 
-        private bool EvaluateValue(IMonaStateVector3Value value)
+        private bool EvaluateValue(IMonaVariablesVector3Value value)
         {
             if (value.Value != _lastVector3)
             {
@@ -139,7 +139,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             return false;
         }
 
-        private bool EvaluateValue(IMonaStateBrainValue value)
+        private bool EvaluateValue(IMonaVariablesBrainValue value)
         {
             if (value.Value != _lastBrain)
             {
@@ -149,7 +149,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             return false;
         }
 
-        private bool EvaluateValue(IMonaStateBodyValue value)
+        private bool EvaluateValue(IMonaVariablesBodyValue value)
         {
             if (value.Value != _lastBody)
             {

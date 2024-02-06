@@ -20,7 +20,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override Type TileType => typeof(ChangeValueInstructionTile);
 
         [SerializeField] private string _valueName;
-        [BrainPropertyValue(typeof(IMonaStateFloatValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
+        [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
 
         [SerializeField] private ValueChangeType _operator = ValueChangeType.Set;
         [BrainPropertyEnum(false)] public ValueChangeType Operator { get => _operator; set => _operator = value; }
@@ -42,35 +42,35 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override InstructionTileResult Do()
         {
             if (!string.IsNullOrEmpty(_amountValueName))
-                _amount = _brain.State.GetFloat(_amountValueName);
+                _amount = _brain.Variables.GetFloat(_amountValueName);
 
             if (_brain != null)
             {
-                if(Evaluate(_brain.State))
+                if(Evaluate(_brain.Variables))
                     return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
-        private bool Evaluate(IMonaBrainState state)
+        private bool Evaluate(IMonaBrainVariables state)
         {
-            var value = state.GetValue(_valueName);
-            if (value == null)
+            var variable = state.GetVariable(_valueName);
+            if (variable == null)
             {
                 state.Set(_valueName, _amount);
                 return true;
             }
 
-            if (value is IMonaStateFloatValue)
-                ChangeFloatValue(state, _valueName, ((IMonaStateFloatValue)value).Value, _operator, _amount);
-            else if(value is IMonaStateVector2Value)
-                ChangeVector2Value(state, _valueName, ((IMonaStateVector2Value)value).Value, _operator, _amount);
-            else if (value is IMonaStateVector3Value)
-                ChangeVector3Value(state, _valueName, ((IMonaStateVector3Value)value).Value, _operator, _amount);
+            if (variable is IMonaVariablesFloatValue)
+                ChangeFloatValue(state, _valueName, ((IMonaVariablesFloatValue)variable).Value, _operator, _amount);
+            else if(variable is IMonaVariablesVector2Value)
+                ChangeVector2Value(state, _valueName, ((IMonaVariablesVector2Value)variable).Value, _operator, _amount);
+            else if (variable is IMonaVariablesVector3Value)
+                ChangeVector3Value(state, _valueName, ((IMonaVariablesVector3Value)variable).Value, _operator, _amount);
             return true;
         }
 
-        private void ChangeFloatValue(IMonaBrainState state, string name, float value, ValueChangeType op, float amount)
+        private void ChangeFloatValue(IMonaBrainVariables state, string name, float value, ValueChangeType op, float amount)
         {
             switch (op)
             {
@@ -93,7 +93,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
         }
 
-        private void ChangeVector2Value(IMonaBrainState state, string name, Vector2 value, ValueChangeType op, float amount)
+        private void ChangeVector2Value(IMonaBrainVariables state, string name, Vector2 value, ValueChangeType op, float amount)
         {
             var vectorAmount = new Vector2(amount, amount);
             switch (op)
@@ -117,7 +117,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
         }
 
-        private void ChangeVector3Value(IMonaBrainState state, string name, Vector3 value, ValueChangeType op, float amount)
+        private void ChangeVector3Value(IMonaBrainVariables state, string name, Vector3 value, ValueChangeType op, float amount)
         {
             var vectorAmount = new Vector3(amount, amount, amount);
             switch (op)

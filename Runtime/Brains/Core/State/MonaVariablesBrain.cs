@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Mona.SDK.Brains.Core.State.Structs
 {
     [Serializable]
-    public class MonaStateBrain : IMonaStateValue, IMonaStateBrainValue
+    public class MonaVariablesBrain : IMonaVariablesValue, IMonaVariablesBrainValue
     {
         public event Action OnChange = delegate { };
 
@@ -22,6 +22,6 @@ namespace Mona.SDK.Brains.Core.State.Structs
 
         public IMonaBrain Value { get => _value; set => _value = value; }
 
-        public MonaStateBrain() { }
+        public MonaVariablesBrain() { }
     }
 }

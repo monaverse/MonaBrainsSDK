@@ -33,19 +33,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             switch(_source)
             {
                 case MonaBrainResultType.OnConditionTarget:
-                    _brain.State.Set(_targetValue, _brain.State.GetBody(MonaBrainConstants.RESULT_TARGET)); break;
+                    _brain.Variables.Set(_targetValue, _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET)); break;
                 case MonaBrainResultType.OnMessageSender:
-                    _brain.State.Set(_targetValue, _brain.State.GetBrain(MonaBrainConstants.RESULT_SENDER)); break;
+                    _brain.Variables.Set(_targetValue, _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER)); break;
                 case MonaBrainResultType.OnInputMoveDirection:
-                    _brain.State.Set(_targetValue, (Vector2)_brain.State.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION)); break;
+                    _brain.Variables.Set(_targetValue, (Vector2)_brain.Variables.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION)); break;
                 case MonaBrainResultType.OnInputMouseDirection:
-                    _brain.State.Set(_targetValue, (Vector2)_brain.State.GetVector2(MonaBrainConstants.RESULT_MOUSE_DIRECTION)); break;
+                    _brain.Variables.Set(_targetValue, (Vector2)_brain.Variables.GetVector2(MonaBrainConstants.RESULT_MOUSE_DIRECTION)); break;
                 case MonaBrainResultType.OnHitTarget:
-                    _brain.State.Set(_targetValue, _brain.State.GetBody(MonaBrainConstants.RESULT_HIT_TARGET)); break;
+                    _brain.Variables.Set(_targetValue, _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET)); break;
                 case MonaBrainResultType.OnHitPoint:
-                    _brain.State.Set(_targetValue, (Vector3)_brain.State.GetVector3(MonaBrainConstants.RESULT_HIT_POINT)); break;
+                    _brain.Variables.Set(_targetValue, (Vector3)_brain.Variables.GetVector3(MonaBrainConstants.RESULT_HIT_POINT)); break;
                 case MonaBrainResultType.OnHitNormal:
-                    _brain.State.Set(_targetValue, (Vector3)_brain.State.GetVector3(MonaBrainConstants.RESULT_HIT_NORMAL)); break;
+                    _brain.Variables.Set(_targetValue, (Vector3)_brain.Variables.GetVector3(MonaBrainConstants.RESULT_HIT_NORMAL)); break;
                 default: break;
             }
             return Complete(InstructionTileResult.Success);

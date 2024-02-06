@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Core.State
 {
-    public interface IMonaBrainState : IMonaState
+    public interface IMonaBrainVariables : IMonaVariables
     {
         void SetGameObject(GameObject gameObject, IMonaBrain brain);
 
@@ -14,7 +14,7 @@ namespace Mona.SDK.Brains.Core.State
 
         IMonaBrain GetBrain(string variableName);
 
-        void SetNetworkState(INetworkMonaState state);
+        void SetNetworkVariables(INetworkMonaVariables state);
     }
 
 }

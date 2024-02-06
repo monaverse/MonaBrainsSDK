@@ -52,7 +52,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private float _speed
         {
-            get => _brain.State.GetFloat(MonaBrainConstants.SPEED_FACTOR);
+            get => _brain.Variables.GetFloat(MonaBrainConstants.SPEED_FACTOR);
         }
 
         private MovingStateType _movingState;
@@ -165,7 +165,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override InstructionTileResult Do()
         {
             if (!string.IsNullOrEmpty(_durationValueName))
-                _duration = _brain.State.GetFloat(_durationValueName);
+                _duration = _brain.Variables.GetFloat(_durationValueName);
 
             if (_duration == 0)
             {

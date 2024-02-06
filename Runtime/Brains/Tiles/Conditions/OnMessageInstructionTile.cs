@@ -34,7 +34,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private void SetSender(string message)
         {
             var msg = _brain.GetMessage(message);
-            _brain.State.Set(MonaBrainConstants.RESULT_SENDER, msg.Sender);
+            _brain.Variables.Set(MonaBrainConstants.RESULT_SENDER, msg.Sender);
         }
 
         public override InstructionTileResult Do()

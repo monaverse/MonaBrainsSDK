@@ -20,7 +20,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override Type TileType => typeof(ChangeBoolValueInstructionTile);
 
         [SerializeField] private string _valueName;
-        [BrainPropertyValue(typeof(IMonaStateBoolValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
+        [BrainPropertyValue(typeof(IMonaVariablesBoolValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
 
         [SerializeField] private bool _value;
         [SerializeField] private string _valueValueName;
@@ -39,28 +39,28 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override InstructionTileResult Do()
         {
             if (!string.IsNullOrEmpty(_valueValueName))
-                _value = _brain.State.GetBool(_valueValueName);
+                _value = _brain.Variables.GetBool(_valueValueName);
 
             if (_brain != null)
             {
-                if(Evaluate(_brain.State))
+                if(Evaluate(_brain.Variables))
                     return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
-        private bool Evaluate(IMonaBrainState state)
+        private bool Evaluate(IMonaBrainVariables state)
         {
-            var value = state.GetValue(_valueName);
+            var value = state.GetVariable(_valueName);
             if (value == null)
                 return true;
 
-            if (value is IMonaStateBoolValue)
+            if (value is IMonaVariablesBoolValue)
                 ChangeBoolValue(state, _valueName, _value);
             return true;
         }
 
-        private void ChangeBoolValue(IMonaBrainState state, string name, bool value)
+        private void ChangeBoolValue(IMonaBrainVariables state, string name, bool value)
         {
             state.Set(name, value);
         }

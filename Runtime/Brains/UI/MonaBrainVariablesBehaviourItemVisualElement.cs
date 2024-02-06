@@ -7,26 +7,26 @@ using UnityEngine.UIElements;
 
 namespace Mona.SDK.Brains.Core.State.UIElements
 {
-    public class MonaBrainValuesItemVisualElement : MonaStateItemVisualElement
+    public class MonaBrainValuesItemVisualElement : MonaVariablesItemVisualElement
     {
         public override void Refresh()
         {
             base.Refresh();
 
-            var value = _state.Values[_index];
-            if (value is IMonaStateBrainValue)
+            var value = _state.VariableList[_index];
+            if (value is IMonaVariablesBrainValue)
             {
                 _typeField.value = MonaCoreConstants.REFERENCE_TYPE_LABEL;
                 Add(_stringField);
-                var brain = ((IMonaStateBrainValue)value).Value;
+                var brain = ((IMonaVariablesBrainValue)value).Value;
                 _stringField.value = brain != null ? brain.Name : "Null";
                 _stringField.SetEnabled(false);
             }
-            else if (value is IMonaStateBodyValue)
+            else if (value is IMonaVariablesBodyValue)
             {
                 _typeField.value = MonaCoreConstants.REFERENCE_TYPE_LABEL;
                 Add(_stringField);
-                var body = ((IMonaStateBodyValue)value).Value;
+                var body = ((IMonaVariablesBodyValue)value).Value;
                 _stringField.value = body != null ? body.Transform.name : "Null";
                 _stringField.SetEnabled(false);
             }

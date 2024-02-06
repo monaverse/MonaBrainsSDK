@@ -37,12 +37,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             if (!string.IsNullOrEmpty(_messageValueName))
             {
-                var value = _brain.State.GetValue(_messageValueName);
-                if (value is IMonaStateStringValue) _message = ((IMonaStateStringValue)value).Value;
-                if (value is IMonaStateFloatValue) _message = ((IMonaStateFloatValue)value).Value.ToString();
-                if (value is IMonaStateBoolValue) _message = ((IMonaStateBoolValue)value).Value.ToString();
-                if (value is IMonaStateVector2Value) _message = ((IMonaStateVector2Value)value).Value.ToString();
-                if (value is IMonaStateVector3Value) _message = ((IMonaStateVector3Value)value).Value.ToString();
+                var variable = _brain.Variables.GetVariable(_messageValueName);
+                if (variable is IMonaVariablesStringValue) _message = ((IMonaVariablesStringValue)variable).Value;
+                if (variable is IMonaVariablesFloatValue) _message = ((IMonaVariablesFloatValue)variable).Value.ToString();
+                if (variable is IMonaVariablesBoolValue) _message = ((IMonaVariablesBoolValue)variable).Value.ToString();
+                if (variable is IMonaVariablesVector2Value) _message = ((IMonaVariablesVector2Value)variable).Value.ToString();
+                if (variable is IMonaVariablesVector3Value) _message = ((IMonaVariablesVector3Value)variable).Value.ToString();
             }
 
             Debug.Log(_message);

@@ -39,7 +39,7 @@ namespace Mona.SDK.Brains.UIElements
         private MonaBrainPageVisualElement _activeStatePage;
         private Foldout _activePageHeading;
         private Foldout _activePagesHeading;
-        private Foldout _defaultValuesHeading;
+        private Foldout _defaultVariablesHeading;
         private Foldout _corePageContainer;
         private TextField _activePageName;
         private VisualElement _activePageContainer;
@@ -54,7 +54,7 @@ namespace Mona.SDK.Brains.UIElements
         private ObjectField _monaTagsField;
 #endif
 
-        private MonaStateVisualElement _defaultStateVisualElement;
+        private MonaVariablesVisualElement _defaultVariablesVisualElement;
 
         private ListView _tileListView;
         private List<TileMenuItem> _tileSource = new List<TileMenuItem>();
@@ -218,11 +218,11 @@ namespace Mona.SDK.Brains.UIElements
             _activePageContainer.Add(_btnDeletePage);
 
 
-            _defaultValuesHeading = CreateHeading("Brain Default Values");
-            _leftColumn.Add(_defaultValuesHeading);
+            _defaultVariablesHeading = CreateHeading("Brain Default Variables");
+            _leftColumn.Add(_defaultVariablesHeading);
 
-            _defaultStateVisualElement = new MonaStateVisualElement();
-            _defaultValuesHeading.Add(_defaultStateVisualElement);
+            _defaultVariablesVisualElement = new MonaVariablesVisualElement();
+            _defaultVariablesHeading.Add(_defaultVariablesVisualElement);
 
 #if UNITY_EDITOR
 
@@ -600,7 +600,7 @@ namespace Mona.SDK.Brains.UIElements
             _tileSetField.choices = versions.ConvertAll<string>(x => x.Version);
             _tileSetField.choices.Insert(0, "Latest Version");
 
-            _defaultStateVisualElement.SetState(_brain.DefaultState);
+            _defaultVariablesVisualElement.SetState(_brain.DefaultVariables);
 
             _monaTagListView.itemsSource = _brain.MonaTags;
             _monaTagListView.Q<Foldout>().value = false;

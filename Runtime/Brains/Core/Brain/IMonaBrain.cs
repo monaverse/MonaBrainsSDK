@@ -28,14 +28,14 @@ namespace Mona.SDK.Brains.Core.Brain
 
         IMonaBrainPlayer Player { get; }
 
-        IMonaBrainState State { get; }
+        IMonaBrainVariables Variables { get; }
         IMonaBody Body { get; }
         GameObject GameObject { get; }
 
         IMonaBrainPage CorePage { get; }
         List<IMonaBrainPage> StatePages { get; }
         
-        IMonaBrainState DefaultState { get; }
+        IMonaBrainVariables DefaultVariables { get; }
 
         List<string> MonaTags { get; }
         void AddTag(string tag);

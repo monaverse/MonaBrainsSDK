@@ -97,17 +97,17 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override InstructionTileResult Do()
         {
             if (!string.IsNullOrEmpty(_distanceValueName))
-                _distance = _brain.State.GetFloat(_distanceValueName);
+                _distance = _brain.Variables.GetFloat(_distanceValueName);
 
             if (!string.IsNullOrEmpty(_fieldOfViewValueName))
-                _fieldOfView = _brain.State.GetFloat(_fieldOfViewValueName);
+                _fieldOfView = _brain.Variables.GetFloat(_fieldOfViewValueName);
 
             _collider.SetRadius(_distance);
             var body = _collider.FindForwardMostBodyWithMonaTagInFieldOfView(_tag, _fieldOfView);
             if (body != null)
             {
                 //Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {body}");
-                _brain.State.Set(MonaBrainConstants.RESULT_TARGET, body);
+                _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);

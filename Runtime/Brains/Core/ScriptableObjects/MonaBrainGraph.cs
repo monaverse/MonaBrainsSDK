@@ -47,12 +47,12 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private IMonaBody _bodyParent;
         public IMonaBody Body => _body;
 
-        private IMonaBrainState _state;
-        public IMonaBrainState State => _state;
+        private IMonaBrainVariables _variables;
+        public IMonaBrainVariables Variables => _variables;
 
         [SerializeReference]
-        private IMonaBrainState _defaultState = new MonaBrainState();
-        public IMonaBrainState DefaultState => _defaultState;
+        private IMonaBrainVariables _defaultVariables = new MonaBrainVariables();
+        public IMonaBrainVariables DefaultVariables => _defaultVariables;
 
         [SerializeField]
         private int _priority;
@@ -137,10 +137,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public string BrainState
         {
-            get => _state.GetString(MonaBrainConstants.RESULT_STATE);
+            get => _variables.GetString(MonaBrainConstants.RESULT_STATE);
             set
             {
-                _state.Set(MonaBrainConstants.RESULT_STATE, value);
+                _variables.Set(MonaBrainConstants.RESULT_STATE, value);
                 HandleStatePropertyChanged(value);
             }
         }
@@ -214,16 +214,17 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if (_body == null)
                 _body = gameObject.AddComponent<MonaBody>();
 
-            if (_state == null)
+            if (_variables == null)
             {
-                var state = gameObject.GetComponent<MonaBrainValues>();
-                if (state != null) _state = state;
-                else _state = gameObject.AddComponent<MonaBrainValues>().State;
+                var variables = gameObject.GetComponent<MonaBrainVariablesBehaviour>();
+                if (variables != null) _variables = variables;
+                else _variables = gameObject.AddComponent<MonaBrainVariablesBehaviour>().Variables;
 
-                if (_defaultState == null)
-                    _defaultState = new MonaBrainState();
-                _state.Values = _defaultState.Values;
-                _state.SetGameObject(_gameObject, this);
+                if (_defaultVariables == null)
+                    _defaultVariables = new MonaBrainVariables();
+
+                _variables.VariableList = _defaultVariables.VariableList;
+                _variables.SetGameObject(_gameObject, this);
             }
         }
 
@@ -296,10 +297,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             //if (LoggingEnabled)
             //    Debug.Log($"{nameof(Begin)} brain on Body {_body.ActiveTransform.name}", _body.ActiveTransform);
 
-            _state.Set(MonaBrainConstants.ON_STARTING, true, false);
+            _variables.Set(MonaBrainConstants.ON_STARTING, true, false);
             ExecuteCorePageInstructions(InstructionEventTypes.Start);
             ExecuteStatePageInstructions(InstructionEventTypes.Start);
-            _state.Set(MonaBrainConstants.ON_STARTING, false, false);
+            _variables.Set(MonaBrainConstants.ON_STARTING, false, false);
         }
 
         public void Pause()
@@ -398,9 +399,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             SetActiveStatePage(value);
 
             OnStateChanged?.Invoke(value, this);
-            _state.Set(MonaBrainConstants.ON_STARTING, true, false);
+            _variables.Set(MonaBrainConstants.ON_STARTING, true, false);
             ExecuteStatePageInstructions(InstructionEventTypes.State);
-            _state.Set(MonaBrainConstants.ON_STARTING, false, false);
+            _variables.Set(MonaBrainConstants.ON_STARTING, false, false);
         }
 
         private void SetActiveStatePage(string value)

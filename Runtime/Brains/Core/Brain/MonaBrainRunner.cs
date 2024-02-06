@@ -263,10 +263,10 @@ namespace Mona.SDK.Brains.Core.Brain
                 instance.Unload();
             }
 
-            var states = gameObject.GetComponents<MonaBrainValues>();
-            for(var i  = 1;i < states.Length; i++)
+            var variableBehaviours = gameObject.GetComponents<MonaBrainVariablesBehaviour>();
+            for(var i  = 1;i < variableBehaviours.Length; i++)
             {
-                Destroy(states[i]);
+                Destroy(variableBehaviours[i]);
             }
         }
     }

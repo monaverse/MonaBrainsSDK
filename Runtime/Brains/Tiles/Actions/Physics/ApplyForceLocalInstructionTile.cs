@@ -66,7 +66,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         private float _speed
         {
-            get => _brain.State.GetFloat(MonaBrainConstants.SPEED_FACTOR);
+            get => _brain.Variables.GetFloat(MonaBrainConstants.SPEED_FACTOR);
         }
 
         public Vector2 InputMoveDirection
@@ -146,11 +146,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             {
                 case PushDirectionType.Toward:
                 case PushDirectionType.Away:
-                    var value = _brain.State.GetValue(MonaBrainConstants.RESULT_TARGET);
-                    if (value is IMonaStateBrainValue)
-                        target = ((IMonaStateBrainValue)value).Value.Body;
+                    var variables = _brain.Variables.GetVariable(MonaBrainConstants.RESULT_TARGET);
+                    if (variables is IMonaVariablesBrainValue)
+                        target = ((IMonaVariablesBrainValue)variables).Value.Body;
                     else
-                        target = ((IMonaStateBodyValue)value).Value;
+                        target = ((IMonaVariablesBodyValue)variables).Value;
                     break;
             }
             return target;
@@ -169,10 +169,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             //Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.Do {DirectionType}");
 
             if (!string.IsNullOrEmpty(_forceValueName))
-                _force = _brain.State.GetFloat(_forceValueName);
+                _force = _brain.Variables.GetFloat(_forceValueName);
 
             if (!string.IsNullOrEmpty(_durationValueName))
-                _duration = _brain.State.GetFloat(_durationValueName);
+                _duration = _brain.Variables.GetFloat(_durationValueName);
 
             if (_duration == 0f)
             {

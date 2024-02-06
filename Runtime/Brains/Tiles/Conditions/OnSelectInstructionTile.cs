@@ -90,16 +90,16 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                 if (body != null && body == _brain.Body)
                 {
-                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, body);
-                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
-                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_TARGET, body);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
                     return true;
                 }
-                else if (_brain.State.GetBody(MonaBrainConstants.RESULT_HIT_TARGET) != null)
+                else if (_brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET) != null)
                 {
-                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, (IMonaBody)null);
-                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, Vector3.zero);
-                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, Vector3.zero);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_TARGET, (IMonaBody)null);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, Vector3.zero);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_NORMAL, Vector3.zero);
                 }
             }
             else

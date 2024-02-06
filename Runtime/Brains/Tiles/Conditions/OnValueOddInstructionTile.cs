@@ -35,22 +35,22 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public override InstructionTileResult Do()
         {
-            if (_brain != null && Evaluate(_brain.State))
+            if (_brain != null && Evaluate(_brain.Variables))
             {
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
-        private bool Evaluate(IMonaBrainState state)
+        private bool Evaluate(IMonaBrainVariables state)
         {
-            var value = state.GetValue(_valueName);
-            if(value is IMonaStateFloatValue)
-                return EvaluateValue((IMonaStateFloatValue)value);
+            var variable = state.GetVariable(_valueName);
+            if(variable is IMonaVariablesFloatValue)
+                return EvaluateValue((IMonaVariablesFloatValue)variable);
             return false;
         }
 
-        private bool EvaluateValue(IMonaStateFloatValue value)
+        private bool EvaluateValue(IMonaVariablesFloatValue value)
         {
             return (value.Value % 2 == 1);
         }

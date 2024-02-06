@@ -199,7 +199,7 @@ namespace Mona.SDK.Brains.UIElements
 
                 if (isValue != null)
                 {
-                    var values = _brain.DefaultState.Values.FindAll(x => isValue.Type.IsAssignableFrom(_brain.DefaultState.GetValue(x.Name).GetType())).ConvertAll<string>(x => x.Name);
+                    var values = _brain.DefaultVariables.VariableList.FindAll(x => isValue.Type.IsAssignableFrom(_brain.DefaultVariables.GetVariable(x.Name).GetType())).ConvertAll<string>(x => x.Name);
                     var field = new DropdownField(values, 0);
                     field.style.width = 100;
                     field.style.flexDirection = FlexDirection.Column;

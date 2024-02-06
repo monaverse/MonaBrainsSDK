@@ -26,7 +26,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public override InstructionTileResult Do()
         {
-            if (_brain.State != null && _brain.State.GetBool(MonaBrainConstants.ON_STARTING))
+            if (_brain.Variables != null && _brain.Variables.GetBool(MonaBrainConstants.ON_STARTING))
             {
                 return Complete(InstructionTileResult.Success);
             }

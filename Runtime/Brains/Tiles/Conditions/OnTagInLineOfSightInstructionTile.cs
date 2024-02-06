@@ -80,7 +80,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
             else
             {
-                var originSource = _originSource != null ? _brain.State.GetBody(_originSource) : _brain.Body;
+                var originSource = _originSource != null ? _brain.Variables.GetBody(_originSource) : _brain.Body;
                 if (originSource == null) return Complete(InstructionTileResult.Failure, MonaBrainConstants.ERROR_MISSING_ORIGIN);
                 body = originSource.FindChildByTag(_originPart);
                 if (body == null) return Complete(InstructionTileResult.Failure, MonaBrainConstants.ERROR_MISSING_PART);
@@ -92,9 +92,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 var hitBody = hit.collider.GetComponentInParent<IMonaBody>();
                 if (hitBody != null)
                 {
-                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_TARGET, hitBody);
-                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
-                    _brain.State.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_TARGET, hitBody);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
                     return Complete(InstructionTileResult.Success);
                 }
             }
