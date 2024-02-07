@@ -47,7 +47,7 @@ namespace Mona.SDK.Brains.Core.Brain
         void SetMonaBrainPlayer(IMonaBrainPlayer player);
         MonaBroadcastMessageEvent GetMessage(string message);
 
-        void Preload(GameObject gameObject, IMonaBrainRunner runner);
+        void Preload(GameObject gameObject, IMonaBrainRunner runner, int index);
         void Begin();
         void Pause();
         void Resume();

@@ -122,9 +122,9 @@ namespace Mona.SDK.Brains.UIElements
         }
 #endif
 
-        public void AddTile(IInstructionTile tile, int i, bool isCore)
+        public void AddTile(IInstructionTile tile, int i, IMonaBrainPage page)
         {
-            _instruction.AddTile(tile, i, isCore);
+            _instruction.AddTile(tile, i, page);
         }
         
         public void ClearBorders()
@@ -183,7 +183,7 @@ namespace Mona.SDK.Brains.UIElements
             if (_toolBar.parent == null)
                 Add(_toolBar);
 
-            if (!_page.IsCore && _instruction.HasEndTile() && i == _instruction.InstructionTiles.Count - 1)
+            if (_instruction.HasEndTile(_page) && i == _instruction.InstructionTiles.Count - 1)
             {
                 _btnMoveLeft.SetEnabled(false);
                 _btnMoveRight.SetEnabled(false);
@@ -192,7 +192,7 @@ namespace Mona.SDK.Brains.UIElements
             else
                 _btnMoveLeft.SetEnabled(i != 0);
 
-            if(!_page.IsCore && _instruction.HasEndTile())
+            if(_instruction.HasEndTile(_page))
                 _btnMoveRight.SetEnabled(i != _instruction.InstructionTiles.Count - 2);
             else
                 _btnMoveRight.SetEnabled(i != _instruction.InstructionTiles.Count - 1);

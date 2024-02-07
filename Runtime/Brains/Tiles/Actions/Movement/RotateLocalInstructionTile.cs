@@ -11,11 +11,13 @@ using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Brains.Core.Control;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
     public class RotateLocalInstructionTile : InstructionTile, IRotateLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile
+        
     {
         public override Type TileType => typeof(RotateLocalInstructionTile);
 
@@ -42,6 +44,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Vector3 _direction;  
 
         private IMonaBrain _brain;
+        private IInstruction _instruction;
 
         private float _time;
         private Quaternion _start;
@@ -65,9 +68,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public RotateLocalInstructionTile() { }
 
-        public void Preload(IMonaBrain brainInstance)
+        public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
+            _instruction = instruction;
             UpdateActive();
         }
 
@@ -126,12 +130,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             }
         }
 
-        public override InstructionTileResult Do()
+        public Quaternion GetEndRotation(Quaternion rotation)
         {
             _direction = GetDirectionVector(DirectionType);
+            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
 
             if (!string.IsNullOrEmpty(_angleValueName))
                 _angle = _brain.Variables.GetFloat(_angleValueName);
+
+            return rotation * Quaternion.Euler(_direction * _angle);
+        }
+
+        Quaternion GetStartRotation()
+        {
+            return _brain.Body.DefaultRotation;
+        }
+
+        public override InstructionTileResult Do()
+        {
+            _direction = GetDirectionVector(DirectionType);
 
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetFloat(_valueValueName);
@@ -145,8 +162,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (_movingState == MovingStateType.Stopped)
             {
                 _time = 0;
-                _start = _brain.Body.GetRotation();
-                _end = _start * Quaternion.Euler(_direction * _angle);
+                _start = GetStartRotation();
+                _end = GetEndRotation(_start);
 
                 OnFixedTick = HandleFixedTick;
                 EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
@@ -193,6 +210,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_movingState == MovingStateType.Moving)
             {
+                _start = GetStartRotation();
+                _end = GetEndRotation(_start);
                 _time += deltaTime / _value;
                 _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(_time)), true, true);
 
@@ -208,6 +227,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_movingState == MovingStateType.Moving)
             {
+                _start = GetStartRotation();
+                _end = GetEndRotation(_start);
                 _time += ((_angle / 360f) / (_value * _speed)) * deltaTime;
                 _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(_time)), true, true);
 

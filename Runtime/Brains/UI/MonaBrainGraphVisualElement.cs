@@ -444,14 +444,16 @@ namespace Mona.SDK.Brains.UIElements
             if (_selectedInstructions != null && _selectedInstructions.Count > 0)
             {
                 for (var i = 0; i < _selectedInstructions.Count; i++)
-                    _selectedInstructions[i].AddTile(tile, _selectedTileIndex, IsInstructionOnCorePage(_selectedInstructions[i]));
+                    _selectedInstructions[i].AddTile(tile, _selectedTileIndex, FindInstructionPage(_selectedInstructions[i]));
                 _selectedTileIndex = -1;
             }
         }
 
-        private bool IsInstructionOnCorePage(IInstruction instruction)
+        private IMonaBrainPage FindInstructionPage(IInstruction instruction)
         {
-            return _brain.CorePage.Instructions.IndexOf(instruction) > -1;
+            if (_brain.CorePage.Instructions.IndexOf(instruction) > -1)
+                return _brain.CorePage;
+            return _brain.StatePages.Find(x => x.Instructions.IndexOf(instruction) > -1);
         }
 
         private void HandleSelectedInstructions(List<IInstruction> instructions)

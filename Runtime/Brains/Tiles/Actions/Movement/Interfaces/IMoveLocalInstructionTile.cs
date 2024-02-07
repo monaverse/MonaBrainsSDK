@@ -3,7 +3,7 @@ using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces
 {
-    public interface IMoveLocalInstructionTile : IInstructionTileWithPreload
+    public interface IMoveLocalInstructionTile : IInstructionTileWithPreloadAndPageAndInstruction
     {
         float Distance { get; set; }
         EasingType Easing { get; set; }

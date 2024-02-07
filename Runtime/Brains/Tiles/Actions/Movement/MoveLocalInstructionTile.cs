@@ -11,13 +11,14 @@ using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Brains.Core.Control;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
 
     [Serializable]
     public class MoveLocalInstructionTile : InstructionTile, IMoveLocalInstructionTile, IActionInstructionTile, 
-        IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile
+        IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile, IChangeDefaultInstructionTile
     {
         public override Type TileType => typeof(MoveLocalInstructionTile);
 
@@ -44,6 +45,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Vector3 _direction;
 
         private IMonaBrain _brain;
+        private IInstruction _instruction;
 
         private Vector3 _start;
         private Vector3 _end;
@@ -66,9 +68,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         
         public MoveLocalInstructionTile() { }
         
-        public void Preload(IMonaBrain brainInstance)
+        public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
+            _instruction = instruction;
             UpdateActive();
         }
 
@@ -140,6 +143,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
+        public Vector3 GetEndPosition(Vector3 pos)
+        {
+            _direction = GetDirectionVector(DirectionType);
+            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
+
+            if (!string.IsNullOrEmpty(_distanceValueName))
+                _distance = _brain.Variables.GetFloat(_distanceValueName);
+
+            return pos + _direction * _distance;
+        }
+
+        Vector3 GetStartPosition()
+        {
+            return _instruction.GetStartPosition(this);
+        }
+
         public override InstructionTileResult Do()
         {
             _direction = GetDirectionVector(DirectionType);
@@ -153,6 +172,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (_mode == MoveModeType.Instant)
             {
+                Debug.Log($"{nameof(MoveLocalInstructionTile)} {DirectionType} {_start} {_end} duration: instant");
                 _brain.Body.MoveDirection(_direction * _distance, true, true);
                 return Complete(InstructionTileResult.Success);
             }
@@ -160,8 +180,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (_movingState == MovingStateType.Stopped)
             {
                 _time = 0;
-                _start = _brain.Body.GetPosition();
-                _end = _start + _direction * _distance;
+                _start = GetStartPosition();
+                _end = GetEndPosition(_start);
+                Debug.Log($"{nameof(MoveLocalInstructionTile)} {DirectionType} {_start} {_end} duration: {_value}");
                 AddFixedTickDelegate();
             }
 
@@ -207,13 +228,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_movingState == MovingStateType.Moving)
             {
+                _start = GetStartPosition();
+                _end = GetEndPosition(_start);
                 _time += deltaTime / _value;
-                _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(_time)), true, true);
-
                 if(_time >= 1f)
                 {
                     _brain.Body.SetPosition(_end, true, true);
                     StopMoving();
+                }
+                else {
+                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(_time)), true, true);
                 }
             }
         }
@@ -222,13 +246,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_movingState == MovingStateType.Moving)
             {
+                _start = GetStartPosition();
+                _end = GetEndPosition(_start);
                 _time += (_distance / (_value * _speed)) * deltaTime;
-                _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(_time)), true, true);
-
+                
                 if (_time >= 1f)
                 {
                     _brain.Body.SetPosition(_end, true, true);
                     StopMoving();
+                }
+                else
+                {
+                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(_time)), true, true);
                 }
             }
         }

@@ -460,6 +460,8 @@ namespace Mona.SDK.Brains.UIElements
                 style.backgroundColor = Color.HSVToRGB(.4f, .4f, .9f);
                 if (tile is IActionStateEndInstructionTile && !_page.IsCore)
                     style.borderBottomRightRadius = style.borderTopRightRadius = 30;
+                if (tile is IActionEndInstructionTile)
+                    style.borderBottomRightRadius = style.borderTopRightRadius = 30;
             }
             else if (tile is IConditionInstructionTile)
             {

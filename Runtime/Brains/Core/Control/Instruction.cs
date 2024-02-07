@@ -68,6 +68,8 @@ namespace Mona.SDK.Brains.Core.Control
                     ((IInstructionTileWithPreload)tile).Preload(brain);
                 else if (tile is IInstructionTileWithPreloadAndPage)
                     ((IInstructionTileWithPreloadAndPage)tile).Preload(brain, page);
+                else if (tile is IInstructionTileWithPreloadAndPageAndInstruction)
+                    ((IInstructionTileWithPreloadAndPageAndInstruction)tile).Preload(brain, page, this);
 
                 if (tile is IActionInstructionTile)
                 {
@@ -79,6 +81,34 @@ namespace Mona.SDK.Brains.Core.Control
                 if (i < InstructionTiles.Count - 1)
                     tile.NextExecutionTile = InstructionTiles[i + 1];
             } 
+        }
+
+        public Vector3 GetStartPosition(IChangeDefaultInstructionTile currentTile)
+        {
+            var start = _brain.Body.DefaultPosition;
+            for(var i = 0;i < InstructionTiles.Count; i++)
+            {
+                var tile = InstructionTiles[i];
+                if(tile == currentTile)
+                    break; 
+                if (tile is IChangeDefaultInstructionTile)
+                    start = ((IChangeDefaultInstructionTile)tile).GetEndPosition(start);
+            }
+            return start;
+        }
+
+        public Quaternion GetStartRotation(IChangeDefaultRotationInstructionTile currentTile)
+        {
+            var start = _brain.Body.DefaultRotation;
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                var tile = InstructionTiles[i];
+                if (tile == currentTile)
+                    break;
+                if (tile is IChangeDefaultRotationInstructionTile)
+                    start = ((IChangeDefaultRotationInstructionTile)tile).GetEndRotation(start);
+            }
+            return start;
         }
 
         public void SetActive(bool active)
@@ -351,7 +381,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        public void AddTile(IInstructionTile tile, int i, bool isCore)
+        public void AddTile(IInstructionTile tile, int i, IMonaBrainPage page)
         {
             var instance = (IInstructionTile)Activator.CreateInstance(tile.TileType);
             instance.Id = tile.Id;
@@ -377,16 +407,30 @@ namespace Mona.SDK.Brains.Core.Control
                 }
             }
 
-            if (!isCore)
+            if (!page.IsCore)
             {
-                if (instance is IActionStateEndInstructionTile)
+                if (instance is IActionStateEndInstructionTile || instance is IActionEndInstructionTile)
                 {
-                    if (HasEndTile()) return;
+                    if (HasEndTile(page)) return;
                     i = -1;
                 }
                 else
                 {
-                    var idx = InstructionTiles.FindLastIndex(x => x is IActionStateEndInstructionTile);
+                    var idx = InstructionTiles.FindLastIndex(x => x is IActionStateEndInstructionTile || x is IActionEndInstructionTile);
+                    if (idx > i)
+                        i = idx;
+                }
+            }
+            else
+            {
+                if (instance is IActionEndInstructionTile)
+                {
+                    if (HasEndTile(page)) return;
+                    i = -1;
+                }
+                else
+                {
+                    var idx = InstructionTiles.FindLastIndex(x => x is IActionEndInstructionTile);
                     if (idx > i)
                         i = idx;
                 }
@@ -413,9 +457,10 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        public bool HasEndTile()
+        public bool HasEndTile(IMonaBrainPage page)
         {
-            return InstructionTiles.FindLastIndex(x => x is IActionStateEndInstructionTile) > -1;
+            return (!page.IsCore && InstructionTiles.FindLastIndex(x => x is IActionStateEndInstructionTile || x is IActionEndInstructionTile) > -1) ||
+                (page.IsCore && InstructionTiles.FindLastIndex(x => x is IActionEndInstructionTile) > -1);
         }
 
         private void Changed(int i)

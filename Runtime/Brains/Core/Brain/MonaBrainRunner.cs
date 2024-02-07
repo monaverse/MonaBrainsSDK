@@ -84,50 +84,51 @@ namespace Mona.SDK.Brains.Core.Brain
             EventBus.Register(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _body), OnStateAuthorityChanged);
         }
 
-        private Dictionary<Type, Coroutine> _coroutine = new Dictionary<Type, Coroutine>();
+        private List<Dictionary<Type, Coroutine>> _coroutine = new List<Dictionary<Type, Coroutine>>();
         
         public struct WaitFrameQueueItem
         {
+            public int Index;
             public Action<IInstructionEvent> Callback;
             public IInstructionEvent Evt;
             public Type Type;
         }
 
-        private List<WaitFrameQueueItem> _list = new List<WaitFrameQueueItem>();
+        private List<List<WaitFrameQueueItem>> _list = new List<List<WaitFrameQueueItem>>();
 
-        public void WaitFrame(Action<IInstructionEvent> callback, IInstructionEvent evt, Type type)
+        public void WaitFrame(int index, Action<IInstructionEvent> callback, IInstructionEvent evt, Type type)
         {
-            if (!_coroutine.ContainsKey(type))
-                _coroutine.Add(type, null);
+            if (!_coroutine[index].ContainsKey(type))
+                _coroutine[index].Add(type, null);
 
-            if (_coroutine[type] != null) return;
+            if (_coroutine[index][type] != null) return;
             if (gameObject.activeInHierarchy)
             {
                 if(evt is MonaTriggerEvent)
-                    StartCoroutine(DoWaitFrame(callback, evt, type));
+                    StartCoroutine(DoWaitFrame(index, callback, evt, type));
                 else
-                    _coroutine[type] = StartCoroutine(DoWaitFrame(callback, evt, type));
+                    _coroutine[index][type] = StartCoroutine(DoWaitFrame(index, callback, evt, type));
             }
             else
-                _list.Add(new WaitFrameQueueItem() { Callback = callback, Evt = evt, Type = type });
+                _list[index].Add(new WaitFrameQueueItem() { Index = index, Callback = callback, Evt = evt, Type = type });
         }
 
-        private void ClearWaitFrameQueue()
+        private void ClearWaitFrameQueue(int index)
         {
-            while(_list.Count > 0)
+            while(_list[index].Count > 0)
             {
-                var item = _list[0];
+                var item = _list[index][0];
                 Debug.Log($"{nameof(ClearWaitFrameQueue)} {item.Type}");
-                _coroutine[item.Type] = StartCoroutine(DoWaitFrame(item.Callback, item.Evt, item.Type));
-                _list.RemoveAt(0);
+                _coroutine[index][item.Type] = StartCoroutine(DoWaitFrame(index, item.Callback, item.Evt, item.Type));
+                _list[index].RemoveAt(0);
             }
         }
 
-        private IEnumerator DoWaitFrame(Action<IInstructionEvent> callback, IInstructionEvent evt, Type type)
+        private IEnumerator DoWaitFrame(int index, Action<IInstructionEvent> callback, IInstructionEvent evt, Type type)
         { 
             yield return null;
             callback(evt);
-            _coroutine[type] = null;
+            _coroutine[index][type] = null;
         }
 
         private void AddHotReloadDelegates()
@@ -145,6 +146,9 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void PreloadBrains()
         {
+            _coroutine.Clear();
+            _list.Clear();
+
             for (var i = 0; i < _brainGraphs.Count; i++)
             {
                 if (_brainGraphs[i] == null) continue;
@@ -153,7 +157,9 @@ namespace Mona.SDK.Brains.Core.Brain
                 {
                     instance.Guid = _brainGraphs[i].Guid;
                     instance.LoggingEnabled = _brainGraphs[i].LoggingEnabled;
-                    instance.Preload(gameObject, this);
+                    instance.Preload(gameObject, this, i);
+                    _coroutine.Add(new Dictionary<Type, Coroutine>());
+                    _list.Add(new List<WaitFrameQueueItem>());
                     _brainInstances.Add(instance);
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(instance));
                 }
@@ -188,8 +194,10 @@ namespace Mona.SDK.Brains.Core.Brain
                 //Debug.Log($"{nameof(HandleResumed)} Resume Brains");
                 OnBegin?.Invoke(this);
                 for (var i = 0; i < _brainInstances.Count; i++)
+                {
                     _brainInstances[i].Resume();
-                ClearWaitFrameQueue();
+                    ClearWaitFrameQueue(i);
+                }
             }
         }
 
@@ -227,9 +235,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private IEnumerator BeginBrainsAgain()
         {
-            yield return null;
-            BeginBrains();
-        }
+            yield return BeginBrains();
+        }            
 
         private void ResetTransforms()
         {

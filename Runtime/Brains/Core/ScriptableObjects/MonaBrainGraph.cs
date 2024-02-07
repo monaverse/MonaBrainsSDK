@@ -42,6 +42,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         public GameObject GameObject => _gameObject;
 
         private IMonaBrainRunner _runner;
+        private int _index;
 
         private IMonaBody _body;
         private IMonaBody _bodyParent;
@@ -196,15 +197,16 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             return new MonaBroadcastMessageEvent();
         }
 
-        public void Preload(GameObject gameObject, IMonaBrainRunner runner)
+        public void Preload(GameObject gameObject, IMonaBrainRunner runner, int index)
         {
-            CacheReferences(gameObject, runner);
+            _index = index;
+            CacheReferences(gameObject, runner, _index);
             PreloadPages();
             AddEventDelegates();
             AddHierarchyDelgates();
         }
 
-        private void CacheReferences(GameObject gameObject, IMonaBrainRunner runner)
+        private void CacheReferences(GameObject gameObject, IMonaBrainRunner runner, int index)
         {
             _gameObject = gameObject;
             _runner = runner;
@@ -216,8 +218,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             if (_variables == null)
             {
-                var variables = gameObject.GetComponent<MonaBrainVariablesBehaviour>();
-                if (variables != null) _variables = variables;
+                var variables = gameObject.GetComponents<MonaBrainVariablesBehaviour>();
+                if (index < variables.Length) _variables = variables[index];
                 else _variables = gameObject.AddComponent<MonaBrainVariablesBehaviour>().Variables;
 
                 if (_defaultVariables == null)
@@ -332,7 +334,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleMonaBrainTick(MonaBrainTickEvent evt)
         {
-            _runner.WaitFrame(ExecuteTickEvent, evt, typeof(MonaBrainTickEvent));
+            _runner.WaitFrame(_index, ExecuteTickEvent, evt, typeof(MonaBrainTickEvent));
         }
 
         private void ExecuteTickEvent(IInstructionEvent evt)
@@ -348,7 +350,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             if (evt.Type == MonaTriggerType.OnFieldOfViewChanged)
             {
-                _runner.WaitFrame(ExecuteTriggerEvent, evt, typeof(MonaTriggerEvent));
+                _runner.WaitFrame(_index, ExecuteTriggerEvent, evt, typeof(MonaTriggerEvent));
             }
             else
             {
@@ -376,7 +378,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if (!HasMessage(evt.Message))
                 _messages.Add(evt);
 
-            _runner.WaitFrame(ExecuteMessage, evt, typeof(MonaBroadcastMessageEvent));
+            _runner.WaitFrame(_index, ExecuteMessage, evt, typeof(MonaBroadcastMessageEvent));
         }
 
         private void ExecuteMessage(IInstructionEvent evt)

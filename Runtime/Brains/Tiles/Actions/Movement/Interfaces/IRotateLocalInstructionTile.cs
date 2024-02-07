@@ -3,7 +3,7 @@ using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces
 {
-    public interface IRotateLocalInstructionTile : IInstructionTileWithPreload
+    public interface IRotateLocalInstructionTile : IInstructionTileWithPreloadAndPageAndInstruction
     {
         float Angle { get; set; }
         MoveModeType Mode { get; set; }
