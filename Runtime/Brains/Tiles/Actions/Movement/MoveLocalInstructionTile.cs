@@ -42,6 +42,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainProperty(false)] public float Value { get => _value; set => _value = value; }
         [BrainPropertyValueName("Value")] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
+        [SerializeField] private bool _usePhysics = false;
+        [BrainProperty(false)] public bool UsePhysics { get => _usePhysics; set => _usePhysics = value; }
+
+
         private Vector3 _direction;
 
         private IMonaBrain _brain;
@@ -173,7 +177,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (_mode == MoveModeType.Instant)
             {
                 Debug.Log($"{nameof(MoveLocalInstructionTile)} {DirectionType} {_start} {_end} duration: instant");
-                _brain.Body.MoveDirection(_direction * _distance, true, true);
+                _brain.Body.MoveDirection(_direction * _distance, !_usePhysics, true);
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -230,15 +234,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 _start = GetStartPosition();
                 _end = GetEndPosition(_start);
-                _time += deltaTime / _value;
                 if(_time >= 1f)
                 {
-                    _brain.Body.SetPosition(_end, true, true);
+                    if (!(NextExecutionTile is IChangeDefaultInstructionTile))
+                        _brain.Body.SetPosition(_end, !_usePhysics, true);
                     StopMoving();
                 }
                 else {
-                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(_time)), true, true);
+                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(_time)), !_usePhysics, true);
                 }
+                _time += Mathf.Round((deltaTime / _value) * 1000f) / 1000f;
             }
         }
 
@@ -248,17 +253,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 _start = GetStartPosition();
                 _end = GetEndPosition(_start);
-                _time += (_distance / (_value * _speed)) * deltaTime;
                 
                 if (_time >= 1f)
                 {
-                    _brain.Body.SetPosition(_end, true, true);
+                    if (!(NextExecutionTile is IChangeDefaultInstructionTile))
+                        _brain.Body.SetPosition(_end, !_usePhysics, true);
                     StopMoving();
                 }
                 else
                 {
-                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(_time)), true, true);
+                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(_time)), !_usePhysics, true);
                 }
+                _time += Mathf.Round(( (_distance / (_value * _speed)) * deltaTime ) * 1000f) / 1000f;
             }
         }
 

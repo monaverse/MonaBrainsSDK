@@ -16,7 +16,8 @@ using Mona.SDK.Brains.Core.Control;
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class RotateLocalInstructionTile : InstructionTile, IRotateLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile
+    public class RotateLocalInstructionTile : InstructionTile, IRotateLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile,
+        IChangeDefaultRotationInstructionTile
         
     {
         public override Type TileType => typeof(RotateLocalInstructionTile);
@@ -41,7 +42,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainProperty(false)] public float Value { get => _value; set => _value= value; }
         [BrainPropertyValueName("Value")] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
-        private Vector3 _direction;  
+        [SerializeField] private bool _usePhysics = false;
+        [BrainProperty(false)] public bool UsePhysics { get => _usePhysics; set => _usePhysics = value; }
+
+        private Quaternion _direction;  
 
         private IMonaBrain _brain;
         private IInstruction _instruction;
@@ -132,30 +136,30 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public Quaternion GetEndRotation(Quaternion rotation)
         {
-            _direction = GetDirectionVector(DirectionType);
+            _direction = GetDirectionRotation(DirectionType, _angle);
             //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
 
             if (!string.IsNullOrEmpty(_angleValueName))
                 _angle = _brain.Variables.GetFloat(_angleValueName);
 
-            return rotation * Quaternion.Euler(_direction * _angle);
+            return rotation * _direction;
         }
 
         Quaternion GetStartRotation()
         {
-            return _brain.Body.DefaultRotation;
+            return _instruction.GetStartRotation(this);
         }
 
         public override InstructionTileResult Do()
         {
-            _direction = GetDirectionVector(DirectionType);
-
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetFloat(_valueValueName);
 
             if (_mode == MoveModeType.Instant)
             {
-                _brain.Body.RotateAround(_direction, _angle, true, true);
+                _start = GetStartRotation();
+                _end = GetEndRotation(_start);
+                _brain.Body.SetRotation(_end, true, true);
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -212,14 +216,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 _start = GetStartRotation();
                 _end = GetEndRotation(_start);
-                _time += deltaTime / _value;
-                _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(_time)), true, true);
 
                 if (_time >= 1f)
                 {
-                    _brain.Body.SetRotation(_end, true, true);
+                    if(!(NextExecutionTile is IChangeDefaultRotationInstructionTile))
+                        _brain.Body.SetRotation(_end, true, true);
                     StopMoving();
                 }
+                else
+                {
+                    _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(_time)), true, true);
+                }
+                _time += Mathf.Round((deltaTime / _value) * 1000f) / 1000f;
+
             }
         }
 
@@ -229,14 +238,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 _start = GetStartRotation();
                 _end = GetEndRotation(_start);
-                _time += ((_angle / 360f) / (_value * _speed)) * deltaTime;
-                _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(_time)), true, true);
-
+                
                 if (_time >= 1f)
                 {
-                    _brain.Body.SetRotation(_end, true, true);
+                    if (!(NextExecutionTile is IChangeDefaultRotationInstructionTile))
+                        _brain.Body.SetRotation(_end, true, true);
                     StopMoving();
                 }
+                else {
+                    _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(_time)), true, true);
+                }
+                _time += Mathf.Round(( ((_angle / 360f) / (_value * _speed)) * deltaTime ) * 1000f) / 1000f;
             }
         }
 
@@ -246,17 +258,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             Complete(InstructionTileResult.Success, true);
         }
 
-        private Vector3 GetDirectionVector(RotateDirectionType moveType)
+        private Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle)
         {
             switch (moveType)
             {
-                case RotateDirectionType.SpinDown: return Vector3.right;
-                case RotateDirectionType.SpinUp: return Vector3.right * -1f;
-                case RotateDirectionType.RollLeft: return Vector3.forward;
-                case RotateDirectionType.RollRight: return Vector3.forward * -1;
-                case RotateDirectionType.SpinRight: return Vector3.up;
-                case RotateDirectionType.SpinLeft: return Vector3.up * -1;
-                default: return Vector3.zero;
+                case RotateDirectionType.SpinDown: return Quaternion.AngleAxis(angle, Vector3.right);
+                case RotateDirectionType.SpinUp: return Quaternion.AngleAxis(-angle, Vector3.right);
+                case RotateDirectionType.RollLeft: return Quaternion.AngleAxis(angle, Vector3.forward);
+                case RotateDirectionType.RollRight: return Quaternion.AngleAxis(-angle, Vector3.forward);
+                case RotateDirectionType.SpinRight: return Quaternion.AngleAxis(angle, Vector3.up);
+                case RotateDirectionType.SpinLeft: return Quaternion.AngleAxis(-angle, Vector3.up);
+                default: return Quaternion.identity;
             }
         }
 
