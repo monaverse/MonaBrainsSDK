@@ -12,7 +12,10 @@ namespace Mona.SDK.Brains.Core.State.UIElements
     {
         private IMonaBrainVariables _state;
         private ListView _list;
-        private Dictionary<IMonaVariablesValue, Action> _changeListeners = new Dictionary<IMonaVariablesValue, Action>();
+        private Dictionary<string, Action> _changeListeners = new Dictionary<string, Action>();
+        private Toggle _toggleBuiltInVariables;
+
+        private List<IMonaVariablesValue> _values = new List<IMonaVariablesValue>();
 
         public MonaBrainValuesVisualElement()
         {
@@ -40,17 +43,19 @@ namespace Mona.SDK.Brains.Core.State.UIElements
             _list.reorderable = false;
             _list.bindItem += (elem, i) =>
             {
-                var value = _state.VariableList[i];
-                _changeListeners[value] = () =>
+                var value = _values[i];
+                if (value == null) return;
+                _changeListeners[value.Name] = () =>
                 {
                     ((MonaBrainValuesItemVisualElement)elem).Refresh();
                 };
-                value.OnChange += _changeListeners[value];
+                value.OnChange += _changeListeners[value.Name];
             };
             _list.unbindItem += (elem, i) =>
             {
-                var value = _state.VariableList[i];
-                value.OnChange -= _changeListeners[value];
+                var value = ((MonaBrainValuesItemVisualElement)elem).GetStateItem();
+                if (value == null) return;
+                value.OnChange -= _changeListeners[value.Name];
             };
             _list.itemsAdded += (items) =>
             {
@@ -67,17 +72,37 @@ namespace Mona.SDK.Brains.Core.State.UIElements
                 }
             };
             Add(_list);
+
+            _toggleBuiltInVariables = new Toggle();
+            _toggleBuiltInVariables.label = "Show Built-in Brain Variables?";
+            _toggleBuiltInVariables.value = false;
+            _toggleBuiltInVariables.RegisterValueChangedCallback((evt) =>
+            {
+                _toggleBuiltInVariables.value = evt.newValue;
+                RefreshList();
+            });
+            Add(_toggleBuiltInVariables);
         }
 
         private void BindStateItem(MonaBrainValuesItemVisualElement elem, int i)
         {
-            elem.SetStateItem(_state, i);
+            var index = _state.VariableList.IndexOf(_values[i]);
+            elem.SetStateItem(_state, index);
         }
 
         public void SetState(IMonaBrainVariables state)
         {
             _state = state;
-            _list.itemsSource = _state.VariableList;
+            RefreshList();
+        }
+
+        private void RefreshList()
+        {
+            if (Application.isPlaying && !_toggleBuiltInVariables.value)
+                _values = _state.VariableList.FindAll(x => x.Name != null && !x.Name.StartsWith("__"));
+            else
+                _values = _state.VariableList;
+            _list.itemsSource = _values;
             _list.Rebuild();
         }
 

@@ -48,16 +48,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             get => _brain.Variables.GetFloat(MonaBrainConstants.SPEED_FACTOR);
         }
 
-        public MovingStateType MovingState
-        {
-            get => (MovingStateType)_brain.Variables.GetInt(MonaBrainConstants.MOVING_ROTATE_STATE);
-            set => _brain.Variables.Set(MonaBrainConstants.MOVING_ROTATE_STATE, (int)value);
-        }
-
         public Vector2 InputMoveDirection
         {
             get => _brain.Variables.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
         }
+
+        private MovingStateType _movingState = MovingStateType.Stopped;
 
         public RotateLocalAroundMoveInputInstructionTile() { }
 
@@ -88,7 +84,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override InstructionTileResult Do()
         {
-            MovingState = MovingStateType.Moving;
+            _movingState = MovingStateType.Moving;
             return Complete(InstructionTileResult.Success);
         }
 
@@ -100,12 +96,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private void FixedTick(float deltaTime)
         {
             MoveAtSpeed(deltaTime);
-            MovingState = MovingStateType.Stopped;
+            _movingState = MovingStateType.Stopped;
         }
 
         private void MoveAtSpeed(float deltaTime)
         {
-            if (MovingState == MovingStateType.Moving)
+            if (_movingState == MovingStateType.Moving)
             {
                 _brain.Body.RotateAround(_brain.Body.ActiveTransform.up, InputMoveDirection.x * (90f * (deltaTime * (_value * Speed))), true, true);
             }

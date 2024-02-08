@@ -40,6 +40,7 @@ namespace Mona.SDK.Brains.Core.Control
         private int _firstActionIndex = -1;
         private bool _unloaded;
         private bool _paused;
+        private string _progressTile;
 
         public Instruction()
         {
@@ -56,6 +57,12 @@ namespace Mona.SDK.Brains.Core.Control
             _page = page;
             _firstActionIndex = -1;
             _needAuthInstructionTiles.Clear();
+
+            var pagePrefix = page.IsCore ? "Core" : ("State" + _brain.StatePages.IndexOf(page));
+            var instructionIndex = page.Instructions.IndexOf(this);
+
+            _progressTile = $"__{pagePrefix}_{instructionIndex}_tile";
+            _brain.Variables.GetFloat(_progressTile);
 
             for (var i = 0; i < InstructionTiles.Count; i++)
             {
@@ -242,38 +249,38 @@ namespace Mona.SDK.Brains.Core.Control
                     case InstructionEventTypes.State:
                         if (tile is IOnStartInstructionTile)
                         {
-                            return tile.Do();
+                            return ExecuteTile(tile);
                         }
                         else if (tile is IActionInstructionTile)
                         {
                             if (_brain.Body.HasControl())
                             {
                                 _result = InstructionTileResult.Running;
-                                return tile.Do();
+                                return ExecuteTile(tile);
                             }
                         }
                         break;
                     case InstructionEventTypes.Message:
                         if (tile is IOnMessageInstructionTile)
-                            return tile.Do();
+                            return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Value:
                         if (tile is IOnValueChangedInstructionTile)
-                            return tile.Do();
+                            return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Input:
                         if (tile is IInputInstructionTile)
-                            return tile.Do();
+                            return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Trigger:
                         if (tile is ITriggerInstructionTile && IsValidTriggerType((ITriggerInstructionTile)tile, (MonaTriggerEvent)evt))
-                            return tile.Do();
+                            return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Tick:
                         if (tile is IActionInstructionTile)
                         {
                             _result = InstructionTileResult.Running;
-                            return tile.Do();
+                            return ExecuteTile(tile);
                         }
                         break;
                     case InstructionEventTypes.Authority:
@@ -285,24 +292,36 @@ namespace Mona.SDK.Brains.Core.Control
                                 _result = InstructionTileResult.Running;
                                 if (_firstActionIndex == -1)
                                 {
-                                    return tile.Do();
+                                    return ExecuteTile(tile);
                                 }
                                 else
                                 {
                                     var actionTile = InstructionTiles[_firstActionIndex];
-                                    return actionTile.Do();
+                                    return ExecuteTile(actionTile);
                                 }
                             }
                             else
                             {
                                 _result = InstructionTileResult.Running;
-                                return progressTile.Continue();
+                                return ContinueTile((IProgressInstructionTile)progressTile);
                             }
                         }
                         break;
                 }
             }
             return InstructionTileResult.Failure;
+        }
+
+        private InstructionTileResult ExecuteTile(IInstructionTile tile)
+        {
+            _brain.Variables.Set(_progressTile, (float)InstructionTiles.IndexOf(tile));
+            return tile.Do();
+        }
+
+        private InstructionTileResult ContinueTile(IProgressInstructionTile tile)
+        {
+            _brain.Variables.Set(_progressTile, (float)InstructionTiles.IndexOf(tile));
+            return tile.Continue();
         }
 
         private IProgressInstructionTile GetFirstTileInProgress()
@@ -327,7 +346,7 @@ namespace Mona.SDK.Brains.Core.Control
                 var tile = InstructionTiles[i];
                 if (tile is IConditionInstructionTile)
                 {
-                    if (tile.Do() == InstructionTileResult.Failure)
+                    if (ExecuteTile(tile) == InstructionTileResult.Failure)
                         return InstructionTileResult.Failure;
                 }
             }
@@ -373,7 +392,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
             else
             {
-                var tileResult = tile.Do();
+                var tileResult = ExecuteTile(tile);
                 //Debug.Log($"{nameof(ExecuteActionTile)} {tile} result {tileResult}");
                 if (tileResult == InstructionTileResult.Success)
                     tileResult = ExecuteActionTile(tile.NextExecutionTile);

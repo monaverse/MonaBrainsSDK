@@ -12,6 +12,7 @@ using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
 using Mona.SDK.Brains.Core.Brain.Interfaces;
+using Mona.SDK.Brains.Core.State.Structs;
 
 namespace Mona.SDK.Brains.Core.ScriptableObjects
 {
@@ -201,9 +202,29 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             _index = index;
             CacheReferences(gameObject, runner, _index);
+            CacheReservedBrainVariables();
             PreloadPages();
             AddEventDelegates();
             AddHierarchyDelgates();
+        }
+
+        private void CacheReservedBrainVariables()
+        {
+            var speed = _variables.GetVariable(MonaBrainConstants.SPEED_FACTOR, typeof(MonaVariablesFloat));
+                ((IMonaVariablesFloatValue)speed).Value = 1f;
+
+            _variables.GetVariable(MonaBrainConstants.RESULT_SENDER, typeof(MonaVariablesBrain));
+            _variables.GetVariable(MonaBrainConstants.RESULT_TARGET, typeof(MonaVariablesBody));
+
+            _variables.GetVariable(MonaBrainConstants.RESULT_MOVE_DIRECTION, typeof(MonaVariablesVector2));
+            _variables.GetVariable(MonaBrainConstants.RESULT_MOUSE_DIRECTION, typeof(MonaVariablesVector2));
+
+            _variables.GetVariable(MonaBrainConstants.RESULT_HIT_TARGET, typeof(MonaVariablesBody));
+            _variables.GetVariable(MonaBrainConstants.RESULT_HIT_POINT, typeof(MonaVariablesVector3));
+            _variables.GetVariable(MonaBrainConstants.RESULT_HIT_NORMAL, typeof(MonaVariablesVector3));
+
+            _variables.GetVariable(MonaBrainConstants.RESULT_STATE, typeof(MonaVariablesString));
+            _variables.GetVariable(MonaBrainConstants.ON_STARTING, typeof(MonaVariablesBool));
         }
 
         private void CacheReferences(GameObject gameObject, IMonaBrainRunner runner, int index)

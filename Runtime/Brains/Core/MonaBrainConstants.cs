@@ -3,17 +3,15 @@
     public class MonaBrainConstants
     {
         public const string SPEED_FACTOR = "__SpeedFactor";
-        public const string MOVING_STATE = "__MovingState";
-        public const string MOVING_ROTATE_STATE = "__MovingRotateState";
+
+        public const string RESULT_SENDER = "__Sender";
+        public const string RESULT_TARGET = "__Target";
 
         public const string RESULT_MOVE_DIRECTION = "__MoveDirection";
         public const string RESULT_MOUSE_DIRECTION = "__MouseDirection";
-        public const string RESULT_SENDER = "__Sender";
-        public const string RESULT_TARGET = "__Target";
         public const string RESULT_HIT_TARGET = "__HitTarget";
         public const string RESULT_HIT_POINT = "__HitPoint";
         public const string RESULT_HIT_NORMAL = "__HitNormal";
-        public const string RESULT_GLUED = "__Glued";
         public const string RESULT_STATE = "__State";
 
         public const string ON_STARTING = "__OnStarting";

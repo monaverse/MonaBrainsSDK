@@ -6,7 +6,6 @@ using UnityEngine;
 using System;
 using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Brain;
-using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
@@ -18,7 +17,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
     [Serializable]
     public class MoveLocalInstructionTile : InstructionTile, IMoveLocalInstructionTile, IActionInstructionTile, 
-        IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile, IChangeDefaultInstructionTile
+        IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile, IChangeDefaultInstructionTile,
+        IProgressInstructionTile
     {
         public override Type TileType => typeof(MoveLocalInstructionTile);
 
@@ -50,10 +50,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private IMonaBrain _brain;
         private IInstruction _instruction;
+        private int _tileIndex;
 
         private Vector3 _start;
         private Vector3 _end;
-        private float _time;
         private bool _active;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
@@ -70,12 +70,38 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             get => _brain.Variables.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
         }
         
+        private string _progressName;
+
+        public float Progress
+        {
+            get => _brain.Variables.GetFloat(_progressName);
+            set => _brain.Variables.Set(_progressName, value);
+        }
+
+        public bool InProgress
+        {
+            get {
+                var progress = Progress;
+                return progress > 0 && progress <= 1f;
+            }
+        }
+
         public MoveLocalInstructionTile() { }
         
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
             _instruction = instruction;
+
+            var tileIndex = _instruction.InstructionTiles.IndexOf(this);
+            var pagePrefix = page.IsCore ? "Core" : ("State" + brainInstance.StatePages.IndexOf(page));
+            var instructionIndex = page.Instructions.IndexOf(instruction);
+
+            _tileIndex = tileIndex;
+            _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
+
+            _brain.Variables.GetFloat(_progressName);
+
             UpdateActive();
         }
 
@@ -163,6 +189,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             return _instruction.GetStartPosition(this);
         }
 
+        public InstructionTileResult Continue()
+        {
+            Debug.Log($"{nameof(Continue)} take over control and continue executing brain at {Progress}, {_progressName} on ", _brain.Body.ActiveTransform.gameObject);
+            _movingState = MovingStateType.Moving;
+            return Complete(InstructionTileResult.Running);
+        }
+
         public override InstructionTileResult Do()
         {
             _direction = GetDirectionVector(DirectionType);
@@ -183,7 +216,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (_movingState == MovingStateType.Stopped)
             {
-                _time = 0;
+                Progress = 0;
+
                 _start = GetStartPosition();
                 _end = GetEndPosition(_start);
                 Debug.Log($"{nameof(MoveLocalInstructionTile)} {DirectionType} {_start} {_end} duration: {_value}");
@@ -234,16 +268,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 _start = GetStartPosition();
                 _end = GetEndPosition(_start);
-                if(_time >= 1f)
+                if(Progress >= 1f)
                 {
-                    if (!(NextExecutionTile is IChangeDefaultInstructionTile))
+                    //if (!(NextExecutionTile is IChangeDefaultInstructionTile))
                         _brain.Body.SetPosition(_end, !_usePhysics, true);
                     StopMoving();
                 }
                 else {
-                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(_time)), !_usePhysics, true);
+                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(Progress)), !_usePhysics, true);
                 }
-                _time += Mathf.Round((deltaTime / _value) * 1000f) / 1000f;
+                Progress += Mathf.Round((deltaTime / _value) * 1000f) / 1000f;
             }
         }
 
@@ -254,7 +288,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _start = GetStartPosition();
                 _end = GetEndPosition(_start);
                 
-                if (_time >= 1f)
+                if (Progress >= 1f)
                 {
                     if (!(NextExecutionTile is IChangeDefaultInstructionTile))
                         _brain.Body.SetPosition(_end, !_usePhysics, true);
@@ -262,9 +296,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 }
                 else
                 {
-                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(_time)), !_usePhysics, true);
+                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(Progress)), !_usePhysics, true);
                 }
-                _time += Mathf.Round(( (_distance / (_value * _speed)) * deltaTime ) * 1000f) / 1000f;
+                Progress += Mathf.Round(( (_distance / (_value * _speed)) * deltaTime ) * 1000f) / 1000f;
             }
         }
 
