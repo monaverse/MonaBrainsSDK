@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.UIElements;
 using UnityEngine;
+using UnityEditor.UIElements;
 
 namespace Mona.SDK.Brains.UIEditors
 {
@@ -18,6 +19,7 @@ namespace Mona.SDK.Brains.UIEditors
             _root = new VisualElement();
             _brainRunnerElement = new MonaBrainRunnerVisualElement();
             _brainRunnerElement.SetRunner((MonaBrainRunner)target);
+            _brainRunnerElement.TrackSerializedObjectValue(serializedObject, HandleCallback);
             _root.Add(_brainRunnerElement);
             return _root;
         }
@@ -26,6 +28,17 @@ namespace Mona.SDK.Brains.UIEditors
         {
             if (_brainRunnerElement != null)
                 _brainRunnerElement.Dispose();
+        }
+
+        private void HandleCallback(SerializedObject so)
+        {
+            so.ApplyModifiedProperties();
+            if (target != null)
+            {
+                EditorUtility.SetDirty(target);
+                Undo.RecordObject(target, "change brain");
+            }
+            //Debug.Log($"{nameof(HandleCallback)}");
         }
     }
 #endif

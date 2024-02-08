@@ -12,13 +12,15 @@ using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Input;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Brains.Core.Control;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
 
     [Serializable]
     public class ChangeColorInstructionTile : InstructionTile, IChangeColorInstructionTile, IActionInstructionTile, INeedAuthorityInstructionTile,
-        IActivateInstructionTile, IPauseableInstructionTile
+        IActivateInstructionTile, IPauseableInstructionTile, IProgressInstructionTile
     {
         public const string ID = "ChangeColor";
         public const string NAME = "Change Color";
@@ -37,15 +39,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private string _durationValueName = null;
 
         [BrainProperty(false)] public float Duration { get => _duration; set => _duration = value; }
-        [BrainPropertyValueName("Duration")] public string DurationValueName { get => _durationValueName; set => _durationValueName = value; }
+        [BrainPropertyValueName("Duration", typeof(IMonaVariablesFloatValue))] public string DurationValueName { get => _durationValueName; set => _durationValueName = value; }
 
         private Vector3 _direction;
 
         private IMonaBrain _brain;
+        private IInstruction _instruction;
+        private string _progressName;
+
 
         private Color _start;
         private Color _end;
-        private float _time;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
         private Action<MonaInputEvent> OnInput;
@@ -63,12 +67,36 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             get => _brainInput.MoveValue;
         }
-        
+
+        public float Progress
+        {
+            get => _brain.Variables.GetFloat(_progressName);
+            set => _brain.Variables.Set(_progressName, value);
+        }
+
+        public bool InProgress
+        {
+            get
+            {
+                var progress = Progress;
+                if (_instruction.CurrentTile != this) return false;
+                return progress > 0 && progress <= 1f;
+            }
+        }
+
         public ChangeColorInstructionTile() { }
         
-        public void Preload(IMonaBrain brainInstance)
+        public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
+            _instruction = instruction;
+
+            var pagePrefix = page.IsCore ? "Core" : ("State" + brainInstance.StatePages.IndexOf(page));
+            var instructionIndex = page.Instructions.IndexOf(instruction);
+
+            _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
+
+            _brain.Variables.GetFloat(_progressName);
 
             UpdateActive();
         }
@@ -162,6 +190,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             return _brain.Body;
         }
 
+        public InstructionTileResult Continue()
+        {
+            Debug.Log($"{nameof(Continue)} take over control and continue executing brain at {Progress}, {_progressName} on ", _brain.Body.ActiveTransform.gameObject);
+            _movingState = MovingStateType.Moving;
+            _start = _brain.Body.GetColor();
+            _end = _color;
+            AddDelegates();
+            return Do();
+        }
+
         public override InstructionTileResult Do()
         {
             if (!string.IsNullOrEmpty(_durationValueName))
@@ -175,10 +213,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             if (_movingState == MovingStateType.Stopped)
             {
-                _time = 0;
+                Progress = 0;
                 _start = _brain.Body.GetColor();
                 _end = _color;
-
                 AddDelegates();
             }
 
@@ -193,7 +230,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void FixedTick(float deltaTime)
         {
+            if (!_brain.Body.HasControl())
+            {
+                LostControl();
+                return;
+            }
+
             MoveOverTime(deltaTime);
+        }
+
+        private void LostControl()
+        {
+            Debug.Log($"{nameof(ChangeColorInstructionTile)} {nameof(LostControl)}");
+            _movingState = MovingStateType.Stopped;
+            Complete(InstructionTileResult.LostAuthority, true);
         }
 
         private float Evaluate(float t)
@@ -215,14 +265,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             if (_movingState == MovingStateType.Moving)
             {
-                _time += deltaTime / _duration;
-                _brain.Body.SetColor(Color.Lerp(_start, _end, Evaluate(_time)), true);
-
-                if(_time >= 1f)
+                if(Progress >= 1f)
                 {
                     _brain.Body.SetColor(_end, true);
                     StopMoving();
                 }
+                else
+                {
+                    _brain.Body.SetColor(Color.Lerp(_start, _end, Evaluate(Progress)), true);
+                }
+                Progress += deltaTime / _duration;
             }
         }
 

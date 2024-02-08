@@ -387,18 +387,30 @@ namespace Mona.SDK.Brains.UIElements
 
             if (targetProperty != null)
             {
-                var target = new TextField();
                 var value = (string)targetProperty.GetValue(_tile);
-                //Debug.Log($"{nameof(AddTargetFieldIfExists)} {targetProperty.Name} {value}");
+                var isValue = (BrainPropertyValueName)targetProperty.GetCustomAttribute(typeof(BrainPropertyValueName), true);
+                var values = _brain.DefaultVariables.VariableList.FindAll(x => isValue.Type.IsAssignableFrom(_brain.DefaultVariables.GetVariable(x.Name).GetType())).ConvertAll<string>(x => x.Name);   
+                var target = new DropdownField(values, 0);
+
                 target.style.width = 80;
                 target.style.flexDirection = FlexDirection.Column;
+                target.style.display = string.IsNullOrEmpty(value) ? DisplayStyle.None : DisplayStyle.Flex;
                 target.labelElement.style.color = Color.black;
                 target.label = property.Name;
-                target.value = value;
-                target.style.display = !string.IsNullOrEmpty(value) ? DisplayStyle.Flex : DisplayStyle.None;
+
+                var defaultValue = (string)targetProperty.GetValue(_tile);
+                var defaultVariable = values.Find(x => string.Compare(x, defaultValue, true) == 0);
+                if (defaultVariable != null)
+                {
+                    target.value = defaultVariable;
+                    targetProperty.SetValue(_tile, target.value);
+                }
+
                 target.RegisterValueChangedCallback((evt) =>
                 {
-                    targetProperty.SetValue(_tile, evt.newValue);
+                    target.value = (string)evt.newValue;
+                    targetProperty.SetValue(_tile, target.value);
+                    Changed();
                 });
                 fieldContainer.Add(target);
 
@@ -426,8 +438,12 @@ namespace Mona.SDK.Brains.UIElements
                     }
                     else
                     {
-                        targetProperty.SetValue(_tile, property.Name);
-                        target.value = property.Name;
+                        var defaultVariable = values.Find(x => string.Compare(x, property.Name, true) == 0);
+                        if (defaultVariable != null)
+                        {
+                            targetProperty.SetValue(_tile, defaultVariable);
+                            target.value = defaultVariable;
+                        }
                         field.style.display = DisplayStyle.None;
                         target.style.display = DisplayStyle.Flex;
                         btn.style.backgroundColor = Color.red;

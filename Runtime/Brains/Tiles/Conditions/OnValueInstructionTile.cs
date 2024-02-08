@@ -28,7 +28,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] private float _amount;
         [SerializeField] private string _amountValueName;
         [BrainProperty(true)] public float Amount { get => _amount; set => _amount = value; }
-        [BrainPropertyValueName("Amount")] public string AmountValueName { get => _amountValueName; set => _amountValueName = value; }
+        [BrainPropertyValueName("Amount", typeof(IMonaVariablesFloatValue))] public string AmountValueName { get => _amountValueName; set => _amountValueName = value; }
 
         private IMonaBrain _brain;
 

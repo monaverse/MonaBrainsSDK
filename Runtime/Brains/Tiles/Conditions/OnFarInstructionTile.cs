@@ -5,6 +5,7 @@ using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions.Behaviours;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using Mona.SDK.Core;
+using Mona.SDK.Core.State.Structs;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,7 +28,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] private float _distance = 2f;
         [SerializeField] private string _distanceValueName;
         [BrainProperty(true)] public float Distance { get => _distance; set => _distance = value; }
-        [BrainPropertyValueName("Distance")] public string DistanceValue { get => _distanceValueName; set => _distanceValueName = value; }
+        [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValue { get => _distanceValueName; set => _distanceValueName = value; }
 
         public bool PlayerTriggered => _brain.HasPlayerTag() || _brain.MonaTagSource.GetTag(_tag).IsPlayerTag;
 

@@ -6,5 +6,6 @@ namespace Mona.SDK.Brains.Core.Enums
         Failure=0,
         Running=2,
         WaitingForAuthority=3,
+        LostAuthority=4
     }
 }

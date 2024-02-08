@@ -7,6 +7,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Input.Enums;
+using Mona.SDK.Core.State.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -22,7 +23,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] private string _distanceValueName;
 
         [BrainProperty(false)] public float Distance { get => _distance; set => _distance = value; }
-        [BrainPropertyValueName("Distance")] public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
+        [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
         
         protected override MonaInputState GetInputState() => MonaInputState.Pressed;
 

@@ -42,6 +42,17 @@ namespace Mona.SDK.Brains.Core.Control
         private bool _paused;
         private string _progressTile;
 
+        public IInstructionTile CurrentTile {
+            get
+            {
+                var index = (int)_brain.Variables.GetFloat(_progressTile);
+                if (index > -1 && index < InstructionTiles.Count)
+                    return InstructionTiles[index];
+                else
+                    return null;
+            }
+        }
+
         public Instruction()
         {
         }
@@ -64,6 +75,12 @@ namespace Mona.SDK.Brains.Core.Control
             _progressTile = $"__{pagePrefix}_{instructionIndex}_tile";
             _brain.Variables.GetFloat(_progressTile);
 
+            PreloadTiles();
+            ResetExecutionLinks();
+        }
+
+        private void PreloadTiles()
+        {
             for (var i = 0; i < InstructionTiles.Count; i++)
             {
                 var tile = InstructionTiles[i];
@@ -72,22 +89,29 @@ namespace Mona.SDK.Brains.Core.Control
                     _needAuthInstructionTiles.Add(tile);
 
                 if (tile is IInstructionTileWithPreload)
-                    ((IInstructionTileWithPreload)tile).Preload(brain);
+                    ((IInstructionTileWithPreload)tile).Preload(_brain);
                 else if (tile is IInstructionTileWithPreloadAndPage)
-                    ((IInstructionTileWithPreloadAndPage)tile).Preload(brain, page);
+                    ((IInstructionTileWithPreloadAndPage)tile).Preload(_brain, _page);
                 else if (tile is IInstructionTileWithPreloadAndPageAndInstruction)
-                    ((IInstructionTileWithPreloadAndPageAndInstruction)tile).Preload(brain, page, this);
+                    ((IInstructionTileWithPreloadAndPageAndInstruction)tile).Preload(_brain, _page, this);
 
                 if (tile is IActionInstructionTile)
                 {
-                    if(_firstActionIndex == -1)
+                    if (_firstActionIndex == -1)
                         _firstActionIndex = i;
                     PreloadActionTile((IInstructionTile)tile);
                 }
+            }
+        }
 
+        private void ResetExecutionLinks()
+        {
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                var tile = InstructionTiles[i];
                 if (i < InstructionTiles.Count - 1)
                     tile.NextExecutionTile = InstructionTiles[i + 1];
-            } 
+            }
         }
 
         public Vector3 GetStartPosition(IChangeDefaultInstructionTile currentTile)
@@ -193,7 +217,7 @@ namespace Mona.SDK.Brains.Core.Control
                 Debug.Log($"{nameof(Instruction)}.{nameof(HandleStateAuthorityChanged)} {evt.Body.ActiveTransform.name} {evt.Body.HasControl()}", evt.Body.ActiveTransform.gameObject);
             if(_waitForAuthBodies.Count == 0)
             {
-                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Authority));
+                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain.Body), new MonaBrainTickEvent(InstructionEventTypes.Authority));
             }
             else
             {
@@ -277,7 +301,7 @@ namespace Mona.SDK.Brains.Core.Control
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Tick:
-                        if (tile is IActionInstructionTile)
+                        if (_brain.Body.HasControl() && tile is IActionInstructionTile)
                         {
                             _result = InstructionTileResult.Running;
                             return ExecuteTile(tile);
@@ -286,6 +310,9 @@ namespace Mona.SDK.Brains.Core.Control
                     case InstructionEventTypes.Authority:
                         if(HasTilesNeedingAuthority())
                         {
+                            if (_brain.Body.HasControl())
+                                ResetExecutionLinks();
+
                             var progressTile = GetFirstTileInProgress();
                             if(progressTile == null)
                             {
@@ -314,13 +341,15 @@ namespace Mona.SDK.Brains.Core.Control
 
         private InstructionTileResult ExecuteTile(IInstructionTile tile)
         {
-            _brain.Variables.Set(_progressTile, (float)InstructionTiles.IndexOf(tile));
+            if(_brain.Body.HasControl())
+                _brain.Variables.Set(_progressTile, (float)InstructionTiles.IndexOf(tile));
             return tile.Do();
         }
 
         private InstructionTileResult ContinueTile(IProgressInstructionTile tile)
         {
-            _brain.Variables.Set(_progressTile, (float)InstructionTiles.IndexOf(tile));
+            if (_brain.Body.HasControl())
+                _brain.Variables.Set(_progressTile, (float)InstructionTiles.IndexOf(tile));
             return tile.Continue();
         }
 

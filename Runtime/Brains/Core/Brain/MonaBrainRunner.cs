@@ -55,7 +55,6 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             EnsureGlobalRunnerExists();
             CacheComponents();
-            AddDelegates();
             AddHotReloadDelegates();
             PreloadBrains();
         }
@@ -76,12 +75,6 @@ namespace Mona.SDK.Brains.Core.Brain
 
             _transformDefaults.Clear();
             _transformDefaults.Add(new ResetTransform(_body));
-        }
-
-        private void AddDelegates()
-        {
-            OnStateAuthorityChanged = HandleStateAuthorityChanged;
-            EventBus.Register(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _body), OnStateAuthorityChanged);
         }
 
         private List<Dictionary<Type, Coroutine>> _coroutine = new List<Dictionary<Type, Coroutine>>();
@@ -171,11 +164,6 @@ namespace Mona.SDK.Brains.Core.Brain
             RestartBrains();
         }
 
-        private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
-        {
-            //RestartBrains();
-        }
-
         public void StartBrains()
         {
             HandleStarted();
@@ -252,13 +240,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private void OnDestroy()
         {
             RemoveHotReloadDelegates();
-            RemoveDelegates();
             UnloadBrains();
-        }
-
-        private void RemoveDelegates()
-        {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _body), OnStateAuthorityChanged);
         }
 
         private void UnloadBrains()

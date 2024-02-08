@@ -23,7 +23,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private string _target;
 
         [BrainProperty(true)] public MonaBrainTargetResultType Source { get => _source; set => _source = value; }
-        [BrainPropertyValueName("Source")] public string Target { get => _target; set => _target = value; }
+        [BrainPropertyValueName("Source", typeof(IMonaVariablesBodyValue))] public string Target { get => _target; set => _target = value; }
 
         public EnableTargetInstructionTile() { }
 

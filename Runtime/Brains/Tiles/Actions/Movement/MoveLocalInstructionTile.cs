@@ -11,6 +11,7 @@ using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Control;
+using Mona.SDK.Core.State.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -28,7 +29,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private string _distanceValueName = null;
 
         [BrainProperty(true)] public float Distance { get => _distance; set => _distance = value; }
-        [BrainPropertyValueName("Distance")] public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
+        [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
 
         [SerializeField] private EasingType _easing = EasingType.EaseInOut;
         [BrainPropertyEnum(true)] public EasingType Easing { get => _easing; set => _easing = value; }
@@ -40,7 +41,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private string _valueValueName = null;
 
         [BrainProperty(false)] public float Value { get => _value; set => _value = value; }
-        [BrainPropertyValueName("Value")] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
+        [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
         [SerializeField] private bool _usePhysics = false;
         [BrainProperty(false)] public bool UsePhysics { get => _usePhysics; set => _usePhysics = value; }
@@ -82,6 +83,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             get {
                 var progress = Progress;
+                if (_instruction.CurrentTile != this) return false;
                 return progress > 0 && progress <= 1f;
             }
         }
@@ -93,11 +95,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _brain = brainInstance;
             _instruction = instruction;
 
-            var tileIndex = _instruction.InstructionTiles.IndexOf(this);
             var pagePrefix = page.IsCore ? "Core" : ("State" + brainInstance.StatePages.IndexOf(page));
             var instructionIndex = page.Instructions.IndexOf(instruction);
 
-            _tileIndex = tileIndex;
             _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
 
             _brain.Variables.GetFloat(_progressName);
@@ -180,7 +180,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (!string.IsNullOrEmpty(_distanceValueName))
                 _distance = _brain.Variables.GetFloat(_distanceValueName);
-
+            //Debug.Log($"{nameof(GetEndPosition)} {_distance}");
             return pos + _direction * _distance;
         }
 
@@ -193,7 +193,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             Debug.Log($"{nameof(Continue)} take over control and continue executing brain at {Progress}, {_progressName} on ", _brain.Body.ActiveTransform.gameObject);
             _movingState = MovingStateType.Moving;
-            return Complete(InstructionTileResult.Running);
+            AddFixedTickDelegate();
+            return Do();
         }
 
         public override InstructionTileResult Do()
@@ -217,10 +218,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (_movingState == MovingStateType.Stopped)
             {
                 Progress = 0;
-
-                _start = GetStartPosition();
-                _end = GetEndPosition(_start);
-                Debug.Log($"{nameof(MoveLocalInstructionTile)} {DirectionType} {_start} {_end} duration: {_value}");
                 AddFixedTickDelegate();
             }
 
@@ -235,6 +232,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void Tick(float deltaTime)
         {
+            if (!_brain.Body.HasControl())
+            {
+                LostControl();
+                return;
+            }
+
             switch(_mode)
             {
                 case MoveModeType.Time: MoveOverTime(deltaTime); break;
@@ -300,6 +303,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 }
                 Progress += Mathf.Round(( (_distance / (_value * _speed)) * deltaTime ) * 1000f) / 1000f;
             }
+        }
+
+        private void LostControl()
+        {
+            Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(LostControl)}");
+            _movingState = MovingStateType.Stopped;
+            Complete(InstructionTileResult.LostAuthority, true);
         }
 
         private void StopMoving()

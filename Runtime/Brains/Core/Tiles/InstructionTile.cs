@@ -39,6 +39,9 @@ namespace Mona.SDK.Brains.Core.Tiles
             if (LastResult != result)
                 TriggerOnExecute(result, null);
 
+            if (result == InstructionTileResult.LostAuthority)
+                NextExecutionTile = null;
+
             if (invokeCallback && _thenCallback != null)
                 return _thenCallback.Action();
 

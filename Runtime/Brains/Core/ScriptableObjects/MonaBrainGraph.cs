@@ -258,6 +258,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             OnMonaBrainTick = HandleMonaBrainTick;
             EventBus.Register<MonaBrainTickEvent>(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), OnMonaBrainTick);
+            EventBus.Register<MonaBrainTickEvent>(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _body), OnMonaBrainTick);
 
             OnMonaTrigger = HandleMonaTrigger;
             EventBus.Register<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
@@ -285,6 +286,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
 
             EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), OnMonaBrainTick);
+            EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _body), OnMonaBrainTick);
             EventBus.Unregister(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
             EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
 
@@ -389,6 +391,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private void HandleMonaValueChanged(MonaValueChangedEvent evt)
         {
             if (evt.Name == MonaBrainConstants.RESULT_STATE) return;
+            if (evt.Name.StartsWith("__")) return;
             ExecuteCorePageInstructions(InstructionEventTypes.Value);
             ExecuteStatePageInstructions(InstructionEventTypes.Value);
         }

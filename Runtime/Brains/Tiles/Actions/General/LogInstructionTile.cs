@@ -22,7 +22,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private string _messageValueName;
 
         [BrainProperty] public string Message { get => _message; set => _message = value; }
-        [BrainPropertyValueName("Message")] public string MessageValueName { get => _messageValueName; set => _messageValueName = value; }
+        [BrainPropertyValueName("Message", typeof(IMonaVariablesStringValue))] public string MessageValueName { get => _messageValueName; set => _messageValueName = value; }
 
         public LogInstructionTile() { }
 

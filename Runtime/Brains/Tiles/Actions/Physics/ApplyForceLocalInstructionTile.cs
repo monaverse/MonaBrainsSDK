@@ -30,12 +30,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [SerializeField] private string _forceValueName = null;
 
         [BrainProperty(true)] public float Force { get => _force; set => _force = value; }
-        [BrainPropertyValueName("Force")] public string ForceValueName { get => _forceValueName; set => _forceValueName = value; }
+        [BrainPropertyValueName("Force", typeof(IMonaVariablesFloatValue))] public string ForceValueName { get => _forceValueName; set => _forceValueName = value; }
 
         [SerializeField] private float _duration = 0f;
         [SerializeField] private string _durationValueName = null;
         [BrainPropertyEnum(true)] public float Duration { get => _duration; set => _duration = value; }
-        [BrainPropertyValueName("Duration")] public string DurationValueName { get => _durationValueName; set => _durationValueName = value; }
+        [BrainPropertyValueName("Duration", typeof(IMonaVariablesFloatValue))] public string DurationValueName { get => _durationValueName; set => _durationValueName = value; }
 
         [SerializeField] private DragType _dragType = DragType.Quadratic;
         [BrainPropertyEnum(false)] public DragType DragType { get => _dragType; set => _dragType = value; }

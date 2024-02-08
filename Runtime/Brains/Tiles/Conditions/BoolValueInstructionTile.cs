@@ -28,7 +28,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] private bool _value;
         [SerializeField] private string _valueValueName;
         [BrainProperty(true)] public bool Value { get => _value; set => _value = value; }
-        [BrainPropertyValueName("Value")] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
+        [BrainPropertyValueName("Value", typeof(IMonaVariablesBoolValue))] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
         private IMonaBrain _brain;
 

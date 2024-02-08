@@ -27,7 +27,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [SerializeField] private string _target;
 
         [BrainProperty(true)] public MonaBrainTargetResultType Source { get => _source; set => _source = value; }
-        [BrainPropertyValueName("Source")] public string Target { get => _target; set => _target = value; }
+        [BrainPropertyValueName("Source", typeof(IMonaVariablesFloatValue))] public string Target { get => _target; set => _target = value; }
 
         [SerializeField]
         private string _part = "Default";

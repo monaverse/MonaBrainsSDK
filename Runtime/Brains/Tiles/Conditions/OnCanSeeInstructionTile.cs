@@ -5,6 +5,7 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions.Behaviours;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
+using Mona.SDK.Core.State.Structs;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,12 +28,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] private float _fieldOfView = 45f;
         [SerializeField] private string _fieldOfViewValueName;
         [BrainProperty(true)] public float FieldOfView { get => _fieldOfView; set => _fieldOfView = value; }
-        [BrainPropertyValueName("FieldOfView")] public string FieldOfViewValueName { get => _fieldOfViewValueName; set => _fieldOfViewValueName = value; }
+        [BrainPropertyValueName("FieldOfView", typeof(IMonaVariablesFloatValue))] public string FieldOfViewValueName { get => _fieldOfViewValueName; set => _fieldOfViewValueName = value; }
 
         [SerializeField] private float _distance = 100f;
         [SerializeField] private string _distanceValueName;
         [BrainProperty(false)] public float Distance { get => _distance; set => _distance = value; }
-        [BrainPropertyValueName("Distance")] public string DistanceValue { get => _distanceValueName; set => _distanceValueName = value; }
+        [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValue { get => _distanceValueName; set => _distanceValueName = value; }
 
         private IMonaBrain _brain;
         private SphereColliderTriggerBehaviour _collider;

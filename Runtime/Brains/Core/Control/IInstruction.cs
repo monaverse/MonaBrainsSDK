@@ -18,6 +18,7 @@ namespace Mona.SDK.Brains.Core.Control
         bool HasEndTile(IMonaBrainPage page);
 
         List<IInstructionTile> InstructionTiles { get; }
+        IInstructionTile CurrentTile { get; }
         
         Vector3 GetStartPosition(IChangeDefaultInstructionTile currentTile);
         Quaternion GetStartRotation(IChangeDefaultRotationInstructionTile currentTile);

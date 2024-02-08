@@ -12,13 +12,14 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Control;
+using Mona.SDK.Core.State.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class RotateLocalInstructionTile : InstructionTile, IRotateLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile,
-        IChangeDefaultRotationInstructionTile
-        
+    public class RotateLocalInstructionTile : InstructionTile, IRotateLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, 
+        IActivateInstructionTile, INeedAuthorityInstructionTile, IChangeDefaultRotationInstructionTile, IProgressInstructionTile
+
     {
         public override Type TileType => typeof(RotateLocalInstructionTile);
 
@@ -28,7 +29,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private string _angleValueName;
 
         [BrainProperty(true)] public float Angle { get => _angle; set => _angle = value; }
-        [BrainPropertyValueName("Angle")] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
+        [BrainPropertyValueName("Angle", typeof(IMonaVariablesFloatValue))] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
 
         [SerializeField] private EasingType _easing = EasingType.EaseInOut;
         [BrainPropertyEnum(true)] public EasingType Easing { get => _easing; set => _easing = value; }
@@ -40,7 +41,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private string _valueValueName = null;
 
         [BrainProperty(false)] public float Value { get => _value; set => _value= value; }
-        [BrainPropertyValueName("Value")] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
+        [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
         [SerializeField] private bool _usePhysics = false;
         [BrainProperty(false)] public bool UsePhysics { get => _usePhysics; set => _usePhysics = value; }
@@ -49,8 +50,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private IMonaBrain _brain;
         private IInstruction _instruction;
+        private string _progressName;
 
-        private float _time;
         private Quaternion _start;
         private Quaternion _end;
 
@@ -70,12 +71,36 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             get => _brain.Variables.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
         }
 
+        public float Progress
+        {
+            get => _brain.Variables.GetFloat(_progressName);
+            set => _brain.Variables.Set(_progressName, value);
+        }
+
+        public bool InProgress
+        {
+            get
+            {
+                var progress = Progress;
+                if (_instruction.CurrentTile != this) return false;
+                return progress > 0 && progress <= 1f;
+            }
+        }
+
         public RotateLocalInstructionTile() { }
 
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
             _instruction = instruction;
+            
+            var pagePrefix = page.IsCore ? "Core" : ("State" + brainInstance.StatePages.IndexOf(page));
+            var instructionIndex = page.Instructions.IndexOf(instruction);
+
+            _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
+
+            _brain.Variables.GetFloat(_progressName);
+
             UpdateActive();
         }
 
@@ -93,8 +118,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (!_active) return;
 
-            OnFixedTick = HandleFixedTick;
-            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            if (_movingState == MovingStateType.Moving)
+            {
+                AddFixedTickDelegate();
+            }
 
             if (_brain.LoggingEnabled)
                 Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(UpdateActive)} {_active}");
@@ -102,7 +129,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public void Pause()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            RemoveFixedTickDelegate();
             if (_brain.LoggingEnabled)
                 Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Pause)} input paused");
         }
@@ -115,7 +142,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override void Unload()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            RemoveFixedTickDelegate();
             if(_brain.LoggingEnabled)
                 Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Unload)}");
         }
@@ -127,11 +154,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _thenCallback = new InstructionTileCallback();
                 _thenCallback.Action = () =>
                 {
-                    EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+                    RemoveFixedTickDelegate();
                     if (thenCallback != null) return thenCallback.Action.Invoke();
                     return InstructionTileResult.Success;
                 };
             }
+        }
+
+        private void AddFixedTickDelegate()
+        {
+            Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(AddFixedTickDelegate)}, {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
+            OnFixedTick = HandleFixedTick;
+            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+        }
+
+        private void RemoveFixedTickDelegate()
+        {
+            Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(RemoveFixedTickDelegate)}, {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
         public Quaternion GetEndRotation(Quaternion rotation)
@@ -150,6 +190,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             return _instruction.GetStartRotation(this);
         }
 
+        public InstructionTileResult Continue()
+        {
+            Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Continue)} take over control and continue executing brain at {Progress}, {_progressName} on {this} {_brain.Body.ActiveTransform}", _brain.Body.ActiveTransform.gameObject);
+            _movingState = MovingStateType.Moving;
+            AddFixedTickDelegate();
+            return Do();
+        }
+
         public override InstructionTileResult Do()
         {
             if (!string.IsNullOrEmpty(_valueValueName))
@@ -159,18 +207,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 _start = GetStartRotation();
                 _end = GetEndRotation(_start);
-                _brain.Body.SetRotation(_end, true, true);
+                _brain.Body.SetRotation(_end, !_usePhysics, true);
                 return Complete(InstructionTileResult.Success);
             }
 
             if (_movingState == MovingStateType.Stopped)
             {
-                _time = 0;
-                _start = GetStartRotation();
-                _end = GetEndRotation(_start);
-
-                OnFixedTick = HandleFixedTick;
-                EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+                Progress = 0;
+                AddFixedTickDelegate();
             }
             _movingState = MovingStateType.Moving;
             return Complete(InstructionTileResult.Running);
@@ -183,11 +227,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void FixedTick(float deltaTime)
         {
-            switch(_mode)
+            if (!_brain.Body.HasControl())
+            {
+                LostControl();
+                return;
+            }
+
+            switch (_mode)
             {
                 case MoveModeType.Time: MoveOverTime(deltaTime); break;
                 case MoveModeType.Speed: MoveAtSpeed(deltaTime); break;
             }
+        }
+
+        private void LostControl()
+        {
+            Debug.Log($"{nameof(RotateLocalInstructionTile)} {nameof(LostControl)}");
+            _movingState = MovingStateType.Stopped;
+            Complete(InstructionTileResult.LostAuthority, true);
         }
 
         private float Evaluate(float t)
@@ -217,17 +274,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _start = GetStartRotation();
                 _end = GetEndRotation(_start);
 
-                if (_time >= 1f)
+                if (Progress >= 1f)
                 {
                     if(!(NextExecutionTile is IChangeDefaultRotationInstructionTile))
-                        _brain.Body.SetRotation(_end, true, true);
+                        _brain.Body.SetRotation(_end, !_usePhysics, true);
                     StopMoving();
                 }
                 else
                 {
-                    _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(_time)), true, true);
+                    _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(Progress)), !_usePhysics, true);
                 }
-                _time += Mathf.Round((deltaTime / _value) * 1000f) / 1000f;
+                //Debug.Log($"{nameof(RotateLocalInstructionTile)} {Progress} {_start} {_end}");
+                Progress += Mathf.Round((deltaTime / _value) * 1000f) / 1000f;
 
             }
         }
@@ -239,16 +297,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _start = GetStartRotation();
                 _end = GetEndRotation(_start);
                 
-                if (_time >= 1f)
+                if (Progress >= 1f)
                 {
                     if (!(NextExecutionTile is IChangeDefaultRotationInstructionTile))
-                        _brain.Body.SetRotation(_end, true, true);
+                        _brain.Body.SetRotation(_end, !_usePhysics, true);
                     StopMoving();
                 }
                 else {
-                    _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(_time)), true, true);
+                    _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(Progress)), !_usePhysics, true);
                 }
-                _time += Mathf.Round(( ((_angle / 360f) / (_value * _speed)) * deltaTime ) * 1000f) / 1000f;
+                Progress += Mathf.Round(( ((_angle / 360f) / (_value * _speed)) * deltaTime ) * 1000f) / 1000f;
             }
         }
 

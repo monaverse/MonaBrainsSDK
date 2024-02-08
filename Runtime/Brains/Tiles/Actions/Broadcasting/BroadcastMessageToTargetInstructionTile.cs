@@ -26,7 +26,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
         [SerializeField] private string _targetValue;
 
         [BrainProperty(true)] public MonaBrainTargetResultType Source { get => _source; set => _source = value; }
-        [BrainPropertyValueName("Source")] public string TargetValue { get => _targetValue; set => _targetValue = value; }
+        [BrainPropertyValueName("Source", typeof(IMonaVariablesBodyValue))] public string TargetValue { get => _targetValue; set => _targetValue = value; }
 
         private IMonaBrain _brain;
 

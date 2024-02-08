@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General.Interfaces
 {
-    public interface IChangeColorInstructionTile : IInstructionTileWithPreload
+    public interface IChangeColorInstructionTile : IInstructionTileWithPreloadAndPageAndInstruction
     {
         Color Color { get; set; }
         EasingType Easing { get; set; }
