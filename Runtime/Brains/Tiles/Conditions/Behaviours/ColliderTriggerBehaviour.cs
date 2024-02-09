@@ -24,6 +24,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         private Dictionary<IMonaBody, bool> _bodiesIndex = new Dictionary<IMonaBody, bool>();
         private List<IMonaBody> _bodies = new List<IMonaBody>();
         private List<IMonaBody> _bodiesThatLeft = new List<IMonaBody>();
+        private List<IMonaBody> _bodiesThatEntered = new List<IMonaBody>();
         
         private Action<MonaTickEvent> OnTileTick;
         private Action<MonaBodySpawnedEvent> OnBodySpawned;
@@ -183,6 +184,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _bodiesIndex.Add(body, true);
                     _bodies.Add(body);
+                    if(!_bodiesThatEntered.Contains(body))
+                        _bodiesThatEntered.Add(body);
                     EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerEnter));
                     return true;
                 }
@@ -227,5 +230,15 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             return false;
         }
 
+        public List<IMonaBody> BodiesThatEntered => _bodiesThatEntered;
+        public bool ClearBodyThatEntered(IMonaBody body)
+        {
+            if (_bodiesThatEntered.Contains(body))
+            {
+                _bodiesThatEntered.Remove(body);
+                return true;
+            }
+            return false;
+        }
     }
 }

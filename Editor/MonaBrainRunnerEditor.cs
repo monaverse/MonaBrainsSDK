@@ -3,7 +3,9 @@ using UnityEngine.UIElements;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.UIElements;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor.UIElements;
+#endif
 
 namespace Mona.SDK.Brains.UIEditors
 {

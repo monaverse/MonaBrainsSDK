@@ -91,11 +91,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             var bodies = _collider.BodiesThatLeft;
             var bodyExists = bodies.Count > 0;
-            for (var i = 0; i < bodies.Count; i++)
+            if(bodyExists)
             {
-                var body = bodies[i];
+                var body = bodies[0];
                 if (body != null)
                 {
+                    _collider.BodiesThatLeft.Clear();
                     if (_brain.LoggingEnabled)
                         Debug.Log($"{nameof(OnExitInstructionTile)}.{nameof(Do)}");
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);

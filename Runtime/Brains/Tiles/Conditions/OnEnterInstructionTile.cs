@@ -93,13 +93,18 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (_collider == null) return InstructionTileResult.Failure;
 
-            var body = _collider.FindBodyWithMonaTag(_tag);
-            if (body != null)
+            var bodies = _collider.BodiesThatEntered;
+            if (bodies.Count > 0)
             {
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(Do)} found: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
-                _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
-                return Complete(InstructionTileResult.Success);
+                var body = bodies[0];
+                if (body != null)
+                {
+                    _collider.BodiesThatEntered.Clear();
+                    if (_brain.LoggingEnabled)
+                        Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(Do)} found: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
+                    return Complete(InstructionTileResult.Success);
+                }
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
         }
