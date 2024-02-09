@@ -8,6 +8,7 @@
         RollRight=3,
         RollLeft=4,
         SpinLeft=5,
-        SpinRight=6
+        SpinRight=6,
+        InputLeftRight=7
     }
 }

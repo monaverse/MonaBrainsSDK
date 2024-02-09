@@ -25,7 +25,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         [SerializeField]
         private MonaInputState _inputState = MonaInputState.Pressed;
-        [BrainPropertyEnum(false)]
+        [BrainPropertyEnum(true)]
         public MonaInputState InputState { get => _inputState; set => _inputState = value; }
 
         protected override MonaInputState GetInputState() => _inputState;

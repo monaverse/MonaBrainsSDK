@@ -13,6 +13,8 @@ using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core.Input;
+using Mona.SDK.Core.Body.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -58,6 +60,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private bool _active;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
+        private Action<MonaInputEvent> OnInput;
+
+        private MonaInput _bodyInput;
 
         private float _speed
         {
@@ -70,6 +75,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             get => _brain.Variables.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
         }
+
+        [SerializeField] protected bool _onlyTurnWhenMoving = false;
 
         public float Progress
         {
@@ -123,6 +130,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 AddFixedTickDelegate();
             }
 
+            AddInputDelegate();
+
             if (_brain.LoggingEnabled)
                 Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(UpdateActive)} {_active}");
         }
@@ -163,21 +172,41 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void AddFixedTickDelegate()
         {
-            Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(AddFixedTickDelegate)}, {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
+            //Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(AddFixedTickDelegate)}, {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
             OnFixedTick = HandleFixedTick;
             EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
+        private void AddInputDelegate()
+        {
+            if (DirectionType == RotateDirectionType.InputLeftRight)
+            {
+                OnInput = HandleBodyInput;
+                EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+            }
+        }
+
+        protected void HandleBodyInput(MonaInputEvent evt)
+        {
+            //Debug.Log($"{nameof(HandleBodyInput)} {evt.Input.MoveValue}");
+            if (_movingState != MovingStateType.Moving)
+                _bodyInput = evt.Input;
+        }
+
         private void RemoveFixedTickDelegate()
         {
-            Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(RemoveFixedTickDelegate)}, {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
+            //Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(RemoveFixedTickDelegate)}, {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
         public Quaternion GetEndRotation(Quaternion rotation)
         {
             _direction = GetDirectionRotation(DirectionType, _angle);
-            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
+            if(DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
+            {
+                _direction = Quaternion.AngleAxis(_angle*Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
+            }
+            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType} {_bodyInput.MoveValue}");
 
             if (!string.IsNullOrEmpty(_angleValueName))
                 _angle = _brain.Variables.GetFloat(_angleValueName);
@@ -203,11 +232,28 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetFloat(_valueValueName);
 
+
+            //Debug.Log($"move input {_bodyInput.MoveValue}");
+            if (DirectionType == RotateDirectionType.InputLeftRight)
+            {
+                _brain.Body.SetDragType(DragType.Quadratic);
+                _brain.Body.SetDrag(.2f);
+                _brain.Body.SetAngularDrag(.2f);
+                _brain.Body.SetOnlyApplyDragWhenGrounded(true);
+                
+                if(_bodyInput.MoveValue.x == 0f || (_onlyTurnWhenMoving && _bodyInput.MoveValue.y == 0))
+                {
+                    _movingState = MovingStateType.Stopped;
+                    return Complete(InstructionTileResult.Success);
+                }
+            }
+
             if (_mode == MoveModeType.Instant)
             {
                 _start = GetStartRotation();
                 _end = GetEndRotation(_start);
                 _brain.Body.SetRotation(_end, !_usePhysics, true);
+                _brain.Body.SetPin();
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -233,6 +279,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return;
             }
 
+            ShouldPinOnGrounded();
+
             switch (_mode)
             {
                 case MoveModeType.Time: MoveOverTime(deltaTime); break;
@@ -240,9 +288,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             }
         }
 
+        private void ShouldPinOnGrounded()
+        {
+            if (DirectionType == RotateDirectionType.InputLeftRight)
+            {
+                _brain.Body.SetApplyPinOnGrounded(_movingState != MovingStateType.Moving);
+            }
+        }
+
         private void LostControl()
         {
             Debug.Log($"{nameof(RotateLocalInstructionTile)} {nameof(LostControl)}");
+            ShouldPinOnGrounded();
             _movingState = MovingStateType.Stopped;
             Complete(InstructionTileResult.LostAuthority, true);
         }
@@ -312,6 +369,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void StopMoving()
         {
+            ShouldPinOnGrounded();
             _movingState = MovingStateType.Stopped;
             Complete(InstructionTileResult.Success, true);
         }

@@ -8,6 +8,7 @@
         Up=3,
         Down=4,
         Left=5,
-        Right=6
+        Right=6,
+        InputForwardBack=7
     }
 }

@@ -12,6 +12,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core.Input;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -56,8 +57,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Vector3 _start;
         private Vector3 _end;
         private bool _active;
+        private MonaInput _bodyInput;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
+        private Action<MonaInputEvent> OnInput;
 
         private float _speed
         {
@@ -68,9 +71,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public Vector2 InputMoveDirection
         {
-            get => _brain.Variables.GetVector2(MonaBrainConstants.RESULT_MOVE_DIRECTION);
+            get {
+                //Debug.Log($"{nameof(InputMoveDirection)} {_bodyInput.MoveValue}");
+                return _bodyInput.MoveValue;
+            }
         }
-        
+
         private string _progressName;
 
         public float Progress
@@ -124,6 +130,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 AddFixedTickDelegate();
             }
 
+            AddInputDelegate();
+
             if (_brain.LoggingEnabled)
                 Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(UpdateActive)} {_active}");
         }
@@ -168,9 +176,26 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
+        private void AddInputDelegate()
+        { 
+            if(DirectionType == MoveDirectionType.UseInput || DirectionType == MoveDirectionType.InputForwardBack)
+            {
+                OnInput = HandleBodyInput;
+                EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+            }
+        }
+
+        protected void HandleBodyInput(MonaInputEvent evt)
+        {
+            //Debug.Log($"{nameof(HandleBodyInput)} {evt.Input.MoveValue}");
+            if(_movingState != MovingStateType.Moving)
+                _bodyInput = evt.Input;
+        }
+
         private void RemoveFixedTickDelegate()
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            //EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
         public Vector3 GetEndPosition(Vector3 pos)
@@ -208,10 +233,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetFloat(_valueValueName);
 
+            if (DirectionType == MoveDirectionType.InputForwardBack && _bodyInput.MoveValue.y == 0f)
+            {
+                _movingState = MovingStateType.Stopped;
+                return Complete(InstructionTileResult.Success);
+            }
+
             if (_mode == MoveModeType.Instant)
             {
-                Debug.Log($"{nameof(MoveLocalInstructionTile)} {DirectionType} {_start} {_end} duration: instant");
+                _start = GetStartPosition();
+                _end = GetEndPosition(_start);
+                //Debug.Log($"{nameof(MoveLocalInstructionTile)} {DirectionType} {_start} {_end} duration: instant");
+                
                 _brain.Body.MoveDirection(_direction * _distance, !_usePhysics, true);
+                
+                _brain.Body.SetPin();
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -238,10 +274,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return;
             }
 
-            switch(_mode)
+            ShouldPinOnGrounded();
+
+            switch (_mode)
             {
                 case MoveModeType.Time: MoveOverTime(deltaTime); break;
                 case MoveModeType.Speed: MoveAtSpeed(deltaTime); break;
+            }
+        }
+
+        private void ShouldPinOnGrounded()
+        {
+            if (DirectionType == MoveDirectionType.UseInput || DirectionType == MoveDirectionType.InputForwardBack)
+            {
+                _brain.Body.SetApplyPinOnGrounded(_movingState != MovingStateType.Moving);
             }
         }
 
@@ -274,7 +320,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if(Progress >= 1f)
                 {
                     //if (!(NextExecutionTile is IChangeDefaultInstructionTile))
-                        _brain.Body.SetPosition(_end, !_usePhysics, true);
+                    _brain.Body.SetPosition(_end, !_usePhysics, true);
                     StopMoving();
                 }
                 else {
@@ -293,8 +339,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 
                 if (Progress >= 1f)
                 {
-                    if (!(NextExecutionTile is IChangeDefaultInstructionTile))
-                        _brain.Body.SetPosition(_end, !_usePhysics, true);
+                    _brain.Body.SetPosition(_end, !_usePhysics, true);
                     StopMoving();
                 }
                 else
@@ -309,12 +354,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(LostControl)}");
             _movingState = MovingStateType.Stopped;
+            _brain.Body.SetApplyPinOnGrounded(true);
+            ShouldPinOnGrounded();
             Complete(InstructionTileResult.LostAuthority, true);
         }
 
         private void StopMoving()
         {
+            Debug.Log($"INPUT stopmoving: {Time.frameCount}");
+            _bodyInput = default;
             _movingState = MovingStateType.Stopped;
+            ShouldPinOnGrounded();
             Complete(InstructionTileResult.Success, true);
         }
 
@@ -328,6 +378,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.Down: return _brain.Body.ActiveTransform.up * -1f;
                 case MoveDirectionType.Right: return _brain.Body.ActiveTransform.right;
                 case MoveDirectionType.Left: return _brain.Body.ActiveTransform.right * -1f;
+                case MoveDirectionType.UseInput: return _brain.Body.ActiveTransform.forward * Mathf.Sign(InputMoveDirection.y) + _brain.Body.ActiveTransform.right * Mathf.Sign(InputMoveDirection.x);
+                case MoveDirectionType.InputForwardBack: return _brain.Body.ActiveTransform.forward * Mathf.Sign(InputMoveDirection.y);
                 default: return Vector3.zero;
             }
         }
