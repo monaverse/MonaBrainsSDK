@@ -5,7 +5,8 @@
         "UnityEngine.UI",
         "UnityEditor.UI",
         "com.monaverse.sdk.brains.runtime",
-        "com.monaverse.sdk.core.editor"
+        "com.monaverse.sdk.core.editor",
+        "com.monaverse.sdk.core.runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
