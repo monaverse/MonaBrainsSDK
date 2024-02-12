@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Core.Assets.Interfaces;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -44,6 +45,7 @@ namespace Mona.SDK.Brains.UIElements
         private TextField _activePageName;
         private VisualElement _activePageContainer;
         private ListView _monaTagListView;
+        private ListView _monaAssetsListView;
         private Toggle _toggleAllowLogging;
 
         private Button _btnDeletePage;
@@ -136,6 +138,22 @@ namespace Mona.SDK.Brains.UIElements
                 }
             };
             _leftColumn.Add(_monaTagListView);
+
+            _monaAssetsListView = new ListView(null, 120, () => new MonaAssetReferenceVisualElement(), (elem, i) => ((MonaAssetReferenceVisualElement)elem).SetValue(_brain, i));
+            _monaAssetsListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
+            _monaAssetsListView.showFoldoutHeader = true;
+            _monaAssetsListView.headerTitle = "Mona Assets";
+            _monaAssetsListView.showAddRemoveFooter = true;
+            _monaAssetsListView.reorderMode = ListViewReorderMode.Animated;
+            _monaAssetsListView.reorderable = true;
+            _monaAssetsListView.itemsAdded += (elems) =>
+            {
+                foreach (var e in elems)
+                {
+                    _brain.MonaAssets[e] = null;
+                }
+            };
+            _leftColumn.Add(_monaAssetsListView);
 
             _corePageContainer = CreateHeading("Brain Core Page Instructions");
             _corePageContainer.value = true;
@@ -529,7 +547,6 @@ namespace Mona.SDK.Brains.UIElements
             if (_brain.MonaTags.Count == 0)
                 _brain.MonaTags.Add(_brain.MonaTagSource.Tags[0]);
 #endif
-
             if (_brain.MonaTagSource == null || _brain.TileSet == null)
             {
                 _leftColumn.style.display = DisplayStyle.None;
@@ -607,6 +624,10 @@ namespace Mona.SDK.Brains.UIElements
             _monaTagListView.itemsSource = _brain.MonaTags;
             _monaTagListView.Q<Foldout>().value = false;
             _monaTagListView.Rebuild();
+
+            _monaAssetsListView.itemsSource = _brain.MonaAssets;
+            _monaAssetsListView.Q<Foldout>().value = false;
+            _monaAssetsListView.Rebuild();
 
             Refresh();
             RefreshMenu();

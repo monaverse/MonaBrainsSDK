@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Brain.Interfaces;
+using Mona.SDK.Core.Assets.Interfaces;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -38,6 +39,8 @@ namespace Mona.SDK.Brains.Core.Brain
         IMonaBrainVariables DefaultVariables { get; }
 
         List<string> MonaTags { get; }
+        List<IMonaAssetProvider> MonaAssets { get; }
+
         void AddTag(string tag);
         void RemoveTag(string tag);
         bool HasPlayerTag();

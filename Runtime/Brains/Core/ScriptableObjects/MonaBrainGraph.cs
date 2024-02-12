@@ -13,6 +13,8 @@ using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
 using Mona.SDK.Brains.Core.Brain.Interfaces;
 using Mona.SDK.Brains.Core.State.Structs;
+using Mona.SDK.Core.Assets.Interfaces;
+using Mona.SDK.Core.Assets;
 
 namespace Mona.SDK.Brains.Core.ScriptableObjects
 {
@@ -72,6 +74,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         [SerializeField]
         protected List<string> _monaTags = new List<string>();
         public List<string> MonaTags => _monaTags;
+
+        [SerializeReference]
+        protected List<IMonaAssetProvider> _monaAssets = new List<IMonaAssetProvider>();
+        public List<IMonaAssetProvider> MonaAssets => _monaAssets;
 
         public bool HasMonaTag(string tag) => MonaTags.Contains(tag);
 

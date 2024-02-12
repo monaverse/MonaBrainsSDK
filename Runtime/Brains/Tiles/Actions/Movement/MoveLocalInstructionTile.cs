@@ -378,7 +378,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.Down: return _brain.Body.ActiveTransform.up * -1f;
                 case MoveDirectionType.Right: return _brain.Body.ActiveTransform.right;
                 case MoveDirectionType.Left: return _brain.Body.ActiveTransform.right * -1f;
-                case MoveDirectionType.UseInput: return _brain.Body.ActiveTransform.forward * Mathf.Sign(InputMoveDirection.y) + _brain.Body.ActiveTransform.right * Mathf.Sign(InputMoveDirection.x);
+                case MoveDirectionType.UseInput: return _brain.Body.ActiveTransform.forward * ((InputMoveDirection.y == 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + _brain.Body.ActiveTransform.right * ((InputMoveDirection.x == 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
                 case MoveDirectionType.InputForwardBack: return _brain.Body.ActiveTransform.forward * Mathf.Sign(InputMoveDirection.y);
                 default: return Vector3.zero;
             }
