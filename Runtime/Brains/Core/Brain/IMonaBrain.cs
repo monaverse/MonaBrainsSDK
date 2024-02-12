@@ -41,6 +41,9 @@ namespace Mona.SDK.Brains.Core.Brain
         List<string> MonaTags { get; }
         List<IMonaAssetProvider> MonaAssets { get; }
 
+        IMonaAssetItem GetMonaAsset(string id);
+        List<IMonaAssetItem> GetAllMonaAssets();
+
         void AddTag(string tag);
         void RemoveTag(string tag);
         bool HasPlayerTag();

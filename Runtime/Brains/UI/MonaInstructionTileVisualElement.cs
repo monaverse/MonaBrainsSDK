@@ -194,10 +194,28 @@ namespace Mona.SDK.Brains.UIElements
                 fieldContainer.style.alignItems = Align.FlexEnd;
                 container.Add(fieldContainer);
 
+                var isAsset = (BrainPropertyMonaAsset)property.GetCustomAttribute(typeof(BrainPropertyMonaAsset), true);
                 var isTag = (BrainPropertyMonaTag)property.GetCustomAttribute(typeof(BrainPropertyMonaTag), true);
                 var isValue = (BrainPropertyValue)property.GetCustomAttribute(typeof(BrainPropertyValue), true);
 
-                if (isValue != null)
+                if (isAsset != null)
+                {
+                    var values = _brain.GetAllMonaAssets().FindAll(x => isAsset.Type.IsAssignableFrom(x.GetType())).ConvertAll<string>(x => x.PrefabId);
+                    var field = new DropdownField(values, 0);
+                    field.style.width = 100;
+                    field.style.flexDirection = FlexDirection.Column;
+                    field.labelElement.style.color = Color.black;
+                    field.label = property.Name;
+                    field.value = (string)property.GetValue(_tile);
+                    field.RegisterValueChangedCallback((evt) =>
+                    {
+                        field.value = (string)evt.newValue;
+                        property.SetValue(_tile, field.value);
+                        Changed();
+                    });
+                    fieldContainer.Add(field);
+                }
+                else if (isValue != null)
                 {
                     var values = _brain.DefaultVariables.VariableList.FindAll(x => isValue.Type.IsAssignableFrom(_brain.DefaultVariables.GetVariable(x.Name).GetType())).ConvertAll<string>(x => x.Name);
                     var field = new DropdownField(values, 0);

@@ -79,6 +79,31 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         protected List<IMonaAssetProvider> _monaAssets = new List<IMonaAssetProvider>();
         public List<IMonaAssetProvider> MonaAssets => _monaAssets;
 
+        private List<IMonaAssetItem> _assets;
+        public List<IMonaAssetItem> GetAllMonaAssets()
+        {
+            if (_assets == null)
+            {
+                _assets = new List<IMonaAssetItem>();
+                for (var i = 0; i < _monaAssets.Count; i++)
+                {
+                    _assets.AddRange(_monaAssets[i].AllAssets);
+                }
+            }
+            return _assets;
+        }
+
+        public IMonaAssetItem GetMonaAsset(string id)
+        {
+            for(var i = 0;i < _monaAssets.Count; i++)
+            {
+                var item = _monaAssets[i].GetMonaAsset(id);
+                if (item != null)
+                    return item;
+            }
+            return null;
+        }
+
         public bool HasMonaTag(string tag) => MonaTags.Contains(tag);
 
         public void AddTag(string tag)

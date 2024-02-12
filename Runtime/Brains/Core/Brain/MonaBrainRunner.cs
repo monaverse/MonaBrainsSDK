@@ -128,13 +128,19 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             OnHotReload = HandleHotReload;
             for (var i = 0; i < _brainGraphs.Count; i++)
-                EventBus.Register<MonaBrainReloadEvent>(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brainGraphs[i].Guid), OnHotReload);
+            {
+                if(_brainGraphs[i] != null)
+                    EventBus.Register<MonaBrainReloadEvent>(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brainGraphs[i].Guid), OnHotReload);
+            }
         }
 
         private void RemoveHotReloadDelegates()
         {
             for (var i = 0; i < _brainGraphs.Count; i++)
-                EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brainGraphs[i].Guid), OnHotReload);
+            {
+                if (_brainGraphs[i] != null)
+                    EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brainGraphs[i].Guid), OnHotReload);
+            }
         }
 
         private void PreloadBrains()
