@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 722ef46b780de4b4199947279dff0c37
+guid: 50b08d6791d4344e2b4690ad2ffdd861
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -33,11 +33,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Idle
+      name: Jump_Falling
       takeName: Take 001
       internalID: 1827226128182048838
       firstFrame: 0
-      lastFrame: 239
+      lastFrame: 119
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
