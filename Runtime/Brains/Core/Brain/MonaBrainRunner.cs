@@ -120,8 +120,8 @@ namespace Mona.SDK.Brains.Core.Brain
         private IEnumerator DoWaitFrame(int index, Action<IInstructionEvent> callback, IInstructionEvent evt, Type type)
         { 
             yield return null;
-            callback(evt);
             _coroutine[index][type] = null;
+            callback(evt);
         }
 
         private void AddHotReloadDelegates()

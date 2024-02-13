@@ -248,6 +248,13 @@ namespace Mona.SDK.Brains.Core.Control
             {
                 if (_brain.LoggingEnabled)
                     Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction still running", _brain.Body.ActiveTransform.gameObject);
+
+                if (!HasConditional())
+                {
+                    Debug.Log($"tick while runnin'");
+                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick));
+                }
+
                 return;
             }
 

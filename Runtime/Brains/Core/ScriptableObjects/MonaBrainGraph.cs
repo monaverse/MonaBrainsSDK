@@ -79,16 +79,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         protected List<IMonaAssetProvider> _monaAssets = new List<IMonaAssetProvider>();
         public List<IMonaAssetProvider> MonaAssets => _monaAssets;
 
-        private List<IMonaAssetItem> _assets;
+        private List<IMonaAssetItem> _assets = new List<IMonaAssetItem>();
         public List<IMonaAssetItem> GetAllMonaAssets()
         {
-            if (_assets == null)
+            _assets.Clear();
+            for (var i = 0; i < _monaAssets.Count; i++)
             {
-                _assets = new List<IMonaAssetItem>();
-                for (var i = 0; i < _monaAssets.Count; i++)
-                {
-                    _assets.AddRange(_monaAssets[i].AllAssets);
-                }
+                _assets.AddRange(_monaAssets[i].AllAssets);
             }
             return _assets;
         }
@@ -394,8 +391,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private void ExecuteTickEvent(IInstructionEvent evt)
         {
             var tickEvt = (MonaBrainTickEvent)evt;
-            if(LoggingEnabled)
-                Debug.Log($"{nameof(ExecuteTickEvent)} {tickEvt.Type}", _body.ActiveTransform.gameObject);
+            //if(LoggingEnabled)
+            //    Debug.Log($"{nameof(ExecuteTickEvent)} {tickEvt.Type}", _body.ActiveTransform.gameObject);
             ExecuteCorePageInstructions(tickEvt.Type);
             ExecuteStatePageInstructions(tickEvt.Type);
         }
