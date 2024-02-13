@@ -20,7 +20,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
 
     [Serializable]
-    public class ApplyForceLocalInstructionTile : InstructionTile, IApplyForceLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, INeedAuthorityInstructionTile
+    public class ApplyForceLocalInstructionTile : InstructionTile, IApplyForceLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, INeedAuthorityInstructionTile,
+        IActivateInstructionTile
     {
         public override Type TileType => typeof(ApplyForceLocalInstructionTile);
 
@@ -60,6 +61,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private float _time;
 
         private MonaInput _bodyInput;
+        private bool _active;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
         private Action<MonaInputEvent> OnInput;
@@ -79,20 +81,59 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
+            UpdateActive();
         }
+
+        public void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                if (_brain != null)
+                    UpdateActive();
+            }
+        }
+
+        private void UpdateActive()
+        {
+            if (!_active)
+            {
+                RemoveFixedTickDelegate();
+                return;
+            }
+
+            if (_movingState == MovingStateType.Moving)
+            {
+                AddFixedTickDelegate();
+            }
+
+            AddInputDelegate();
+
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.{nameof(UpdateActive)} {_active}");
+        }
+
 
         private void AddFixedTickDelegate()
         {
             OnFixedTick = HandleFixedTick;
-            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT), OnFixedTick);
+            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+        }
 
-            OnInput = HandleBodyInput;
-            EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+        private void AddInputDelegate()
+        {
+            if (DirectionType == PushDirectionType.UseInput)
+            {
+                OnInput = HandleBodyInput;
+                EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+            }
         }
 
         protected void HandleBodyInput(MonaInputEvent evt)
         {
-            _bodyInput = evt.Input;
+            //Debug.Log($"{nameof(HandleBodyInput)} {evt.Input.MoveValue}");
+            if (_movingState != MovingStateType.Moving)
+                _bodyInput = evt.Input;
         }
 
         private void RemoveFixedTickDelegate()
@@ -117,12 +158,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public void Resume()
         {
-            if(_movingState == MovingStateType.Moving)
-            {
-                AddFixedTickDelegate();
-                if (_brain.LoggingEnabled) 
-                    Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.{nameof(Resume)}");
-            }
+            UpdateActive();
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)
@@ -186,7 +222,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 body.SetBounce(_bounce);
 
                 if (_brain.LoggingEnabled)
-                    Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
+                    Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
 
                 body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
                 return Complete(InstructionTileResult.Success);
@@ -231,14 +267,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 body.SetBounce(_bounce);
 
                 if (_brain.LoggingEnabled)
-                    Debug.Log($"ApplyForce to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
+                    Debug.Log($"ApplyForce to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _force * deltaTime}", body.ActiveTransform.gameObject);
 
-                body.ApplyForce(_direction * deltaTime, ForceMode.Acceleration, true);
+                body.ApplyForce(_direction.normalized * _force * deltaTime, ForceMode.Acceleration, true);
 
                 if(_time >= 1f)
                 {
                     StopPushing();
                 }
+
+                _time += deltaTime;
             }
         }
 

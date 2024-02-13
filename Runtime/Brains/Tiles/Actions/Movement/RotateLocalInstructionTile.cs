@@ -140,7 +140,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             RemoveFixedTickDelegate();
             if (_brain.LoggingEnabled)
-                Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Pause)} input paused");
+                Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Pause)} {_movingState} ");
         }
 
         public void Resume()
@@ -152,8 +152,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override void Unload()
         {
             RemoveFixedTickDelegate();
-            if(_brain.LoggingEnabled)
-                Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Unload)}");
+            //if(_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Unload)}");
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

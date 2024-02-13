@@ -10,6 +10,7 @@ using Mona.SDK.Core;
 using System.Collections;
 using Mona.SDK.Brains.Core.State;
 using Mona.SDK.Brains.Core.Brain.Structs;
+using Mona.SDK.Brains.Core.Enums;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -191,6 +192,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 {
                     _brainInstances[i].Resume();
                     ClearWaitFrameQueue(i);
+                    //EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brainInstances[i]), new MonaBrainTickEvent(InstructionEventTypes.Tick));
                 }
             }
         }

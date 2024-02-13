@@ -462,6 +462,10 @@ namespace Mona.SDK.Brains.UIElements
                             targetProperty.SetValue(_tile, defaultVariable);
                             target.value = defaultVariable;
                         }
+                        else
+                        {
+                            targetProperty.SetValue(_tile, values[0]);
+                        }
                         field.style.display = DisplayStyle.None;
                         target.style.display = DisplayStyle.Flex;
                         btn.style.backgroundColor = Color.red;

@@ -96,11 +96,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
 
         public void Pause()
         {
+            if(_audioSource.clip == _clip.Value)
+            {
+                _audioSource.Pause();
+            }
             RemoveFixedTickDelegate();
         }
 
         public void Resume()
         {
+            if (_audioSource.clip == _clip.Value)
+            {
+                _audioSource.UnPause();
+            }
             UpdateActive();
         }
 
@@ -180,7 +188,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
                 {
                     if(_brain.LoggingEnabled)
                         Debug.Log($"{nameof(PlayAudioInstructionTile)} play audio {_clip.Value}");
-                    //EventBus.Trigger<MonaBodyAnimationTriggeredEvent>(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), new MonaBodyAnimationTriggeredEvent());
                     SetupClip();
                     _audioSource.Play();
                     _isPlaying = true;

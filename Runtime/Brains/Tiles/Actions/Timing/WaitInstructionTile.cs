@@ -14,7 +14,7 @@ using Mona.SDK.Core.Events;
 namespace Mona.SDK.Brains.Tiles.Actions.Timing
 {
     [Serializable]
-    public class WaitInstructionTile : InstructionTile, IWaitInstructionTile, IActionInstructionTile, IInstructionTileWithPreload, IPauseableInstructionTile
+    public class WaitInstructionTile : InstructionTile, IWaitInstructionTile, IActionInstructionTile, IInstructionTileWithPreload, IPauseableInstructionTile, IActivateInstructionTile
     {
         public const string ID = "Wait";
         public const string NAME = "Wait";

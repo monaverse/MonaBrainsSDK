@@ -361,7 +361,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void StopMoving()
         {
-            Debug.Log($"INPUT stopmoving: {Time.frameCount}");
+            //Debug.Log($"INPUT stopmoving: {Time.frameCount}");
             _bodyInput = default;
             _movingState = MovingStateType.Stopped;
             ShouldPinOnGrounded();
