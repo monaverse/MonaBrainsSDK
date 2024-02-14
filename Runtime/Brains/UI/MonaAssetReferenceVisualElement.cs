@@ -1,10 +1,10 @@
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Assets;
 using Mona.SDK.Core.Assets.Interfaces;
-using System;
 using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.UIElements;
+#endif
 using UnityEngine.UIElements;
 
 namespace Mona.SDK.Brains.UIElements
@@ -45,10 +45,12 @@ namespace Mona.SDK.Brains.UIElements
             if (_assetSource == null)
             {
                 _assetSource = new List<IMonaAssetProvider>();
+#if UNITY_EDITOR
                 string[] guids = AssetDatabase.FindAssets("t:MonaAssetsDefinition", null);
                 _assetSource.Clear();
                 foreach (string guid in guids)
                     _assetSource.Add(((MonaAssetsDefinition)AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guid), typeof(MonaAssetsDefinition))).MonaAsset);
+#endif
             }
             var list = _assetSource.ConvertAll<string>(x => x.Name);
             list.Insert(0, "Select Asset");
