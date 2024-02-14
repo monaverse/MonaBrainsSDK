@@ -402,14 +402,21 @@ namespace Mona.SDK.Brains.Core.Control
                 if (TakeControlIfHasTilesNeedingAuthority())
                 {
                     //if(_brain.LoggingEnabled)
-                        Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority. requesting control {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
+                    Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority. requesting control {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
 
                     _result = InstructionTileResult.WaitingForAuthority;
                     return;
                 }
             }
 
-            _result = ExecuteActionTile(tile);
+            if (InstructionTiles.Count == 1)
+            {
+                _result = ExecuteActionTile(null);
+            }
+            else
+            {
+                _result = ExecuteActionTile(tile);
+            }
         }
 
         private InstructionTileResult ExecuteActionTile(IInstructionTile tile)
