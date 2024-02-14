@@ -220,7 +220,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             {               
                 if (_monaAnimationController.HasEnded())
                 {
-                    Debug.Log($"animation finished {_clip.Value}");
+                    //Debug.Log($"animation finished {_clip.Value}");
                     _isPlaying = false;
                     Complete(InstructionTileResult.Success, true);
                 }

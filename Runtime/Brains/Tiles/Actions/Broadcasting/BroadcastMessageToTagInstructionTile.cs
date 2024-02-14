@@ -18,18 +18,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
         public const string CATEGORY = "Broadcasting";
         public override Type TileType => typeof(BroadcastMessageToTagInstructionTile);
 
-        [SerializeField]
-        private string _message;
+        [SerializeField] private string _message;
+        [BrainProperty(true)] public string Message { get => _message; set => _message = value; }
 
-        [BrainProperty(true)]
-        public string Message { get => _message; set => _message = value; }
+        [SerializeField] private string _Tag;
+        [BrainPropertyMonaTag(true)] public string Tag { get => _Tag; set => _Tag = value; }
 
-        [SerializeField]
-        private string _Tag;
+        [SerializeField] private bool _appendPlayerId;
+        [BrainProperty(false)] public bool AddPlayerIdToTag { get => _appendPlayerId; set => _appendPlayerId = value; }
 
-        [BrainPropertyMonaTag(true)]
-        public string Tag { get => _Tag; set => _Tag = value; }
-        
         private IMonaBrain _brain;
         private Dictionary<IMonaBody, IMonaBrainRunner> _runnerCache = new Dictionary<IMonaBody, IMonaBrainRunner>();
 
@@ -49,9 +46,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
         public override InstructionTileResult Do()
         {
-            var bodies = MonaBody.FindByTag(_Tag);
-            
-            for(var i = 0;i < bodies.Count; i++)
+            var tag = _Tag;
+            if (_appendPlayerId)
+            {
+                tag = $"{tag}{_brain.Player.PlayerId.ToString("00")}";
+                Debug.Log($"{nameof(BroadcastMessageToTagInstructionTile)} {tag}");
+            }
+
+            var bodies = MonaBody.FindByTag(tag);
+            if (bodies.Count == 0)
+                bodies = MonaBody.FindByTag(_Tag);
+
+            for (var i = 0;i < bodies.Count; i++)
             {
                 var body = bodies[i];
                 var runner = GetCachedRunner(body);

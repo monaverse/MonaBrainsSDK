@@ -37,21 +37,17 @@ namespace Mona.SDK.Brains.Core.Animation
 
         public void Awake()
         {
-            _animator = gameObject.GetComponent<Animator>();
-            if (_animator == null)
-                _animator = gameObject.AddComponent<Animator>();
-
-            SetupAnimationController();
-
         }
 
         public void SetBrain(IMonaBrain brain)
         {
             if (_brain == null)
             {
+                SetupAnimationController();
                 OnMonaValueChanged = HandleMonaValueChanged;
                 EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, brain.Body), OnMonaValueChanged);
                 _brain = brain;
+                _brain.Body.SetAnimator(_animator);
             }
         }
 
@@ -63,6 +59,10 @@ namespace Mona.SDK.Brains.Core.Animation
 
         private void SetupAnimationController()
         {
+            _animator = gameObject.GetComponent<Animator>();
+            if (_animator == null)
+                _animator = gameObject.AddComponent<Animator>();
+
             if (_animator.runtimeAnimatorController == null)
             {
                 var controller = (RuntimeAnimatorController)GameObject.Instantiate(Resources.Load("MonaDefaultAnimationController", typeof(RuntimeAnimatorController)));
@@ -84,7 +84,7 @@ namespace Mona.SDK.Brains.Core.Animation
             if (canInterrupt)
             {
                 if (_controller[CLIP_STATE].name == clipItem.Value.name && !HasEnded()) return false;
-                Debug.Log($"Trigger {clipItem.Value.name}");
+                //Debug.Log($"Trigger {clipItem.Value.name}");
                 _controller[CLIP_STATE] = clipItem.Value;
                 _animator.SetTrigger(TRIGGER);
                 _animator.SetFloat(ANIMATION_SPEED, speed);
@@ -96,7 +96,7 @@ namespace Mona.SDK.Brains.Core.Animation
                 if (HasEnded())
                 {
                     //Debug.Log($"transition time {transition.normalizedTime}");
-                    Debug.Log($"play {clipItem.Value.name}");
+                    //Debug.Log($"play {clipItem.Value.name}");
                     _brain.Variables.Set(TRIGGER, clipItem.Value.name);
                     _animator.SetTrigger(TRIGGER);
                     _animator.SetFloat(ANIMATION_SPEED, speed);
