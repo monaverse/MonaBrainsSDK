@@ -221,6 +221,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 body.SetAngularDrag(_angularDrag);
                 body.SetFriction(_friction);
                 body.SetBounce(_bounce);
+                body.SetKinematic(false, true);
 
                 //if (_brain.LoggingEnabled)
                 //    Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {InputMoveDirection} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
@@ -266,6 +267,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 body.SetAngularDrag(_angularDrag);
                 body.SetFriction(_friction);
                 body.SetBounce(_bounce);
+                body.SetKinematic(false, true);
 
                 if (_brain.LoggingEnabled)
                     Debug.Log($"ApplyForce to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _force * deltaTime}", body.ActiveTransform.gameObject);

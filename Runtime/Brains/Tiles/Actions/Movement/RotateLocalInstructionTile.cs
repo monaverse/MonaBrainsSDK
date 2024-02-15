@@ -254,7 +254,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _start = GetStartRotation();
                 _end = GetEndRotation(_start);
                 _brain.Body.SetRotation(_end, !_usePhysics, true);
-                _brain.Body.SetPin();
                 return Complete(InstructionTileResult.Success);
             }
 

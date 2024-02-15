@@ -199,22 +199,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             //EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
-        public Vector3 GetEndPosition(Vector3 pos)
-        {
-            _direction = GetDirectionVector(DirectionType);
-            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
-
-            if (!string.IsNullOrEmpty(_distanceValueName))
-                _distance = _brain.Variables.GetFloat(_distanceValueName);
-            //Debug.Log($"{nameof(GetEndPosition)} {_distance}");
-            return pos + _direction * _distance;
-        }
-
-        Vector3 GetStartPosition()
-        {
-            return _instruction.GetStartPosition(this);
-        }
-
         public InstructionTileResult Continue()
         {
             Debug.Log($"{nameof(Continue)} take over control and continue executing brain at {Progress}, {_progressName} on ", _brain.Body.ActiveTransform.gameObject);
@@ -222,6 +206,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             AddFixedTickDelegate();
             return Do();
         }
+
+        public Vector3 GetEndPosition(Vector3 pos) => Vector3.zero;
 
         public override InstructionTileResult Do()
         {
@@ -242,13 +228,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (_mode == MoveModeType.Instant)
             {
-                _start = GetStartPosition();
-                _end = GetEndPosition(_start);
-                //Debug.Log($"{nameof(MoveLocalInstructionTile)} {DirectionType} {_start} {_end} duration: instant");
+                _direction = GetDirectionVector(DirectionType);
                 
-                _brain.Body.MoveDirection(_direction * _distance, !_usePhysics, true);
+                if (!string.IsNullOrEmpty(_distanceValueName))
+                    _distance = _brain.Variables.GetFloat(_distanceValueName);
                 
-                _brain.Body.SetPin();
+                _brain.Body.AddPosition(_direction * _distance, !_usePhysics, true);
+                
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -316,18 +302,27 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_movingState == MovingStateType.Moving)
             {
-                _start = GetStartPosition();
-                _end = GetEndPosition(_start);
-                if(Progress >= 1f)
+                var progressDelta = Mathf.Round((deltaTime / _value) * 1000f) / 1000f;
+
+                _direction = GetDirectionVector(DirectionType);
+
+                Progress = Mathf.Clamp01(Progress);
+
+                if (!string.IsNullOrEmpty(_distanceValueName))
+                    _distance = _brain.Variables.GetFloat(_distanceValueName);
+
+                float diff = Evaluate(Progress + progressDelta) - Evaluate(Progress);
+                _brain.Body.AddPosition(_direction.normalized * (_distance * diff), !_usePhysics, true);
+
+                if (Progress >= 1f)
                 {
                     //if (!(NextExecutionTile is IChangeDefaultInstructionTile))
-                    _brain.Body.SetPosition(_end, !_usePhysics, true);
+                    //_brain.Body.Add(_end, !_usePhysics, true);
                     StopMoving();
                 }
                 else {
-                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(Progress)), !_usePhysics, true);
+                    Progress += progressDelta;
                 }
-                Progress += Mathf.Round((deltaTime / _value) * 1000f) / 1000f;
             }
         }
 
@@ -335,19 +330,26 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_movingState == MovingStateType.Moving)
             {
-                _start = GetStartPosition();
-                _end = GetEndPosition(_start);
-                
+                var progressDelta = Mathf.Round(((_distance / ((1f/_value) * _speed)) * deltaTime) * 1000f) / 1000f;
+
+                _direction = GetDirectionVector(DirectionType);
+
+                if (!string.IsNullOrEmpty(_distanceValueName))
+                    _distance = _brain.Variables.GetFloat(_distanceValueName);
+
+                Progress = Mathf.Clamp01(Progress);
+
+                float diff = Evaluate(Mathf.Clamp01(Progress + progressDelta)) - Evaluate(Progress);
+                _brain.Body.AddPosition(_direction.normalized * (_distance * diff), !_usePhysics, true);
+
                 if (Progress >= 1f)
                 {
-                    _brain.Body.SetPosition(_end, !_usePhysics, true);
                     StopMoving();
                 }
                 else
                 {
-                    _brain.Body.SetPosition(Vector3.Lerp(_start, _end, Evaluate(Progress)), !_usePhysics, true);
+                    Progress += progressDelta;
                 }
-                Progress += Mathf.Round(( (_distance / (_value * _speed)) * deltaTime ) * 1000f) / 1000f;
             }
         }
 
