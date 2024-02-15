@@ -72,6 +72,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private IMonaBrainPage _activeStatePage;
 
         [SerializeField]
+        private bool _began;
+
+        [SerializeField]
         protected List<string> _monaTags = new List<string>();
         public List<string> MonaTags => _monaTags;
 
@@ -347,6 +350,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public void Begin()
         {
+            _began = true;
+            SetActiveStatePage(BrainState);
             //if (LoggingEnabled)
             //    Debug.Log($"{nameof(Begin)} brain on Body {_body.ActiveTransform.name}", _body.ActiveTransform);
 
@@ -401,6 +406,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleMonaTrigger(MonaTriggerEvent evt)
         {
+            if (!_began) return;
+
             if (evt.Type == MonaTriggerType.OnFieldOfViewChanged)
             {
                 _runner.WaitFrame(_index, ExecuteTriggerEvent, evt, typeof(MonaTriggerEvent));
@@ -414,12 +421,16 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void ExecuteTriggerEvent(IInstructionEvent evt)
         {
+            if (!_began) return;
+
             ExecuteCorePageInstructions(InstructionEventTypes.Trigger, evt);
             ExecuteStatePageInstructions(InstructionEventTypes.Trigger, evt);
         }
 
         private void HandleMonaValueChanged(MonaValueChangedEvent evt)
         {
+            if (!_began) return;
+
             if (evt.Name == MonaBrainConstants.RESULT_STATE) return;
             if (evt.Name.StartsWith("__")) return;
             ExecuteCorePageInstructions(InstructionEventTypes.Value);
@@ -445,6 +456,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleInputOnFixedTick(MonaBodyFixedTickEvent evt)
         {
+            if (!_began) return;
+
             if (!evt.HasInput) return;
             ExecuteCorePageInstructions(InstructionEventTypes.Input);
             ExecuteStatePageInstructions(InstructionEventTypes.Input);
@@ -452,6 +465,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleStatePropertyChanged(string value)
         {
+            if (!_began) return;
+
             SetActiveStatePage(value);
 
             OnStateChanged?.Invoke(value, this);
@@ -492,6 +507,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 _statePages[i].Unload();
             RemoveEventDelegates();
             RemoveHierarchyDelegates();
+            _began = false;
         }
     }
 }

@@ -148,6 +148,7 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             _coroutine.Clear();
             _list.Clear();
+            _brainInstances.Clear();
 
             for (var i = 0; i < _brainGraphs.Count; i++)
             {
@@ -155,10 +156,10 @@ namespace Mona.SDK.Brains.Core.Brain
                 var instance = (IMonaBrain)Instantiate(_brainGraphs[i]);
                 if (instance != null)
                 {
+                    _coroutine.Add(new Dictionary<Type, Coroutine>());
                     instance.Guid = _brainGraphs[i].Guid;
                     instance.LoggingEnabled = _brainGraphs[i].LoggingEnabled;
                     instance.Preload(gameObject, this, i);
-                    _coroutine.Add(new Dictionary<Type, Coroutine>());
                     _list.Add(new List<WaitFrameQueueItem>());
                     _brainInstances.Add(instance);
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(instance));

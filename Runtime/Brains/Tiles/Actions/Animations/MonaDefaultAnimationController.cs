@@ -15,6 +15,7 @@ namespace Mona.SDK.Brains.Core.Animation
     {
         bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed);
         bool HasEnded();
+        bool HasPlayedAnimation();
         void SetBrain(IMonaBrain brain);
         void RegisterAnimatorCallback(IMonaAnimationAssetItem clipItem);
     }
@@ -84,7 +85,8 @@ namespace Mona.SDK.Brains.Core.Animation
 
             if (canInterrupt)
             {
-                if (_controller[CLIP_STATE].name == clipItem.Value.name && !HasEnded()) return false;
+                var current = _animator.GetCurrentAnimatorStateInfo(0);
+                if (_controller[CLIP_STATE].name == clipItem.Value.name && (!HasEnded() || current.IsName(START_STATE))) return false;
                 //Debug.Log($"Trigger {clipItem.Value.name}");
                 _controller[CLIP_STATE] = clipItem.Value;
                 _animator.SetTrigger(TRIGGER);
@@ -94,7 +96,8 @@ namespace Mona.SDK.Brains.Core.Animation
             }
             else
             {
-                if (HasEnded())
+                var current = _animator.GetCurrentAnimatorStateInfo(0);
+                if (HasEnded() || current.IsName(START_STATE))
                 {
                     //Debug.Log($"transition time {transition.normalizedTime}");
                     //Debug.Log($"play {clipItem.Value.name}");
@@ -108,11 +111,17 @@ namespace Mona.SDK.Brains.Core.Animation
             return false;
         }
 
+        public bool HasPlayedAnimation()
+        {
+            var current = _animator.GetCurrentAnimatorStateInfo(0);
+            return current.IsName(CLIP_STATE);
+        }
+
         public bool HasEnded()
         {
             var transition = _animator.GetAnimatorTransitionInfo(0);
             var current = _animator.GetCurrentAnimatorStateInfo(0);
-            return (current.IsName(END_STATE) || current.IsName(START_STATE)) && transition.normalizedTime == 0;
+            return (current.IsName(END_STATE)) && transition.normalizedTime == 0;
         }
 
         public void RegisterAnimatorCallback(IMonaAnimationAssetItem clipItem)

@@ -122,7 +122,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         private void AddInputDelegate()
         {
-            if (DirectionType == PushDirectionType.UseInput)
+            if (DirectionType == PushDirectionType.UseInput || DirectionType == PushDirectionType.InputForwardBack)
             {
                 OnInput = HandleBodyInput;
                 EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
@@ -222,8 +222,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 body.SetFriction(_friction);
                 body.SetBounce(_bounce);
 
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
+                //if (_brain.LoggingEnabled)
+                //    Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {InputMoveDirection} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
 
                 body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
                 return Complete(InstructionTileResult.Success);
@@ -301,7 +301,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 case PushDirectionType.Pull: return _brain.Body.GetPosition() - body.GetPosition();
                 case PushDirectionType.Away: return _brain.Body.GetPosition() - body.GetPosition();
                 case PushDirectionType.Toward: return body.GetPosition() - _brain.Body.GetPosition();
-                case PushDirectionType.UseInput: return new Vector3(InputMoveDirection.x, 0f, InputMoveDirection.y);
+                case PushDirectionType.UseInput: return _brain.Body.ActiveTransform.forward * ((InputMoveDirection.y == 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + _brain.Body.ActiveTransform.right * ((InputMoveDirection.x == 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+                case PushDirectionType.InputForwardBack: return _brain.Body.ActiveTransform.forward * Mathf.Sign(InputMoveDirection.y);
+
                 default: return Vector3.zero;
             }
         }

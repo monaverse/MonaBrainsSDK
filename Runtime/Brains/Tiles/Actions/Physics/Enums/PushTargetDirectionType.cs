@@ -12,6 +12,7 @@
         Push=7,
         Pull=8,
         Away=9,
-        Toward=10
+        Toward=10,
+        InputForwardBack = 11
     }
 }

@@ -43,6 +43,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
         private IMonaAnimationAssetItem _clip;
 
         private bool _isPlaying;
+        private bool _hasPlayed;
         private bool _active;
         private Transform _root;
         private bool _canInterrupt = true;
@@ -183,15 +184,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
         {
             OnFixedTick = HandleFixedTick;
             EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
-
-            OnAnimationTriggered = HandleAnimationTriggered;
-            EventBus.Register<MonaBodyAnimationTriggeredEvent>(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), OnAnimationTriggered);
         }
 
         private void RemoveFixedTickDelegate()
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), OnAnimationTriggered);
         }
 
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
@@ -202,14 +199,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
                 default: HandleDefaultFixedTick(); break;
             }
         }
-
-        private void HandleAnimationTriggered(MonaBodyAnimationTriggeredEvent evt)
-        {
-            Debug.Log($"{nameof(PlayAnimationInstructionTile)} interrupted {_clip.Value}");
-            _isPlaying = false;
-            Complete(InstructionTileResult.Success, true);
-        }
-
         private void HandleMonaValueChanged(MonaValueChangedEvent evt)
         {
 
@@ -218,8 +207,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
         private void HandleDefaultFixedTick()
         {
             if (_isPlaying)
-            {               
-                if (_monaAnimationController.HasEnded())
+            {        
+                if(_monaAnimationController.HasPlayedAnimation())
+                {
+                    _hasPlayed = true;
+                }
+                if (_monaAnimationController.HasEnded() && _hasPlayed)
                 {
                     //Debug.Log($"animation finished {_clip.Value}");
                     _isPlaying = false;
@@ -246,12 +239,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
                 {
                     //if(_brain.LoggingEnabled)
                     //    Debug.Log($"{nameof(PlayAnimationInstructionTile)} play animation {_clip.Value}");
-                    //EventBus.Trigger<MonaBodyAnimationTriggeredEvent>(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), new MonaBodyAnimationTriggeredEvent());
 
                     AddFixedTickDelegate();
                     if (!_canInterrupt || _wait)
                     {
                         _isPlaying = true;
+                        _hasPlayed = false;
                         return Complete(InstructionTileResult.Running);
                     }
                     else
@@ -260,7 +253,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
                         return Complete(InstructionTileResult.Success);
                     }
                 }
-                return Complete(InstructionTileResult.Success);
+                if (_wait)
+                    return Complete(InstructionTileResult.Failure);
+                else
+                    return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Running);
         }

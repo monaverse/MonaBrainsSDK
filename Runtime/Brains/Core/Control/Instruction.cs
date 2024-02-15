@@ -252,11 +252,11 @@ namespace Mona.SDK.Brains.Core.Control
                 if (_brain.LoggingEnabled)
                     Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction still running", _brain.Body.ActiveTransform.gameObject);
 
-                if (!HasConditional())
+                /*if (!HasConditional())
                 {
-                    //Debug.Log($"tick while runnin'");
+                    Debug.Log($"tick while runnin' {_result}");
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick));
-                }
+                }*/
 
                 return;
             }
@@ -292,7 +292,7 @@ namespace Mona.SDK.Brains.Core.Control
                         {
                             if (_brain.Body.HasControl())
                             {
-                                _result = InstructionTileResult.Running;
+                                //_result = InstructionTileResult.Running;
                                 return ExecuteTile(tile);
                             }
                         }
@@ -316,7 +316,7 @@ namespace Mona.SDK.Brains.Core.Control
                     case InstructionEventTypes.Tick:
                         if (_brain.Body.HasControl() && tile is IActionInstructionTile)
                         {
-                            _result = InstructionTileResult.Running;
+                            //_result = InstructionTileResult.Running;
                             return ExecuteTile(tile);
                         }
                         break;
@@ -434,7 +434,7 @@ namespace Mona.SDK.Brains.Core.Control
                 _result = InstructionTileResult.Success;
                 if (!HasConditional())
                 {
-                    //Debug.Log($"TICK IT");
+                    //Debug.Log($"TICK IT {_result}");
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick));
                 }
                 return InstructionTileResult.Success;
