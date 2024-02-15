@@ -36,7 +36,7 @@ namespace Mona.SDK.Brains.Core.State.UIElements
             header.ElementAt(1).style.marginRight = 5;
             Add(header);
 
-            _list = new ListView(null, 28, () => new MonaBrainValuesItemVisualElement(), (elem, i) => BindStateItem((MonaBrainValuesItemVisualElement)elem, i));
+            _list = new ListView(null, 28, () => new MonaBrainValuesItemVisualElement(null), (elem, i) => BindStateItem((MonaBrainValuesItemVisualElement)elem, i));
             //_list.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
             _list.showFoldoutHeader = false;
             _list.showAddRemoveFooter = true;

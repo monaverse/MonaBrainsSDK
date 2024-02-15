@@ -28,7 +28,7 @@ namespace Mona.SDK.Brains.UIEditors
         {
             _root = new VisualElement();
             
-            _brainEditor = new MonaBrainGraphVisualElement();
+            _brainEditor = new MonaBrainGraphVisualElement(SetDirtyCallback);
             _brainEditor.SetBrain((IMonaBrain)target);
             _brainEditor.TrackSerializedObjectValue(serializedObject, HandleCallback);
             _root.Clear();
@@ -90,6 +90,18 @@ namespace Mona.SDK.Brains.UIEditors
                 Undo.RecordObject(target, "change brain");
             }
             //Debug.Log($"{nameof(HandleCallback)}");
+        }
+
+        private void SetDirtyCallback()
+        {
+            serializedObject.ApplyModifiedProperties();
+            if (target != null)
+            {
+                EditorUtility.SetDirty(target);
+                Undo.RecordObject(target, "change brain");
+
+                Debug.Log("AA: Set Dirty called!");
+            }
         }
     }
 #endif

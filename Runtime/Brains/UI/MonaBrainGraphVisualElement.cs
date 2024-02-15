@@ -22,6 +22,7 @@ namespace Mona.SDK.Brains.UIElements
     public class MonaBrainGraphVisualElement : VisualElement, IDisposable
     {
         private IMonaBrain _brain;
+        private Action callback;
 
         private int _selectedTab = 0;
 
@@ -104,8 +105,9 @@ namespace Mona.SDK.Brains.UIElements
             _activePageContainer.style.marginTop = _activePageContainer.style.marginBottom = margin;
         }
 
-        public MonaBrainGraphVisualElement()
+        public MonaBrainGraphVisualElement(Action newCallback)
         {
+            callback = newCallback;
             style.flexDirection = FlexDirection.Row;
 
             _leftColumn = new ScrollView();
@@ -239,7 +241,7 @@ namespace Mona.SDK.Brains.UIElements
             _defaultVariablesHeading = CreateHeading("Brain Default Variables");
             _leftColumn.Add(_defaultVariablesHeading);
 
-            _defaultVariablesVisualElement = new MonaVariablesVisualElement();
+            _defaultVariablesVisualElement = new MonaVariablesVisualElement(callback);
             _defaultVariablesHeading.Add(_defaultVariablesVisualElement);
 
 #if UNITY_EDITOR

@@ -4,6 +4,7 @@ using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.State.UIElements;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
+using System;
 
 namespace Mona.SDK.Brains.Core.State.UIElements
 {
@@ -30,6 +31,11 @@ namespace Mona.SDK.Brains.Core.State.UIElements
                 _stringField.value = body != null ? body.Transform.name : "Null";
                 _stringField.SetEnabled(false);
             }
+        }
+
+        public MonaBrainValuesItemVisualElement(Action newCallback) : base (newCallback)
+        {
+
         }
     }
 }
