@@ -20,9 +20,6 @@ namespace Mona.SDK.Brains.Core.Control
         List<IInstructionTile> InstructionTiles { get; }
         IInstructionTile CurrentTile { get; }
         
-        Vector3 GetStartPosition(IChangeDefaultInstructionTile currentTile);
-        Quaternion GetStartRotation(IChangeDefaultRotationInstructionTile currentTile);
-
         void Preload(IMonaBrain brain, IMonaBrainPage page);
         void Execute(InstructionEventTypes eventType, IInstructionEvent evt);
         void AddTile(IInstructionTile tile, int i, IMonaBrainPage page);

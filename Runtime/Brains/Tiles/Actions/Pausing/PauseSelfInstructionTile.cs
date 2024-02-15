@@ -12,7 +12,7 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
-    public class PauseSelfInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class PauseSelfInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload, IActionEndInstructionTile
     {
         public const string ID = "PauseSelf";
         public const string NAME = "Pause Self";

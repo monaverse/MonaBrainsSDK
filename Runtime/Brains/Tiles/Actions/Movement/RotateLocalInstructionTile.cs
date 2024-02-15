@@ -20,7 +20,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
     public class RotateLocalInstructionTile : InstructionTile, IRotateLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, 
-        IActivateInstructionTile, INeedAuthorityInstructionTile, IChangeDefaultRotationInstructionTile, IProgressInstructionTile
+        IActivateInstructionTile, INeedAuthorityInstructionTile, IProgressInstructionTile
 
     {
         public override Type TileType => typeof(RotateLocalInstructionTile);
@@ -106,7 +106,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
 
-            _brain.Variables.GetFloat(_progressName);
+            _brain.Variables.Set(_progressName, 0f);
 
             UpdateActive();
         }
@@ -200,26 +200,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
-        public Quaternion GetEndRotation(Quaternion rotation)
-        {
-            _direction = GetDirectionRotation(DirectionType, _angle);
-            if(DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
-            {
-                _direction = Quaternion.AngleAxis(_angle*Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
-            }
-            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType} {_bodyInput.MoveValue}");
-
-            if (!string.IsNullOrEmpty(_angleValueName))
-                _angle = _brain.Variables.GetFloat(_angleValueName);
-
-            return rotation * _direction;
-        }
-
-        Quaternion GetStartRotation()
-        {
-            return _instruction.GetStartRotation(this);
-        }
-
         public InstructionTileResult Continue()
         {
             Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(Continue)} take over control and continue executing brain at {Progress}, {_progressName} on {this} {_brain.Body.ActiveTransform}", _brain.Body.ActiveTransform.gameObject);
@@ -251,9 +231,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (_mode == MoveModeType.Instant)
             {
-                _start = GetStartRotation();
-                _end = GetEndRotation(_start);
-                _brain.Body.SetRotation(_end, !_usePhysics, true);
+                if (!string.IsNullOrEmpty(_angleValueName))
+                    _angle = _brain.Variables.GetFloat(_angleValueName);
+
+                _direction = GetDirectionRotation(DirectionType, _angle);
+
+                if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
+                {
+                    _direction = Quaternion.AngleAxis(_angle * Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
+                }
+
+                _brain.Body.SetRotation(_direction, !_usePhysics, true);
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -279,8 +267,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return;
             }
 
-            ShouldPinOnGrounded();
-
             switch (_mode)
             {
                 case MoveModeType.Time: MoveOverTime(deltaTime); break;
@@ -288,18 +274,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             }
         }
 
-        private void ShouldPinOnGrounded()
-        {
-            if (DirectionType == RotateDirectionType.InputLeftRight)
-            {
-                _brain.Body.SetApplyPinOnGrounded(_movingState != MovingStateType.Moving);
-            }
-        }
-
         private void LostControl()
         {
             Debug.Log($"{nameof(RotateLocalInstructionTile)} {nameof(LostControl)}");
-            ShouldPinOnGrounded();
             _movingState = MovingStateType.Stopped;
             Complete(InstructionTileResult.LostAuthority, true);
         }
@@ -328,21 +305,34 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_movingState == MovingStateType.Moving)
             {
-                _start = GetStartRotation();
-                _end = GetEndRotation(_start);
+                var progressDelta = Mathf.Round((deltaTime / _value) * 1000f) / 1000f;
+
+                Progress = Mathf.Clamp01(Progress);
+
+                float diff = Evaluate(Mathf.Clamp01(Progress + progressDelta)) - Evaluate(Progress);
+
+                if (!string.IsNullOrEmpty(_angleValueName))
+                    _angle = _brain.Variables.GetFloat(_angleValueName);
+
+                _direction = GetDirectionRotation(DirectionType, _angle * diff);
+
+                if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
+                {
+                    _direction = Quaternion.AngleAxis(_angle * diff * Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
+                }
+
+                //if (!(NextExecutionTile is IChangeDefaultRotationInstructionTile))
+                _brain.Body.SetRotation(_direction, !_usePhysics, true);
 
                 if (Progress >= 1f)
                 {
-                    if(!(NextExecutionTile is IChangeDefaultRotationInstructionTile))
-                        _brain.Body.SetRotation(_end, !_usePhysics, true);
                     StopMoving();
                 }
                 else
                 {
-                    _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(Progress)), !_usePhysics, true);
+                    Progress += progressDelta;
                 }
                 //Debug.Log($"{nameof(RotateLocalInstructionTile)} {Progress} {_start} {_end}");
-                Progress += Mathf.Round((deltaTime / _value) * 1000f) / 1000f;
 
             }
         }
@@ -351,25 +341,37 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_movingState == MovingStateType.Moving)
             {
-                _start = GetStartRotation();
-                _end = GetEndRotation(_start);
-                
+                var progressDelta = Mathf.Round((((_angle / 360f) / ((1f / _value) * _speed)) * deltaTime) * 1000f) / 1000f;
+
+                Progress = Mathf.Clamp01(Progress);
+
+                float diff = Evaluate(Mathf.Clamp01(Progress + progressDelta)) - Evaluate(Progress);
+
+                if (!string.IsNullOrEmpty(_angleValueName))
+                    _angle = _brain.Variables.GetFloat(_angleValueName);
+
+                _direction = GetDirectionRotation(DirectionType, _angle * diff);
+
+                if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
+                {
+                    _direction = Quaternion.AngleAxis(_angle * diff * Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
+                }
+
+                //if (!(NextExecutionTile is IChangeDefaultRotationInstructionTile))
+                _brain.Body.SetRotation(_direction, !_usePhysics, true);
+
                 if (Progress >= 1f)
                 {
-                    if (!(NextExecutionTile is IChangeDefaultRotationInstructionTile))
-                        _brain.Body.SetRotation(_end, !_usePhysics, true);
                     StopMoving();
                 }
                 else {
-                    _brain.Body.SetRotation(Quaternion.Slerp(_start, _end, Evaluate(Progress)), !_usePhysics, true);
+                    Progress += progressDelta;
                 }
-                Progress += Mathf.Round(( ((_angle / 360f) / (_value * _speed)) * deltaTime ) * 1000f) / 1000f;
             }
         }
 
         private void StopMoving()
         {
-            ShouldPinOnGrounded();
             _movingState = MovingStateType.Stopped;
             Complete(InstructionTileResult.Success, true);
         }

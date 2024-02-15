@@ -114,34 +114,6 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        public Vector3 GetStartPosition(IChangeDefaultInstructionTile currentTile)
-        {
-            var start = _brain.Body.DefaultPosition;
-            for(var i = 0;i < InstructionTiles.Count; i++)
-            {
-                var tile = InstructionTiles[i];
-                if(tile == currentTile)
-                    break; 
-                if (tile is IChangeDefaultInstructionTile)
-                    start = ((IChangeDefaultInstructionTile)tile).GetEndPosition(start);
-            }
-            return start;
-        }
-
-        public Quaternion GetStartRotation(IChangeDefaultRotationInstructionTile currentTile)
-        {
-            var start = _brain.Body.DefaultRotation;
-            for (var i = 0; i < InstructionTiles.Count; i++)
-            {
-                var tile = InstructionTiles[i];
-                if (tile == currentTile)
-                    break;
-                if (tile is IChangeDefaultRotationInstructionTile)
-                    start = ((IChangeDefaultRotationInstructionTile)tile).GetEndRotation(start);
-            }
-            return start;
-        }
-
         public void SetActive(bool active)
         {
             for (var i = 0; i < InstructionTiles.Count; i++)
@@ -232,7 +204,8 @@ namespace Mona.SDK.Brains.Core.Control
             callback.Action = () =>
             {
                 //Debug.Log($"Execute Next from Then callback {tile}");
-                return ExecuteActionTile(tile.NextExecutionTile);
+                ExecuteActionTile(tile.NextExecutionTile);
+                return _result;
             };
             tile.SetThenCallback(callback);
         }
@@ -354,7 +327,8 @@ namespace Mona.SDK.Brains.Core.Control
 
         private InstructionTileResult ExecuteTile(IInstructionTile tile)
         {
-            if(_brain.Body.HasControl())
+            //Debug.Log($"{nameof(Instruction)} {nameof(ExecuteTile)} #{_page.Instructions.IndexOf(this)} tile #{InstructionTiles.IndexOf(tile)} current result {_result}");
+            if (_brain.Body.HasControl())
                 _brain.Variables.Set(_progressTile, (float)InstructionTiles.IndexOf(tile));
             return tile.Do();
         }
@@ -417,18 +391,18 @@ namespace Mona.SDK.Brains.Core.Control
 
             if (InstructionTiles.Count == 1)
             {
-                _result = ExecuteActionTile(null);
+                ExecuteActionTile(null);
             }
             else
             {
-                _result = ExecuteActionTile(tile);
+                ExecuteActionTile(tile);
             }
         }
 
-        private InstructionTileResult ExecuteActionTile(IInstructionTile tile)
+        private void ExecuteActionTile(IInstructionTile tile)
         {
-            if (_unloaded) return InstructionTileResult.Failure;
-            if (_paused) return InstructionTileResult.Failure;
+            if (_unloaded) return;
+            if (_paused) return;
             if (tile == null)
             {
                 _result = InstructionTileResult.Success;
@@ -437,15 +411,16 @@ namespace Mona.SDK.Brains.Core.Control
                     //Debug.Log($"TICK IT {_result}");
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick));
                 }
-                return InstructionTileResult.Success;
             }
             else
             {
-                var tileResult = ExecuteTile(tile);
-                //Debug.Log($"{nameof(ExecuteActionTile)} {tile} result {tileResult}");
-                if (tileResult == InstructionTileResult.Success)
-                    tileResult = ExecuteActionTile(tile.NextExecutionTile);
-                return tileResult;
+                _result = ExecuteTile(tile);
+                //Debug.Log($"{nameof(Instruction)} {nameof(ExecuteActionTile)} #{_page.Instructions.IndexOf(this)} tile #{InstructionTiles.IndexOf(tile)} current result {_result}");
+                if (_result == InstructionTileResult.Success)
+                {
+                    //Debug.Log($"{nameof(ExecuteActionTile)} immediately execute next tile {tile.NextExecutionTile} {_result}");
+                    ExecuteActionTile(tile.NextExecutionTile);
+                }
             }
         }
 

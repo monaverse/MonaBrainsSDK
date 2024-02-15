@@ -19,7 +19,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
     [Serializable]
     public class MoveLocalInstructionTile : InstructionTile, IMoveLocalInstructionTile, IActionInstructionTile, 
-        IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile, IChangeDefaultInstructionTile,
+        IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile,
         IProgressInstructionTile
     {
         public override Type TileType => typeof(MoveLocalInstructionTile);
@@ -106,7 +106,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
 
-            _brain.Variables.GetFloat(_progressName);
+            _brain.Variables.Set(_progressName, 0f);
 
             UpdateActive();
         }
@@ -241,6 +241,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (_movingState == MovingStateType.Stopped)
             {
                 Progress = 0;
+                //Debug.Log($"{nameof(MoveLocalInstructionTile)} DO IT {Name} {_progressName} {Progress}");
                 AddFixedTickDelegate();
             }
 
@@ -261,20 +262,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return;
             }
 
-            ShouldPinOnGrounded();
-
             switch (_mode)
             {
                 case MoveModeType.Time: MoveOverTime(deltaTime); break;
                 case MoveModeType.Speed: MoveAtSpeed(deltaTime); break;
-            }
-        }
-
-        private void ShouldPinOnGrounded()
-        {
-            if (DirectionType == MoveDirectionType.UseInput || DirectionType == MoveDirectionType.InputForwardBack)
-            {
-                _brain.Body.SetApplyPinOnGrounded(_movingState != MovingStateType.Moving);
             }
         }
 
@@ -358,16 +349,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(LostControl)}");
             _movingState = MovingStateType.Stopped;
             _brain.Body.SetApplyPinOnGrounded(true);
-            ShouldPinOnGrounded();
             Complete(InstructionTileResult.LostAuthority, true);
         }
 
         private void StopMoving()
         {
-            //Debug.Log($"INPUT stopmoving: {Time.frameCount}");
+            //Debug.Log($"INPUT stopmoving: {Name} {_progressName} {Progress}");
             _bodyInput = default;
             _movingState = MovingStateType.Stopped;
-            ShouldPinOnGrounded();
             Complete(InstructionTileResult.Success, true);
         }
 
