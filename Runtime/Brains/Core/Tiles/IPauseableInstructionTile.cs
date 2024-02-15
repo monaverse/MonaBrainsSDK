@@ -3,6 +3,6 @@
     public interface IPauseableInstructionTile
     {
         void Pause();
-        void Resume();
+        bool Resume();
     }
 }

@@ -50,6 +50,8 @@ namespace Mona.SDK.Brains.UIElements
         private Toggle _toggleAllowLogging;
 
         private Button _btnDeletePage;
+        private Button _btnMoveLeft;
+        private Button _btnMoveRight;
 
         private Foldout _foldOut;
         private DropdownField _tileSetField;
@@ -226,6 +228,8 @@ namespace Mona.SDK.Brains.UIElements
             _activeStatePage.OnTileIndexClicked += HandleTileIndexClicked;
             _activePageContainer.Add(_activeStatePage);
 
+            var btnBar = new VisualElement();
+                btnBar.style.flexDirection = FlexDirection.Row;
             _btnDeletePage = new Button();
             _btnDeletePage.style.width = 100;
             _btnDeletePage.style.backgroundColor = new Color(.6f, 0, 0);
@@ -235,8 +239,30 @@ namespace Mona.SDK.Brains.UIElements
             {
                 DeleteStatePage();
             };
-            _activePageContainer.Add(_btnDeletePage);
 
+            _activePageContainer.Add(btnBar);
+
+            btnBar.Add(_btnDeletePage);
+
+
+            _btnMoveLeft = new Button();
+            _btnMoveLeft.text = "<";
+            _btnMoveLeft.style.marginLeft = 30;
+            _btnMoveLeft.style.width = 30;
+            _btnMoveLeft.clicked += () =>
+            {
+                MoveStatePageLeft();
+            };
+            btnBar.Add(_btnMoveLeft);
+
+            _btnMoveRight = new Button();
+            _btnMoveRight.text = ">";
+            _btnMoveRight.style.width = 30;
+            _btnMoveRight.clicked += () =>
+            {
+                MoveStatePageRight();
+            };
+            btnBar.Add(_btnMoveRight);
 
             _defaultVariablesHeading = CreateHeading("Brain Default Variables");
             _leftColumn.Add(_defaultVariablesHeading);
@@ -524,6 +550,24 @@ namespace Mona.SDK.Brains.UIElements
             Refresh();
         }
 
+        private void MoveStatePageLeft()
+        {
+            var item = _brain.StatePages[_selectedTab];
+            _brain.StatePages.RemoveAt(_selectedTab);
+            _brain.StatePages.Insert(_selectedTab-1, item);
+            _selectedTab = _selectedTab - 1;
+            Refresh();
+        }
+
+        private void MoveStatePageRight()
+        {
+            var item = _brain.StatePages[_selectedTab];
+            _brain.StatePages.RemoveAt(_selectedTab);
+            _brain.StatePages.Insert(_selectedTab+1, item);
+            _selectedTab = _selectedTab + 1;
+            Refresh();
+        }
+
         private void Refresh()
         {
 #if UNITY_EDITOR
@@ -607,6 +651,9 @@ namespace Mona.SDK.Brains.UIElements
             _activePageHeading.text = $"Active Page - {_brain.StatePages[_selectedTab].Name}";
             _activeStatePage.SetPage(_brain, _brain.StatePages[_selectedTab]); 
             _activeStatePage.visible = true;
+
+            _btnMoveLeft.SetEnabled(_selectedTab > 0);
+            _btnMoveRight.SetEnabled(_selectedTab < _brain.StatePages.Count - 1);
 
         }
 

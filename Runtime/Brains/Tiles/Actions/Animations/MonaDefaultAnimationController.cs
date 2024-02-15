@@ -1,92 +1,135 @@
 using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Core;
 using Mona.SDK.Core.Assets.Interfaces;
+using Mona.SDK.Core.Events;
+using Mona.SDK.Core.State.Structs;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Animations;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class MonaDefaultAnimationController : MonoBehaviour
+namespace Mona.SDK.Brains.Core.Animation
 {
-    private Animator _animator;
-    private AnimatorController _controller;
-    private AnimatorState _start;
-    private AnimatorState _end;
-
-    private const string START_STATE = "__Start";
-    private const string END_STATE = "_End";
-
-    private GameObject _root;
-
-    public void Awake()
+    public interface IMonaAnimationController
     {
-        _animator = gameObject.GetComponent<Animator>();
-        if (_animator == null)
-            _animator = gameObject.AddComponent<Animator>();
-
-        SetupAnimationController();
+        bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed);
+        bool HasEnded();
+        void SetBrain(IMonaBrain brain);
+        void RegisterAnimatorCallback(IMonaAnimationAssetItem clipItem);
     }
 
-    private void SetupAnimationController()
+    public class MonaDefaultAnimationController : MonoBehaviour, IMonaAnimationController
     {
-        if (_animator.runtimeAnimatorController == null)
+        private Animator _animator;
+        private AnimatorOverrideController _controller;
+
+        private const string START_STATE = "__Start";
+        private const string END_STATE = "__End";
+        private const string CLIP_STATE = "__Clip";
+        private const string TRIGGER = "__TriggerAnimation";
+        private const string ANIMATION_SPEED = "__AnimationSpeed";
+
+        private Action<MonaValueChangedEvent> OnMonaValueChanged;
+
+        private Dictionary<string, IMonaAnimationAssetItem> _animationAssets = new Dictionary<string, IMonaAnimationAssetItem>();
+        private IMonaBrain _brain;
+
+        public void Awake()
         {
-            var controller = new AnimatorController();
-                controller.AddLayer("Base");
-
-            var layer = controller.layers[0];
-
-            _start = layer.stateMachine.AddState(START_STATE);
-            _end = layer.stateMachine.AddState(END_STATE);
-
-            layer.stateMachine.defaultState = _start;
-
-            _animator.runtimeAnimatorController = controller;
         }
-        _controller = (AnimatorController)_animator.runtimeAnimatorController;
-    }
 
-    public void AddClip(IMonaAnimationAssetItem clipItem, float speed = 1f)
-    {
-        var layer = _controller.layers[0];
-        
-        var clipState = layer.stateMachine.AddState(clipItem.Value.name);
-
-        clipState.motion = clipItem.Value;
-        clipState.speed = speed;
-
-        var transition2 = clipState.AddTransition(_end);
-            transition2.hasExitTime = true;
-    }
-
-    public bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt)
-    {
-        if(canInterrupt)
+        public void SetBrain(IMonaBrain brain)
         {
-            //Debug.Log($"CrossFade {clipItem.Value.name}");
-            _animator.CrossFade(clipItem.Value.name, 0.2f);
-            return true;
-        }
-        else
-        {
-            var transition = _animator.GetAnimatorTransitionInfo(0);
-            var current = _animator.GetCurrentAnimatorStateInfo(0);
-            if (current.IsName(_end.name) || current.IsName(_start.name))
+            if (_brain == null)
             {
-                //Debug.Log($"transition time {transition.normalizedTime}");
-                if (transition.normalizedTime == 0)
+                SetupAnimationController();
+                OnMonaValueChanged = HandleMonaValueChanged;
+                EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, brain.Body), OnMonaValueChanged);
+                _brain = brain;
+                _brain.Body.SetAnimator(_animator);
+                _brain.Variables.Set(TRIGGER, "");
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_brain != null)
+                EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
+        }
+
+        private void SetupAnimationController()
+        {
+            _animator = gameObject.GetComponent<Animator>();
+            if (_animator == null)
+                _animator = gameObject.AddComponent<Animator>();
+
+            if (_animator.runtimeAnimatorController == null)
+            {
+                var controller = (RuntimeAnimatorController)GameObject.Instantiate(Resources.Load("MonaDefaultAnimationController", typeof(RuntimeAnimatorController)));
+                if (controller == null)
                 {
+                    Debug.LogError($"{nameof(MonaDefaultAnimationController)} Cannot find Resource MonaDefaultAnimationController, please make sure to import the MonaBodySDK Starter Sample");
+                    return;
+                }
+                var overrideController = new AnimatorOverrideController(controller);
+                _animator.runtimeAnimatorController = overrideController;
+            }
+            _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
+        }
+
+        public bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed = 1f)
+        {
+            if (_controller == null) return false;
+
+            if (canInterrupt)
+            {
+                if (_controller[CLIP_STATE].name == clipItem.Value.name && !HasEnded()) return false;
+                //Debug.Log($"Trigger {clipItem.Value.name}");
+                _controller[CLIP_STATE] = clipItem.Value;
+                _animator.SetTrigger(TRIGGER);
+                _animator.SetFloat(ANIMATION_SPEED, speed);
+                _brain.Variables.Set(TRIGGER, clipItem.Value.name);
+                return true;
+            }
+            else
+            {
+                if (HasEnded())
+                {
+                    //Debug.Log($"transition time {transition.normalizedTime}");
                     //Debug.Log($"play {clipItem.Value.name}");
-                    _animator.Play(clipItem.Value.name);
+                    _brain.Variables.Set(TRIGGER, clipItem.Value.name);
+                    _animator.SetTrigger(TRIGGER);
+                    _animator.SetFloat(ANIMATION_SPEED, speed);
+                    _controller[CLIP_STATE] = clipItem.Value;
                     return true;
                 }
             }
+            return false;
         }
-        return false;
-    }
 
-    public bool HasEnded()
-    {
-        var current = _animator.GetCurrentAnimatorStateInfo(0);
-        return current.IsName(_end.name);
+        public bool HasEnded()
+        {
+            var transition = _animator.GetAnimatorTransitionInfo(0);
+            var current = _animator.GetCurrentAnimatorStateInfo(0);
+            return (current.IsName(END_STATE) || current.IsName(START_STATE)) && transition.normalizedTime == 0;
+        }
+
+        public void RegisterAnimatorCallback(IMonaAnimationAssetItem clipItem)
+        {
+            if (!_animationAssets.ContainsKey(clipItem.Value.name))
+                _animationAssets.Add(clipItem.Value.name, clipItem);
+        }
+
+        private void HandleMonaValueChanged(MonaValueChangedEvent evt)
+        {
+            if(evt.Name == TRIGGER)
+            {
+                var animation = ((IMonaVariablesStringValue)evt.Value).Value;
+                if (_animationAssets.ContainsKey(animation) && (_controller[CLIP_STATE] == null || _controller[CLIP_STATE].name != animation))
+                    Play(_animationAssets[animation], true);
+            }
+        }
+
     }
 }

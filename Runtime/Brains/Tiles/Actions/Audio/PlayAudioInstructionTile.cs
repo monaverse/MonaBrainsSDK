@@ -8,10 +8,6 @@ using Mona.SDK.Core.Assets.Interfaces;
 using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Core;
-using UnityEngine.Playables;
-using UnityEngine.Animations;
-using UnityEditor.Animations;
-using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Control;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Audio
@@ -103,13 +99,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             RemoveFixedTickDelegate();
         }
 
-        public void Resume()
+        public bool Resume()
         {
             if (_audioSource.clip == _clip.Value)
             {
                 _audioSource.UnPause();
             }
             UpdateActive();
+            return _isPlaying;
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

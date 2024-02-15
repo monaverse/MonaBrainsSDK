@@ -100,9 +100,10 @@ namespace Mona.SDK.Brains.Core.Tiles
                 Debug.Log($"{nameof(InputInstructionTile)}.{nameof(Pause)} input paused");
         }
 
-        public void Resume()
+        public bool Resume()
         {
             UpdateActive();
+            return false;
         }
 
         public override void Unload()

@@ -5,11 +5,13 @@ using UnityEngine;
 using System;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
+using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
-    public class ChangeStateInstructionTile : InstructionTile, IChangeStateInstructionTile, IActionInstructionTile, IActionStateEndInstructionTile
+    public class ChangeStateInstructionTile : InstructionTile, IChangeStateInstructionTile, IActionInstructionTile, IActionStateEndInstructionTile, 
+        INeedAuthorityInstructionTile
     {
         public const string ID = "ChangeState";
         public const string NAME = "Change State";
@@ -28,6 +30,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public void Preload(IMonaBrain brain)
         {
             _brain = brain;
+        }
+
+        public IMonaBody GetBodyToControl()
+        {
+            return _brain.Body;
         }
 
         public override InstructionTileResult Do()

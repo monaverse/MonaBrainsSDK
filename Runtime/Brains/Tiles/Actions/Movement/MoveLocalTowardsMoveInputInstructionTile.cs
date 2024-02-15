@@ -104,9 +104,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 Debug.Log($"{nameof(MoveLocalTowardsMoveInputInstructionTile)}.{nameof(Pause)}");
         }
 
-        public void Resume()
+        public bool Resume()
         {
             UpdateActive();
+            return _movingState == MovingStateType.Moving;
         }
 
         private void HandleBodyInput(MonaInputEvent evt)
