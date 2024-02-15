@@ -74,9 +74,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
-        public void Resume()
+        public bool Resume()
         {
             UpdateActive();
+            return _isRunning;
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

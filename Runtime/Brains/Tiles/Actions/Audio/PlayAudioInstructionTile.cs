@@ -99,13 +99,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             RemoveFixedTickDelegate();
         }
 
-        public void Resume()
+        public bool Resume()
         {
             if (_audioSource.clip == _clip.Value)
             {
                 _audioSource.UnPause();
             }
             UpdateActive();
+            return _isPlaying;
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

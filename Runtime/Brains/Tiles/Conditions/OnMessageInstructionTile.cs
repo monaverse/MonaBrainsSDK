@@ -9,7 +9,7 @@ using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnMessageInstructionTile : InstructionTile, IOnMessageInstructionTile, IConditionInstructionTile, IStartableInstructionTile
+    public class OnMessageInstructionTile : InstructionTile, IOnMessageInstructionTile, IConditionInstructionTile, IStartableInstructionTile, IPlayerTriggeredConditional
     {
         public const string ID = "OnMessage";
         public const string NAME = "Has Message";
@@ -23,6 +23,19 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public string Message { get => _message; set => _message = value; }
 
         private IMonaBrain _brain;
+
+        public bool PlayerTriggered
+        {
+            get
+            {
+                var msg = _brain.GetMessage(_message);
+                if(msg.Sender != null && msg.Sender.Body.HasControl())
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
 
         public OnMessageInstructionTile() { }
 

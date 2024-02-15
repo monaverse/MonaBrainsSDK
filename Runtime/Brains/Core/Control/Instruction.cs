@@ -239,6 +239,9 @@ namespace Mona.SDK.Brains.Core.Control
 
         public void Execute(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
+            if (_unloaded) return;
+            if (_paused) return;
+
             if (_result == InstructionTileResult.WaitingForAuthority)
             {
                 if (eventType != InstructionEventTypes.Authority)
@@ -271,6 +274,9 @@ namespace Mona.SDK.Brains.Core.Control
 
         private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
+            if (_unloaded) return InstructionTileResult.Failure;
+            if (_paused) return InstructionTileResult.Failure;
+
             var tile = InstructionTiles[0];
             //if (tile is IConditionInstructionTile)
             {
@@ -612,11 +618,23 @@ namespace Mona.SDK.Brains.Core.Control
         public void Resume()
         {
             _paused = false;
+            var resumed = false;
             for (var i = 0; i < _instructionTiles.Count; i++)
             {
                 var tile = _instructionTiles[i];
                 if (tile is IPauseableInstructionTile)
-                    ((IPauseableInstructionTile)tile).Resume();
+                {
+                    if (((IPauseableInstructionTile)tile).Resume())
+                        resumed = true;
+                }
+            }
+
+            if (!resumed)
+            {
+                var tileIndex = (int)_brain.Variables.GetFloat(_progressTile);
+                Debug.Log($"{nameof(Instruction)} resume instruction #{_page.Instructions.IndexOf(this)}, tile: {tileIndex}");
+                _result = InstructionTileResult.Success;
+                ExecuteTile(InstructionTiles[tileIndex]);
             }
         }
 

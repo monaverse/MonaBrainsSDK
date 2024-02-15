@@ -151,9 +151,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Pause)}");
         }
 
-        public void Resume()
+        public bool Resume()
         {
             UpdateActive();
+            return _movingState == MovingStateType.Moving;
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

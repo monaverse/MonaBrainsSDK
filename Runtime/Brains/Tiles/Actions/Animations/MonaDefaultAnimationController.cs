@@ -48,6 +48,7 @@ namespace Mona.SDK.Brains.Core.Animation
                 EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, brain.Body), OnMonaValueChanged);
                 _brain = brain;
                 _brain.Body.SetAnimator(_animator);
+                _brain.Variables.Set(TRIGGER, "");
             }
         }
 

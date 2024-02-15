@@ -156,9 +156,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.{nameof(Pause)}");
         }
 
-        public void Resume()
+        public bool Resume()
         {
             UpdateActive();
+            return false;
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)

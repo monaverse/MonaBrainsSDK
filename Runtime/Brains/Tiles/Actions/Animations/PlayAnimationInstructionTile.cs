@@ -159,9 +159,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             RemoveFixedTickDelegate();
         }
 
-        public void Resume()
+        public bool Resume()
         {
             UpdateActive();
+            return (_active && _isPlaying);
         }
 
         public override void SetThenCallback(IInstructionTileCallback thenCallback)
@@ -244,7 +245,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
                 if (_monaAnimationController.Play(_clip, _canInterrupt, _animationSpeed))
                 {
                     //if(_brain.LoggingEnabled)
-                        Debug.Log($"{nameof(PlayAnimationInstructionTile)} play animation {_clip.Value}");
+                    //    Debug.Log($"{nameof(PlayAnimationInstructionTile)} play animation {_clip.Value}");
                     //EventBus.Trigger<MonaBodyAnimationTriggeredEvent>(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), new MonaBodyAnimationTriggeredEvent());
 
                     AddFixedTickDelegate();

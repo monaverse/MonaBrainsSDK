@@ -374,6 +374,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             CorePage.Resume();
             for (var i = 0; i < _statePages.Count; i++)
                 _statePages[i].Resume();
+
+            EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), new MonaBrainTickEvent(InstructionEventTypes.Tick));
         }
 
         private void HandleBodyParentChanged(MonaBodyParentChangedEvent evt)
