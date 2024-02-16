@@ -447,11 +447,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         }
 
         private void ExecuteMessage(IInstructionEvent evt)
-        { 
+        {
             ExecuteCorePageInstructions(InstructionEventTypes.Message);
             ExecuteStatePageInstructions(InstructionEventTypes.Message);
-
-            _messages.Remove((MonaBroadcastMessageEvent)evt);
         }
 
         private void HandleInputOnFixedTick(MonaBodyFixedTickEvent evt)

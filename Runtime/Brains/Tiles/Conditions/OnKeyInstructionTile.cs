@@ -48,13 +48,23 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             if (localInput.GetKey(_keyIndex) == GetInputState())
             {
-                _brain.Body.SetLocalInput(localInput);
+                SetLocalInput(localInput);
             }
         }
 
         protected override void HandleBodyInput(MonaInputEvent evt)
         {
             _bodyInput = evt.Input;
+        }
+
+        public override void ReprocessInput(MonaInput input)
+        {
+            SetLocalInput(input);
+        }
+
+        public override MonaInput GetInput()
+        {
+            return _bodyInput;
         }
 
         public override InstructionTileResult Do()

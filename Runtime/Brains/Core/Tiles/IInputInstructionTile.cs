@@ -1,3 +1,4 @@
+using Mona.SDK.Core.Input;
 using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Core.Tiles
@@ -11,7 +12,8 @@ namespace Mona.SDK.Brains.Core.Tiles
      * - This Interface will listen for MonaInputEvent and use them to evaluate input in the Do method.
      */
     public interface IInputInstructionTile : IPlayerTriggeredConditional
-    { 
-        
+    {
+        void ReprocessInput(MonaInput input);
+        MonaInput GetInput();
     }
 }

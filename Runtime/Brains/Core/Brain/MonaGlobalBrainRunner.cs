@@ -1,4 +1,5 @@
 using Mona.SDK.Brains.Core.Brain.Interfaces;
+using Mona.SDK.Brains.Core.Brain.Structs;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.ScriptableObjects;
 using Mona.SDK.Core;
@@ -36,8 +37,11 @@ namespace Mona.SDK.Brains.Core.Brain
         private IMonaBody _playerCamera;
         private int _playerId;
 
+        private List<MonaRemotePlayer> _otherPlayers = new List<MonaRemotePlayer>();
+
         public IMonaBody PlayerBody => _playerBody;
         public IMonaBody PlayerCamera => _playerCamera;
+        public List<MonaRemotePlayer> OtherPlayers => _otherPlayers;
         public int PlayerId => _playerId;
 
         private PlayerInput _playerInput;
@@ -147,19 +151,32 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void HandleMonaPlayerJoined(MonaPlayerJoinedEvent evt)
         {
-            if (!evt.IsLocal) return;
-            _playerBody = evt.PlayerBody;
-            _playerCamera = _playerBody.FindChildByTag(MonaCoreConstants.MONA_TAG_PLAYER_CAMERA);
-            _playerId = evt.PlayerId;
-            Debug.Log($"{nameof(HandleMonaPlayerJoined)} {_playerCamera.ActiveTransform}", _playerCamera.ActiveTransform.gameObject);
+            if (evt.IsLocal)
+            {
+                _playerBody = evt.PlayerBody;
+                _playerCamera = _playerBody.FindChildByTag(MonaCoreConstants.MONA_TAG_PLAYER_CAMERA);
+                _playerId = evt.PlayerId;
+                Debug.Log($"{nameof(HandleMonaPlayerJoined)} {_playerCamera.ActiveTransform}", _playerCamera.ActiveTransform.gameObject);
 
-            AttachBrainsToLocalPlayer(_playerBody);
-            
-            for (var i = 0; i < _brains.Count; i++)
-                _brains[i].SetMonaBrainPlayer(this);
+                AttachBrainsToPlayer(_playerBody);
+
+                for (var i = 0; i < _brains.Count; i++)
+                    _brains[i].SetMonaBrainPlayer(this);
+            }
+            else
+            {
+                var remotePlayer = new MonaRemotePlayer() { Body = evt.PlayerBody, PlayerId = evt.PlayerId };
+                if (!_otherPlayers.Contains(remotePlayer))
+                    _otherPlayers.Contains(remotePlayer);
+
+                AttachBrainsToPlayer(remotePlayer.Body);
+
+                for (var i = 0; i < _brains.Count; i++)
+                    _brains[i].SetMonaBrainPlayer(this);
+            }
         }
 
-        private void AttachBrainsToLocalPlayer(IMonaBody body)
+        private void AttachBrainsToPlayer(IMonaBody body)
         {
             var runner = body.Transform.GetComponent<IMonaBrainRunner>();
             if (runner == null)

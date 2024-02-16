@@ -32,7 +32,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private float _mouseLookSensitivity = 30f;
 
-        protected MonaInput _bodyInputs;
+        protected MonaInput _bodyInput;
 
         protected override void ProcessLocalInput()
         {
@@ -40,7 +40,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             if (localInput.GetButton(_inputType) == _inputState)
             {
-                _brain.Body.SetLocalInput(localInput);
+                SetLocalInput(localInput);
             }
         }
 
@@ -56,12 +56,22 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         protected override void HandleBodyInput(MonaInputEvent evt)
         {
-            _bodyInputs = evt.Input;
+            _bodyInput = evt.Input;
+        }
+        
+        public override void ReprocessInput(MonaInput input)
+        {
+            SetLocalInput(input);
+        }
+
+        public override MonaInput GetInput()
+        {
+            return _bodyInput;
         }
 
         public override InstructionTileResult Do()
         {
-            if (_bodyInputs.GetButton(_inputType) == _inputState)
+            if (_bodyInput.GetButton(_inputType) == _inputState)
             {
                 if (_brain.LoggingEnabled)
                     Debug.Log($"{nameof(OnInputInstructionTile)}.{nameof(Do)} input active {_inputType} {_inputState}");

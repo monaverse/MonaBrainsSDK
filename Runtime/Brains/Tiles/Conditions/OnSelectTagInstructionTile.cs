@@ -51,7 +51,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             if (localInput.GetButton(MonaInputType.Action) == GetInputState())
             {
-                _brain.Body.SetLocalInput(localInput);
+                SetLocalInput(localInput);
             }
         }
 

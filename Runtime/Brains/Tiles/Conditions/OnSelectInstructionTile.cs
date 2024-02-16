@@ -52,7 +52,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 //if (_brain.LoggingEnabled)
                 //    Debug.Log($"{nameof(OnSelectInstructionTile)} setlocalinput {localInput.Ray.origin} {localInput.Ray.direction}");
 
-                _brain.Body.SetLocalInput(localInput);
+                SetLocalInput(localInput);
             }
         }
 

@@ -29,6 +29,8 @@ namespace Mona.SDK.Brains.Core.Tiles
 
         protected abstract void ProcessLocalInput();
         protected abstract void HandleBodyInput(MonaInputEvent evt);
+        public abstract void ReprocessInput(MonaInput input);
+        public abstract MonaInput GetInput();
 
         public bool PlayerTriggered => true;
 

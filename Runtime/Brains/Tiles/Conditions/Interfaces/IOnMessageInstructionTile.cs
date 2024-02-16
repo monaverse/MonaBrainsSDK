@@ -1,9 +1,11 @@
-﻿using Mona.SDK.Brains.Core.Tiles;
+﻿using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Brains.Core.Tiles;
 
 namespace Mona.SDK.Brains.Tiles.Conditions.Interfaces
 {
     public interface IOnMessageInstructionTile : IInstructionTileWithPreload
     {
         string Message { get; set; }
+        MonaBroadcastMessageEvent GetLastSuccessfulMessage();
     }
 }

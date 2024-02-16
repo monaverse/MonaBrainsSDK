@@ -7,6 +7,7 @@ using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Events;
+using Mona.SDK.Core.Input;
 using Mona.SDK.Core.Network.Enums;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,10 @@ namespace Mona.SDK.Brains.Core.Control
         private bool _unloaded;
         private bool _paused;
         private string _progressTile;
+        private IInstructionTile _tileWaitingForAuthorization;
+
+        private bool _hasMessageEventWaitingForAuthorization;
+        private List<MonaBroadcastMessageEvent> _messageEventsWaitingForAuthorization = new List<MonaBroadcastMessageEvent>();
 
         public IInstructionTile CurrentTile {
             get
@@ -184,17 +189,25 @@ namespace Mona.SDK.Brains.Core.Control
         private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, evt.Body), OnStateAuthorityChanged);
-            _waitForAuthBodies.Remove(evt.Body);
-            if(_brain.LoggingEnabled)
-                Debug.Log($"{nameof(Instruction)}.{nameof(HandleStateAuthorityChanged)} {evt.Body.ActiveTransform.name} {evt.Body.HasControl()}", evt.Body.ActiveTransform.gameObject);
+
             if(_waitForAuthBodies.Count == 0)
             {
+                //Debug.Log($"{nameof(Instruction)}.{nameof(HandleStateAuthorityChanged)} extra auth changed event {evt.Body.ActiveTransform.name} {evt.Body.HasControl()}", evt.Body.ActiveTransform.gameObject);
+                return;
+            }
+
+            _waitForAuthBodies.Remove(evt.Body);
+            //if(_brain.LoggingEnabled)
+                //Debug.Log($"{nameof(Instruction)}.{nameof(HandleStateAuthorityChanged)} {evt.Body.ActiveTransform.name} {evt.Body.HasControl()}", evt.Body.ActiveTransform.gameObject);
+            if(_waitForAuthBodies.Count == 0)
+            {
+                //Debug.Log($"{nameof(Instruction)}.{nameof(HandleStateAuthorityChanged)} i now have necessary authority, send a tick");
                 EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain.Body), new MonaBrainTickEvent(InstructionEventTypes.Authority));
             }
             else
             {
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(Instruction)}.{nameof(HandleStateAuthorityChanged)} waiting for {_waitForAuthBodies.Count} bodies to complete instruction", evt.Body.ActiveTransform.gameObject);
+                //if (_brain.LoggingEnabled)
+                   // Debug.Log($"{nameof(Instruction)}.{nameof(HandleStateAuthorityChanged)} waiting for {_waitForAuthBodies.Count} bodies to complete instruction", evt.Body.ActiveTransform.gameObject);
             }
         }
 
@@ -212,6 +225,7 @@ namespace Mona.SDK.Brains.Core.Control
 
         public void Execute(InstructionEventTypes eventType, IInstructionEvent evt = null)
         {
+            //Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction received event {eventType}", _brain.Body.ActiveTransform.gameObject);
             if (_unloaded) return;
             if (_paused) return;
 
@@ -299,24 +313,38 @@ namespace Mona.SDK.Brains.Core.Control
                             if (_brain.Body.HasControl())
                                 ResetExecutionLinks();
 
-                            var progressTile = GetFirstTileInProgress();
-                            if(progressTile == null)
+                            _result = InstructionTileResult.Running;
+
+                            if (!HasConditional())
                             {
-                                _result = InstructionTileResult.Running;
-                                if (_firstActionIndex == -1)
+                                var progressTile = GetFirstTileInProgress();
+                                if (progressTile != null)
                                 {
-                                    return ExecuteTile(tile);
+                                    ContinueTile((IProgressInstructionTile)progressTile);
+                                    return InstructionTileResult.Failure;
                                 }
                                 else
                                 {
-                                    var actionTile = InstructionTiles[_firstActionIndex];
-                                    return ExecuteTile(actionTile);
+                                    ExecuteTile(tile);
+                                    return InstructionTileResult.Failure;
                                 }
                             }
                             else
                             {
-                                _result = InstructionTileResult.Running;
-                                return ContinueTile((IProgressInstructionTile)progressTile);
+                                ProcessMessageEventsIfNeeded();
+                                ProcessWaitingInputIfNeeded();
+
+                                if (_tileWaitingForAuthorization != null)
+                                {
+                                    var tileWaiting = _tileWaitingForAuthorization;
+                                    _tileWaitingForAuthorization = null;
+                                    ExecuteActionTile(tileWaiting);
+                                    return InstructionTileResult.Failure;
+                                }
+                                else
+                                {
+                                    return ExecuteTile(tile);
+                                }
                             }
                         }
                         break;
@@ -325,9 +353,38 @@ namespace Mona.SDK.Brains.Core.Control
             return InstructionTileResult.Failure;
         }
 
+        private void ProcessWaitingInputIfNeeded()
+        {
+            if (_hasInputWaitingForAuthorization)
+            {
+                _hasInputWaitingForAuthorization = false;
+                for(var i = 0;i < _instructionTiles.Count; i++)
+                {
+                    var inputInstruction = _instructionTiles[i];
+                    if(inputInstruction is IInputInstructionTile)
+                    {
+                        ((IInputInstructionTile)inputInstruction).ReprocessInput(_inputWaitingForAuthorization);
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void ProcessMessageEventsIfNeeded()
+        {
+            if(_messageEventsWaitingForAuthorization.Count > 0)
+            {
+                for (var i = 0; i < _messageEventsWaitingForAuthorization.Count; i++)
+                {
+                    Debug.Log($"{nameof(Instruction)} rebroadcast message {_messageEventsWaitingForAuthorization[i].Message}", _brain.Body.Transform.gameObject);
+                    EventBus.Trigger<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _brain), _messageEventsWaitingForAuthorization[i]);
+                }
+            }
+        }
+
         private InstructionTileResult ExecuteTile(IInstructionTile tile)
         {
-            //Debug.Log($"{nameof(Instruction)} {nameof(ExecuteTile)} #{_page.Instructions.IndexOf(this)} tile #{InstructionTiles.IndexOf(tile)} current result {_result}");
+            //Debug.Log($"{nameof(ExecuteTile)} instruction #{_page.Instructions.IndexOf(this)}, tile #{InstructionTiles.IndexOf(tile)} {tile.Name} current result {_result}", _brain.Body.Transform.gameObject);
             if (_brain.Body.HasControl())
                 _brain.Variables.Set(_progressTile, (float)InstructionTiles.IndexOf(tile));
             return tile.Do();
@@ -369,6 +426,10 @@ namespace Mona.SDK.Brains.Core.Control
             return InstructionTileResult.Success;
         }
 
+
+        private bool _hasInputWaitingForAuthorization;
+        private MonaInput _inputWaitingForAuthorization;
+
         private void ExecuteActions()
         {
             if (_brain.LoggingEnabled)
@@ -382,7 +443,11 @@ namespace Mona.SDK.Brains.Core.Control
                 if (TakeControlIfHasTilesNeedingAuthority())
                 {
                     //if(_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority. requesting control {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
+                    //Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority. requesting control {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
+
+                    CacheTileWaitingForAuthorization();
+                    CacheInputIfNeeded();
+                    CacheLastMessageEventIfNeeded();
 
                     _result = InstructionTileResult.WaitingForAuthority;
                     return;
@@ -396,6 +461,40 @@ namespace Mona.SDK.Brains.Core.Control
             else
             {
                 ExecuteActionTile(tile);
+            }
+        }
+
+        private void CacheTileWaitingForAuthorization()
+        {
+            if (_firstActionIndex > -1)
+                _tileWaitingForAuthorization = _instructionTiles[_firstActionIndex];
+        }
+
+        private void CacheInputIfNeeded()
+        {
+            for (var i = 0; i < _instructionTiles.Count; i++)
+            {
+                var inputTile = _instructionTiles[i];
+                if (inputTile is IInputInstructionTile)
+                {
+                    _hasInputWaitingForAuthorization = true;
+                    _inputWaitingForAuthorization = ((IInputInstructionTile)inputTile).GetInput();
+                    break;
+                }
+            }
+        }
+
+        private void CacheLastMessageEventIfNeeded()
+        {
+            _messageEventsWaitingForAuthorization.Clear();
+
+            for (var i = 0; i < _instructionTiles.Count; i++)
+            {
+                var messageTile = _instructionTiles[i];
+                if (messageTile is IOnMessageInstructionTile)
+                {
+                    _messageEventsWaitingForAuthorization.Add(((IOnMessageInstructionTile)messageTile).GetLastSuccessfulMessage());
+                }
             }
         }
 
@@ -607,7 +706,7 @@ namespace Mona.SDK.Brains.Core.Control
             if (!resumed)
             {
                 var tileIndex = (int)_brain.Variables.GetFloat(_progressTile);
-                Debug.Log($"{nameof(Instruction)} resume instruction #{_page.Instructions.IndexOf(this)}, tile: {tileIndex}");
+                //Debug.Log($"{nameof(Instruction)} resume instruction #{_page.Instructions.IndexOf(this)}, tile: {tileIndex}");
                 _result = InstructionTileResult.Success;
                 ExecuteTile(InstructionTiles[tileIndex]);
             }

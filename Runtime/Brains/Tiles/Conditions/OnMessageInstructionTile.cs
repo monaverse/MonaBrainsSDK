@@ -5,6 +5,7 @@ using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
+using Mona.SDK.Brains.Core.Events;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -23,6 +24,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public string Message { get => _message; set => _message = value; }
 
         private IMonaBrain _brain;
+        private MonaBroadcastMessageEvent _lastSuccessfulMessage;
 
         public bool PlayerTriggered
         {
@@ -50,11 +52,22 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             _brain.Variables.Set(MonaBrainConstants.RESULT_SENDER, msg.Sender);
         }
 
+        public MonaBroadcastMessageEvent GetLastSuccessfulMessage()
+        {
+            return _lastSuccessfulMessage;
+        }
+
+        private void CacheLastSuccessfulMessage()
+        {
+            _lastSuccessfulMessage = _brain.GetMessage(_message);
+        }
+
         public override InstructionTileResult Do()
         {
             if (_brain != null && _brain.HasMessage(_message))
             {
                 SetSender(_message);
+                CacheLastSuccessfulMessage();
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_MESSAGE);
