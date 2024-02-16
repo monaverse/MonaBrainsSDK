@@ -37,7 +37,7 @@ namespace Mona.SDK.Brains.UIElements
             _objectField.objectType = typeof(MonaBrainGraph);
             _objectField.RegisterValueChangedCallback((evt) =>
             {
-                runner.BrainGraphs[_listIndex] = (MonaBrainGraph)evt.newValue;
+                runner.PlayerBrainGraphs[_listIndex] = (MonaBrainGraph)evt.newValue;
             });
             Add(_objectField);
 #endif
