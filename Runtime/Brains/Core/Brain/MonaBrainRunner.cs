@@ -29,6 +29,12 @@ namespace Mona.SDK.Brains.Core.Brain
             PreloadBrains();
         }
 
+        public void AddBrainGraph(MonaBrainGraph graph)
+        {
+            if (!_brainGraphs.Contains(graph))
+                _brainGraphs.Add(graph);
+        }
+
         private List<IMonaBrain> _brainInstances = new List<IMonaBrain>();
         public List<IMonaBrain> BrainInstances => _brainInstances;
 
@@ -144,8 +150,10 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
-        private void PreloadBrains()
+        public void PreloadBrains()
         {
+            _body.InitializeTags();
+
             _coroutine.Clear();
             _list.Clear();
             _brainInstances.Clear();

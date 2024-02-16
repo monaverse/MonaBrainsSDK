@@ -167,7 +167,9 @@ namespace Mona.SDK.Brains.Core.Brain
 
             if (BrainGraphs.Count > 0)
             {
-                runner.SetBrainGraphs(BrainGraphs);
+                for(var i = 0;i < BrainGraphs.Count; i++)
+                    runner.AddBrainGraph(BrainGraphs[i]);
+                runner.PreloadBrains();
                 runner.StartBrains();
             }
         }

@@ -13,9 +13,14 @@ namespace Mona.SDK.Brains.Core.Brain
 
         List<MonaBrainGraph> BrainGraphs { get; }
         void SetBrainGraphs(List<MonaBrainGraph> brainGraphs);
+        void AddBrainGraph(MonaBrainGraph brainGraph);
 
         List<IMonaBrain> BrainInstances { get; }
 
+        bool HasMonaTag(string tag);
+
+        void PreloadBrains();
         void StartBrains();
+
     }
 }
