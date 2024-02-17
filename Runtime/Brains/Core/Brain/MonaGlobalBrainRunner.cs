@@ -23,6 +23,7 @@ namespace Mona.SDK.Brains.Core.Brain
         public IMonaNetworkSettings NetworkSettings => _NetworkSettings;
 
         private List<IMonaBrain> _brains = new List<IMonaBrain>();
+        public List<IMonaBrain> Brains => _brains;
 
         private int _currentBrainIndex = 0;
         private bool _tickLateUpdate;
@@ -48,8 +49,8 @@ namespace Mona.SDK.Brains.Core.Brain
         public PlayerInput PlayerInput { get => _playerInput; set => _playerInput = value; }
 
         [SerializeField]
-        private List<MonaBrainGraph> _brainGraphs = new List<MonaBrainGraph>();
-        public List<MonaBrainGraph> BrainGraphs => _brainGraphs;
+        private List<MonaBrainGraph> _playerBrainGraphs = new List<MonaBrainGraph>();
+        public List<MonaBrainGraph> PlayerBrainGraphs => _playerBrainGraphs;
 
         private MonaBrainInput _brainInput;
 
@@ -184,10 +185,10 @@ namespace Mona.SDK.Brains.Core.Brain
             if (runner == null)
                 runner = body.Transform.AddComponent<MonaBrainRunner>();
 
-            if (BrainGraphs.Count > 0)
+            if (PlayerBrainGraphs.Count > 0)
             {
-                for(var i = 0;i < BrainGraphs.Count; i++)
-                    runner.AddBrainGraph(BrainGraphs[i]);
+                for(var i = 0;i < PlayerBrainGraphs.Count; i++)
+                    runner.AddBrainGraph(PlayerBrainGraphs[i]);
                 runner.PreloadBrains();
                 runner.StartBrains();
             }

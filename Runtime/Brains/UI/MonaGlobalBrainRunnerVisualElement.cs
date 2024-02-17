@@ -30,7 +30,7 @@ namespace Mona.SDK.Brains.UIElements
             });
             _root.Add(_networkType);
 
-            _brainsListView = new ListView(null, 120, () => new MonaBrainReferenceVisualElement(_globalRunner), (elem, i) => ((MonaBrainReferenceVisualElement)elem).SetValue(i, _globalRunner.BrainGraphs[i]));
+            _brainsListView = new ListView(null, 120, () => new MonaBrainReferenceVisualElement(_globalRunner), (elem, i) => ((MonaBrainReferenceVisualElement)elem).SetValue(i, _globalRunner.PlayerBrainGraphs[i]));
             _brainsListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
             _brainsListView.showFoldoutHeader = true;
             _brainsListView.headerTitle = "Assign Brain Graphs to Local Player";
@@ -41,7 +41,7 @@ namespace Mona.SDK.Brains.UIElements
             {
                 foreach (var e in elems)
                 {
-                    _globalRunner.BrainGraphs[e] = null;
+                    _globalRunner.PlayerBrainGraphs[e] = null;
                 }
             };
 
@@ -61,7 +61,7 @@ namespace Mona.SDK.Brains.UIElements
         {
             _globalRunner = runner;
             
-            _brainsListView.itemsSource = _globalRunner.BrainGraphs;
+            _brainsListView.itemsSource = _globalRunner.PlayerBrainGraphs;
             _brainsListView.Rebuild();
 
             _networkType.value = _globalRunner.NetworkSettings.NetworkType;

@@ -99,8 +99,6 @@ namespace Mona.SDK.Brains.UIEditors
             {
                 EditorUtility.SetDirty(target);
                 Undo.RecordObject(target, "change brain");
-
-                Debug.Log("AA: Set Dirty called!");
             }
         }
     }
