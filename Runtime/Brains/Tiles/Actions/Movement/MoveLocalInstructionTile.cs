@@ -50,7 +50,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private Vector3 _direction;
 
-        private IMonaBrain _brain;
+        protected IMonaBrain _brain;
         private IInstruction _instruction;
         private int _tileIndex;
 
@@ -67,7 +67,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             get => _brain.Variables.GetFloat(MonaBrainConstants.SPEED_FACTOR);
         }
 
-        private MovingStateType _movingState;
+        protected MovingStateType _movingState;
 
         public Vector2 InputMoveDirection
         {
@@ -96,7 +96,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public MoveLocalInstructionTile() { }
         
-        public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
+        public virtual void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
             _instruction = instruction;
@@ -223,6 +223,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (DirectionType == MoveDirectionType.InputForwardBack && _bodyInput.MoveValue.y == 0f)
             {
                 _movingState = MovingStateType.Stopped;
+                StoppedMoving();
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -254,7 +255,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             Tick(evt.DeltaTime);
         }
 
-        private void Tick(float deltaTime)
+        protected virtual void Tick(float deltaTime)
         {
             if (!_brain.Body.HasControl())
             {
@@ -287,6 +288,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public IMonaBody GetBodyToControl()
         {
             return _brain.Body;
+        }
+
+        protected float GetSpeed()
+        {
+            switch (_mode)
+            {
+                case MoveModeType.Time: return _distance / _value;
+                case MoveModeType.Speed: return ((_distance / ((1f / _value) * _speed)));
+                case MoveModeType.Instant: return _distance;
+            }
+            return 0;
         }
 
         private void MoveOverTime(float deltaTime)
@@ -348,6 +360,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(LostControl)}");
             _movingState = MovingStateType.Stopped;
+            StoppedMoving();
             _brain.Body.SetApplyPinOnGrounded(true);
             Complete(InstructionTileResult.LostAuthority, true);
         }
@@ -357,7 +370,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             //Debug.Log($"INPUT stopmoving: {Name} {_progressName} {Progress}");
             _bodyInput = default;
             _movingState = MovingStateType.Stopped;
+            StoppedMoving();
             Complete(InstructionTileResult.Success, true);
+        }
+
+        protected virtual void StoppedMoving()
+        {
+
         }
 
         private Vector3 GetDirectionVector(MoveDirectionType moveType)

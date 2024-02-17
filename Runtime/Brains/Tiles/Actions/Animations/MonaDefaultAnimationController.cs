@@ -13,16 +13,22 @@ namespace Mona.SDK.Brains.Core.Animation
 {
     public interface IMonaAnimationController
     {
+        Animator Animator { get; }
         bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed);
         bool HasEnded();
         bool HasPlayedAnimation();
         void SetBrain(IMonaBrain brain);
         void RegisterAnimatorCallback(IMonaAnimationAssetItem clipItem);
+
+        void Walk(float speed);
+
     }
 
     public class MonaDefaultAnimationController : MonoBehaviour, IMonaAnimationController
     {
         private Animator _animator;
+        public Animator Animator => _animator;
+
         private AnimatorOverrideController _controller;
 
         private const string START_STATE = "__Start";
@@ -77,6 +83,11 @@ namespace Mona.SDK.Brains.Core.Animation
                 _animator.runtimeAnimatorController = overrideController;
             }
             _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
+        }
+
+        public void Walk(float speed)
+        {
+
         }
 
         public bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed = 1f)

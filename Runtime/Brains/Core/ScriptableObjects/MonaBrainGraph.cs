@@ -15,6 +15,7 @@ using Mona.SDK.Brains.Core.Brain.Interfaces;
 using Mona.SDK.Brains.Core.State.Structs;
 using Mona.SDK.Core.Assets.Interfaces;
 using Mona.SDK.Core.Assets;
+using Mona.SDK.Brains.Core.Animation;
 
 namespace Mona.SDK.Brains.Core.ScriptableObjects
 {
@@ -190,6 +191,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private IMonaBrainPlayer _player;
         public IMonaBrainPlayer Player => _player;
+        private Transform _root;
+        public Transform Root => _root;
 
         private List<MonaBroadcastMessageEvent> _messages = new List<MonaBroadcastMessageEvent>();
 
@@ -234,6 +237,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             _index = index;
             CacheReferences(gameObject, runner, _index);
             CacheReservedBrainVariables();
+            BuildRoot();
+            SetupAnimation();
             PreloadPages();
             AddEventDelegates();
             AddHierarchyDelgates();
@@ -279,6 +284,52 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
                 _variables.VariableList = _defaultVariables.VariableList;
                 _variables.SetGameObject(_gameObject, this);
+            }
+        }
+
+        private void BuildRoot()
+        {
+            if (_body.Transform.childCount == 1)
+            {
+                _root = _body.Transform.GetChild(0);
+            }
+            else
+            {
+                _root = _body.Transform.Find("Root");
+                if (_root == null)
+                {
+                    _root = (new GameObject("Root")).transform;
+                    _root.transform.position = _body.GetPosition();
+                    _root.transform.rotation = _body.GetRotation();
+
+                    var children = new List<Transform>();
+                    for (var i = 0; i < _body.Transform.childCount; i++)
+                        children.Add(_body.Transform.GetChild(i));
+
+                    for (var i = 0; i < children.Count; i++)
+                        children[i].SetParent(_root, true);
+
+                    _root.transform.SetParent(_body.Transform, true);
+                }
+            }
+        }
+
+        private void SetupAnimation()
+        {
+            switch (PropertyType)
+            {
+                case MonaBrainPropertyType.GroundedCreature:
+                    var monaAnimationController = _root.GetComponent<MonaGroundedCreatureAnimationController>();
+                    if (monaAnimationController == null)
+                        monaAnimationController = _root.AddComponent<MonaGroundedCreatureAnimationController>();
+                    monaAnimationController.SetBrain(this);
+                    break;
+                default:
+                    var monaAnimationControllerDefault = _root.GetComponent<MonaDefaultAnimationController>();
+                    if (monaAnimationControllerDefault == null)
+                        monaAnimationControllerDefault = _root.AddComponent<MonaDefaultAnimationController>();
+                    monaAnimationControllerDefault.SetBrain(this);
+                    break;
             }
         }
 

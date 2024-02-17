@@ -58,8 +58,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             _brain = brain;
             _canInterrupt = instruction.HasConditional();
 
-            BuildRoot();
-
             SetupAnimation();
             SetupClip();
 
@@ -68,42 +66,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             UpdateActive();
         }
 
-        private void BuildRoot()
-        {
-            if (_brain.Body.Transform.childCount == 1)
-            {
-                _root = _brain.Body.Transform.GetChild(0);
-            }
-            else
-            {
-                _root = _brain.Body.Transform.Find("Root");
-                if (_root == null)
-                {
-                    _root = (new GameObject("Root")).transform;
-                    _root.transform.position = _brain.Body.GetPosition();
-                    _root.transform.rotation = _brain.Body.GetRotation();
-
-                    var children = new List<Transform>();
-                    for (var i = 0; i < _brain.Body.Transform.childCount; i++)
-                        children.Add(_brain.Body.Transform.GetChild(i));
-
-                    for (var i = 0; i < children.Count; i++)
-                        children[i].SetParent(_root, true);
-
-                    _root.transform.SetParent(_brain.Body.Transform, true);
-                }
-            }
-        }
-
         private void SetupAnimation()
         {
+            _root = _brain.Body.Transform.GetChild(0);
             switch (_brain.PropertyType)
             {
-
+                case MonaBrainPropertyType.GroundedCreature:
+                    _monaAnimationController = _root.GetComponent<MonaGroundedCreatureAnimationController>();
+                    _monaAnimationController.SetBrain(_brain);
+                    break;
                 default:
                     _monaAnimationController = _root.GetComponent<MonaDefaultAnimationController>();
-                    if (_monaAnimationController == null)
-                        _monaAnimationController = _root.AddComponent<MonaDefaultAnimationController>();
                     _monaAnimationController.SetBrain(_brain);
                 break;
             }

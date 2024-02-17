@@ -63,7 +63,6 @@ namespace Mona.SDK.Brains.Core.Brain
             EnsureGlobalRunnerExists();
             CacheComponents();
             AddHotReloadDelegates();
-            PreloadBrains();
         }
 
         private void EnsureGlobalRunnerExists()
@@ -188,6 +187,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private void HandleStarted()
         {
             if (!gameObject.activeInHierarchy) return;
+            PreloadBrains();
             StartCoroutine(BeginBrains());
         }
 
