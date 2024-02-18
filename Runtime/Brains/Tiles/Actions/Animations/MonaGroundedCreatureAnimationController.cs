@@ -79,9 +79,26 @@ namespace Mona.SDK.Brains.Core.Animation
             _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
         }
 
-        public void Walk(float speed)
+        public void SetWalk(float speed)
         {
             _animator.SetFloat(SPEED, speed);
+        }
+
+        public void SetMotionSpeed(float speed)
+        {
+            _animator.SetFloat(MOTION_SPEED, speed);
+        }
+
+        public void Jump()
+        {
+            _animator.SetBool(GROUNDED, false);
+            _animator.SetBool(JUMP, true);
+        }
+
+        public void Landed()
+        {
+            _animator.SetBool(JUMP, false);
+            _animator.SetBool(GROUNDED, true);
         }
 
         public bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed = 1f)

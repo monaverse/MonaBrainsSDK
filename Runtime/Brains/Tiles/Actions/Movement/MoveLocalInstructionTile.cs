@@ -35,7 +35,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private EasingType _easing = EasingType.EaseInOut;
         [BrainPropertyEnum(true)] public EasingType Easing { get => _easing; set => _easing = value; }
 
-        [SerializeField] private MoveModeType _mode = MoveModeType.Time;
+        [SerializeField] protected MoveModeType _mode = MoveModeType.Time;
         [BrainProperty(false)] public MoveModeType Mode { get => _mode; set => _mode = value; }
 
         [SerializeField] private float _value = 1f;
@@ -209,6 +209,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public Vector3 GetEndPosition(Vector3 pos) => Vector3.zero;
 
+        private float _cooldown;
+        private bool _coolingDown;
+
         public override InstructionTileResult Do()
         {
             _direction = GetDirectionVector(DirectionType);
@@ -235,7 +238,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     _distance = _brain.Variables.GetFloat(_distanceValueName);
                 
                 _brain.Body.AddPosition(_direction * _distance, !_usePhysics, true);
-                
+                AddFixedTickDelegate();
+
+                _coolingDown = true;
+                _cooldown = 4;
+
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -253,8 +260,28 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
             Tick(evt.DeltaTime);
+            
+            if(_coolingDown)
+            {
+                if (_cooldown <= 0)
+                {
+                    _currentSpeed *= .999f;
+                    if (_currentSpeed < 0.01f)
+                        _currentSpeed = 0;
+                    if (_cooldown <= -4)
+                    {
+                        RemoveFixedTickDelegate();
+                        StopMoving();
+                        _coolingDown = false;
+                    }
+                }
+                _cooldown--;
+            }
         }
 
+        private float _timeMoving;
+        private float _currentSpeed;
+        private Vector3 _lastPosition;
         protected virtual void Tick(float deltaTime)
         {
             if (!_brain.Body.HasControl())
@@ -263,11 +290,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return;
             }
 
+            if (_mode != MoveModeType.Instant || _cooldown == 4)
+            {
+                _currentSpeed = Mathf.Abs(Vector3.Distance(_brain.Body.GetPosition(), _lastPosition) / deltaTime);
+                _lastPosition = _brain.Body.GetPosition();
+                if (_currentSpeed < 0.01f && _mode != MoveModeType.Instant)
+                    _currentSpeed = 0;
+            }
+
             switch (_mode)
             {
                 case MoveModeType.Time: MoveOverTime(deltaTime); break;
                 case MoveModeType.Speed: MoveAtSpeed(deltaTime); break;
             }
+
         }
 
         private float Evaluate(float t)
@@ -292,13 +328,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         protected float GetSpeed()
         {
-            switch (_mode)
-            {
-                case MoveModeType.Time: return _distance / _value;
-                case MoveModeType.Speed: return ((_distance / ((1f / _value) * _speed)));
-                case MoveModeType.Instant: return _distance;
-            }
-            return 0;
+            return _currentSpeed;
         }
 
         private void MoveOverTime(float deltaTime)
@@ -333,7 +363,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_movingState == MovingStateType.Moving)
             {
-                var progressDelta = Mathf.Round(((_distance / ((1f/_value) * _speed)) * deltaTime) * 1000f) / 1000f;
+                var progressDelta = Mathf.Round((((_value * _speed) / _distance) * deltaTime) * 1000f) / 1000f;
 
                 _direction = GetDirectionVector(DirectionType);
 
@@ -361,13 +391,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(LostControl)}");
             _movingState = MovingStateType.Stopped;
             StoppedMoving();
-            _brain.Body.SetApplyPinOnGrounded(true);
             Complete(InstructionTileResult.LostAuthority, true);
         }
 
         private void StopMoving()
         {
             //Debug.Log($"INPUT stopmoving: {Name} {_progressName} {Progress}");
+            _timeMoving = 0;
             _bodyInput = default;
             _movingState = MovingStateType.Stopped;
             StoppedMoving();
@@ -377,6 +407,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         protected virtual void StoppedMoving()
         {
 
+        }
+
+        protected float GetMotionSpeed(MoveDirectionType moveType)
+        {
+            switch (moveType)
+            {
+                case MoveDirectionType.Forward: return 1f;
+                case MoveDirectionType.Backward: return -1f;
+                case MoveDirectionType.Up: return 1f;
+                case MoveDirectionType.Down: return -1f;
+                case MoveDirectionType.Right: return 1f;
+                case MoveDirectionType.Left: return -1f;
+                case MoveDirectionType.UseInput: return (InputMoveDirection.y == 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
+                case MoveDirectionType.InputForwardBack: return (InputMoveDirection.y == 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
+                default: return 0;
+            }
         }
 
         private Vector3 GetDirectionVector(MoveDirectionType moveType)

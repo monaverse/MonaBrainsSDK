@@ -21,13 +21,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
+            base.Preload(brainInstance, page, instruction);
             _controller = _brain.Root.GetComponent<IMonaAnimationController>();
         }
 
         protected override void Tick(float deltaTime)
         {
             base.Tick(deltaTime);
-            if (_movingState == MovingStateType.Moving)
+            if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant)
             {
                 switch (_brain.PropertyType)
                 {
@@ -48,12 +49,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void TickGroundedCreature(float deltaTime)
         {
-            _controller.Walk(GetSpeed());
+            _controller.SetWalk(GetSpeed());
+            _controller.SetMotionSpeed(GetMotionSpeed(DirectionType));
         }
 
         private void StopGroundedCreature()
         {
-
+            _controller.SetWalk(0);
         }
 
         private void TickDefault(float deltaTime)

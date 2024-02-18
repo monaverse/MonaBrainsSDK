@@ -78,7 +78,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         
         public ApplyForceLocalInstructionTile() { }
         
-        public void Preload(IMonaBrain brainInstance)
+        public virtual void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
             UpdateActive();
@@ -223,6 +223,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 body.SetBounce(_bounce);
                 body.SetKinematic(false, true);
 
+                Pushed();
                 //if (_brain.LoggingEnabled)
                 //    Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {InputMoveDirection} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
 
@@ -233,6 +234,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             if (_movingState == MovingStateType.Stopped)
             {
                 _time = 0;
+                Pushed();
                 AddFixedTickDelegate();
             }
 
@@ -240,12 +242,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             return Complete(InstructionTileResult.Running);
         }
 
+        protected virtual void Pushed()
+        {
+
+        }
+
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
             Tick(evt.DeltaTime);
         }
 
-        private void Tick(float deltaTime)
+        protected virtual void Tick(float deltaTime)
         {
             PushOverTime(deltaTime);
         }
@@ -286,7 +293,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private void StopPushing()
         {
             _movingState = MovingStateType.Stopped;
+            StoppedPushing();
             Complete(InstructionTileResult.Success, true);
+        }
+
+        protected virtual void StoppedPushing()
+        {
+
         }
 
         private Vector3 GetDirectionVector(PushDirectionType moveType, IMonaBody body)

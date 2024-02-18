@@ -20,7 +20,10 @@ namespace Mona.SDK.Brains.Core.Animation
         void SetBrain(IMonaBrain brain);
         void RegisterAnimatorCallback(IMonaAnimationAssetItem clipItem);
 
-        void Walk(float speed);
+        void SetWalk(float speed);
+        void SetMotionSpeed(float speed);
+        void Jump();
+        void Landed();
 
     }
 
@@ -85,7 +88,22 @@ namespace Mona.SDK.Brains.Core.Animation
             _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
         }
 
-        public void Walk(float speed)
+        public void SetWalk(float speed)
+        {
+
+        }
+        
+        public void SetMotionSpeed(float speed)
+        {
+
+        }
+
+        public void Jump()
+        {
+
+        }
+
+        public void Landed()
         {
 
         }
