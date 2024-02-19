@@ -28,6 +28,7 @@ namespace Mona.SDK.Brains.Core.Brain
         bool LoggingEnabled { get; set; }
 
         IMonaBrainPlayer Player { get; }
+        IMonaBrainRunner Runner { get; }
 
         IMonaBrainVariables Variables { get; }
         IMonaBody Body { get; }

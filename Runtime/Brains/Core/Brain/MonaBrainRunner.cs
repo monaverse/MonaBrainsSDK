@@ -58,11 +58,36 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private Action<MonaStateAuthorityChangedEvent> OnStateAuthorityChanged;
 
+        public bool RequiresAnimator
+        {
+            get
+            {
+                for(var i = 0; i < _brainGraphs.Count; i++)
+                {
+                    if (_brainGraphs[i].HasAnimationTiles())
+                        return true;
+                }
+                return false;
+            }
+        }
+
         private void Awake()
         {
             EnsureGlobalRunnerExists();
             CacheComponents();
             AddHotReloadDelegates();
+        }
+
+        private void OnEnable()
+        {
+            if (_began)
+                RestartBrains();
+        }
+
+        private void OnDisable()
+        {
+            if(_began)
+                UnloadBrains();
         }
 
         private void EnsureGlobalRunnerExists()
@@ -94,6 +119,17 @@ namespace Mona.SDK.Brains.Core.Brain
         }
 
         private List<List<WaitFrameQueueItem>> _list = new List<List<WaitFrameQueueItem>>();
+
+        public void WaitFrame(Action callback)
+        {
+            StartCoroutine(WaitFrameCallback(callback));
+        }
+
+        private IEnumerator WaitFrameCallback(Action callback)
+        {
+            yield return null;
+            callback?.Invoke();
+        }
 
         public void WaitFrame(int index, Action<IInstructionEvent> callback, IInstructionEvent evt, Type type)
         {

@@ -9,7 +9,11 @@ namespace Mona.SDK.Brains.Core.Brain
     public interface IMonaBrainRunner
     {
         event Action<IMonaBrainRunner> OnBegin;
+
+        bool RequiresAnimator { get; }
+
         void WaitFrame(int brainIndex, Action<IInstructionEvent> callback, IInstructionEvent evt, Type type);
+        void WaitFrame(Action callback);
 
         List<MonaBrainGraph> BrainGraphs { get; }
         void SetBrainGraphs(List<MonaBrainGraph> brainGraphs);

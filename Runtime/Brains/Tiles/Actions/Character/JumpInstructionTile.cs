@@ -1,5 +1,6 @@
 using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Actions.Physics.Enums;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
@@ -10,7 +11,7 @@ using UnityEngine;
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
     [Serializable]
-    public class JumpInstructionTile : ApplyForceUpInstructionTile
+    public class JumpInstructionTile : ApplyForceUpInstructionTile, IAnimationInstructionTile
     {
         public new const string ID = "Jump";
         public new const string NAME = "Jump";

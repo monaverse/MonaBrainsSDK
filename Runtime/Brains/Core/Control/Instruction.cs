@@ -141,6 +141,16 @@ namespace Mona.SDK.Brains.Core.Control
             return false;
         }
 
+        public bool HasAnimationTiles()
+        {
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                if (InstructionTiles[i] is IAnimationInstructionTile)
+                    return true;
+            }
+            return false;
+        }
+
         private bool IsValidTriggerType(ITriggerInstructionTile tile, MonaTriggerEvent evt)
         {
             return tile.TriggerTypes.Contains(evt.Type);

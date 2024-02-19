@@ -30,6 +30,15 @@ namespace Mona.SDK.Brains.Core.Control
         private bool _isActive;
         public bool IsActive => _isActive;
 
+        public bool HasAnimationTiles()
+        {
+            for(var i = 0;i < _instructions.Count; i++)
+            {
+                if (_instructions[i].HasAnimationTiles()) return true;
+            }
+            return false;
+        }
+
         public MonaBrainPage()
         {
 

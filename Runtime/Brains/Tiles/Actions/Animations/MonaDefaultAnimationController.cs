@@ -15,11 +15,13 @@ namespace Mona.SDK.Brains.Core.Animation
     {
         Animator Animator { get; }
         bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed);
-        bool HasEnded();
-        bool HasPlayedAnimation();
+        bool HasEnded(IMonaAnimationAssetItem clipItem);
+        bool HasPlayedAnimation(IMonaAnimationAssetItem clipItem);
         void SetBrain(IMonaBrain brain);
         void RegisterAnimatorCallback(IMonaAnimationAssetItem clipItem);
 
+        void SetLayerWeight(int layer, float layerWeight);
+        void SetTPose(bool value);
         void SetWalk(float speed);
         void SetMotionSpeed(float speed);
         void Jump();
@@ -92,7 +94,7 @@ namespace Mona.SDK.Brains.Core.Animation
         {
 
         }
-        
+
         public void SetMotionSpeed(float speed)
         {
 
@@ -108,6 +110,16 @@ namespace Mona.SDK.Brains.Core.Animation
 
         }
 
+        public void SetTPose(bool value)
+        {
+
+        }
+
+        public void SetLayerWeight(int layer, float layerWeight)
+        {
+            _animator.SetLayerWeight(layer, layerWeight);
+        }
+
         public bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed = 1f)
         {
             if (_controller == null) return false;
@@ -115,7 +127,7 @@ namespace Mona.SDK.Brains.Core.Animation
             if (canInterrupt)
             {
                 var current = _animator.GetCurrentAnimatorStateInfo(0);
-                if (_controller[CLIP_STATE].name == clipItem.Value.name && (!HasEnded() || current.IsName(START_STATE))) return false;
+                if (_controller[CLIP_STATE].name == clipItem.Value.name && (!HasEnded(clipItem) || current.IsName(START_STATE))) return false;
                 //Debug.Log($"Trigger {clipItem.Value.name}");
                 _controller[CLIP_STATE] = clipItem.Value;
                 _animator.SetTrigger(TRIGGER);
@@ -126,7 +138,7 @@ namespace Mona.SDK.Brains.Core.Animation
             else
             {
                 var current = _animator.GetCurrentAnimatorStateInfo(0);
-                if (HasEnded() || current.IsName(START_STATE))
+                if (HasEnded(clipItem) || current.IsName(START_STATE))
                 {
                     //Debug.Log($"transition time {transition.normalizedTime}");
                     //Debug.Log($"play {clipItem.Value.name}");
@@ -140,16 +152,16 @@ namespace Mona.SDK.Brains.Core.Animation
             return false;
         }
 
-        public bool HasPlayedAnimation()
+        public bool HasPlayedAnimation(IMonaAnimationAssetItem clipItem)
         {
-            var current = _animator.GetCurrentAnimatorStateInfo(0);
+            var current = _animator.GetCurrentAnimatorStateInfo(clipItem.Layer);
             return current.IsName(CLIP_STATE);
         }
 
-        public bool HasEnded()
+        public bool HasEnded(IMonaAnimationAssetItem clipItem)
         {
-            var transition = _animator.GetAnimatorTransitionInfo(0);
-            var current = _animator.GetCurrentAnimatorStateInfo(0);
+            var transition = _animator.GetAnimatorTransitionInfo(clipItem.Layer);
+            var current = _animator.GetCurrentAnimatorStateInfo(clipItem.Layer);
             return (current.IsName(END_STATE)) && transition.normalizedTime == 0;
         }
 

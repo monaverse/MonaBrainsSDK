@@ -2,13 +2,14 @@ using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
 using System;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class WalkAlongForwardInputInstructionTile : MoveLocalInstructionTile
+    public class WalkAlongForwardInputInstructionTile : MoveLocalInstructionTile, IAnimationInstructionTile
     {
         public const string ID = "WalkAlongForward";
         public const string NAME = "Walk Along Forward Input";

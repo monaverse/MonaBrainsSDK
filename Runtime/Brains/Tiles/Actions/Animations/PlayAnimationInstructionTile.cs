@@ -17,7 +17,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 {
     [Serializable]
     public class PlayAnimationInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction,
-        IPauseableInstructionTile, IActivateInstructionTile
+        IPauseableInstructionTile, IActivateInstructionTile, IAnimationInstructionTile
     {
         public const string ID = "PlayAnimation";
         public const string NAME = "Play Animation";
@@ -68,18 +68,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         private void SetupAnimation()
         {
-            _root = _brain.Body.Transform.GetChild(0);
-            switch (_brain.PropertyType)
-            {
-                case MonaBrainPropertyType.GroundedCreature:
-                    _monaAnimationController = _root.GetComponent<MonaGroundedCreatureAnimationController>();
-                    _monaAnimationController.SetBrain(_brain);
-                    break;
-                default:
-                    _monaAnimationController = _root.GetComponent<MonaDefaultAnimationController>();
-                    _monaAnimationController.SetBrain(_brain);
-                break;
-            }
+            _root = _brain.Root;
+            _monaAnimationController = _root.GetComponent<IMonaAnimationController>();
+            _monaAnimationController.SetBrain(_brain);
         }
 
         private void SetupClip()
@@ -181,14 +172,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
         {
             if (_isPlaying)
             {        
-                if(_monaAnimationController.HasPlayedAnimation())
+                if(_monaAnimationController.HasPlayedAnimation(_clip))
                 {
                     _hasPlayed = true;
                 }
-                if (_monaAnimationController.HasEnded() && _hasPlayed)
+                if (_monaAnimationController.HasEnded(_clip) && _hasPlayed)
                 {
                     //Debug.Log($"animation finished {_clip.Value}");
                     _isPlaying = false;
+                    _monaAnimationController.SetLayerWeight(_clip.Layer, 0f);
                     Complete(InstructionTileResult.Success, true);
                 }
             }

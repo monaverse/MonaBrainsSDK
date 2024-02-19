@@ -16,6 +16,7 @@ namespace Mona.SDK.Brains.Core.Control
 
         bool IsRunning();
         bool HasEndTile(IMonaBrainPage page);
+        bool HasAnimationTiles();
 
         List<IInstructionTile> InstructionTiles { get; }
         IInstructionTile CurrentTile { get; }

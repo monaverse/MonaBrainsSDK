@@ -46,6 +46,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         public GameObject GameObject => _gameObject;
 
         private IMonaBrainRunner _runner;
+        public IMonaBrainRunner Runner => _runner;
+
         private int _index;
 
         private IMonaBody _body;
@@ -103,6 +105,16 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                     return item;
             }
             return null;
+        }
+
+        public bool HasAnimationTiles()
+        {
+            if (_corePage.HasAnimationTiles()) return true;
+            for(var i = 0;i < _statePages.Count; i++)
+            {
+                if (_statePages[i].HasAnimationTiles()) return true;
+            }
+            return PropertyType != MonaBrainPropertyType.Default;
         }
 
         public bool HasMonaTag(string tag) => MonaTags.Contains(tag);
@@ -289,6 +301,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void BuildRoot()
         {
+            if (!HasAnimationTiles()) return;
             if (_body.Transform.childCount == 1)
             {
                 _root = _body.Transform.GetChild(0);
@@ -316,6 +329,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void SetupAnimation()
         {
+            if (!HasAnimationTiles()) return;
             switch (PropertyType)
             {
                 case MonaBrainPropertyType.GroundedCreature:

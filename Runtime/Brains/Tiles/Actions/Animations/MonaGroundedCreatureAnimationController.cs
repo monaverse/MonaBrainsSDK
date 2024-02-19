@@ -1,5 +1,6 @@
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core;
+using Mona.SDK.Core.Assets;
 using Mona.SDK.Core.Assets.Interfaces;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.State.Structs;
@@ -22,6 +23,7 @@ namespace Mona.SDK.Brains.Core.Animation
         private const string END_STATE = "Idle Walk Run Blend";
         private const string CLIP_STATE = "__Clip";
         private const string TRIGGER = "__TriggerAnimation";
+        private const string TRIGGER_1 = "__TriggerAnimation1";
         private const string ANIMATION_SPEED = "__AnimationSpeed";
 
         private const string SPEED = "Speed";
@@ -30,6 +32,9 @@ namespace Mona.SDK.Brains.Core.Animation
         private const string FREE_FALL = "Freefall";
         private const string MOTION_SPEED = "MotionSpeed";
         private const string EMOTE = "Emote";
+
+        private const string TPOSE = "TPose";
+        private const string TPOSE_TRIGGER = "__TriggerTPose";
 
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
 
@@ -101,17 +106,34 @@ namespace Mona.SDK.Brains.Core.Animation
             _animator.SetBool(GROUNDED, true);
         }
 
+        public void SetLayerWeight(int layer, float layerWeight)
+        {
+            _animator.SetLayerWeight(layer, layerWeight);
+        }
+
+        public void SetTPose(bool value)
+        {
+            var pose = (IMonaAnimationAssetItem)_brain.GetMonaAsset(MonaAnimationAssets.TPOSE);
+            if (pose != null)
+                _controller[TPOSE] = pose.Value;
+            _animator.SetBool(TPOSE_TRIGGER, value);
+        }
+
         public bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed = 1f)
         {
             if (_controller == null) return false;
 
             if (canInterrupt)
             {
-                var current = _animator.GetCurrentAnimatorStateInfo(0);
-                if (_controller[CLIP_STATE].name == clipItem.Value.name && (!HasEnded() || current.IsName(START_STATE))) return false;
+                var current = _animator.GetCurrentAnimatorStateInfo(clipItem.Layer);
+                if (_controller[CLIP_STATE].name == clipItem.Value.name && (!HasEnded(clipItem) || current.IsName(START_STATE))) return false;
                 //Debug.Log($"Trigger {clipItem.Value.name}");
                 _controller[CLIP_STATE] = clipItem.Value;
-                _animator.SetTrigger(TRIGGER);
+                _animator.SetLayerWeight(clipItem.Layer, clipItem.LayerWeight);
+
+                if (clipItem.Layer == 0) _animator.SetTrigger(TRIGGER);
+                else if (clipItem.Layer == 1) _animator.SetTrigger(TRIGGER_1);
+
                 _animator.SetFloat(ANIMATION_SPEED, speed);
                 _brain.Variables.Set(TRIGGER, clipItem.Value.name);
                 return true;
@@ -119,12 +141,15 @@ namespace Mona.SDK.Brains.Core.Animation
             else
             {
                 var current = _animator.GetCurrentAnimatorStateInfo(0);
-                if (HasEnded() || current.IsName(START_STATE))
+                if (HasEnded(clipItem) || current.IsName(START_STATE))
                 {
                     //Debug.Log($"transition time {transition.normalizedTime}");
                     //Debug.Log($"play {clipItem.Value.name}");
                     _brain.Variables.Set(TRIGGER, clipItem.Value.name);
-                    _animator.SetTrigger(TRIGGER);
+
+                    if (clipItem.Layer == 0) _animator.SetTrigger(TRIGGER);
+                    else if (clipItem.Layer == 1) _animator.SetTrigger(TRIGGER_1);
+
                     _animator.SetFloat(ANIMATION_SPEED, speed);
                     _controller[CLIP_STATE] = clipItem.Value;
                     return true;
@@ -133,16 +158,16 @@ namespace Mona.SDK.Brains.Core.Animation
             return false;
         }
 
-        public bool HasPlayedAnimation()
+        public bool HasPlayedAnimation(IMonaAnimationAssetItem clipItem)
         {
-            var current = _animator.GetCurrentAnimatorStateInfo(0);
+            var current = _animator.GetCurrentAnimatorStateInfo(clipItem.Layer);
             return current.IsName(CLIP_STATE);
         }
 
-        public bool HasEnded()
+        public bool HasEnded(IMonaAnimationAssetItem clipItem)
         {
-            var transition = _animator.GetAnimatorTransitionInfo(0);
-            var current = _animator.GetCurrentAnimatorStateInfo(0);
+            var transition = _animator.GetAnimatorTransitionInfo(clipItem.Layer);
+            var current = _animator.GetCurrentAnimatorStateInfo(clipItem.Layer);
             return (current.IsName(END_STATE)) && transition.normalizedTime == 0;
         }
 
