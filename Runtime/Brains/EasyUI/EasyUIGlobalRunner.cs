@@ -22,7 +22,10 @@ namespace Mona.SDK.Brains.EasyUI
         private EasyUIScreenDefinitions _rootScreenDefinitions;
         private List<IMonaVariablesValue> _displayableVariables;
 
+        private EasyUIScreenDefinitions PrimaryScreenDefinitions => _rootScreenDefinitions ? _rootScreenDefinitions.GetComponent<EasyUIScreenDefinitions>() : null;
+
         private static EasyUIGlobalRunner _instance;
+
         public static EasyUIGlobalRunner Instance
         {
             get
@@ -80,7 +83,7 @@ namespace Mona.SDK.Brains.EasyUI
                 return;
             }
 
-            GameObject rootObject = Instantiate(_primaryScreenRoot, this.transform);
+            GameObject rootObject = Instantiate(_primaryScreenRoot, gameObject.transform);
             _rootScreenDefinitions = rootObject.GetComponent<EasyUIScreenDefinitions>();
 
             if (!_rootScreenDefinitions)
@@ -90,6 +93,7 @@ namespace Mona.SDK.Brains.EasyUI
             }
 
             GetVariablesFromBrains();
+            SetupUIElements();
         }
 
         private void GetVariablesFromBrains()
@@ -116,6 +120,22 @@ namespace Mona.SDK.Brains.EasyUI
 
                 if (((IEasyUINumericalDisplay)variable).AllowUIDisplay)
                     _displayableVariables.Add(variable);
+            }
+        }
+
+        private void SetupUIElements()
+        {
+            if (_displayableVariables.Count == 0 || !PrimaryScreenDefinitions)
+                return;
+
+            foreach (IEasyUINumericalDisplay variable in _displayableVariables)
+            {
+                switch (variable.DisplaySpace)
+                {
+                    case EasyUIDisplaySpace.HeadsUpDisplay:
+                        PrimaryScreenDefinitions.PlaceElementInHUD(variable);
+                        break;
+                }
             }
         }
     }
