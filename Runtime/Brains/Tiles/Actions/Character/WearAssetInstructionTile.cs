@@ -120,7 +120,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     var boneDef = avatar.human[i];
                     var humanBone = boneDef.humanName;
                     
-                    var wearableBone = wearableTransforms.Find(x => x.name == boneDef.boneName || boneDef.boneName.IndexOf(x.name) > -1);
+                    var wearableBone = wearableTransforms.Find(x => x.name == boneDef.boneName);
+                    if (wearableBone == null)
+                        wearableBone = wearableTransforms.Find(x => boneDef.boneName.IndexOf(x.name) > -1);
                     if(wearableBone == null)
                         wearableBone = wearableTransforms.Find(x => x.name == boneDef.humanName);
 
