@@ -64,11 +64,21 @@ namespace Mona.SDK.Brains.Core.Animation
                 EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
         }
 
-        private void SetupAnimationController()
+        private void SetupAnimationController(Animator animator = null)
         {
-            _animator = gameObject.GetComponent<Animator>();
-            if (_animator == null)
-                _animator = gameObject.AddComponent<Animator>();
+            if (animator == null)
+            {
+                _animator = gameObject.GetComponent<Animator>();
+                if (_animator == null)
+                    _animator = gameObject.AddComponent<Animator>();
+            }
+            else
+            {
+                if (_animator != null)
+                    Destroy(_animator);
+                _animator = animator;
+                _brain.Body.SetAnimator(_animator);
+            }
 
             if (_animator.runtimeAnimatorController == null)
             {
@@ -82,6 +92,11 @@ namespace Mona.SDK.Brains.Core.Animation
                 _animator.runtimeAnimatorController = overrideController;
             }
             _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
+        }
+
+        public void SetAnimator(Animator animator)
+        {
+            SetupAnimationController(animator);
         }
 
         public void SetWalk(float speed)

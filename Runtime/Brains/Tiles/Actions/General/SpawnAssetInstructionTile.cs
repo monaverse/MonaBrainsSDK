@@ -147,8 +147,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             for (var i = 0; i < _equipmentInstances.Count; i++)
             {
                 var instance = _equipmentInstances[i];
+                if (instance == null) continue;
                 instance.OnDisabled -= HandleBodyDisabled;
-                if(instance != null && instance.Transform != null)
+                if(instance.Transform != null)
                     GameObject.Destroy(instance.Transform.gameObject);
             }
         }
