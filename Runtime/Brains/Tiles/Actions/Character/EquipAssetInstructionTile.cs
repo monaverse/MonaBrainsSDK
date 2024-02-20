@@ -106,7 +106,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public override void Unload()
         {
             base.Unload();
-            if(_equipmentInstance != null)
+            if(_equipmentInstance != null && _equipmentInstance.Transform != null && _equipmentInstance.Transform.gameObject != null)
                 GameObject.Destroy(_equipmentInstance.Transform.gameObject);
             _equipmentInstance = null;
         }

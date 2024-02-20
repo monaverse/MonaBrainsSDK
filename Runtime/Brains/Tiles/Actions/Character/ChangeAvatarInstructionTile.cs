@@ -177,6 +177,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             _avatarInstance.transform.localPosition = _offset;
             _avatarInstance.transform.localRotation = Quaternion.Euler(_eulerAngles);
+
+            EventBus.Trigger<MonaPlayerChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_CHANGE_AVATAR_EVENT), new MonaPlayerChangeAvatarEvent(_avatarInstance));
         }
 
         public override void Unload()

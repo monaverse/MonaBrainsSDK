@@ -22,9 +22,6 @@ namespace Mona.SDK.Brains.Core.Animation
         private const string START_STATE = "__Start";
         private const string END_STATE = "Idle Walk Run Blend";
         private const string CLIP_STATE = "__Clip";
-        private const string TRIGGER = "__TriggerAnimation";
-        private const string TRIGGER_1 = "__TriggerAnimation1";
-        private const string ANIMATION_SPEED = "__AnimationSpeed";
 
         private const string SPEED = "Speed";
         private const string JUMP = "Jump";
@@ -47,6 +44,7 @@ namespace Mona.SDK.Brains.Core.Animation
 
         public void SetBrain(IMonaBrain brain)
         {
+            Debug.Log($"{nameof(MonaGroundedCreatureAnimationController)}.{nameof(SetBrain)}");
             if (_brain == null)
             {
                 SetupAnimationController();
@@ -54,14 +52,18 @@ namespace Mona.SDK.Brains.Core.Animation
                 EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, brain.Body), OnMonaValueChanged);
                 _brain = brain;
                 _brain.Body.SetAnimator(_animator);
-                _brain.Variables.Set(TRIGGER, "");
+                _brain.Variables.Set(MonaBrainConstants.TRIGGER, "");
+                _brain.Variables.Set(MonaBrainConstants.ANIMATION_SPEED, 1f);
+                Debug.Log($"I WAS CALLLED {MonaBrainConstants.TRIGGER} = {_brain.Variables.GetString(MonaBrainConstants.TRIGGER)}");
             }
         }
 
         private void OnDestroy()
         {
+            Debug.Log($"{nameof(MonaGroundedCreatureAnimationController)}.{nameof(OnDestroy)}");
             if (_brain != null)
                 EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
+            _brain = null;
         }
 
         private void SetupAnimationController(Animator animator = null)
@@ -146,11 +148,11 @@ namespace Mona.SDK.Brains.Core.Animation
                 _controller[CLIP_STATE] = clipItem.Value;
                 _animator.SetLayerWeight(clipItem.Layer, clipItem.LayerWeight);
 
-                if (clipItem.Layer == 0) _animator.SetTrigger(TRIGGER);
-                else if (clipItem.Layer == 1) _animator.SetTrigger(TRIGGER_1);
+                if (clipItem.Layer == 0) _animator.SetTrigger(MonaBrainConstants.TRIGGER);
+                else if (clipItem.Layer == 1) _animator.SetTrigger(MonaBrainConstants.TRIGGER_1);
 
-                _animator.SetFloat(ANIMATION_SPEED, speed);
-                _brain.Variables.Set(TRIGGER, clipItem.Value.name);
+                _animator.SetFloat(MonaBrainConstants.ANIMATION_SPEED, speed);
+                _brain.Variables.Set(MonaBrainConstants.TRIGGER, clipItem.Value.name);
                 return true;
             }
             else
@@ -160,12 +162,12 @@ namespace Mona.SDK.Brains.Core.Animation
                 {
                     //Debug.Log($"transition time {transition.normalizedTime}");
                     //Debug.Log($"play {clipItem.Value.name}");
-                    _brain.Variables.Set(TRIGGER, clipItem.Value.name);
+                    _brain.Variables.Set(MonaBrainConstants.TRIGGER, clipItem.Value.name);
 
-                    if (clipItem.Layer == 0) _animator.SetTrigger(TRIGGER);
-                    else if (clipItem.Layer == 1) _animator.SetTrigger(TRIGGER_1);
+                    if (clipItem.Layer == 0) _animator.SetTrigger(MonaBrainConstants.TRIGGER);
+                    else if (clipItem.Layer == 1) _animator.SetTrigger(MonaBrainConstants.TRIGGER_1);
 
-                    _animator.SetFloat(ANIMATION_SPEED, speed);
+                    _animator.SetFloat(MonaBrainConstants.ANIMATION_SPEED, speed);
                     _controller[CLIP_STATE] = clipItem.Value;
                     return true;
                 }
@@ -194,7 +196,7 @@ namespace Mona.SDK.Brains.Core.Animation
 
         private void HandleMonaValueChanged(MonaValueChangedEvent evt)
         {
-            if(evt.Name == TRIGGER)
+            if(evt.Name == MonaBrainConstants.TRIGGER)
             {
                 var animation = ((IMonaVariablesStringValue)evt.Value).Value;
                 if (_animationAssets.ContainsKey(animation) && (_controller[CLIP_STATE] == null || _controller[CLIP_STATE].name != animation))

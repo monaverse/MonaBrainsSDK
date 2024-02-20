@@ -23,6 +23,7 @@ namespace Mona.SDK.Brains.Core.State
         public void SetNetworkVariables(INetworkMonaVariables variables) => _variables.SetNetworkVariables(variables);
         public List<IMonaVariablesValue> VariableList { get => _variables.VariableList; set => _variables.VariableList = value; }
 
+        public void SyncValuesOnNetwork() => _variables.SyncValuesOnNetwork();
         public void SetGameObject(GameObject gameObject) => _variables.SetGameObject(gameObject);
         public void SetGameObject(GameObject gameObject, IMonaBrain brain) => _variables.SetGameObject(gameObject, brain);
         public IMonaVariablesValue CreateVariable(string variableName, Type type, int i) => _variables.CreateVariable(variableName, type, i);

@@ -16,6 +16,10 @@
 
         public const string ON_STARTING = "__OnStarting";
 
+        public const string TRIGGER = "__TriggerAnimation";
+        public const string TRIGGER_1 = "__TriggerAnimation1";
+        public const string ANIMATION_SPEED = "__AnimationSpeed";
+
         public const string BRAIN_SPAWNED_EVENT = "OnMonaBrainSpawnedEvent";
         public const string BRAIN_DESTROYED_EVENT = "OnMonaBrainDestroyedEvent";
         public const string BRAIN_RELOAD_EVENT = "OnMonaBrainReloadEvent";

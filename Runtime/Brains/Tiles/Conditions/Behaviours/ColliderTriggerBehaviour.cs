@@ -144,7 +144,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private void IncludeIfInsideTrigger(IMonaBody body)
         {
-            if (body.Intersects(_collider))
+            if (body != null && _collider != null && body.Intersects(_collider))
                 AddBody(body);
         }
 

@@ -273,6 +273,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             _variables.GetVariable(MonaBrainConstants.RESULT_STATE, typeof(MonaVariablesString));
             _variables.GetVariable(MonaBrainConstants.ON_STARTING, typeof(MonaVariablesBool));
+
+            if(HasAnimationTiles())
+            {
+                _variables.GetVariable(MonaBrainConstants.TRIGGER, typeof(MonaVariablesString));
+                _variables.GetVariable(MonaBrainConstants.TRIGGER_1, typeof(MonaVariablesString));
+                _variables.GetVariable(MonaBrainConstants.ANIMATION_SPEED, typeof(MonaVariablesFloat));
+            }
         }
 
         private void CacheReferences(GameObject gameObject, IMonaBrainRunner runner, int index)
@@ -573,6 +580,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             RemoveEventDelegates();
             RemoveHierarchyDelegates();
             _began = false;
+
+            if(_root != null && (MonoBehaviour)_root.GetComponent<IMonaAnimationController>() != null)
+                Destroy((MonoBehaviour)_root.GetComponent<IMonaAnimationController>());
+
         }
     }
 }

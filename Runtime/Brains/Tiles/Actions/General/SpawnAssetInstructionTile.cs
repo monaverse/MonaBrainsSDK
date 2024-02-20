@@ -152,6 +152,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 if(instance.Transform != null)
                     GameObject.Destroy(instance.Transform.gameObject);
             }
+            _equipmentInstances.Clear();
+            _pool.Clear();
         }
     }
 }

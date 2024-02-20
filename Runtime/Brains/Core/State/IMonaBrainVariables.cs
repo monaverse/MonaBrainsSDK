@@ -15,6 +15,8 @@ namespace Mona.SDK.Brains.Core.State
         IMonaBrain GetBrain(string variableName);
 
         void SetNetworkVariables(INetworkMonaVariables state);
+
+        void SyncValuesOnNetwork();
     }
 
 }

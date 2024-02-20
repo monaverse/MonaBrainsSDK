@@ -202,6 +202,10 @@ namespace Mona.SDK.Brains.Core.Brain
                 for(var i = 0;i < PlayerBrainGraphs.Count; i++)
                     runner.AddBrainGraph(PlayerBrainGraphs[i]);
                 runner.PreloadBrains();
+
+                for (var i = 0; i < runner.BrainInstances.Count; i++)
+                    runner.BrainInstances[i].Variables.SyncValuesOnNetwork();
+
                 runner.StartBrains();
             }
         }
