@@ -70,5 +70,6 @@
         public const string TAG_FRIENDLY = "Friendly";
         public const string TAG_COLLECTIBLE = "Collectible";
 
+        public static readonly int AVATAR_MAXIMUM_FILESIZE_MB = 16;
     }
 }

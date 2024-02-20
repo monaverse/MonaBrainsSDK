@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Animation;
 using VRM;
 using UniHumanoid;
+using Mona.SDK.Brains.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Character
 {
@@ -84,65 +85,98 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 if (_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
-                _avatarInstance = GameObject.Instantiate(_avatarAsset.Value);
-                _avatarInstance.transform.SetParent(_brain.Root);
-                _monaAnimationController.SetAnimator(_avatarInstance);
-
-                var parts = new List<IMonaBodyPart>(_avatarInstance.transform.GetComponentsInChildren<IMonaBodyPart>());
-                var transforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
-
-                var boneMappings = _brain.Body.Animator.GetComponent<VRMHumanoidDescription>();
-                if (boneMappings != null)
+                if (_avatarAsset.Value != null)
                 {
-                    var avatarTransforms = new List<Transform>(_brain.Body.Animator.transform.GetComponentsInChildren<Transform>());
-
-                    AvatarDescription description = boneMappings.GetDescription(out bool isCreated);
-                    var avatar = description.ToHumanDescription(_brain.Body.Animator.transform);
-
-                    for (var i = 0; i < avatar.human.Length; i++)
-                    {
-                        var tag = avatar.human[i].humanName;
-                        if (_brain.MonaTagSource.HasTag(tag))
-                        {
-                            var part = parts.Find(x => x.HasMonaTag(tag));
-                            if (part == null)
-                            {
-                                var t = transforms.Find(x => x.name == avatar.human[i].boneName);
-                                if (t != null)
-                                {
-                                    var newPart = t.AddComponent<MonaBodyPart>();
-                                    newPart.AddTag(tag);
-                                }
-                            }
-                        }
-                    }
+                    LoadAvatar(GameObject.Instantiate(_avatarAsset.Value));
+                    return Complete(InstructionTileResult.Success);
                 }
-                else
+                else if (!string.IsNullOrEmpty(_avatarAsset.Url))
                 {
-                    for (var i = 0; i < (int)HumanBodyBones.LastBone; i++)
-                    {
-                        var tag = ((HumanBodyBones)i).ToString();
-                        if (_brain.MonaTagSource.HasTag(tag))
-                        {
-                            var part = parts.Find(x => x.HasMonaTag(tag));
-                            if (part == null)
-                            {
-                                var t = transforms.Find(x => x.name == tag);
-                                if (t != null)
-                                {
-                                    var newPart = t.AddComponent<MonaBodyPart>();
-                                    newPart.AddTag(tag);
-                                }
-                            }
-                        }
-                    }
+                    LoadAvatarAtUrl(_avatarAsset.Url);
+                    return Complete(InstructionTileResult.Running);
                 }
-
-                _avatarInstance.transform.localPosition = _offset;
-                _avatarInstance.transform.localRotation = Quaternion.Euler(_eulerAngles);
             }
 
             return Complete(InstructionTileResult.Success);
+        }
+
+        private void LoadAvatarAtUrl(string url)
+        {
+            var loader = _brain.Body.Transform.GetComponent<BrainsVrmLoader>();
+            if (loader == null)
+                loader = _brain.Body.Transform.AddComponent<BrainsVrmLoader>();
+
+            loader.Load(url, (avatar) =>
+            {
+                if (avatar != null)
+                {
+                    var animator = avatar.GetComponent<Animator>();
+                    if (animator == null)
+                        animator = avatar.AddComponent<Animator>();
+                    LoadAvatar(animator);
+                }
+                Complete(InstructionTileResult.Success, true);
+            });
+        }
+
+        private void LoadAvatar(Animator animator)
+        {
+            _avatarInstance = animator;
+            _avatarInstance.transform.SetParent(_brain.Root);
+            _monaAnimationController.SetAnimator(_avatarInstance);
+
+            var parts = new List<IMonaBodyPart>(_avatarInstance.transform.GetComponentsInChildren<IMonaBodyPart>());
+            var transforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
+
+            var boneMappings = _brain.Body.Animator.GetComponent<VRMHumanoidDescription>();
+            if (boneMappings != null)
+            {
+                var avatarTransforms = new List<Transform>(_brain.Body.Animator.transform.GetComponentsInChildren<Transform>());
+
+                AvatarDescription description = boneMappings.GetDescription(out bool isCreated);
+                var avatar = description.ToHumanDescription(_brain.Body.Animator.transform);
+
+                for (var i = 0; i < avatar.human.Length; i++)
+                {
+                    var tag = avatar.human[i].humanName;
+                    if (_brain.MonaTagSource.HasTag(tag))
+                    {
+                        var part = parts.Find(x => x.HasMonaTag(tag));
+                        if (part == null)
+                        {
+                            var t = transforms.Find(x => x.name == avatar.human[i].boneName);
+                            if (t != null)
+                            {
+                                var newPart = t.AddComponent<MonaBodyPart>();
+                                newPart.AddTag(tag);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (var i = 0; i < (int)HumanBodyBones.LastBone; i++)
+                {
+                    var tag = ((HumanBodyBones)i).ToString();
+                    if (_brain.MonaTagSource.HasTag(tag))
+                    {
+                        var part = parts.Find(x => x.HasMonaTag(tag));
+                        if (part == null)
+                        {
+                            var t = transforms.Find(x => x.name == tag);
+                            if (t != null)
+                            {
+                                var newPart = t.AddComponent<MonaBodyPart>();
+                                newPart.AddTag(tag);
+                            }
+                        }
+                    }
+                }
+            }
+
+            _avatarInstance.transform.localPosition = _offset;
+            _avatarInstance.transform.localRotation = Quaternion.Euler(_eulerAngles);
         }
 
         public override void Unload()
