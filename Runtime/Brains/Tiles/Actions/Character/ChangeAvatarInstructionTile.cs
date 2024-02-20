@@ -16,6 +16,8 @@ using Mona.SDK.Core.Assets.Interfaces;
 using System.Collections;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Animation;
+using VRM;
+using UniHumanoid;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Character
 {
@@ -29,9 +31,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaAvatarAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
-
-        [SerializeField] private string _tag;
-        [BrainPropertyMonaTag] public string Tag { get => _tag; set => _tag = value; }
 
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
@@ -65,7 +64,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             _monaAnimationController.SetBrain(_brain);
 
             _avatarAsset = (IMonaAvatarAssetItem)_brain.GetMonaAsset(_monaAsset);
-            _avatarInstance = GameObject.Instantiate(_avatarAsset.Value);
         }
 
         public IMonaBody GetBodyToControl()
@@ -75,20 +73,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         private IMonaBody GetTarget()
         {
-            if (_brain.MonaTagSource.GetTag(_tag).IsPlayerTag)
-            {
-                return _brain.Player.PlayerBody;
-            }
-            else
-            {
-                var bodies = MonaBody.FindByTag(_tag);
-                if (bodies != null && bodies.Count > 0)
-                {
-                    var body = bodies[0];
-                    return body;
-                }
-            }
-            return null;
+            return _brain.Body;
         }
 
         public override InstructionTileResult Do()
@@ -99,8 +84,59 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 if (_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
+                _avatarInstance = GameObject.Instantiate(_avatarAsset.Value);
                 _avatarInstance.transform.SetParent(_brain.Root);
                 _monaAnimationController.SetAnimator(_avatarInstance);
+
+                var parts = new List<IMonaBodyPart>(_avatarInstance.transform.GetComponentsInChildren<IMonaBodyPart>());
+                var transforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
+
+                var boneMappings = _brain.Body.Animator.GetComponent<VRMHumanoidDescription>();
+                if (boneMappings != null)
+                {
+                    var avatarTransforms = new List<Transform>(_brain.Body.Animator.transform.GetComponentsInChildren<Transform>());
+
+                    AvatarDescription description = boneMappings.GetDescription(out bool isCreated);
+                    var avatar = description.ToHumanDescription(_brain.Body.Animator.transform);
+
+                    for (var i = 0; i < avatar.human.Length; i++)
+                    {
+                        var tag = avatar.human[i].humanName;
+                        if (_brain.MonaTagSource.HasTag(tag))
+                        {
+                            var part = parts.Find(x => x.HasMonaTag(tag));
+                            if (part == null)
+                            {
+                                var t = transforms.Find(x => x.name == avatar.human[i].boneName);
+                                if (t != null)
+                                {
+                                    var newPart = t.AddComponent<MonaBodyPart>();
+                                    newPart.AddTag(tag);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (var i = 0; i < (int)HumanBodyBones.LastBone; i++)
+                    {
+                        var tag = ((HumanBodyBones)i).ToString();
+                        if (_brain.MonaTagSource.HasTag(tag))
+                        {
+                            var part = parts.Find(x => x.HasMonaTag(tag));
+                            if (part == null)
+                            {
+                                var t = transforms.Find(x => x.name == tag);
+                                if (t != null)
+                                {
+                                    var newPart = t.AddComponent<MonaBodyPart>();
+                                    newPart.AddTag(tag);
+                                }
+                            }
+                        }
+                    }
+                }
 
                 _avatarInstance.transform.localPosition = _offset;
                 _avatarInstance.transform.localRotation = Quaternion.Euler(_eulerAngles);

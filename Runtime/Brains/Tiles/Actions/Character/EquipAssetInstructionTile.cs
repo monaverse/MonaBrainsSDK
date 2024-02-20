@@ -30,9 +30,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaBodyAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
 
-        [SerializeField] private string _tag;
-        [BrainPropertyMonaTag] public string Tag { get => _tag; set => _tag = value; }
-
         [SerializeField]
         private string _part = "Default";
         [BrainPropertyMonaTag]
@@ -74,7 +71,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             _monaAnimationController.SetBrain(_brain);
 
             _item = (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset);
-            _equipmentInstance = (IMonaBody)GameObject.Instantiate(_item.Value);
         }
 
         public IMonaBody GetBodyToControl()
@@ -84,20 +80,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         private IMonaBody GetTarget()
         {
-            if (_brain.MonaTagSource.GetTag(_tag).IsPlayerTag)
-            {
-                return _brain.Player.PlayerBody;
-            }
-            else
-            {
-                var bodies = MonaBody.FindByTag(_tag);
-                if (bodies != null && bodies.Count > 0)
-                {
-                    var body = bodies[0];
-                    return body;
-                }
-            }
-            return null;
+            return _brain.Body;
         }
 
         public override InstructionTileResult Do()
@@ -110,6 +93,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 if (_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
+                _equipmentInstance = (IMonaBody)GameObject.Instantiate(_item.Value);
                 _equipmentInstance.SetScale(_scale, true);
                 _equipmentInstance.SetTransformParent(playerPart.ActiveTransform);
                 _equipmentInstance.Transform.localPosition = _offset;
@@ -122,7 +106,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public override void Unload()
         {
             base.Unload();
-            GameObject.Destroy(_equipmentInstance.Transform.gameObject);
+            if(_equipmentInstance != null)
+                GameObject.Destroy(_equipmentInstance.Transform.gameObject);
+            _equipmentInstance = null;
         }
     }
 }

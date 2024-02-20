@@ -671,11 +671,11 @@ namespace Mona.SDK.Brains.UIElements
             _defaultVariablesVisualElement.SetState(_brain.DefaultVariables);
 
             _monaTagListView.itemsSource = _brain.MonaTags;
-            _monaTagListView.Q<Foldout>().value = false;
+            _monaTagListView.Q<Foldout>().value = _brain.MonaTags.Count > 0;
             _monaTagListView.Rebuild();
 
             _monaAssetsListView.itemsSource = _brain.MonaAssets;
-            _monaAssetsListView.Q<Foldout>().value = false;
+            _monaAssetsListView.Q<Foldout>().value = _brain.MonaAssets.Count > 0;
             _monaAssetsListView.Rebuild();
 
             Refresh();

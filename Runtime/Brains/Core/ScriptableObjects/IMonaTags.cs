@@ -14,5 +14,6 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         List<IMonaTagItem> AllTags { get; }
         List<string> Tags { get; }
         IMonaTagItem GetTag(string tag);
+        bool HasTag(string tag);
     }
 }

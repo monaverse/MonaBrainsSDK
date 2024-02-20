@@ -24,11 +24,16 @@ namespace Mona.SDK.Brains.UIElements
             _monaAssetField.choices = GetMonaAssetProviders();
             _monaAssetField.RegisterValueChangedCallback((evt) =>
             {
-                var item = _assetSource.Find(x => x.Name == evt.newValue);
-                if (item != null)
-                    _brain.MonaAssets[_listIndex] = item;
+                AssignAsset(evt.newValue);
             });
             Add(_monaAssetField);
+        }
+
+        private void AssignAsset(string name)
+        {
+            var item = _assetSource.Find(x => x.Name == name);
+            if (item != null)
+                _brain.MonaAssets[_listIndex] = item;
         }
 
         public void SetValue(IMonaBrain brain, int idx)
@@ -37,7 +42,10 @@ namespace Mona.SDK.Brains.UIElements
             _listIndex = idx;
 
             if (_brain.MonaAssets[_listIndex] != null)
+            {
                 _monaAssetField.value = _brain.MonaAssets[_listIndex].Name;
+                AssignAsset(_brain.MonaAssets[_listIndex].Name);
+            }
         }
 
         private List<string> GetMonaAssetProviders()

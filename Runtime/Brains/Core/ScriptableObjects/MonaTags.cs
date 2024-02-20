@@ -35,14 +35,32 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             new MonaTagItem(MonaBrainConstants.TAG_PLAYER, true, false),
             new MonaTagItem(MonaBrainConstants.TAG_REMOTE_PLAYER, true, false),
             new MonaTagItem(MonaBrainConstants.TAG_CAMERA, true, false),
-            new MonaTagItem(MonaBrainConstants.TAG_HEAD, true, false),
-            new MonaTagItem(MonaBrainConstants.TAG_EYES, true, false),
-            new MonaTagItem(MonaBrainConstants.TAG_TORSO, true, false),
-            new MonaTagItem(MonaBrainConstants.TAG_HIPS, true, false),
-            new MonaTagItem(MonaBrainConstants.TAG_LEFT_HAND, true, false),
-            new MonaTagItem(MonaBrainConstants.TAG_RIGHT_HAND, true, false),
-            new MonaTagItem(MonaBrainConstants.TAG_LEFT_FOOT, true, false),
-            new MonaTagItem(MonaBrainConstants.TAG_RIGHT_FOOT, true, false),
+
+            new MonaTagItem(HumanBodyBones.Head.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.Hips.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.LeftUpperLeg.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.RightUpperLeg.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.LeftLowerLeg.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.RightLowerLeg.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.LeftFoot.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.RightFoot.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.Spine.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.Chest.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.Neck.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.Head.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.LeftShoulder.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.RightShoulder.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.LeftUpperArm.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.RightUpperArm.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.LeftLowerArm.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.RightLowerArm.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.LeftHand.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.RightHand.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.LeftToes.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.RightToes.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.LeftEye.ToString(), true, false),
+            new MonaTagItem(HumanBodyBones.RightEye.ToString(), true, false),
+
             new MonaTagItem(MonaBrainConstants.TAG_ENEMY, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_FRIENDLY, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_COLLECTIBLE, false, false),
@@ -68,5 +86,14 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             return _default;
         }
 
+        public bool HasTag(string tag)
+        {
+            for (var i = 0; i < _tags.Count; i++)
+            {
+                if (_tags[i].Tag == tag)
+                    return true;
+            }
+            return false;
+        }
     }
 }
