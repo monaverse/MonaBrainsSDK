@@ -103,7 +103,11 @@ namespace Mona.SDK.Brains.Core.Brain
             _body.OnStarted += HandleStarted;
             _body.OnResumed += HandleResumed;
             _body.OnPaused += HandlePaused;
+            CacheTransforms();
+        }
 
+        public void CacheTransforms()
+        {
             _transformDefaults.Clear();
             _transformDefaults.Add(new ResetTransform(_body));
         }
@@ -205,7 +209,6 @@ namespace Mona.SDK.Brains.Core.Brain
                     instance.Preload(gameObject, this, i);
                     _list.Add(new List<WaitFrameQueueItem>());
                     _brainInstances.Add(instance);
-                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(instance));
                 }
             }
         }
@@ -239,6 +242,10 @@ namespace Mona.SDK.Brains.Core.Brain
                     ClearWaitFrameQueue(i);
                     //EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brainInstances[i]), new MonaBrainTickEvent(InstructionEventTypes.Tick));
                 }
+            }
+            else
+            {
+                HandleStarted();
             }
         }
 
@@ -279,7 +286,7 @@ namespace Mona.SDK.Brains.Core.Brain
             yield return BeginBrains();
         }            
 
-        private void ResetTransforms()
+        public void ResetTransforms()
         {
             for (var i = 0; i < _transformDefaults.Count; i++)
             {

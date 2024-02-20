@@ -28,6 +28,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private int _currentBrainIndex = 0;
         private bool _tickLateUpdate;
 
+        private Action<MonaBodyInstantiatedEvent> OnMonaBodyInstantiated;
         private Action<MonaBrainSpawnedEvent> OnBrainSpawned;
         private Action<MonaBrainDestroyedEvent> OnBrainDestroyed;
         private Action<MonaPlayerJoinedEvent> OnMonaPlayerJoined;
@@ -108,6 +109,9 @@ namespace Mona.SDK.Brains.Core.Brain
                 OnBrainSpawned = HandleBrainSpawned;
                 OnBrainDestroyed = HandleBrainDestroyed;
                 OnMonaPlayerJoined = HandleMonaPlayerJoined;
+                OnMonaBodyInstantiated = HandleMonaBodyInstantiated;
+
+                EventBus.Register<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), OnMonaBodyInstantiated);
 
                 EventBus.Register<MonaBrainSpawnedEvent>(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
                 EventBus.Register<MonaBrainDestroyedEvent>(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
@@ -130,6 +134,14 @@ namespace Mona.SDK.Brains.Core.Brain
             EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
             EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
             EventBus.Unregister(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
+        }
+        
+        private void HandleMonaBodyInstantiated(MonaBodyInstantiatedEvent evt)
+        {
+#if UNITY_EDITOR && !OLYMPIA
+            IMonaNetworkSpawner mockSpawner = null;
+            EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT, evt.Body), new NetworkSpawnerStartedEvent(mockSpawner));
+#endif
         }
 
         private void HandleBrainSpawned(MonaBrainSpawnedEvent evt)

@@ -48,10 +48,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         private IMonaAnimationController _monaAnimationController;
         private IMonaWearableAssetItem _wearable;
         private GameObject _wearableInstance;
+        private List<Transform> _wearableTransforms;
 
         public WearAssetInstructionTile() { }
 
-        public void Preload(IMonaBrain brainInstance) 
+        public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
             SetupWearable();
@@ -65,6 +66,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             _wearable = (IMonaWearableAssetItem)_brain.GetMonaAsset(_monaAsset);
             _wearableInstance = GameObject.Instantiate(_wearable.Value);
+            _wearableTransforms = new List<Transform>(_wearableInstance.transform.GetComponentsInChildren<Transform>());
+            _wearableTransforms.Remove(_wearableInstance.transform);
         }
 
         public IMonaBody GetBodyToControl()
@@ -93,15 +96,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public override InstructionTileResult Do()
         {
             var body = GetTarget();
-            if(body != null)
-            { 
+            if (body != null)
+            {
                 if (_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
                 _monaAnimationController.SetTPose(true);
                 _brain.Runner.WaitFrame(PutOn);
             }
-         
+
             return Complete(InstructionTileResult.Success);
         }
 
@@ -117,7 +120,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             var wearableTransforms = new List<Transform>(_wearableInstance.GetComponentsInChildren<Transform>());
             wearableTransforms.Remove(_wearableInstance.transform);
 
-            for(var i = 0;i < transforms.Count; i++)
+            for (var i = 0; i < transforms.Count; i++)
             {
                 var t = transforms[i];
                 var wearableTransform = wearableTransforms.Find(x => x.transform.name == t.transform.name);
@@ -126,6 +129,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             }
 
             _monaAnimationController.SetTPose(false);
+        }
+
+        public override void Unload()
+        {
+            base.Unload();
+            for (var i = 0; i < _wearableTransforms.Count; i++)
+                GameObject.Destroy(_wearableTransforms[i].gameObject);
+            GameObject.Destroy(_wearableInstance.transform.gameObject);
+            _wearableInstance = null;
         }
 
     }

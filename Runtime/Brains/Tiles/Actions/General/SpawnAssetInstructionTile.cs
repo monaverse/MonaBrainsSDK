@@ -17,15 +17,15 @@ using System.Collections;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Animation;
 
-namespace Mona.SDK.Brains.Tiles.Actions.Character
+namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
-    public class EquipAssetInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile, IAnimationInstructionTile
+    public class SpawnAssetInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile, IAnimationInstructionTile
     {
-        public const string ID = "EquipAsset";
-        public const string NAME = "Equip Asset";
-        public const string CATEGORY = "Character";
-        public override Type TileType => typeof(EquipAssetInstructionTile);
+        public const string ID = "SpawnAsset";
+        public const string NAME = "Spawn Asset";
+        public const string CATEGORY = "General";
+        public override Type TileType => typeof(SpawnAssetInstructionTile);
 
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaBodyAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
@@ -37,6 +37,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         private string _part = "Default";
         [BrainPropertyMonaTag]
         public string Part { get => _part; set => _part = value; }
+
+        [SerializeField]
+        private float _poolCount = 5;
+        [BrainProperty(false)]
+        public float PoolCount { get => _poolCount; set => _poolCount = value; }
 
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
@@ -54,27 +59,37 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public Vector3 Scale { get => _scale; set => _scale = value; }
 
         private IMonaBrain _brain;
-        private Transform _root;
-        private IMonaAnimationController _monaAnimationController;
         private IMonaBodyAssetItem _item;
-        private IMonaBody _equipmentInstance;
+        private List<IMonaBody> _equipmentInstances = new List<IMonaBody>();
+        private List<IMonaBody> _pool = new List<IMonaBody>();
 
-        public EquipAssetInstructionTile() { }
+        public SpawnAssetInstructionTile() { }
 
         public void Preload(IMonaBrain brainInstance) 
         {
             _brain = brainInstance;
-            SetupWearable();
+            SetupSpawnable();
         }
 
-        private void SetupWearable()
+        private void SetupSpawnable()
         {
-            _root = _brain.Root;
-            _monaAnimationController = _root.GetComponent<IMonaAnimationController>();
-            _monaAnimationController.SetBrain(_brain);
-
             _item = (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset);
-            _equipmentInstance = (IMonaBody)GameObject.Instantiate(_item.Value);
+            for (var i = 0; i < _poolCount; i++)
+            {
+                var body = (IMonaBody)GameObject.Instantiate(_item.Value);
+                ((MonaBodyBase)body).MakeUnique(_brain.Player.PlayerId, true);
+                _equipmentInstances.Add(body);
+                _pool.Add(body);
+                body.OnDisabled += HandleBodyDisabled;
+                body.SetActive(false);
+                EventBus.Trigger<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), new MonaBodyInstantiatedEvent(body));
+            }
+        }
+
+        private void HandleBodyDisabled(IMonaBody body)
+        {
+            if (!_pool.Contains(body))
+                _pool.Add(body);
         }
 
         public IMonaBody GetBodyToControl()
@@ -110,10 +125,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 if (_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
-                _equipmentInstance.SetScale(_scale, true);
-                _equipmentInstance.SetTransformParent(playerPart.ActiveTransform);
-                _equipmentInstance.Transform.localPosition = _offset;
-                _equipmentInstance.Transform.localRotation = Quaternion.Euler(_eulerAngles);
+                if (_pool.Count > 0)
+                {
+                    var poolItem = _pool[0];
+                    _pool.RemoveAt(0);
+                    poolItem.SetScale(_scale, true);
+                    poolItem.TeleportPosition(playerPart.GetPosition() + playerPart.ActiveTransform.parent.TransformDirection(_offset), true);
+                    poolItem.TeleportRotation(playerPart.GetRotation() * Quaternion.Euler(_eulerAngles), true);
+                    poolItem.Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
+                    poolItem.SetActive(true);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, poolItem);
+                }
             }
 
             return Complete(InstructionTileResult.Success);
@@ -122,7 +144,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public override void Unload()
         {
             base.Unload();
-            GameObject.Destroy(_equipmentInstance.Transform.gameObject);
+            for (var i = 0; i < _equipmentInstances.Count; i++)
+            {
+                var instance = _equipmentInstances[i];
+                instance.OnDisabled -= HandleBodyDisabled;
+                if(instance != null && instance.Transform != null)
+                    GameObject.Destroy(instance.Transform.gameObject);
+            }
         }
     }
 }

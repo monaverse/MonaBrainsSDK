@@ -26,5 +26,8 @@ namespace Mona.SDK.Brains.Core.Brain
         void PreloadBrains();
         void StartBrains();
 
+        void CacheTransforms();
+        void ResetTransforms();
+
     }
 }

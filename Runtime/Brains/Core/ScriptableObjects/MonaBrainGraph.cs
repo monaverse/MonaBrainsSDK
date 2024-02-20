@@ -297,6 +297,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 _variables.VariableList = _defaultVariables.VariableList;
                 _variables.SetGameObject(_gameObject, this);
             }
+
+            EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(this));
         }
 
         private void BuildRoot()

@@ -515,6 +515,7 @@ namespace Mona.SDK.Brains.Core.Control
             if (tile == null)
             {
                 _result = InstructionTileResult.Success;
+                _brain.Variables.Set(_progressTile, -1f);
                 if (!HasConditional())
                 {
                     //Debug.Log($"TICK IT {_result}");
@@ -718,7 +719,8 @@ namespace Mona.SDK.Brains.Core.Control
                 var tileIndex = (int)_brain.Variables.GetFloat(_progressTile);
                 //Debug.Log($"{nameof(Instruction)} resume instruction #{_page.Instructions.IndexOf(this)}, tile: {tileIndex}");
                 _result = InstructionTileResult.Success;
-                ExecuteTile(InstructionTiles[tileIndex]);
+                if (tileIndex > -1)
+                    ExecuteTile(InstructionTiles[tileIndex]);
             }
         }
 
