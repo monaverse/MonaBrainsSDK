@@ -48,6 +48,7 @@ namespace Mona.SDK.Brains.UIElements
         private ListView _monaTagListView;
         private ListView _monaAssetsListView;
         private Toggle _toggleAllowLogging;
+        private Toggle _toggleLegacyMonaPlatforms;
 
         private Button _btnDeletePage;
         private Button _btnMoveLeft;
@@ -306,6 +307,13 @@ namespace Mona.SDK.Brains.UIElements
             });
             _foldOut.Add(_toggleAllowLogging);
 
+            _toggleLegacyMonaPlatforms = new Toggle();
+            _toggleLegacyMonaPlatforms.label = "Support Legacy Mona Platforms";
+            _toggleLegacyMonaPlatforms.RegisterValueChangedCallback((changed) =>
+            {
+                _brain.LegacyMonaPlatforms = changed.newValue;
+            });
+            _foldOut.Add(_toggleLegacyMonaPlatforms);
 #endif
 
             _rightColumn = new VisualElement();
@@ -572,6 +580,7 @@ namespace Mona.SDK.Brains.UIElements
         {
 #if UNITY_EDITOR
             _toggleAllowLogging.value = _brain.LoggingEnabled;
+            _toggleLegacyMonaPlatforms.value = _brain.LegacyMonaPlatforms;
 
             if (_brain.TileSet == null || _brain.TileSet.ToString() == "null")
             {

@@ -42,6 +42,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private bool _loggingEnabled;
         public bool LoggingEnabled { get => _loggingEnabled; set => _loggingEnabled = value; }
 
+        [SerializeField]
+        private bool _legacyMonaPlatforms;
+        public bool LegacyMonaPlatforms { get => _legacyMonaPlatforms; set => _legacyMonaPlatforms = value; }
+
         private GameObject _gameObject;
         public GameObject GameObject => _gameObject;
 
@@ -248,6 +252,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             _index = index;
             CacheReferences(gameObject, runner, _index);
+            AddMonaAssetsToNetwork();
             CacheReservedBrainVariables();
             BuildRoot();
             SetupAnimation();
@@ -306,6 +311,12 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             }
 
             EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(this));
+        }
+
+        private void AddMonaAssetsToNetwork()
+        {
+            for (var i = 0; i < _monaAssets.Count; i++)
+                EventBus.Trigger<MonaAssetProviderAddedEvent>(new EventHook(MonaCoreConstants.MONA_ASSET_PROVIDER_ADDED), new MonaAssetProviderAddedEvent(_monaAssets[i]));
         }
 
         private void BuildRoot()
@@ -584,6 +595,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if(_root != null && (MonoBehaviour)_root.GetComponent<IMonaAnimationController>() != null)
                 Destroy((MonoBehaviour)_root.GetComponent<IMonaAnimationController>());
 
+            RemoveMonaAssetsFromNetwork();
+        }
+
+        private void RemoveMonaAssetsFromNetwork()
+        {
+            for (var i = 0; i < _monaAssets.Count; i++)
+                EventBus.Trigger<MonaAssetProviderRemovedEvent>(new EventHook(MonaCoreConstants.MONA_ASSET_PROVIDER_REMOVED), new MonaAssetProviderRemovedEvent(_monaAssets[i]));
         }
     }
 }

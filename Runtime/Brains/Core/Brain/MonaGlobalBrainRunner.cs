@@ -46,6 +46,18 @@ namespace Mona.SDK.Brains.Core.Brain
         public List<MonaRemotePlayer> OtherPlayers => _otherPlayers;
         public int PlayerId => _playerId;
 
+        public int GetPlayerIdByBody(IMonaBody body)
+        {
+            if (body == PlayerBody) return PlayerId;
+            for(var i = 0;i < _otherPlayers.Count; i++)
+            {
+                var otherPlayer = _otherPlayers[i];
+                if (otherPlayer.Body == body)
+                    return otherPlayer.PlayerId;
+            }
+            return -1;
+        }
+
         private PlayerInput _playerInput;
         public PlayerInput PlayerInput { get => _playerInput; set => _playerInput = value; }
 
@@ -147,7 +159,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private void HandleBrainSpawned(MonaBrainSpawnedEvent evt)
         {
             if (evt.Brain.LoggingEnabled)
-                Debug.Log($"{nameof(HandleBrainSpawned)} {evt.Brain.LocalId}");
+                Debug.Log($"{nameof(HandleBrainSpawned)} {transform.name} {evt.Brain.LocalId}");
             if (!_brains.Contains(evt.Brain))
                 _brains.Add(evt.Brain);
 
@@ -157,7 +169,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private void HandleBrainDestroyed(MonaBrainDestroyedEvent evt)
         {
             if(evt.Brain.LoggingEnabled)
-                Debug.Log($"{nameof(HandleBrainDestroyed)} {evt.Brain.LocalId}");
+                Debug.Log($"{nameof(HandleBrainDestroyed)} {transform.name} {evt.Brain.LocalId}");
             if (_brains.Contains(evt.Brain))
                 _brains.Remove(evt.Brain);
         }
@@ -201,7 +213,6 @@ namespace Mona.SDK.Brains.Core.Brain
             {
                 for(var i = 0;i < PlayerBrainGraphs.Count; i++)
                     runner.AddBrainGraph(PlayerBrainGraphs[i]);
-                runner.PreloadBrains();
 
                 for (var i = 0; i < runner.BrainInstances.Count; i++)
                     runner.BrainInstances[i].Variables.SyncValuesOnNetwork();

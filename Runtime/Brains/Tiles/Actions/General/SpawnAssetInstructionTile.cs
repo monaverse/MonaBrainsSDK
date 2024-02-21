@@ -73,7 +73,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void SetupSpawnable()
         {
+            Debug.Log($"{nameof(SetupSpawnable)} spawn asset instruction tile");
             _item = (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset);
+            
+            if (_equipmentInstances.Count > 0)
+                return;
+
             for (var i = 0; i < _poolCount; i++)
             {
                 var body = (IMonaBody)GameObject.Instantiate(_item.Value);
@@ -130,7 +135,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     var poolItem = _pool[0];
                     _pool.RemoveAt(0);
                     poolItem.SetScale(_scale, true);
-                    poolItem.TeleportPosition(playerPart.GetPosition() + playerPart.ActiveTransform.parent.TransformDirection(_offset), true);
+
+                    var offset = _offset;
+                    if (playerPart.ActiveTransform.parent != null)
+                        offset = playerPart.ActiveTransform.parent.TransformDirection(_offset);
+
+                    poolItem.TeleportPosition(playerPart.GetPosition() + offset, true);
                     poolItem.TeleportRotation(playerPart.GetRotation() * Quaternion.Euler(_eulerAngles), true);
                     poolItem.Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
                     poolItem.SetActive(true);
@@ -143,6 +153,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override void Unload()
         {
+            Debug.Log($"{nameof(Unload)} spawn asset instruction tile unload");
             base.Unload();
             for (var i = 0; i < _equipmentInstances.Count; i++)
             {

@@ -45,6 +45,21 @@ namespace Mona.SDK.Brains.Core.Brain
         private bool _began;
         public bool Began => _began;
 
+        public bool LegacyMonaPlatforms {
+            get
+            {
+                for(var i = 0;i < _brainInstances.Count; i++)
+                {
+                    var instance = _brainInstances[i];
+                    if(instance.LegacyMonaPlatforms)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
         private Action<MonaBrainReloadEvent> OnHotReload;
 
         public bool HasMonaTag(string tag) {
@@ -220,14 +235,20 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void StartBrains()
         {
+            Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(StartBrains)} start brains from external source", _body.Transform.gameObject);
             HandleStarted();
         }
 
         private void HandleStarted()
         {
+            if (_began) return;
+            Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(HandleStarted)} start brains {_body.Transform.name}", _body.Transform.gameObject);
             if (!gameObject.activeInHierarchy) return;
+            
             PreloadBrains();
-            StartCoroutine(BeginBrains());
+
+            StopCoroutine("BeginBrains");
+            StartCoroutine("BeginBrains");
         }
 
         private void HandleResumed()
@@ -261,10 +282,10 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private IEnumerator BeginBrains()
         {
-            yield return null;
             if (!_began)
             {
                 _began = true;
+                yield return null;
                 OnBegin?.Invoke(this);
                 for (var i = 0; i < _brainInstances.Count; i++)
                     _brainInstances[i].Begin();

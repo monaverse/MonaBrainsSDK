@@ -26,6 +26,7 @@ namespace Mona.SDK.Brains.Core.Brain
         int Priority { get; }
         string BrainState { get; set;  }
         bool LoggingEnabled { get; set; }
+        bool LegacyMonaPlatforms { get; set; }
 
         IMonaBrainPlayer Player { get; }
         IMonaBrainRunner Runner { get; }
