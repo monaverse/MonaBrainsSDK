@@ -1,5 +1,6 @@
 ﻿using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.ScriptableObjects;
+using Mona.SDK.Core.Body.Enums;
 using System;
 using System.Collections;
 using System.Collections.Generic;

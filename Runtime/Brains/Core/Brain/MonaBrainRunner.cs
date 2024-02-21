@@ -11,6 +11,7 @@ using System.Collections;
 using Mona.SDK.Brains.Core.State;
 using Mona.SDK.Brains.Core.Brain.Structs;
 using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Core.Body.Enums;
 
 namespace Mona.SDK.Brains.Core.Brain
 {

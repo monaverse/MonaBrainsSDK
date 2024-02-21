@@ -140,10 +140,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     if (playerPart.ActiveTransform.parent != null)
                         offset = playerPart.ActiveTransform.parent.TransformDirection(_offset);
 
+                    poolItem.SetActive(true);
+                    poolItem.SetVisible(false);
                     poolItem.TeleportPosition(playerPart.GetPosition() + offset, true);
                     poolItem.TeleportRotation(playerPart.GetRotation() * Quaternion.Euler(_eulerAngles), true);
                     poolItem.Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
-                    poolItem.SetActive(true);
+                    poolItem.SetVisible(true);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, poolItem);
                 }
             }

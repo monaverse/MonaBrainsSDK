@@ -200,7 +200,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             if (!_isPlaying)
             {
                 //Debug.Log($"{nameof(PlayAnimationInstructionTile)} do {_clip.Value} {_canInterrupt}");
-                if (_monaAnimationController.Play(_clip, _canInterrupt, _animationSpeed))
+                if (_monaAnimationController.Play(_clip, _canInterrupt, _animationSpeed, isNetworked:true))
                 {
                     //if(_brain.LoggingEnabled)
                     //    Debug.Log($"{nameof(PlayAnimationInstructionTile)} play animation {_clip.Value}");

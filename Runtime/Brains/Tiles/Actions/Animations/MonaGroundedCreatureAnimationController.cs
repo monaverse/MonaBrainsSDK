@@ -2,6 +2,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Assets;
 using Mona.SDK.Core.Assets.Interfaces;
+using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.State.Structs;
 using System;
@@ -33,7 +34,7 @@ namespace Mona.SDK.Brains.Core.Animation
         private const string TPOSE = "TPose";
         private const string TPOSE_TRIGGER = "__TriggerTPose";
 
-        private Action<MonaValueChangedEvent> OnMonaValueChanged;
+        private Action<MonaBodyAnimationTriggeredEvent> OnRemoteAnimation;
 
         private Dictionary<string, IMonaAnimationAssetItem> _animationAssets = new Dictionary<string, IMonaAnimationAssetItem>();
         private IMonaBrain _brain;
@@ -48,9 +49,11 @@ namespace Mona.SDK.Brains.Core.Animation
             if (_brain == null)
             {
                 SetupAnimationController();
-                OnMonaValueChanged = HandleMonaValueChanged;
-                EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, brain.Body), OnMonaValueChanged);
                 _brain = brain;
+
+                OnRemoteAnimation = HandleRemoteAnimationTriggered;
+                EventBus.Register<MonaBodyAnimationTriggeredEvent>(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), OnRemoteAnimation);
+
                 _brain.Body.SetAnimator(_animator);
                 _brain.Variables.Set(MonaBrainConstants.TRIGGER, "");
                 _brain.Variables.Set(MonaBrainConstants.ANIMATION_SPEED, 1f);
@@ -62,7 +65,7 @@ namespace Mona.SDK.Brains.Core.Animation
         {
             Debug.Log($"{nameof(MonaGroundedCreatureAnimationController)}.{nameof(OnDestroy)}");
             if (_brain != null)
-                EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
+                EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), OnRemoteAnimation);
             _brain = null;
         }
 
@@ -103,28 +106,33 @@ namespace Mona.SDK.Brains.Core.Animation
 
         public void SetWalk(float speed)
         {
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
             _animator.SetFloat(SPEED, speed);
         }
 
         public void SetMotionSpeed(float speed)
         {
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
             _animator.SetFloat(MOTION_SPEED, speed);
         }
 
         public void Jump()
         {
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
             _animator.SetBool(GROUNDED, false);
             _animator.SetBool(JUMP, true);
         }
 
         public void Landed()
         {
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
             _animator.SetBool(JUMP, false);
             _animator.SetBool(GROUNDED, true);
         }
 
         public void SetLayerWeight(int layer, float layerWeight)
         {
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
             _animator.SetLayerWeight(layer, layerWeight);
         }
 
@@ -136,10 +144,10 @@ namespace Mona.SDK.Brains.Core.Animation
             _animator.SetBool(TPOSE_TRIGGER, value);
         }
 
-        public bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed = 1f)
+        public bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed = 1f, bool isNetworked = true)
         {
             if (_controller == null) return false;
-
+            
             if (canInterrupt)
             {
                 var current = _animator.GetCurrentAnimatorStateInfo(clipItem.Layer);
@@ -147,12 +155,13 @@ namespace Mona.SDK.Brains.Core.Animation
                 //Debug.Log($"Trigger {clipItem.Value.name}");
                 _controller[CLIP_STATE] = clipItem.Value;
                 _animator.SetLayerWeight(clipItem.Layer, clipItem.LayerWeight);
+                _animator.SetFloat(MonaBrainConstants.ANIMATION_SPEED, speed);
 
                 if (clipItem.Layer == 0) _animator.SetTrigger(MonaBrainConstants.TRIGGER);
                 else if (clipItem.Layer == 1) _animator.SetTrigger(MonaBrainConstants.TRIGGER_1);
 
-                _animator.SetFloat(MonaBrainConstants.ANIMATION_SPEED, speed);
-                _brain.Variables.Set(MonaBrainConstants.TRIGGER, clipItem.Value.name);
+                if(isNetworked)
+                    _brain.Body.TriggerRemoteAnimation(clipItem.Value.name);
                 return true;
             }
             else
@@ -162,13 +171,14 @@ namespace Mona.SDK.Brains.Core.Animation
                 {
                     //Debug.Log($"transition time {transition.normalizedTime}");
                     //Debug.Log($"play {clipItem.Value.name}");
-                    _brain.Variables.Set(MonaBrainConstants.TRIGGER, clipItem.Value.name);
+                    _controller[CLIP_STATE] = clipItem.Value;
+                    _animator.SetFloat(MonaBrainConstants.ANIMATION_SPEED, speed);
 
                     if (clipItem.Layer == 0) _animator.SetTrigger(MonaBrainConstants.TRIGGER);
                     else if (clipItem.Layer == 1) _animator.SetTrigger(MonaBrainConstants.TRIGGER_1);
 
-                    _animator.SetFloat(MonaBrainConstants.ANIMATION_SPEED, speed);
-                    _controller[CLIP_STATE] = clipItem.Value;
+                    if(isNetworked)
+                        _brain.Body.TriggerRemoteAnimation(clipItem.Value.name);
                     return true;
                 }
             }
@@ -194,14 +204,12 @@ namespace Mona.SDK.Brains.Core.Animation
                 _animationAssets.Add(clipItem.Value.name, clipItem);
         }
 
-        private void HandleMonaValueChanged(MonaValueChangedEvent evt)
+        private void HandleRemoteAnimationTriggered(MonaBodyAnimationTriggeredEvent evt)
         {
-            if(evt.Name == MonaBrainConstants.TRIGGER)
-            {
-                var animation = ((IMonaVariablesStringValue)evt.Value).Value;
-                if (_animationAssets.ContainsKey(animation) && (_controller[CLIP_STATE] == null || _controller[CLIP_STATE].name != animation))
-                    Play(_animationAssets[animation], true);
-            }
+            var animation = evt.ClipName;
+            Debug.Log($"{nameof(HandleRemoteAnimationTriggered)} {animation}", _brain.Body.Transform.gameObject);
+            if (_animationAssets.ContainsKey(animation))
+                Play(_animationAssets[animation], true, isNetworked:false);
         }
 
     }

@@ -4,6 +4,7 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.ScriptableObjects;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Network;
 using Mona.SDK.Core.Network.Enums;
@@ -194,7 +195,7 @@ namespace Mona.SDK.Brains.Core.Brain
             {
                 var remotePlayer = new MonaRemotePlayer() { Body = evt.PlayerBody, PlayerId = evt.PlayerId };
                 if (!_otherPlayers.Contains(remotePlayer))
-                    _otherPlayers.Contains(remotePlayer);
+                    _otherPlayers.Add(remotePlayer);
 
                 AttachBrainsToPlayer(remotePlayer.Body);
 
@@ -213,9 +214,6 @@ namespace Mona.SDK.Brains.Core.Brain
             {
                 for(var i = 0;i < PlayerBrainGraphs.Count; i++)
                     runner.AddBrainGraph(PlayerBrainGraphs[i]);
-
-                for (var i = 0; i < runner.BrainInstances.Count; i++)
-                    runner.BrainInstances[i].Variables.SyncValuesOnNetwork();
 
                 runner.StartBrains();
             }

@@ -43,6 +43,11 @@ namespace Mona.SDK.Brains.Core.Tiles
             UpdateActive();
         }
 
+        protected bool BrainOnRemotePlayer()
+        {
+            return _brain.Body.IsAttachedToRemotePlayer();
+        }
+
         private void ConfigureInput()
         {
             _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();

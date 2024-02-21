@@ -14,7 +14,7 @@ namespace Mona.SDK.Brains.Core.Animation
     public interface IMonaAnimationController
     {
         Animator Animator { get; }
-        bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed);
+        bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed, bool isNetworked);
         bool HasEnded(IMonaAnimationAssetItem clipItem);
         bool HasPlayedAnimation(IMonaAnimationAssetItem clipItem);
         void SetBrain(IMonaBrain brain);
@@ -137,7 +137,7 @@ namespace Mona.SDK.Brains.Core.Animation
             _animator.SetLayerWeight(layer, layerWeight);
         }
 
-        public bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed = 1f)
+        public bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed = 1f, bool force = false)
         {
             if (_controller == null) return false;
 

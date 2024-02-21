@@ -44,8 +44,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         protected override void ProcessLocalInput()
         {
-            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, MonaInputType.Key, GetInputState());
+            if (BrainOnRemotePlayer()) return;
 
+            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, MonaInputType.Key, GetInputState());
             if (localInput.GetKey(_keyIndex) == GetInputState())
             {
                 SetLocalInput(localInput);
