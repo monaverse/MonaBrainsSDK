@@ -75,13 +75,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             Debug.Log($"{nameof(SetupSpawnable)} spawn asset instruction tile");
             _item = (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset);
-            
+
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            if (!_brain.Body.HasControl()) return;
+
             if (_equipmentInstances.Count > 0)
                 return;
 
             for (var i = 0; i < _poolCount; i++)
             {
                 var body = (IMonaBody)GameObject.Instantiate(_item.Value);
+                ((MonaBodyBase)body).PrefabId = _monaAsset;
                 ((MonaBodyBase)body).MakeUnique(_brain.Player.PlayerId, true);
                 _equipmentInstances.Add(body);
                 _pool.Add(body);
