@@ -80,7 +80,7 @@ namespace Mona.SDK.Brains.UIElements
             _labelMore = new Label();
             _labelMore.style.backgroundImage = new StyleBackground(_expandIcon);
             _labelMore.style.width = _labelMore.style.height = 16;
-            _labelMore.style.color = _textColor;
+            _labelMore.style.color = Color.white;
             _labelMore.style.unityFontStyleAndWeight = FontStyle.Bold;
 #endif
             Add(_toolBar);
@@ -93,7 +93,7 @@ namespace Mona.SDK.Brains.UIElements
             _label.style.unityTextAlign = TextAnchor.MiddleCenter;
             _label.style.unityFontStyleAndWeight = FontStyle.Bold;
             _label.style.marginRight = 5;
-            _label.style.color = _textColor;
+            _label.style.color = Color.white;
             _label.style.paddingBottom = 3;
 
             Add(_label);
@@ -550,7 +550,7 @@ namespace Mona.SDK.Brains.UIElements
 
         private Color _brightPink = Color.HSVToRGB(351f / 360f, .79f, .98f);
         private Color _lightRed = Color.HSVToRGB(347f / 360f, .80f, .66f);
-        private Color _textColor = Color.white;
+        private Color _textColor = Color.HSVToRGB(351f / 360f, .06f, .98f);
 
         private void SetStyle(IInstructionTile tile)
         {

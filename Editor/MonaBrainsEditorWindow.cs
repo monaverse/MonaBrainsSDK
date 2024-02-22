@@ -162,6 +162,15 @@ namespace Mona.SDK.Brains.UIEditors
             return tab;
         }
 
+        private void SetBorder(VisualElement elem, float radius = 0, float width = 1, Color color = default, float padding = 5)
+        {
+            elem.style.borderTopLeftRadius = elem.style.borderTopRightRadius = radius;
+            elem.style.borderBottomLeftRadius = elem.style.borderBottomRightRadius = radius;
+            elem.style.borderLeftWidth = elem.style.borderTopWidth = elem.style.borderRightWidth = elem.style.borderBottomWidth = width;
+            elem.style.borderLeftColor = elem.style.borderRightColor = elem.style.borderTopColor = elem.style.borderBottomColor = color;
+            elem.style.paddingLeft = elem.style.paddingRight = elem.style.paddingTop = elem.style.paddingBottom = padding;
+        }
+
         public void CreateGUI()
         {
             Texture banner = (Texture)AssetDatabase.LoadAssetAtPath("Packages/com.monaverse.brainssdk/Runtime/Resources/mona.png", typeof(Texture));
@@ -271,10 +280,13 @@ namespace Mona.SDK.Brains.UIEditors
             s.borderBottomWidth = s.borderTopWidth = s.borderRightWidth = s.borderBottomWidth = 1;
             s.marginLeft = s.marginTop = s.marginRight = s.marginBottom = 5;
 
-            var searchLabel = new Label("Search Brains");
+            var searchLabel = new Label("Search Local Brains");
+            searchLabel.style.fontSize = 13;
+            searchLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
             searchContainer.Add(searchLabel);
 
             _search = new TextField();
+            SetBorder(_search, 3, 1, Color.white, 2);
             _search.RegisterValueChangedCallback((evt) =>
             {
                 if (!string.IsNullOrEmpty(evt.newValue))
@@ -395,9 +407,10 @@ namespace Mona.SDK.Brains.UIEditors
 
         private void UpdateSelectedObject()
         {
-            _target = Selection.activeGameObject;
-            if (_target != null)
+            var newTarget = Selection.activeGameObject;
+            if (newTarget != null)
             {
+                _target = newTarget;
                 _body = _target.GetComponent<IMonaBody>();
                 _globalRunner = _target.GetComponent<MonaGlobalBrainRunner>();
                 _runner = _target.GetComponent<IMonaBrainRunner>();
@@ -408,14 +421,6 @@ namespace Mona.SDK.Brains.UIEditors
 
                 _header.text = $"{_target.name}";
                 _brainEditor.style.visibility = Visibility.Visible;
-            }
-            else
-            {
-                _runner = null;
-                _globalRunner = null;
-                _header.text = "Select a GameObject";
-                _selectedHeader.text = "";
-                _brainEditor.style.visibility = Visibility.Hidden;
             }
         }
 
@@ -478,8 +483,7 @@ namespace Mona.SDK.Brains.UIEditors
         }
 
         void OnSelectionChange()
-        {
-            
+        {            
             Refresh();
         }
 

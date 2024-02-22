@@ -105,8 +105,8 @@ namespace Mona.SDK.Brains.UIElements
 
         private void SetBorder(VisualElement elem, float radius = 0, float width = 1, Color color = default, float padding = 5)
         {
-            elem.style.borderTopLeftRadius = _activePageContainer.style.borderTopRightRadius = radius;
-            elem.style.borderBottomLeftRadius = _activePageContainer.style.borderBottomRightRadius = radius;
+            elem.style.borderTopLeftRadius = elem.style.borderTopRightRadius = radius;
+            elem.style.borderBottomLeftRadius = elem.style.borderBottomRightRadius = radius;
             elem.style.borderLeftWidth = elem.style.borderTopWidth = elem.style.borderRightWidth = elem.style.borderBottomWidth = width;
             elem.style.borderLeftColor = elem.style.borderRightColor = elem.style.borderTopColor = elem.style.borderBottomColor = color;
             elem.style.paddingLeft = elem.style.paddingRight = elem.style.paddingTop = elem.style.paddingBottom = padding;
@@ -375,7 +375,10 @@ namespace Mona.SDK.Brains.UIElements
             Add(_rightColumn);
 
             var searchContainer = new VisualElement();
-            var searchLabel = new Label("Search Brains");
+            var searchLabel = new Label("Search Tiles");
+            searchLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+            searchLabel.style.fontSize = 13;
+
             searchContainer.Add(searchLabel);
 
             _search = new TextField();
@@ -409,6 +412,7 @@ namespace Mona.SDK.Brains.UIElements
             });
             _search[0].style.backgroundColor = Color.black;
             _search.style.color = Color.white;
+            SetBorder(_search, 3, 1, Color.white, 2);
             searchContainer.Add(_search);
             _rightColumn.Add(searchContainer);
 
