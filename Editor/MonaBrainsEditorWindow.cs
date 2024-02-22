@@ -22,6 +22,7 @@ namespace Mona.SDK.Brains.UIEditors
         private Button _button;
         private GameObject _gameObject;
         private IMonaBrainRunner _runner;
+        private MonaGlobalBrainRunner _globalRunner;
         private MonaBrainGraph _graph;
         private MonaBrainsEditorWindow _window;
 
@@ -52,22 +53,35 @@ namespace Mona.SDK.Brains.UIEditors
             _button.style.color = Color.black;
             _button.clicked += () =>
             {
-                if (_runner != null && _graph != null && _runner.BrainGraphs.Contains(_graph))
+                if (_globalRunner != null && _graph != null && _globalRunner.PlayerBrainGraphs.Contains(_graph))
+                {
+                    _globalRunner.PlayerBrainGraphs.Remove(_graph);
+                    _window.Refresh();
+                }
+                else if (_runner != null && _graph != null && _runner.BrainGraphs.Contains(_graph))
                 {
                     _runner.BrainGraphs.Remove(_graph);
                     _window.Refresh();
                 }
                 else
                 {
-                    if (_gameObject.GetComponent<IMonaBody>() == null)
-                        _gameObject.AddComponent<MonaBody>();
+                    if (_globalRunner != null)
+                    {
+                        if (!_globalRunner.PlayerBrainGraphs.Contains(_graph))
+                            _globalRunner.PlayerBrainGraphs.Add(_graph);
+                    }
+                    else
+                    {
+                        if (_gameObject.GetComponent<IMonaBody>() == null)
+                            _gameObject.AddComponent<MonaBody>();
 
-                    if (_gameObject.GetComponent<IMonaBrainRunner>() == null)
-                        _gameObject.AddComponent<MonaBrainRunner>();
+                        if (_gameObject.GetComponent<IMonaBrainRunner>() == null)
+                            _gameObject.AddComponent<MonaBrainRunner>();
 
-                    var runner = _gameObject.GetComponent<IMonaBrainRunner>();
-                    if (!runner.BrainGraphs.Contains(_graph))
-                        runner.BrainGraphs.Add(_graph);
+                        var runner = _gameObject.GetComponent<IMonaBrainRunner>();
+                        if (!runner.BrainGraphs.Contains(_graph))
+                            runner.BrainGraphs.Add(_graph);
+                    }
                     _window.Refresh();
                 }
             };
@@ -78,14 +92,15 @@ namespace Mona.SDK.Brains.UIEditors
             
         }
 
-        public void SetValue(MonaBrainGraph graph, GameObject gameObject, IMonaBrainRunner runner)
+        public void SetValue(MonaBrainGraph graph, GameObject gameObject, IMonaBrainRunner runner, MonaGlobalBrainRunner globalRunner)
         {
             _graph = graph;
             _gameObject = gameObject;
             _runner = runner;
+            _globalRunner = globalRunner;
             _label.text = (string.IsNullOrEmpty(graph.Name) ? graph.Name : graph.name);
             _button.SetEnabled(gameObject != null);
-            if (runner != null && runner.BrainGraphs.Contains(graph))
+            if ((runner != null && runner.BrainGraphs.Contains(graph)) || (_globalRunner != null && _globalRunner.PlayerBrainGraphs.Contains(graph)))
             {
                 _button.text = "-";
                 _button.style.width = 30;
@@ -111,6 +126,7 @@ namespace Mona.SDK.Brains.UIEditors
         private GameObject _target;
         private IMonaBody _body;
         private IMonaBrainRunner _runner;
+        private MonaGlobalBrainRunner _globalRunner;
 
         private List<MonaBrainGraph> _items = new List<MonaBrainGraph>();
 
@@ -234,15 +250,16 @@ namespace Mona.SDK.Brains.UIEditors
             _header = new Label();
             _header.text = "Select a GameObject";
             _header.style.fontSize = 16;
+            _header.style.whiteSpace = WhiteSpace.Normal;
             _header.style.unityFontStyleAndWeight = FontStyle.Bold;
             _header.style.flexWrap = Wrap.Wrap;
-            _header.style.paddingLeft = _header.style.paddingRight = _header.style.paddingTop = 5;
+            _header.style.paddingLeft = _header.style.paddingRight = _header.style.paddingTop = 10;
 
             _selectedHeader = new Label();
             _selectedHeader.text = "";
             _selectedHeader.style.whiteSpace = WhiteSpace.Normal;
             _selectedHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
-            _selectedHeader.style.paddingLeft = _header.style.paddingRight = 5;
+            _selectedHeader.style.paddingLeft = _header.style.paddingRight = 10;
 
             container.Add(_header);
             container.Add(_selectedHeader);
@@ -264,6 +281,7 @@ namespace Mona.SDK.Brains.UIEditors
                 {
                     var items = _items.FindAll(x =>
                     {
+                        if (_globalRunner != null && _globalRunner.PlayerBrainGraphs.Contains(x)) return true;
                         if (_runner != null && _runner.BrainGraphs.Contains(x)) return true;
                         if (x.Name.ToLower().Contains(evt.newValue.ToLower())) return true;
                         if (x.HasMonaTag(evt.newValue)) return true;
@@ -272,6 +290,11 @@ namespace Mona.SDK.Brains.UIEditors
 
                     items.Sort((a, b) =>
                     {
+                        if(_globalRunner != null)
+                        {
+                            if (_globalRunner.PlayerBrainGraphs.Contains(a)) return -1;
+                            if (_globalRunner.PlayerBrainGraphs.Contains(b)) return 1;
+                        }
                         if (_runner != null)
                         {
                             if (_runner.BrainGraphs.Contains(a)) return -1;
@@ -298,6 +321,7 @@ namespace Mona.SDK.Brains.UIEditors
             _attachedView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
             _attachedView.showAddRemoveFooter = false;
             _attachedView.style.borderBottomColor = _lightRed;
+            _attachedView.style.marginTop = 10;
             _attachedView.style.borderBottomWidth = 5;
             _attachedView.selectionChanged += (items) =>
             {
@@ -375,6 +399,7 @@ namespace Mona.SDK.Brains.UIEditors
             if (_target != null)
             {
                 _body = _target.GetComponent<IMonaBody>();
+                _globalRunner = _target.GetComponent<MonaGlobalBrainRunner>();
                 _runner = _target.GetComponent<IMonaBrainRunner>();
                 if (_runner != null)
                     _selectedHeader.text = $"{_runner.BrainGraphs.Count} brains attached.";
@@ -386,6 +411,8 @@ namespace Mona.SDK.Brains.UIEditors
             }
             else
             {
+                _runner = null;
+                _globalRunner = null;
                 _header.text = "Select a GameObject";
                 _selectedHeader.text = "";
                 _brainEditor.style.visibility = Visibility.Hidden;
@@ -395,13 +422,13 @@ namespace Mona.SDK.Brains.UIEditors
         private void BindItemAttached(VisualElement elem, int i)
         {
             Debug.Log($"{nameof(BindItemAttached)} {i}");
-            ((BrainItemVisualElement)elem).SetValue((MonaBrainGraph)_attachedView.itemsSource[i], _target, _runner);
+            ((BrainItemVisualElement)elem).SetValue((MonaBrainGraph)_attachedView.itemsSource[i], _target, _runner, _globalRunner);
         }
 
         private void BindItem(VisualElement elem, int i)
         {
             //Debug.Log($"{nameof(BindItem)} {i}");
-            ((BrainItemVisualElement)elem).SetValue((MonaBrainGraph)_listView.itemsSource[i], _target, _runner);
+            ((BrainItemVisualElement)elem).SetValue((MonaBrainGraph)_listView.itemsSource[i], _target, _runner, _globalRunner);
         }
 
         private void OnHierarchyChange()
@@ -439,9 +466,9 @@ namespace Mona.SDK.Brains.UIEditors
                 return a.Name.CompareTo(b.Name);
             });
 
-            var items = _items.FindAll(x => _runner != null && _runner.BrainGraphs.Contains(x));
+            var items = _items.FindAll(x => (_runner != null && _runner.BrainGraphs.Contains(x)) || (_globalRunner != null && _globalRunner.PlayerBrainGraphs.Contains(x)));
 
-            var nonAttached = _items.FindAll(x => _runner == null || !_runner.BrainGraphs.Contains(x));
+            var nonAttached = _items.FindAll(x => (_runner == null || !_runner.BrainGraphs.Contains(x) || _globalRunner == null || !_globalRunner.PlayerBrainGraphs.Contains(x)));
             
             _attachedView.itemsSource = items;
             _attachedView.Rebuild();
