@@ -209,10 +209,22 @@ namespace Mona.SDK.Brains.UIEditors
                 {
                     var items = _items.FindAll(x =>
                     {
+                        if (_runner != null && _runner.BrainGraphs.Contains(x)) return true;
                         if (x.Name.ToLower().Contains(evt.newValue.ToLower())) return true;
                         if (x.HasMonaTag(evt.newValue)) return true;
                         return false;
                     });
+
+                    items.Sort((a, b) =>
+                    {
+                        if (_runner != null)
+                        {
+                            if (_runner.BrainGraphs.Contains(a)) return -1;
+                            if (_runner.BrainGraphs.Contains(b)) return 1;
+                        }
+                        return a.Name.CompareTo(b.Name);
+                    });
+
                     _listView.itemsSource = items;
                     _listView.Rebuild();
                 }
@@ -317,6 +329,16 @@ namespace Mona.SDK.Brains.UIEditors
                     graph.Name = graph.name;
                 _items.Add(graph);
             }
+
+            _items.Sort((a, b) =>
+            {
+                if (_runner != null)
+                {
+                    if (_runner.BrainGraphs.Contains(a)) return -1;
+                    if (_runner.BrainGraphs.Contains(b)) return 1;
+                }
+                return a.Name.CompareTo(b.Name);
+            });
 
             _listView.itemsSource = _items;
             _listView.Rebuild();
