@@ -19,6 +19,9 @@ namespace Mona.SDK.Brains.Core.Brain
 {
     public partial class MonaGlobalBrainRunner : MonoBehaviour, IMonaBrainPlayer
     {
+        public Action OnStarted = delegate { };
+        public Action OnBrainsChanged = delegate { };
+
         public MonaNetworkSettings _NetworkSettings = new MonaNetworkSettings();
 
         public IMonaNetworkSettings NetworkSettings => _NetworkSettings;
@@ -165,6 +168,8 @@ namespace Mona.SDK.Brains.Core.Brain
                 _brains.Add(evt.Brain);
 
             evt.Brain.SetMonaBrainPlayer(this);
+
+            OnBrainsChanged?.Invoke();
         }
 
         private void HandleBrainDestroyed(MonaBrainDestroyedEvent evt)
@@ -173,6 +178,8 @@ namespace Mona.SDK.Brains.Core.Brain
                 Debug.Log($"{nameof(HandleBrainDestroyed)} {transform.name} {evt.Brain.LocalId}");
             if (_brains.Contains(evt.Brain))
                 _brains.Remove(evt.Brain);
+
+            OnBrainsChanged?.Invoke();
         }
 
         private void HandleMonaPlayerJoined(MonaPlayerJoinedEvent evt)
@@ -190,6 +197,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
                 for (var i = 0; i < _brains.Count; i++)
                     _brains[i].SetMonaBrainPlayer(this);
+
+                OnStarted?.Invoke();
             }
             else
             {
@@ -215,7 +224,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 for(var i = 0;i < PlayerBrainGraphs.Count; i++)
                     runner.AddBrainGraph(PlayerBrainGraphs[i]);
 
-                runner.StartBrains();
+                runner.StartBrains(force:true);
             }
         }
 

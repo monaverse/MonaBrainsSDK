@@ -26,7 +26,7 @@ namespace Mona.SDK.Brains.Core.Brain
         bool HasMonaTag(string tag);
 
         void PreloadBrains();
-        void StartBrains();
+        void StartBrains(bool force = false);
 
         void CacheTransforms();
         void ResetTransforms();

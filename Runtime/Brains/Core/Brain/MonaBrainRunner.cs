@@ -234,8 +234,9 @@ namespace Mona.SDK.Brains.Core.Brain
             RestartBrains();
         }
 
-        public void StartBrains()
+        public void StartBrains(bool force = false)
         {
+            if (force) _began = false;
             Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(StartBrains)} start brains from external source", _body.Transform.gameObject);
             HandleStarted();
         }

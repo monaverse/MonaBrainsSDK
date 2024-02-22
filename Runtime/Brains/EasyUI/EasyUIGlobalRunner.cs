@@ -72,6 +72,7 @@ namespace Mona.SDK.Brains.EasyUI
         private void Start()
         {
             _globalBrainRunner = MonaGlobalBrainRunner.Instance;
+            _globalBrainRunner.OnStarted += HandleGlobalBrainRunnerStarted;
             SetupScreenUI();
         }
 
@@ -91,7 +92,25 @@ namespace Mona.SDK.Brains.EasyUI
                 Debug.LogWarning("WARNING: The prefab for 'primaryScreenRoot' does not contain the 'EasyUIScreenDefinitions' component!");
                 return;
             }
+        }
 
+        private void OnDestroy()
+        {
+            if (_globalBrainRunner != null)
+            {
+                _globalBrainRunner.OnStarted -= HandleGlobalBrainRunnerStarted;
+                _globalBrainRunner.OnBrainsChanged -= HandleBrainsChanged;
+            }
+        }
+
+        private void HandleGlobalBrainRunnerStarted()
+        {
+            _globalBrainRunner.OnBrainsChanged += HandleBrainsChanged;
+            HandleBrainsChanged();
+        }
+
+        private void HandleBrainsChanged()
+        {
             GetVariablesFromBrains();
             SetupUIElements();
         }
@@ -106,14 +125,11 @@ namespace Mona.SDK.Brains.EasyUI
 
             foreach (MonaBrainGraph brainGraph in _globalBrainRunner.Brains)
                 GetDisplayReadyVariables(brainGraph);
-
-            foreach (MonaBrainGraph brainGraph in _globalBrainRunner.PlayerBrainGraphs)
-                GetDisplayReadyVariables(brainGraph);
         }
 
         private void GetDisplayReadyVariables(MonaBrainGraph brainGraph)
         {
-            foreach (IMonaVariablesValue variable in brainGraph.Variables.VariableList)
+            foreach (IMonaVariablesValue variable in brainGraph.DefaultVariables.VariableList)
             {
                 if (variable.GetType() != typeof(MonaVariablesFloat) && !_displayableVariables.Contains(variable))
                     continue;

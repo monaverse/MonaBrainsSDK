@@ -146,6 +146,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
                     poolItem.SetActive(true);
                     poolItem.SetVisible(false);
+                    poolItem.ActiveRigidbody.WakeUp();
                     poolItem.TeleportPosition(playerPart.GetPosition() + offset, true);
                     poolItem.TeleportRotation(playerPart.GetRotation() * Quaternion.Euler(_eulerAngles), true);
                     poolItem.Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
