@@ -117,7 +117,7 @@ namespace Mona.SDK.Brains.UIEditors
     public class MonaBrainsEditorWindow : EditorWindow
     {
         [MenuItem("Mona/Mona Brains")]
-        public static void ShowExample()
+        public static void ShowWindow()
         {
             MonaBrainsEditorWindow wnd = GetWindow<MonaBrainsEditorWindow>();
             wnd.titleContent = new GUIContent("Mona Brains Editor");
@@ -421,6 +421,7 @@ namespace Mona.SDK.Brains.UIEditors
 
                 _header.text = $"{_target.name}";
                 _brainEditor.style.visibility = Visibility.Visible;
+
             }
         }
 
@@ -485,6 +486,12 @@ namespace Mona.SDK.Brains.UIEditors
         void OnSelectionChange()
         {            
             Refresh();
+
+            rootVisualElement.schedule.Execute(() =>
+            {
+                if (_attachedView.itemsSource != null && _attachedView.itemsSource.Count > 0)
+                    _attachedView.selectedIndex = 0;
+            }).ExecuteLater(200);
         }
 
         private void HandleCallback(SerializedObject obj)
