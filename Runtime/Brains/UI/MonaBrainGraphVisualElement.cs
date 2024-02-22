@@ -51,6 +51,7 @@ namespace Mona.SDK.Brains.UIElements
         private ListView _monaAssetsListView;
         private Toggle _toggleAllowLogging;
         private Toggle _toggleLegacyMonaPlatforms;
+        private TextField _search;
 
         private Button _btnDeletePage;
         private Button _btnMoveLeft;
@@ -373,10 +374,39 @@ namespace Mona.SDK.Brains.UIElements
             _rightColumn.style.paddingLeft = 5;
             Add(_rightColumn);
 
+            var searchContainer = new VisualElement();
+            var searchLabel = new Label("Search Brains");
+            searchContainer.Add(searchLabel);
+
+            _search = new TextField();
+            _search.RegisterValueChangedCallback((evt) =>
+            {
+                if (!string.IsNullOrEmpty(evt.newValue))
+                {
+                    var items = _tileSource.FindAll(x =>
+                    {
+                        if (x.IsCategory) return true;
+                        if (x.Label.ToLower().Contains(evt.newValue.ToLower())) return true;
+                        return false;
+                    });
+                    _tileListView.itemsSource = items;
+                    _tileListView.Rebuild();
+                }
+                else
+                {
+                    _tileListView.itemsSource = _tileSource;
+                    _tileListView.Rebuild();
+                }
+            });
+            _search[0].style.backgroundColor = Color.black;
+            _search.style.color = Color.white;
+            searchContainer.Add(_search);
+            _rightColumn.Add(searchContainer);
+
             _tileListView = new ListView(null, 34, () => new TileMenuItemVisualElement(), (elem, i) =>
             {
                 var item = (TileMenuItemVisualElement)elem;
-                item.SetItem(_tileSource[i]);
+                item.SetItem((TileMenuItem)_tileListView.itemsSource[i]);
                 //Debug.Log($"Bind: {i} {_tileSource[i]}");
             });
             _tileListView.selectionChanged += (items) =>
@@ -435,6 +465,8 @@ namespace Mona.SDK.Brains.UIElements
                 _label.style.flexGrow = 1;
                 _label.style.unityFontStyleAndWeight = FontStyle.Normal;
                 _label.style.marginBottom = _label.style.marginLeft = _label.style.marginRight = 2;
+                _label.style.borderLeftWidth = 5;
+                _label.style.borderLeftColor = Color.white;
                 _label.style.paddingLeft = 4;
                 _label.text = _item.Label;
                 _label.style.unityTextAlign = TextAnchor.MiddleLeft;
@@ -453,6 +485,7 @@ namespace Mona.SDK.Brains.UIElements
 
                 if (_item.IsCategory)
                 {
+                    _label.style.borderLeftWidth = 0;
                     _label.style.unityTextAlign = TextAnchor.MiddleRight;
                     _label.text = _item.Label.ToUpper();
                     SetRadius(0);

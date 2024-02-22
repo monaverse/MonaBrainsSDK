@@ -125,18 +125,36 @@ namespace Mona.SDK.Brains.UIEditors
         private Label _header;
         private Label _selectedHeader;
 
+        private Color _darkRed = Color.HSVToRGB(347f / 360f, .66f, .3f);
+
         public void CreateGUI()
         {
-            Texture banner = (Texture)AssetDatabase.LoadAssetAtPath("Assets/Resources/Editor/mona.png", typeof(Texture));
+            Texture banner = (Texture)AssetDatabase.LoadAssetAtPath("Packages/com.monaverse.brainssdk/Runtime/Resources/mona.png", typeof(Texture));
 
             VisualElement root = rootVisualElement;
             root.style.flexDirection = FlexDirection.Column;
 
             var header = new VisualElement();
+            header.style.flexDirection = FlexDirection.Row;
             header.style.backgroundColor = Color.black;
             header.style.width = Length.Percent(100);
             header.style.alignItems = Align.FlexEnd;
+            header.style.borderBottomWidth = 5;
+            header.style.borderBottomColor = _darkRed;
             header.style.paddingTop = header.style.paddingBottom = 0;
+
+            var brainsTab = new Label();
+            brainsTab.style.width = 150f;
+            brainsTab.style.borderTopLeftRadius = brainsTab.style.borderTopRightRadius = 5;
+            brainsTab.style.backgroundColor = _darkRed;
+            brainsTab.style.fontSize = 16;
+            brainsTab.style.paddingLeft = 10;
+            brainsTab.style.height = 30;
+            brainsTab.style.unityTextAlign = TextAnchor.MiddleLeft;
+            brainsTab.style.unityFontStyleAndWeight = FontStyle.Bold;
+            brainsTab.text = "Brains";
+            header.Add(brainsTab);
+
 
             var space = new VisualElement();
             space.style.flexGrow = 1;
@@ -156,7 +174,7 @@ namespace Mona.SDK.Brains.UIEditors
 
             var container = new VisualElement();
             container.style.flexDirection = FlexDirection.Column;
-            container.style.backgroundColor = Color.HSVToRGB(347f / 360f, .66f, .3f);
+            container.style.backgroundColor = _darkRed;
 
             _header = new Label();
             _header.text = "Select a GameObject";
@@ -191,7 +209,7 @@ namespace Mona.SDK.Brains.UIEditors
                 {
                     var items = _items.FindAll(x =>
                     {
-                        if (x.Name.Contains(evt.newValue)) return true;
+                        if (x.Name.ToLower().Contains(evt.newValue.ToLower())) return true;
                         if (x.HasMonaTag(evt.newValue)) return true;
                         return false;
                     });
@@ -250,6 +268,7 @@ namespace Mona.SDK.Brains.UIEditors
             else
             {
                 _header.text = "Select a GameObject";
+                _selectedHeader.text = "";
                 _brainEditor.style.visibility = Visibility.Hidden;
             }
 
@@ -266,6 +285,7 @@ namespace Mona.SDK.Brains.UIEditors
 
         private void BindItem(VisualElement elem, int i)
         {
+            Debug.Log($"{nameof(BindItem)} {i}");
             ((BrainItemVisualElement)elem).SetValue((MonaBrainGraph)_listView.itemsSource[i], _target, _runner);
         }
 
@@ -283,7 +303,8 @@ namespace Mona.SDK.Brains.UIEditors
 
         public void Refresh()
         {
-            _items = new List<MonaBrainGraph>();
+            ListSelectionChanged();
+            _items.Clear();
 
             string[] guids = AssetDatabase.FindAssets("t:MonaBrainGraph", null);
             foreach (string guid in guids)
@@ -299,7 +320,6 @@ namespace Mona.SDK.Brains.UIEditors
 
             _listView.itemsSource = _items;
             _listView.Rebuild();
-            ListSelectionChanged();
         }
 
         void OnSelectionChange()

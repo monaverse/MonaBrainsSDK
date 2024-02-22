@@ -54,8 +54,8 @@ namespace Mona.SDK.Brains.UIElements
         public MonaInstructionTileVisualElement()
         {
 #if UNITY_EDITOR
-            _expandIcon = (Sprite)AssetDatabase.LoadAssetAtPath("Assets/Resources/Editor/tile_expand.png", typeof(Sprite));
-            _collapseIcon = (Sprite)AssetDatabase.LoadAssetAtPath("Assets/Resources/Editor/tile_collapse.png", typeof(Sprite));
+            _expandIcon = (Sprite)AssetDatabase.LoadAssetAtPath("Packages/com.monaverse.brainssdk/Runtime/Resources/tile_expand.png", typeof(Sprite));
+            _collapseIcon = (Sprite)AssetDatabase.LoadAssetAtPath("Packages/com.monaverse.brainssdk/Runtime/Resources/tile_collapse.png", typeof(Sprite));
 #endif
 
 
