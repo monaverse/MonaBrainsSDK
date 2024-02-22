@@ -66,6 +66,7 @@ namespace Mona.SDK.Brains.UIElements
             _toolBar.style.height = 20;
             _toolBar.style.paddingRight = 0;
             _toolBar.style.alignItems = Align.FlexEnd;
+            _toolBar.style.flexGrow = 1;
 
             _labelType = new Label();
             _labelType.style.fontSize = 10;
@@ -192,9 +193,19 @@ namespace Mona.SDK.Brains.UIElements
 
             _label.text = _tile.Name;
             if (_valuesExtended.childCount > 0 && _labelMore.parent == null)
+            {
                 _toolBar.Add(_labelMore);
-            else if(_labelMore.parent != null)
+                _labelType.style.paddingLeft = 16;
+            }
+            else if (_labelMore.parent != null)
+            {
                 _toolBar.Remove(_labelMore);
+                _labelType.style.paddingLeft = 0;
+            }
+            else
+            {
+                _labelType.style.paddingLeft = 0;
+            }
         }
 
         private void Changed()

@@ -64,7 +64,9 @@ namespace Mona.SDK.Brains.UIElements
             _btnDelete.style.flexGrow = 1;
             _btnDelete.style.borderBottomWidth = 1;
             _btnDelete.style.marginBottom = 1;
-            _btnDelete.text = "del";
+            _btnDelete.text = "delete";
+            _btnDelete.style.color = Color.black;
+            _btnDelete.style.backgroundColor = Color.white;
             StyleButton(_btnDelete);
             _btnDelete.clicked += () =>
             {
@@ -78,6 +80,8 @@ namespace Mona.SDK.Brains.UIElements
             _btnMoveLeft.style.borderBottomWidth = 1;
             _btnMoveLeft.style.marginBottom = 1;
             _btnMoveLeft.text = "left";
+            _btnMoveLeft.style.color = Color.black;
+            _btnMoveLeft.style.backgroundColor = Color.white;
             StyleButton(_btnMoveLeft);
             _btnMoveLeft.clicked += () =>
             {
@@ -94,6 +98,8 @@ namespace Mona.SDK.Brains.UIElements
             _btnMoveRight.style.borderBottomWidth = 1;
             _btnMoveRight.style.marginBottom = 1;
             _btnMoveRight.text = "right";
+            _btnMoveRight.style.color = Color.black;
+            _btnMoveRight.style.backgroundColor = Color.white;
             StyleButton(_btnMoveRight);
             _btnMoveRight.clicked += () =>
             {
@@ -107,7 +113,9 @@ namespace Mona.SDK.Brains.UIElements
 
             _replaceTileMenu = new ToolbarMenu();
             _replaceTileMenu.style.flexGrow = 1;
-            _replaceTileMenu.text = "rep ";
+            _replaceTileMenu.text = "replace";
+            _replaceTileMenu.style.color = Color.black;
+            _replaceTileMenu.style.backgroundColor = Color.white;
             _toolBar.Add(_replaceTileMenu);
 #endif
         }

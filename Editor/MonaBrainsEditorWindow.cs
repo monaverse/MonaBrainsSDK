@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.IO;
+using UnityEditor.UIElements;
 
 #if UNITY_EDITOR
 
@@ -87,17 +88,13 @@ namespace Mona.SDK.Brains.UIEditors
             if (runner != null && runner.BrainGraphs.Contains(graph))
             {
                 _button.text = "-";
-                _button.style.width = 25;
-                _container.style.borderLeftWidth = 5;
-                _container.style.borderLeftColor = Color.HSVToRGB(0f, 1f, .9f);
+                _button.style.width = 30;
                 _button.style.backgroundColor = Color.white;
             }
             else
             {
                 _button.text = "+";
                 _button.style.width = 30;
-                _container.style.borderLeftWidth = 0;
-                _container.style.borderLeftColor = Color.clear;
                 _button.style.backgroundColor = Color.HSVToRGB(347f / 360f, .1f, .9f);
             }
         }
@@ -120,12 +117,35 @@ namespace Mona.SDK.Brains.UIEditors
         private List<MonaBrainGraph> _items = new List<MonaBrainGraph>();
 
         private ListView _listView;
+        private ListView _attachedView;
+
         private MonaBrainGraphVisualElement _brainEditor;
         private TextField _search;
         private Label _header;
         private Label _selectedHeader;
+        private MonaTagsVisualElement _tagsEditor;
+        private MonaTags _monaTags;
+        private IMonaBrain _brain;
 
         private Color _darkRed = Color.HSVToRGB(347f / 360f, .66f, .3f);
+        private Color _lightRed = Color.HSVToRGB(347f / 360f, .80f, .66f);
+        private Color _brightPink = Color.HSVToRGB(351f / 360f, .79f, .98f);
+
+        private Label CreateTab(string text)
+        {
+            var tab = new Label();
+            tab.style.width = 150f;
+            tab.style.borderTopLeftRadius = tab.style.borderTopRightRadius = 5;
+            tab.style.backgroundColor = _darkRed;
+            tab.style.fontSize = 16;
+            tab.style.paddingLeft = 10;
+            tab.style.height = 30;
+            tab.style.marginRight = 5;
+            tab.style.unityTextAlign = TextAnchor.MiddleLeft;
+            tab.style.unityFontStyleAndWeight = FontStyle.Bold;
+            tab.text = text;
+            return tab;
+        }
 
         public void CreateGUI()
         {
@@ -133,28 +153,65 @@ namespace Mona.SDK.Brains.UIEditors
 
             VisualElement root = rootVisualElement;
             root.style.flexDirection = FlexDirection.Column;
+            root.style.flexGrow = 1;
 
             var header = new VisualElement();
             header.style.flexDirection = FlexDirection.Row;
             header.style.backgroundColor = Color.black;
             header.style.width = Length.Percent(100);
+            header.style.minHeight = 50;
             header.style.alignItems = Align.FlexEnd;
             header.style.borderBottomWidth = 5;
             header.style.borderBottomColor = _darkRed;
             header.style.paddingTop = header.style.paddingBottom = 0;
 
-            var brainsTab = new Label();
-            brainsTab.style.width = 150f;
-            brainsTab.style.borderTopLeftRadius = brainsTab.style.borderTopRightRadius = 5;
-            brainsTab.style.backgroundColor = _darkRed;
-            brainsTab.style.fontSize = 16;
-            brainsTab.style.paddingLeft = 10;
-            brainsTab.style.height = 30;
-            brainsTab.style.unityTextAlign = TextAnchor.MiddleLeft;
-            brainsTab.style.unityFontStyleAndWeight = FontStyle.Bold;
-            brainsTab.text = "Brains";
-            header.Add(brainsTab);
+            var split = new TwoPaneSplitView();
+            split.style.flexGrow = 1;
 
+            _tagsEditor = new MonaTagsVisualElement();
+            _tagsEditor.style.flexGrow = 1;
+
+            var tagsWarning = new Label();
+            tagsWarning.text = "Please Import Starter Sample from Brains SDK Package.";
+            tagsWarning.style.display = DisplayStyle.None;
+
+            var brainsTab = CreateTab("Brains");
+            var tagsTab = CreateTab("Tags");
+            header.Add(brainsTab);
+            brainsTab.AddManipulator(new Clickable(() => {
+                split.style.display = DisplayStyle.Flex;
+                brainsTab.style.backgroundColor = _darkRed;
+                _tagsEditor.style.display = DisplayStyle.None;
+                tagsTab.style.backgroundColor = _lightRed;
+                tagsWarning.style.display = DisplayStyle.None;
+            }));
+
+            tagsTab.style.backgroundColor = _lightRed;
+
+            header.Add(tagsTab);
+            tagsTab.AddManipulator(new Clickable(() => {
+                split.style.display = DisplayStyle.None;
+                brainsTab.style.backgroundColor = _lightRed;
+                _tagsEditor.style.display = DisplayStyle.Flex;
+                tagsTab.style.backgroundColor = _darkRed;
+
+                string[] guids = AssetDatabase.FindAssets("t:MonaTags", null);
+                foreach (string guid in guids)
+                {
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    _monaTags = (MonaTags)AssetDatabase.LoadAssetAtPath(path, typeof(MonaTags));
+                    if (!path.Contains("com.monaverse.brainssdk"))
+                    {
+                        _tagsEditor.SetMonaTags(_monaTags);
+                        tagsWarning.style.display = DisplayStyle.None;
+                    }
+                    else
+                    {
+                        tagsWarning.style.display = DisplayStyle.Flex;
+                    }
+                    break;
+                }
+            }));
 
             var space = new VisualElement();
             space.style.flexGrow = 1;
@@ -168,7 +225,6 @@ namespace Mona.SDK.Brains.UIEditors
 
             root.Add(header);
 
-            var split = new TwoPaneSplitView();
             split.orientation = TwoPaneSplitViewOrientation.Horizontal;
             split.fixedPaneInitialDimension = 200;
 
@@ -238,6 +294,21 @@ namespace Mona.SDK.Brains.UIEditors
             _search.style.color = Color.white;
             searchContainer.Add(_search);
 
+            _attachedView = new ListView(null, 24, () => new BrainItemVisualElement(this), (elem, i) => BindItemAttached(elem, i));
+            _attachedView.style.backgroundColor = Color.HSVToRGB(347f / 360f, .66f, .1f);
+            _attachedView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
+            _attachedView.showAddRemoveFooter = false;
+            _attachedView.style.borderBottomColor = _lightRed;
+            _attachedView.style.borderBottomWidth = 5;
+            _attachedView.selectionChanged += (items) =>
+            {
+                if(_attachedView.selectedIndex > 0)
+                    _listView.selectedIndex = -1;
+                ListSelectionChangedAttached();
+            };
+
+            container.Add(_attachedView);
+
             container.Add(searchContainer);
 
             _listView = new ListView(null, 24, () => new BrainItemVisualElement(this), (elem, i) => BindItem(elem, i));
@@ -246,6 +317,8 @@ namespace Mona.SDK.Brains.UIEditors
             _listView.style.flexGrow = 1;
             _listView.selectionChanged += (items) =>
             {
+                if (_listView.selectedIndex > 0)
+                    _attachedView.selectedIndex = -1;
                 ListSelectionChanged();
             };
             
@@ -257,12 +330,47 @@ namespace Mona.SDK.Brains.UIEditors
             split.Add(_brainEditor);
 
             root.Add(split);
+            root.Add(_tagsEditor);
+            _tagsEditor.style.display = DisplayStyle.None;
+
+            root.Add(tagsWarning);
 
             Refresh();
             OnSelectionChange();
         }
 
         private void ListSelectionChanged()
+        {
+            UpdateSelectedObject();
+
+            if (_listView.selectedItem != null)
+            {
+                _brain = (MonaBrainGraph)_listView.selectedItem;
+                _brainEditor.SetBrain(_brain);
+                _brainEditor.style.visibility = Visibility.Visible;
+            }
+            else
+            {
+                _brainEditor.style.visibility = Visibility.Hidden;
+            }
+        }
+
+        private void ListSelectionChangedAttached()
+        {
+            UpdateSelectedObject();
+
+            if (_attachedView.selectedItem != null)
+            {
+                _brainEditor.SetBrain((MonaBrainGraph)_attachedView.selectedItem);
+                _brainEditor.style.visibility = Visibility.Visible;
+            }
+            else
+            {
+                _brainEditor.style.visibility = Visibility.Hidden;
+            }
+        }
+
+        private void UpdateSelectedObject()
         {
             _target = Selection.activeGameObject;
             if (_target != null)
@@ -283,21 +391,17 @@ namespace Mona.SDK.Brains.UIEditors
                 _selectedHeader.text = "";
                 _brainEditor.style.visibility = Visibility.Hidden;
             }
+        }
 
-            if (_listView.selectedItem != null)
-            {
-                _brainEditor.SetBrain((MonaBrainGraph)_listView.selectedItem);
-                _brainEditor.style.visibility = Visibility.Visible;
-            }
-            else
-            {
-                _brainEditor.style.visibility = Visibility.Hidden;
-            }
+        private void BindItemAttached(VisualElement elem, int i)
+        {
+            Debug.Log($"{nameof(BindItemAttached)} {i}");
+            ((BrainItemVisualElement)elem).SetValue((MonaBrainGraph)_attachedView.itemsSource[i], _target, _runner);
         }
 
         private void BindItem(VisualElement elem, int i)
         {
-            Debug.Log($"{nameof(BindItem)} {i}");
+            //Debug.Log($"{nameof(BindItem)} {i}");
             ((BrainItemVisualElement)elem).SetValue((MonaBrainGraph)_listView.itemsSource[i], _target, _runner);
         }
 
@@ -316,6 +420,7 @@ namespace Mona.SDK.Brains.UIEditors
         public void Refresh()
         {
             ListSelectionChanged();
+            ListSelectionChangedAttached();
             _items.Clear();
 
             string[] guids = AssetDatabase.FindAssets("t:MonaBrainGraph", null);
@@ -332,15 +437,17 @@ namespace Mona.SDK.Brains.UIEditors
 
             _items.Sort((a, b) =>
             {
-                if (_runner != null)
-                {
-                    if (_runner.BrainGraphs.Contains(a)) return -1;
-                    if (_runner.BrainGraphs.Contains(b)) return 1;
-                }
                 return a.Name.CompareTo(b.Name);
             });
 
-            _listView.itemsSource = _items;
+            var items = _items.FindAll(x => _runner != null && _runner.BrainGraphs.Contains(x));
+
+            var nonAttached = _items.FindAll(x => _runner == null || !_runner.BrainGraphs.Contains(x));
+            
+            _attachedView.itemsSource = items;
+            _attachedView.Rebuild();
+
+            _listView.itemsSource = nonAttached;
             _listView.Rebuild();
         }
 
@@ -350,13 +457,33 @@ namespace Mona.SDK.Brains.UIEditors
             Refresh();
         }
 
+        private void HandleCallback(SerializedObject obj)
+        {
+            obj.ApplyModifiedProperties();
+            if (_monaTags != null)
+            {
+                EditorUtility.SetDirty(_monaTags);
+                Undo.RecordObject(_monaTags, "change tags");
+            }
+        }
+
+        private void HandleBrainCallback(SerializedObject obj)
+        {
+            //serializedObject.ApplyModifiedProperties();
+            if (_brain != null)
+            {
+                EditorUtility.SetDirty((MonaBrainGraph)_brain);
+                Undo.RecordObject((MonaBrainGraph)_brain, "change brain");
+            }
+        }
+
         private void SetDirtyCallback()
         {
             //serializedObject.ApplyModifiedProperties();
-            if (_target != null)
+            if (_brain != null)
             {
-                EditorUtility.SetDirty(_target);
-                Undo.RecordObject(_target, "change brain");
+                EditorUtility.SetDirty((MonaBrainGraph)_brain);
+                Undo.RecordObject((MonaBrainGraph)_brain, "change brain");
             }
         }
     }

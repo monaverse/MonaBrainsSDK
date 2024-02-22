@@ -385,9 +385,18 @@ namespace Mona.SDK.Brains.UIElements
                 {
                     var items = _tileSource.FindAll(x =>
                     {
-                        if (x.IsCategory) return true;
+                        if (x.IsHeader) return false;
+                        if (x.Category != null && x.Category.ToLower().Contains(evt.newValue.ToLower())) return true;
                         if (x.Label.ToLower().Contains(evt.newValue.ToLower())) return true;
                         return false;
+                    });
+                    items = items.FindAll(x =>
+                    {
+                        if (x.IsCategory)
+                        {
+                            return items.Find(f => f.Category == x.Category) != null;
+                        }
+                        return true;
                     });
                     _tileListView.itemsSource = items;
                     _tileListView.Rebuild();
@@ -429,6 +438,7 @@ namespace Mona.SDK.Brains.UIElements
             public string Label;
             public Action Action;
             public bool IsCategory;
+            public string Category;
             public bool IsHeader;
             public bool IsCondition;
             public override string ToString()
@@ -486,7 +496,7 @@ namespace Mona.SDK.Brains.UIElements
                 if (_item.IsCategory)
                 {
                     _label.style.borderLeftWidth = 0;
-                    _label.style.unityTextAlign = TextAnchor.MiddleRight;
+                    _label.style.unityTextAlign = TextAnchor.MiddleLeft;
                     _label.text = _item.Label.ToUpper();
                     SetRadius(0);
                     if (_item.IsHeader)
@@ -544,10 +554,10 @@ namespace Mona.SDK.Brains.UIElements
                 CopyToTile(def);
                 if(def.Category != lastCategory)
                 {
-                    _tileSource.Add(new TileMenuItem() { Label = def.Category, IsCategory = true, IsCondition = true });
+                    _tileSource.Add(new TileMenuItem() { Label = def.Category, Category = def.Category, IsCategory = true, IsCondition = true });
                     lastCategory = def.Category;
                 }    
-                _tileSource.Add(new TileMenuItem() { Label = $"{def.Name}", IsCondition = true, Action = () => AddTileToSelectedInstructions(def.Tile) });
+                _tileSource.Add(new TileMenuItem() { Label = $"{def.Name}", Category = def.Category, IsCondition = true, Action = () => AddTileToSelectedInstructions(def.Tile) });
             }
             
             _tileSource.Add(new TileMenuItem() { Label = "THEN DO TILES", IsCategory = true, IsHeader = true });

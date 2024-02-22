@@ -34,6 +34,11 @@ namespace Mona.SDK.Brains.UIElements
             Add(_isPlayer);
         }
 
+        public void SetFocus()
+        {
+            _monaTagField.Focus();
+        }
+
         public void SetValue(int idx, IMonaTagItem monaTag)
         {
             _listIndex = idx;
