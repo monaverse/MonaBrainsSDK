@@ -48,7 +48,7 @@ namespace Mona.SDK.Brains.UIEditors
             _button.style.borderTopRightRadius = _button.style.borderBottomRightRadius = 0;
             _button.style.marginLeft = 0;
             _button.style.marginTop = _button.style.marginBottom = 1;
-            _button.style.backgroundColor = Color.white;
+            _button.style.backgroundColor = Color.HSVToRGB(347f / 360f, .1f, .9f);
             _button.style.color = Color.black;
             _button.clicked += () =>
             {
@@ -89,13 +89,11 @@ namespace Mona.SDK.Brains.UIEditors
             {
                 _button.text = "-";
                 _button.style.width = 30;
-                _button.style.backgroundColor = Color.white;
             }
             else
             {
                 _button.text = "+";
                 _button.style.width = 30;
-                _button.style.backgroundColor = Color.HSVToRGB(347f / 360f, .1f, .9f);
             }
         }
 
@@ -128,6 +126,7 @@ namespace Mona.SDK.Brains.UIEditors
         private IMonaBrain _brain;
 
         private Color _darkRed = Color.HSVToRGB(347f / 360f, .66f, .3f);
+        private Color _darkerRed = Color.HSVToRGB(347f / 360f, .66f, .2f);
         private Color _lightRed = Color.HSVToRGB(347f / 360f, .80f, .66f);
         private Color _brightPink = Color.HSVToRGB(351f / 360f, .79f, .98f);
 
@@ -182,7 +181,7 @@ namespace Mona.SDK.Brains.UIEditors
                 split.style.display = DisplayStyle.Flex;
                 brainsTab.style.backgroundColor = _darkRed;
                 _tagsEditor.style.display = DisplayStyle.None;
-                tagsTab.style.backgroundColor = _lightRed;
+                tagsTab.style.backgroundColor = _darkerRed;
                 tagsWarning.style.display = DisplayStyle.None;
             }));
 
@@ -191,7 +190,7 @@ namespace Mona.SDK.Brains.UIEditors
             header.Add(tagsTab);
             tagsTab.AddManipulator(new Clickable(() => {
                 split.style.display = DisplayStyle.None;
-                brainsTab.style.backgroundColor = _lightRed;
+                brainsTab.style.backgroundColor = _darkerRed;
                 _tagsEditor.style.display = DisplayStyle.Flex;
                 tagsTab.style.backgroundColor = _darkRed;
 
