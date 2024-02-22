@@ -42,8 +42,7 @@ namespace Mona.SDK.Brains.UIElements
                 HandleDeselect();
                 OnTileIndexClicked(_instruction, -1);
             });
-
-
+            
             style.flexDirection = FlexDirection.Row;
             style.minHeight = 120;
             _scrollView = new ScrollView();
@@ -183,6 +182,11 @@ namespace Mona.SDK.Brains.UIElements
             if (_toolBar.parent == null)
                 Add(_toolBar);
 
+            if (_instruction.HasEndTile(_page))
+                _btnMoveRight.SetEnabled(i != _instruction.InstructionTiles.Count - 2);
+            else
+                _btnMoveRight.SetEnabled(i != _instruction.InstructionTiles.Count - 1);
+
             if (_instruction.HasEndTile(_page) && i == _instruction.InstructionTiles.Count - 1)
             {
                 _btnMoveLeft.SetEnabled(false);
@@ -192,10 +196,16 @@ namespace Mona.SDK.Brains.UIElements
             else
                 _btnMoveLeft.SetEnabled(i != 0);
 
-            if(_instruction.HasEndTile(_page))
-                _btnMoveRight.SetEnabled(i != _instruction.InstructionTiles.Count - 2);
-            else
-                _btnMoveRight.SetEnabled(i != _instruction.InstructionTiles.Count - 1);
+            if (_instruction.InstructionTiles[_selectedTile] is IActionInstructionTile && _selectedTile > 0 && _instruction.InstructionTiles[_selectedTile-1] is IConditionInstructionTile)
+            {
+                _btnMoveLeft.SetEnabled(false);
+            }
+            else if (_instruction.InstructionTiles[_selectedTile] is IConditionInstructionTile && _selectedTile < _instruction.InstructionTiles.Count-1 && _instruction.InstructionTiles[_selectedTile + 1] is IActionInstructionTile)
+            {
+                _btnMoveRight.SetEnabled(false);
+            }
+
+
 #endif
 
         }
@@ -227,6 +237,42 @@ namespace Mona.SDK.Brains.UIElements
             RefreshInstructionTiles(0);
             RefreshMenu();
             HideMenu();
+            AddKeyListeners();
+        }
+
+        private bool _listeners;
+        private void AddKeyListeners()
+        {
+            if (_listeners) return;
+            _listeners = true;
+            this.panel.visualTree.RegisterCallback<KeyDownEvent>((evt) =>
+            {
+                if (evt.keyCode == KeyCode.Delete)
+                {
+                    if (_selectedTile > -1)
+                    {
+                        _instruction.DeleteTile(_selectedTile);
+                        if(_selectedTile <= _instruction.InstructionTiles.Count-1)
+                            Select(_selectedTile, false);
+                    }
+                }
+                else if(evt.keyCode == KeyCode.RightArrow)
+                {
+                    if (_selectedTile > -1 && _btnMoveRight.enabledSelf)
+                    {
+                        _instruction.MoveTileRight(_selectedTile);
+                        Select(_selectedTile + 1, false);
+                    }
+                }
+                else if (evt.keyCode == KeyCode.LeftArrow)
+                {
+                    if (_selectedTile > -1 && _btnMoveLeft.enabledSelf)
+                    {
+                        _instruction.MoveTileLeft(_selectedTile);
+                        Select(_selectedTile - 1, false);
+                    }
+                }
+            }, TrickleDown.TrickleDown);
         }
 
         public void ClearInstruction()

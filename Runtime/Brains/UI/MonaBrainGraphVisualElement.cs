@@ -34,16 +34,18 @@ namespace Mona.SDK.Brains.UIElements
 
         private ScrollView _leftColumn;
         private VisualElement _rightColumn;
+        private Foldout _brainMetaData;
         private MonaBrainPageVisualElement _corePage;
         private VisualElement _tabToolbar;
         private VisualElement _tabs;
         private Button _btnNewPage;
         private MonaBrainPageVisualElement _activeStatePage;
-        private Foldout _activePageHeading;
+        private Label _statePageHeading;
         private Foldout _activePagesHeading;
         private Foldout _defaultVariablesHeading;
         private Foldout _corePageContainer;
         private TextField _activePageName;
+        private Label _statePageInstructions;
         private VisualElement _activePageContainer;
         private ListView _monaTagListView;
         private ListView _monaAssetsListView;
@@ -67,21 +69,28 @@ namespace Mona.SDK.Brains.UIElements
         private List<IInstruction> _selectedInstructions;
         private int _selectedTileIndex = -1;
 
+        private Color _darkRed = Color.HSVToRGB(347f / 360f, .66f, .1f);
+        private Color _lightRed = Color.HSVToRGB(347f / 360f, .66f, .3f);
+
         private Foldout CreateHeading(string text)
         {
             var foldOut = new Foldout();
-            foldOut.style.marginLeft = -12;
+            foldOut.style.marginLeft = -9;
             foldOut.style.marginTop = 3;
             foldOut.text = text;
             foldOut.RegisterCallback<GeometryChangedEvent>((evt) =>
             {
+                var bar = foldOut.Q<VisualElement>(className: "unity-foldout");
+                bar.style.borderLeftWidth = bar.style.borderRightWidth = bar.style.borderTopWidth = bar.style.borderBottomWidth = 0;
+
                 var content = foldOut.Q<VisualElement>(className: "unity-foldout__toggle");
                 if (content != null)
                 {
                     content.style.marginLeft = 12;
                     content.style.fontSize = 14;
+                    content.style.height = 28;
                     content.style.unityFontStyleAndWeight = FontStyle.Bold;
-                    content.style.backgroundColor = Color.HSVToRGB(.48f, .4f, .4f);
+                    content.style.backgroundColor = _lightRed;
                     content.style.paddingBottom = content.style.paddingTop = 3;
                     content.style.borderBottomLeftRadius = content.style.borderBottomRightRadius = content.style.borderTopLeftRadius = content.style.borderTopRightRadius = 3;
                 }
@@ -108,6 +117,20 @@ namespace Mona.SDK.Brains.UIElements
             _activePageContainer.style.marginTop = _activePageContainer.style.marginBottom = margin;
         }
 
+        private Label CreateSmallHeading(string text)
+        {
+            var label = new Label();
+            label.text = text;
+            label.style.paddingLeft = 5;
+            label.style.height = 30;
+            label.style.unityFontStyleAndWeight = FontStyle.Bold;
+            label.style.color = Color.white;
+            label.style.backgroundColor = _darkRed;
+            label.style.unityTextAlign = TextAnchor.MiddleLeft;
+            label.style.borderTopLeftRadius = label.style.borderTopRightRadius = 5;
+            return label;
+        }
+
         public MonaBrainGraphVisualElement(Action newCallback)
         {
             callback = newCallback;
@@ -121,20 +144,38 @@ namespace Mona.SDK.Brains.UIElements
             _leftColumn.verticalScrollerVisibility = ScrollerVisibility.Auto;
             Add(_leftColumn);
 
+            _brainMetaData = CreateHeading("Brain Metadata");
+            _brainMetaData.value = true;
+
             _name = new TextField("Brain Name");
             _name.RegisterValueChangedCallback((evt) => _brain.Name = (string)evt.newValue);
-            _leftColumn.Add(_name);
+            _brainMetaData.Add(_name);
             _property = new EnumField("Property", MonaBrainPropertyType.Default);
             _property.RegisterValueChangedCallback((evt) => _brain.PropertyType = (MonaBrainPropertyType)evt.newValue);
-            _leftColumn.Add(_property);
+            _brainMetaData.Add(_property);
+
+            var tagContainer = new VisualElement();
+            var s = tagContainer.style;
+            s.flexDirection = FlexDirection.Column;
+            s.marginLeft = s.marginRight = s.marginTop = s.marginBottom = 5;
+            s.paddingLeft = s.paddingRight = s.paddingTop = s.paddingBottom = 5;
+            //s.borderBottomLeftRadius = s.borderBottomRightRadius = s.borderTopLeftRadius = s.borderTopRightRadius = 5;
+            //s.borderLeftWidth = s.borderRightWidth = s.borderTopWidth = s.borderBottomWidth = 1;
+            //s.borderLeftColor = s.borderRightColor = s.borderTopColor = s.borderBottomColor = new Color(.5f, .5f, .5f);
+            s.backgroundColor = new Color(.2f, .2f, .2f);
+            s.marginBottom = 10;
+
+            var label = CreateSmallHeading("Mona Tags");
+            tagContainer.Add(label);
 
             _monaTagListView = new ListView(null, 120, () => new MonaTagReferenceVisualElement(_brain), (elem, i) => ((MonaTagReferenceVisualElement)elem).SetValue(i, _brain.MonaTags[i]));
             _monaTagListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
-            _monaTagListView.showFoldoutHeader = true;
+            _monaTagListView.showFoldoutHeader = false;
             _monaTagListView.headerTitle = "Mona Tags";
             _monaTagListView.showAddRemoveFooter = true;
             _monaTagListView.reorderMode = ListViewReorderMode.Animated;
             _monaTagListView.reorderable = true;
+            _monaTagListView.style.paddingBottom = 10;
             _monaTagListView.itemsAdded += (elems) =>
             {
                 foreach (var e in elems)
@@ -142,11 +183,15 @@ namespace Mona.SDK.Brains.UIElements
                     _brain.MonaTags[e] = _brain.MonaTagSource.Tags[0];
                 }
             };
-            _leftColumn.Add(_monaTagListView);
+            tagContainer.Add(_monaTagListView);
+
+            var label2 = CreateSmallHeading("Mona Assets");
+            label2.style.marginTop = 10;
+            tagContainer.Add(label2);
 
             _monaAssetsListView = new ListView(null, 120, () => new MonaAssetReferenceVisualElement(), (elem, i) => ((MonaAssetReferenceVisualElement)elem).SetValue(_brain, i));
             _monaAssetsListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
-            _monaAssetsListView.showFoldoutHeader = true;
+            _monaAssetsListView.showFoldoutHeader = false;
             _monaAssetsListView.headerTitle = "Mona Assets";
             _monaAssetsListView.showAddRemoveFooter = true;
             _monaAssetsListView.reorderMode = ListViewReorderMode.Animated;
@@ -158,7 +203,9 @@ namespace Mona.SDK.Brains.UIElements
                     _brain.MonaAssets[e] = null;
                 }
             };
-            _leftColumn.Add(_monaAssetsListView);
+            tagContainer.Add(_monaAssetsListView);
+            _brainMetaData.Add(tagContainer);
+            _leftColumn.Add(_brainMetaData);
 
             _corePageContainer = CreateHeading("Brain Core Page Instructions");
             _corePageContainer.value = true;
@@ -179,20 +226,20 @@ namespace Mona.SDK.Brains.UIElements
             _activePagesHeading.Add(_tabToolbar);
 
             _activePageContainer = new VisualElement();
-            _activePageContainer.style.backgroundColor = new Color(.3f, .3f, .3f);
+            _activePageContainer.style.backgroundColor = new Color(.2f, .2f, .2f);
             SetMargin(_activePageContainer, 5);
             _activePageContainer.style.marginTop = 10;
             _activePageContainer.style.flexDirection = FlexDirection.Column;
-            SetBorder(_activePageContainer, 10, 1, Color.gray, 10);
+            SetBorder(_activePageContainer, 5, 0, new Color(.2f, .2f, .2f), 5);
             _activePageContainer.style.paddingTop = 5;
             _activePagesHeading.Add(_activePageContainer);
 
-            _activePageHeading = CreateHeading($"Active Page");
-            _activePageHeading.style.fontSize = 12;
-            SetBorder(_activePageHeading, 4, 1, new Color(.1f, .1f, .1f), 2);
-            SetMargin(_activePageHeading, 0);
-            _activePageHeading.style.marginBottom = 5;
-            _activePageContainer.Add(_activePageHeading);
+            _statePageHeading = CreateSmallHeading($"Active Page");
+            _statePageHeading.style.fontSize = 12;
+            SetBorder(_statePageHeading, 5, 1, new Color(.1f, .1f, .1f), 2);
+            SetMargin(_statePageHeading, 0);
+            _statePageHeading.style.marginBottom = 5;
+            _activePageContainer.Add(_statePageHeading);
 
 
             _tabs = new VisualElement();
@@ -223,6 +270,9 @@ namespace Mona.SDK.Brains.UIElements
                 AddStatePage();
             };
             _tabToolbar.Add(_btnNewPage);
+
+            _statePageInstructions = CreateSmallHeading("Active Page Instructions");
+            _activePageContainer.Add(_statePageInstructions);
 
             _activeStatePage = new MonaBrainPageVisualElement();
             _activeStatePage.OnSelectedInstructionsChanged += HandleSelectedInstructions;
@@ -266,6 +316,7 @@ namespace Mona.SDK.Brains.UIElements
             btnBar.Add(_btnMoveRight);
 
             _defaultVariablesHeading = CreateHeading("Brain Default Variables");
+            _defaultVariablesHeading.value = true;
             _leftColumn.Add(_defaultVariablesHeading);
 
             _defaultVariablesVisualElement = new MonaVariablesVisualElement(callback);
@@ -273,8 +324,8 @@ namespace Mona.SDK.Brains.UIElements
 
 #if UNITY_EDITOR
 
-            _foldOut = new Foldout();
-            _foldOut.text = "Brain Settings";
+            _foldOut = CreateHeading("Brain Settings");
+            _foldOut.value = true;
             _tileSetField = new DropdownField("Latest Version");
             _tileSetField.RegisterValueChangedCallback((changed) =>
             {
@@ -318,7 +369,7 @@ namespace Mona.SDK.Brains.UIElements
 
             _rightColumn = new VisualElement();
             _rightColumn.style.width = 150;
-            _rightColumn.style.backgroundColor = Color.black;
+            _rightColumn.style.backgroundColor = Color.HSVToRGB(347f / 360f, .66f, .1f);
             _rightColumn.style.paddingLeft = 5;
             Add(_rightColumn);
 
@@ -363,11 +414,14 @@ namespace Mona.SDK.Brains.UIElements
             public TileMenuItem Item => _item;
             private Label _label;
 
+            private Color _brightPink = Color.HSVToRGB(351f / 360f, .79f, .98f);
+            private Color _lightRed = Color.HSVToRGB(347f / 360f, .80f, .66f);
+            private Color _textColor = Color.white;
+
             public TileMenuItemVisualElement()
             {
                 style.flexDirection = FlexDirection.Row;
                 style.flexGrow = 1;
-                style.color = Color.HSVToRGB(.5f, .2f, .1f);
                 _label = new Label();
                 _label.style.flexWrap = Wrap.Wrap;
                 Add(_label);
@@ -388,13 +442,13 @@ namespace Mona.SDK.Brains.UIElements
 
                 if (_item.IsCondition)
                 {
-                    _label.style.backgroundColor = Color.HSVToRGB(.5f, .4f, .9f);
-                    _label.style.color = Color.HSVToRGB(.5f, .2f, .1f);
+                    _label.style.backgroundColor = _lightRed;
+                    _label.style.color = _textColor;
                 }
                 else
                 {
-                    _label.style.backgroundColor = Color.HSVToRGB(.4f, .4f, .9f);
-                    _label.style.color = Color.HSVToRGB(.4f, .2f, .1f);
+                    _label.style.backgroundColor = _brightPink;
+                    _label.style.color = _textColor;
                 }
 
                 if (_item.IsCategory)
@@ -404,7 +458,7 @@ namespace Mona.SDK.Brains.UIElements
                     SetRadius(0);
                     if (_item.IsHeader)
                     {
-                        _label.style.backgroundColor = Color.HSVToRGB(.5f, 0f, .1f);
+                        _label.style.backgroundColor = Color.HSVToRGB(.9f, 0f, .1f);
                         _label.style.color = Color.HSVToRGB(1f, 0f, 1f);
                         _label.style.unityFontStyleAndWeight = FontStyle.Bold;
                     }
@@ -412,13 +466,13 @@ namespace Mona.SDK.Brains.UIElements
                     {
                         if (_item.IsCondition)
                         {
-                            _label.style.backgroundColor = Color.HSVToRGB(.5f, .1f, .3f);
-                            _label.style.color = Color.HSVToRGB(.5f, .2f, .5f);
+                            _label.style.backgroundColor = Color.HSVToRGB(.9f, 0f, .1f); 
+                            _label.style.color = _textColor;
                         }
                         else
                         {
-                            _label.style.backgroundColor = Color.HSVToRGB(.4f, .1f, .3f);
-                            _label.style.color = Color.HSVToRGB(.4f, .2f, .5f);
+                            _label.style.backgroundColor = Color.HSVToRGB(.9f, 0f, .1f); 
+                            _label.style.color = _textColor;
                         }
 
                         _label.style.color = Color.HSVToRGB(1f, 0f, 1f);
@@ -641,28 +695,27 @@ namespace Mona.SDK.Brains.UIElements
 
             _activePagesHeading.text = $"Brain State Pages - {_brain.StatePages.Count}";
 
+            _activePagesHeading.value = true;
             if (_brain.StatePages.Count == 0)
-            {
-                _activePagesHeading.value = false;
-                _activePageHeading.style.display = DisplayStyle.None;
+            {                
+                _statePageHeading.style.display = DisplayStyle.None;
                 _activePageContainer.style.display = DisplayStyle.None;
-                return;
             }
             else
             {
-                _activePagesHeading.value = true;
+                _statePageHeading.style.display = DisplayStyle.Flex;
+                _activePageContainer.style.display = DisplayStyle.Flex;
+
+                _activePageName.value = _brain.StatePages[_selectedTab].Name;
+                _statePageHeading.text = $"\"{_brain.StatePages[_selectedTab].Name}\" Page Properties";
+                _statePageInstructions.text = $"\"{_brain.StatePages[_selectedTab].Name}\" Page Instructions";
+                _activeStatePage.SetPage(_brain, _brain.StatePages[_selectedTab]);
+                _activeStatePage.visible = true;
+
+                _btnMoveLeft.SetEnabled(_selectedTab > 0);
+                _btnMoveRight.SetEnabled(_selectedTab < _brain.StatePages.Count - 1);
+
             }
-
-            _activePageHeading.style.display = DisplayStyle.Flex;
-            _activePageContainer.style.display = DisplayStyle.Flex;
-
-            _activePageName.value = _brain.StatePages[_selectedTab].Name;
-            _activePageHeading.text = $"Active Page - {_brain.StatePages[_selectedTab].Name}";
-            _activeStatePage.SetPage(_brain, _brain.StatePages[_selectedTab]); 
-            _activeStatePage.visible = true;
-
-            _btnMoveLeft.SetEnabled(_selectedTab > 0);
-            _btnMoveRight.SetEnabled(_selectedTab < _brain.StatePages.Count - 1);
 
         }
 
@@ -680,11 +733,9 @@ namespace Mona.SDK.Brains.UIElements
             _defaultVariablesVisualElement.SetState(_brain.DefaultVariables);
 
             _monaTagListView.itemsSource = _brain.MonaTags;
-            _monaTagListView.Q<Foldout>().value = _brain.MonaTags.Count > 0;
             _monaTagListView.Rebuild();
 
             _monaAssetsListView.itemsSource = _brain.MonaAssets;
-            _monaAssetsListView.Q<Foldout>().value = _brain.MonaAssets.Count > 0;
             _monaAssetsListView.Rebuild();
 
             Refresh();

@@ -11,6 +11,7 @@ using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using Mona.SDK.Brains.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Control;
+using UnityEditor;
 
 #if UNITY_EDITOR
 using UnityEditor.UIElements;
@@ -37,6 +38,7 @@ namespace Mona.SDK.Brains.UIElements
 
         private Label _label;
         private Label _labelMore;
+        private Label _labelType;
 #if UNITY_EDITOR
         private ToolbarMenu _toolbarMenu;
 #endif
@@ -46,30 +48,54 @@ namespace Mona.SDK.Brains.UIElements
         private IManipulator _click;
         private IManipulator _clickLabel;
 
+        private Sprite _expandIcon;
+        private Sprite _collapseIcon;
+
         public MonaInstructionTileVisualElement()
         {
+#if UNITY_EDITOR
+            _expandIcon = (Sprite)AssetDatabase.LoadAssetAtPath("Assets/Resources/Editor/tile_expand.png", typeof(Sprite));
+            _collapseIcon = (Sprite)AssetDatabase.LoadAssetAtPath("Assets/Resources/Editor/tile_collapse.png", typeof(Sprite));
+#endif
+
+
             style.flexDirection = FlexDirection.Column;
 
             _toolBar = new VisualElement();
             _toolBar.style.flexDirection = FlexDirection.Row;
             _toolBar.style.height = 20;
             _toolBar.style.paddingRight = 0;
+            _toolBar.style.alignItems = Align.FlexEnd;
+
+            _labelType = new Label();
+            _labelType.style.fontSize = 10;
+            _labelType.style.color = Color.white;
+            _labelType.style.unityTextAlign = TextAnchor.MiddleCenter;
+            _labelType.style.paddingLeft = 16;
+            _labelType.style.flexGrow = 1;
+            _toolBar.Add(_labelType);
+
+#if UNITY_EDITOR
+            _labelMore = new Label();
+            _labelMore.style.backgroundImage = new StyleBackground(_expandIcon);
+            _labelMore.style.width = _labelMore.style.height = 16;
+            _labelMore.style.color = _textColor;
+            _labelMore.style.unityFontStyleAndWeight = FontStyle.Bold;
+#endif
+            Add(_toolBar);
 
             _label = new Label();
             _label.style.flexGrow = 1;
-            _label.style.fontSize = 12;
+            _label.style.fontSize = 14;
             _label.style.minHeight = 12;
             _label.style.alignItems = Align.Center;
             _label.style.unityTextAlign = TextAnchor.MiddleCenter;
             _label.style.unityFontStyleAndWeight = FontStyle.Bold;
             _label.style.marginRight = 5;
-            _toolBar.Add(_label);
+            _label.style.color = _textColor;
+            _label.style.paddingBottom = 3;
 
-            _labelMore = new Label();
-            _labelMore.text = "[...]";
-            _labelMore.style.unityFontStyleAndWeight = FontStyle.Bold;
-
-            Add(_toolBar);
+            Add(_label);
 
             _valuesContainer = new VisualElement();
             _valuesContainer.style.width = Length.Percent(100);
@@ -135,6 +161,10 @@ namespace Mona.SDK.Brains.UIElements
         {            
             _extended = extend;
             _valuesExtended.style.display = _extended ? DisplayStyle.Flex : DisplayStyle.None;
+            if(extend)
+                _labelMore.style.backgroundImage = new StyleBackground(_collapseIcon);
+            else
+                _labelMore.style.backgroundImage = new StyleBackground(_expandIcon);
         }
 
         public void SetInstructionTile(IMonaBrain brain, IMonaBrainPage page, IInstructionTile tile, int tileIndex, int instructionTileCount)
@@ -147,12 +177,12 @@ namespace Mona.SDK.Brains.UIElements
             if (_click != null)
                 this.RemoveManipulator(_click);
             if (_clickLabel != null)
-                _labelMore.AddManipulator(_clickLabel);
+                _labelMore.RemoveManipulator(_clickLabel);
 
             _click = new Clickable(evt => HandleClick(tileIndex, false));
             this.AddManipulator(_click);
 
-            _clickLabel = new Clickable(evt => HandleClick(tileIndex, true));
+            _clickLabel = new Clickable(evt => HandleClick(tileIndex, !_extended));
             _labelMore.AddManipulator(_clickLabel);
 
             if (_tile == null) return;
@@ -204,9 +234,15 @@ namespace Mona.SDK.Brains.UIElements
                     var field = new DropdownField(values, 0);
                     field.style.width = 100;
                     field.style.flexDirection = FlexDirection.Column;
-                    field.labelElement.style.color = Color.black;
+                    field.labelElement.style.color = _textColor;
+                    field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.label = property.Name;
                     field.value = (string)property.GetValue(_tile);
+                    field.RegisterCallback<FocusInEvent>((evt) =>
+                    {
+                        values = _brain.GetAllMonaAssets().FindAll(x => isAsset.Type.IsAssignableFrom(x.GetType())).ConvertAll<string>(x => x.PrefabId);
+                        field.choices = values;
+                    });
                     field.RegisterValueChangedCallback((evt) =>
                     {
                         field.value = (string)evt.newValue;
@@ -221,9 +257,15 @@ namespace Mona.SDK.Brains.UIElements
                     var field = new DropdownField(values, 0);
                     field.style.width = 100;
                     field.style.flexDirection = FlexDirection.Column;
-                    field.labelElement.style.color = Color.black;
+                    field.labelElement.style.color = _textColor;
+                    field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.label = property.Name;
                     field.value = (string)property.GetValue(_tile);
+                    field.RegisterCallback<FocusInEvent>((evt) =>
+                    {
+                        values = _brain.DefaultVariables.VariableList.FindAll(x => isValue.Type.IsAssignableFrom(_brain.DefaultVariables.GetVariable(x.Name).GetType())).ConvertAll<string>(x => x.Name);
+                        field.choices = values;
+                    });
                     field.RegisterValueChangedCallback((evt) =>
                     {
                         field.value = (string)evt.newValue;
@@ -237,7 +279,8 @@ namespace Mona.SDK.Brains.UIElements
                     var field = new DropdownField(_brain.MonaTagSource.Tags, 0);
                     field.style.width = 100;
                     field.style.flexDirection = FlexDirection.Column;
-                    field.labelElement.style.color = Color.black;
+                    field.labelElement.style.color = _textColor;
+                    field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.label = property.Name;
                     field.value = (string)property.GetValue(_tile);
                     field.RegisterValueChangedCallback((evt) =>
@@ -253,7 +296,8 @@ namespace Mona.SDK.Brains.UIElements
                     var field = new TextField();
                     field.style.width = 100;
                     field.style.flexDirection = FlexDirection.Column;
-                    field.labelElement.style.color = Color.black;
+                    field.labelElement.style.color = _textColor;
+                    field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.label = property.Name;
                     field.value = (string)property.GetValue(_tile);
                     field.RegisterValueChangedCallback((evt) => {
@@ -269,7 +313,8 @@ namespace Mona.SDK.Brains.UIElements
                     var field = new FloatField();
                     field.style.width = 100;
                     field.style.flexDirection = FlexDirection.Column;
-                    field.labelElement.style.color = Color.black;
+                    field.labelElement.style.color = _textColor;
+                    field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.label = property.Name;
                     field.value = (float)property.GetValue(_tile);
                     field.RegisterValueChangedCallback((evt) => {
@@ -285,7 +330,8 @@ namespace Mona.SDK.Brains.UIElements
                     var field = new IntegerField();
                     field.style.width = 100;
                     field.style.flexDirection = FlexDirection.Column;
-                    field.labelElement.style.color = Color.black;
+                    field.labelElement.style.color = _textColor;
+                    field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.label = property.Name;
                     field.value = (int)property.GetValue(_tile);
                     field.RegisterValueChangedCallback((evt) =>
@@ -302,7 +348,8 @@ namespace Mona.SDK.Brains.UIElements
                     var field = new Toggle();
                     field.style.width = 100;
                     field.style.flexDirection = FlexDirection.Column;
-                    field.labelElement.style.color = Color.black;
+                    field.labelElement.style.color = _textColor;
+                    field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.label = property.Name;
                     field.value = (bool)property.GetValue(_tile);
                     field.RegisterValueChangedCallback((evt) =>
@@ -319,7 +366,8 @@ namespace Mona.SDK.Brains.UIElements
                     var field = new Vector2Field();
                     field.style.width = 120;
                     field.style.flexDirection = FlexDirection.Column;
-                    field.labelElement.style.color = Color.black;
+                    field.labelElement.style.color = _textColor;
+                    field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.style.color = Color.black;
                     field.label = property.Name;
                     field.value = (Vector2)property.GetValue(_tile);
@@ -337,7 +385,8 @@ namespace Mona.SDK.Brains.UIElements
                     var field = new Vector3Field();
                     field.style.width = 130;
                     field.style.flexDirection = FlexDirection.Column;
-                    field.labelElement.style.color = Color.black;
+                    field.labelElement.style.color = _textColor;
+                    field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.style.color = Color.black;
                     field.label = property.Name;
                     field.value = (Vector3)property.GetValue(_tile);
@@ -356,7 +405,8 @@ namespace Mona.SDK.Brains.UIElements
                     var field = new EnumField((Enum)type.GetEnumValues().GetValue(0));
                     field.style.width = 100;
                     field.style.flexDirection = FlexDirection.Column;
-                    field.labelElement.style.color = Color.black;
+                    field.labelElement.style.color = _textColor;
+                    field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.label = property.Name;
                     field.value = (Enum)Enum.Parse(type, property.GetValue(_tile).ToString());
                     field.RegisterValueChangedCallback((evt) =>
@@ -375,7 +425,8 @@ namespace Mona.SDK.Brains.UIElements
                     var field = new ColorField();
                     field.style.width = 100;
                     field.style.flexDirection = FlexDirection.Column;
-                    field.labelElement.style.color = Color.black;
+                    field.labelElement.style.color = _textColor;
+                    field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.label = property.Name;
                     field.value = (Color)property.GetValue(_tile);
                     field.RegisterValueChangedCallback((evt) =>
@@ -389,6 +440,7 @@ namespace Mona.SDK.Brains.UIElements
             }
         }
 
+        private Color _darkRed = Color.HSVToRGB(347f / 360f, .66f, .1f);
         private void AddTargetFieldIfExists(VisualElement fieldContainer, VisualElement field, List<PropertyInfo> properties, PropertyInfo property)
         {
             var targetProperty = properties.Find(x =>
@@ -413,7 +465,7 @@ namespace Mona.SDK.Brains.UIElements
                 target.style.width = 80;
                 target.style.flexDirection = FlexDirection.Column;
                 target.style.display = string.IsNullOrEmpty(value) ? DisplayStyle.None : DisplayStyle.Flex;
-                target.labelElement.style.color = Color.black;
+                target.labelElement.style.color = _textColor;
                 target.label = property.Name;
 
                 var defaultValue = (string)targetProperty.GetValue(_tile);
@@ -439,14 +491,16 @@ namespace Mona.SDK.Brains.UIElements
                 btn.style.width = 20;
                 btn.style.height = 20;
                 btn.style.color = Color.black;
-                btn.style.backgroundColor = !string.IsNullOrEmpty(value) ? Color.red : Color.gray;
+                btn.style.backgroundColor = !string.IsNullOrEmpty(value) ? _darkRed : Color.gray;
                 btn.style.color = !string.IsNullOrEmpty(value) ? Color.white : Color.black;
                 btn.text = "*";
                 btn.clicked += () =>
                 {
+                    values = _brain.DefaultVariables.VariableList.FindAll(x => isValue.Type.IsAssignableFrom(_brain.DefaultVariables.GetVariable(x.Name).GetType())).ConvertAll<string>(x => x.Name);
+                    target.choices = values;
                     var value2 = (string)targetProperty.GetValue(_tile);
                     Debug.Log($"Btn Clicked {targetProperty.Name} {value2}");
-                    if (!string.IsNullOrEmpty(value2))
+                    if (!string.IsNullOrEmpty(value2) || values.Count == 0)
                     {
                         targetProperty.SetValue(_tile, null);
                         field.style.display = DisplayStyle.Flex;
@@ -462,13 +516,13 @@ namespace Mona.SDK.Brains.UIElements
                             targetProperty.SetValue(_tile, defaultVariable);
                             target.value = defaultVariable;
                         }
-                        else
+                        else if(values.Count > 0)
                         {
                             targetProperty.SetValue(_tile, values[0]);
                         }
                         field.style.display = DisplayStyle.None;
                         target.style.display = DisplayStyle.Flex;
-                        btn.style.backgroundColor = Color.red;
+                        btn.style.backgroundColor = _darkRed;
                         btn.style.color = Color.white;
                     }
                 };
@@ -483,6 +537,10 @@ namespace Mona.SDK.Brains.UIElements
             def.Tile.Category = def.Category;
         }
 
+        private Color _brightPink = Color.HSVToRGB(351f / 360f, .79f, .98f);
+        private Color _lightRed = Color.HSVToRGB(347f / 360f, .80f, .66f);
+        private Color _textColor = Color.white;
+
         private void SetStyle(IInstructionTile tile)
         {
             style.color = Color.black;
@@ -495,7 +553,8 @@ namespace Mona.SDK.Brains.UIElements
 
             if (tile is IActionInstructionTile)
             {
-                style.backgroundColor = Color.HSVToRGB(.4f, .4f, .9f);
+                _labelType.text = "ACTION";
+                style.backgroundColor = _brightPink;
                 if (tile is IActionStateEndInstructionTile && !_page.IsCore)
                     style.borderBottomRightRadius = style.borderTopRightRadius = 30;
                 if (tile is IActionEndInstructionTile)
@@ -503,7 +562,11 @@ namespace Mona.SDK.Brains.UIElements
             }
             else if (tile is IConditionInstructionTile)
             {
-                style.backgroundColor = Color.HSVToRGB(.5f, .4f, .9f);
+                if (tile is IInputInstructionTile)
+                    _labelType.text = "INPUT";
+                else
+                    _labelType.text = "IF";
+                style.backgroundColor = _lightRed;
                 if (tile is IStartableInstructionTile && _index == 0)
                     style.borderBottomLeftRadius = style.borderTopLeftRadius = 30;
             }
