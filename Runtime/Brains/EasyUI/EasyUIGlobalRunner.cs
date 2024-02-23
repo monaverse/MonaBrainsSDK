@@ -17,10 +17,12 @@ namespace Mona.SDK.Brains.EasyUI
     public class EasyUIGlobalRunner : MonoBehaviour
     {
         [SerializeField] private GameObject _primaryScreenRoot;
+        [SerializeField] private GameObject _primaryObjectRoot;
 
         private MonaGlobalBrainRunner _globalBrainRunner;
         private EasyUIScreenDefinitions _rootScreenDefinitions;
-        private List<IMonaVariablesValue> _displayableVariables;
+        private List<EasyUIObjectWorldSpaceDefinitions> _objectUIs = new List<EasyUIObjectWorldSpaceDefinitions>();
+        private Dictionary<IMonaVariablesValue, MonaBrainGraph> _displayableVariables = new Dictionary<IMonaVariablesValue, MonaBrainGraph>();
 
         private EasyUIScreenDefinitions PrimaryScreenDefinitions => _rootScreenDefinitions ? _rootScreenDefinitions.GetComponent<EasyUIScreenDefinitions>() : null;
 
@@ -66,7 +68,8 @@ namespace Mona.SDK.Brains.EasyUI
                 Instance = this;
             }
 
-            _displayableVariables = new List<IMonaVariablesValue>();
+            _objectUIs = new List<EasyUIObjectWorldSpaceDefinitions>();
+            _displayableVariables = new Dictionary<IMonaVariablesValue, MonaBrainGraph>();
         }
 
         private void Start()
@@ -74,6 +77,7 @@ namespace Mona.SDK.Brains.EasyUI
             _globalBrainRunner = MonaGlobalBrainRunner.Instance;
             _globalBrainRunner.OnStarted += HandleGlobalBrainRunnerStarted;
             SetupScreenUI();
+            HandleBrainsChanged();
         }
 
         private void SetupScreenUI()
@@ -131,11 +135,14 @@ namespace Mona.SDK.Brains.EasyUI
         {
             foreach (IMonaVariablesValue variable in brainGraph.DefaultVariables.VariableList)
             {
-                if (variable.GetType() != typeof(MonaVariablesFloat) && !_displayableVariables.Contains(variable))
+                if (variable.GetType() != typeof(MonaVariablesFloat) && !_displayableVariables.ContainsKey(variable))
                     continue;
 
                 if (((IEasyUINumericalDisplay)variable).AllowUIDisplay)
-                    _displayableVariables.Add(variable);
+                {
+                    _displayableVariables.Add(variable, brainGraph);
+                }
+                    
             }
         }
 
@@ -144,15 +151,40 @@ namespace Mona.SDK.Brains.EasyUI
             if (_displayableVariables.Count == 0 || !PrimaryScreenDefinitions)
                 return;
 
-            foreach (IEasyUINumericalDisplay variable in _displayableVariables)
+            foreach (KeyValuePair<IMonaVariablesValue, MonaBrainGraph> keyPair in _displayableVariables)
             {
+                IEasyUINumericalDisplay variable = (IEasyUINumericalDisplay)keyPair.Key;
+
                 switch (variable.DisplaySpace)
                 {
                     case EasyUIDisplaySpace.HeadsUpDisplay:
                         PrimaryScreenDefinitions.PlaceElementInHUD(variable);
                         break;
+                    case EasyUIDisplaySpace.OnObject:
+                        PlaceVariableOnObject(keyPair);
+                        break;
                 }
             }
+        }
+
+        private void PlaceVariableOnObject(KeyValuePair<IMonaVariablesValue, MonaBrainGraph> keyPair)
+        {
+            EasyUIObjectWorldSpaceDefinitions objectUI = keyPair.Value.GameObject.GetComponentInChildren<EasyUIObjectWorldSpaceDefinitions>();
+
+            if (objectUI == null && !_objectUIs.Contains(objectUI))
+            {
+                GameObject uiElement = Instantiate(_primaryObjectRoot, keyPair.Value.GameObject.transform);
+                objectUI = uiElement.GetComponent<EasyUIObjectWorldSpaceDefinitions>();
+
+                if (!objectUI)
+                    _objectUIs.Add(objectUI);
+            }
+
+            if (!objectUI)
+                return;
+
+            IEasyUINumericalDisplay variable = (IEasyUINumericalDisplay)keyPair.Key;
+            objectUI.PlaceElementInObjectUI(variable);
         }
     }
 }
