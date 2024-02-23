@@ -253,6 +253,7 @@ namespace Mona.SDK.Brains.UIElements
         {
             if (_listeners) return;
             _listeners = true;
+#if UNITY_EDITOR
             this.panel.visualTree.RegisterCallback<KeyDownEvent>((evt) =>
             {
                 if (evt.keyCode == KeyCode.Delete)
@@ -281,6 +282,7 @@ namespace Mona.SDK.Brains.UIElements
                     }
                 }
             }, TrickleDown.TrickleDown);
+#endif
         }
 
         public void ClearInstruction()

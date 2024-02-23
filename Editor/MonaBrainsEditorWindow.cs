@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.IO;
+#if UNITY_EDITOR
 using UnityEditor.UIElements;
+#endif
 using System;
 
 #if UNITY_EDITOR
@@ -628,7 +630,10 @@ namespace Mona.SDK.Brains.UIEditors
             rootVisualElement.schedule.Execute(() =>
             {
                 if (_attachedView.itemsSource != null && _attachedView.itemsSource.Count > 0)
+                {
+                    _attachedView.selectedIndex = -1;
                     _attachedView.selectedIndex = 0;
+                }
             }).ExecuteLater(200);
         }
 

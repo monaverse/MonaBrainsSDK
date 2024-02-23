@@ -41,7 +41,9 @@ namespace Mona.SDK.Brains.UIElements
                 {
                     if (_assetSource[i].MonaAsset.Name == _brain.MonaAssets[_listIndex].Name)
                     {
+#if UNITY_EDITOR
                         Selection.activeObject = (MonaAssetsDefinition)_assetSource[i];
+#endif
                         return;
                     }
                 }
