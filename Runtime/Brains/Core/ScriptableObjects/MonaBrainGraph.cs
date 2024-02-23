@@ -485,8 +485,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             var tickEvt = (MonaBrainTickEvent)evt;
             //if(LoggingEnabled)
             //    Debug.Log($"{nameof(ExecuteTickEvent)} {tickEvt.Type}", _body.ActiveTransform.gameObject);
-            ExecuteCorePageInstructions(tickEvt.Type);
-            ExecuteStatePageInstructions(tickEvt.Type);
+            ExecuteCorePageInstructions(tickEvt.Type, evt);
+            ExecuteStatePageInstructions(tickEvt.Type, evt);
         }
 
         private void HandleMonaTrigger(MonaTriggerEvent evt)

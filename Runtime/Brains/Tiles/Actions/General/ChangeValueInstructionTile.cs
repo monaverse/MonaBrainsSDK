@@ -46,8 +46,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             if (_brain != null)
             {
-                if(Evaluate(_brain.Variables))
+                if (Evaluate(_brain.Variables))
+                {
+                    //if(_brain.LoggingEnabled)
+                    //    Debug.Log($"{nameof(ChangeValueInstructionTile)} {_operator} {_amount} = {_brain.Variables.GetFloat(_valueName)}");
                     return Complete(InstructionTileResult.Success);
+                }
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }

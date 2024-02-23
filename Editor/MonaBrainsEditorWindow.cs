@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.IO;
 using UnityEditor.UIElements;
+using System;
 
 #if UNITY_EDITOR
 
@@ -114,6 +115,63 @@ namespace Mona.SDK.Brains.UIEditors
 
     }
 
+    public class MonaBrainNameVisualElement : VisualElement
+    {
+        public event Action<string> OnSubmit = delegate { };
+
+        private VisualElement _container;
+        private Label _prompt;
+        private TextField _brainName;
+        private Button _button;
+
+        public MonaBrainNameVisualElement()
+        {
+            style.flexDirection = FlexDirection.Column;
+            style.flexGrow = 1;
+            style.alignItems = Align.Center;
+
+            _container = new VisualElement();
+            _container.style.marginTop = 100;
+            _container.style.width = Length.Percent(50);
+            _container.style.height = 100;
+
+            _prompt = new Label();
+            _prompt.text = "Name your new brain!";
+            _container.Add(_prompt);
+
+            _brainName = new TextField();
+            SetBorder(_brainName, 3, 1, Color.white, 2);
+            _container.Add(_brainName);
+
+            _button = new Button();
+            _button.text = "Save";
+            _button.style.color = Color.black;
+            _button.style.backgroundColor = Color.white;
+            _button.style.width = 100;
+            _button.RegisterCallback<ClickEvent>((evt) =>
+            {
+                OnSubmit?.Invoke(GetName());
+            });
+            _container.Add(_button);
+            Add(_container);
+        }
+
+        public string GetName()
+        {
+            return _brainName.value;
+        }
+
+        private void SetBorder(VisualElement elem, float radius = 0, float width = 1, Color color = default, float padding = 5)
+        {
+            elem.style.borderTopLeftRadius = elem.style.borderTopRightRadius = radius;
+            elem.style.borderBottomLeftRadius = elem.style.borderBottomRightRadius = radius;
+            elem.style.borderLeftWidth = elem.style.borderTopWidth = elem.style.borderRightWidth = elem.style.borderBottomWidth = width;
+            elem.style.borderLeftColor = elem.style.borderRightColor = elem.style.borderTopColor = elem.style.borderBottomColor = color;
+            elem.style.paddingLeft = elem.style.paddingRight = elem.style.paddingTop = elem.style.paddingBottom = padding;
+        }
+
+    }
+
     public class MonaBrainsEditorWindow : EditorWindow
     {
         [MenuItem("Mona/Mona Brains")]
@@ -130,10 +188,13 @@ namespace Mona.SDK.Brains.UIEditors
 
         private List<MonaBrainGraph> _items = new List<MonaBrainGraph>();
 
+        private Label _status;
         private ListView _listView;
         private ListView _attachedView;
 
         private MonaBrainGraphVisualElement _brainEditor;
+        private MonaBrainNameVisualElement _brainNewContainer;
+        private TextField _brainNewName;
         private TextField _search;
         private Label _header;
         private Label _selectedHeader;
@@ -317,11 +378,13 @@ namespace Mona.SDK.Brains.UIEditors
 
                     _listView.itemsSource = items;
                     _listView.Rebuild();
+                    _status.text = $"({items.Count}) Brain{(items.Count > 1 ? "s" : "")} Found";
                 }
                 else
                 {
                     _listView.itemsSource = _items;
                     _listView.Rebuild();
+                    _status.text = $"({_items.Count}) Brain{(_items.Count > 1 ? "s" : "")} Found";
                 }
             });
             _search[0].style.backgroundColor = Color.black;
@@ -359,10 +422,84 @@ namespace Mona.SDK.Brains.UIEditors
             
             container.Add(_listView);
 
+#if UNITY_EDITOR
+            var bottomToolBar = new Toolbar();
+            bottomToolBar.style.alignContent = Align.FlexEnd;
+            container.Add(bottomToolBar);
+
+            var newButton = new ToolbarButton();
+            newButton.text = "New Brain";
+            newButton.style.color = Color.black;
+            newButton.style.backgroundColor = Color.white;
+            newButton.clicked += () =>
+            {
+                _brainNewContainer.style.display = DisplayStyle.Flex;
+                _brainEditor.style.display = DisplayStyle.None;
+            };
+
+            _status = new Label();
+            _status.text = "No Brains Found";
+            _status.style.unityTextAlign = TextAnchor.MiddleLeft;
+            _status.style.unityFontStyleAndWeight = FontStyle.Italic;
+            _status.style.flexGrow = 1;
+            _status.style.paddingLeft = 5;
+
+            bottomToolBar.Add(_status);
+            bottomToolBar.Add(newButton);
+#endif
+
             split.Add(container);
 
+            var brainContainer = new VisualElement();
+            brainContainer.style.flexDirection = FlexDirection.Column;
+
             _brainEditor = new MonaBrainGraphVisualElement(SetDirtyCallback);
-            split.Add(_brainEditor);
+            brainContainer.Add(_brainEditor);
+
+            _brainNewContainer = new MonaBrainNameVisualElement();
+            _brainNewContainer.OnSubmit += (string newName) =>
+            {
+                if (string.IsNullOrEmpty(newName)) return;
+                var brain = ScriptableObject.CreateInstance<MonaBrainGraph>();
+                    brain.name = newName;
+                AssetDatabase.CreateAsset(brain, "Assets/Brains/" + brain.name + ".asset");
+                AssetDatabase.SaveAssets();
+
+                if (_target != null)
+                {
+                    if (_globalRunner != null)
+                    {
+                        if (!_globalRunner.PlayerBrainGraphs.Contains(brain))
+                            _globalRunner.PlayerBrainGraphs.Add(brain);
+
+                        _attachedView.selectedIndex = _globalRunner.PlayerBrainGraphs.Count - 1;
+                        Refresh();
+                    }
+                    else
+                    {
+                        if (_target.GetComponent<IMonaBody>() == null)
+                            _target.AddComponent<MonaBody>();
+
+                        if (_target.GetComponent<IMonaBrainRunner>() == null)
+                            _target.AddComponent<MonaBrainRunner>();
+
+                        var runner = _target.GetComponent<IMonaBrainRunner>();
+                        if (!runner.BrainGraphs.Contains(brain))
+                            runner.BrainGraphs.Add(brain);
+
+                        _attachedView.selectedIndex = runner.BrainGraphs.Count - 1;
+                        Refresh();
+                    }
+                }
+
+                _brainNewContainer.style.display = DisplayStyle.None;
+                _brainEditor.style.display = DisplayStyle.Flex;
+
+            };
+            brainContainer.Add(_brainNewContainer);
+            _brainNewContainer.style.display = DisplayStyle.None;
+
+            split.Add(brainContainer);
 
             root.Add(split);
             root.Add(_tagsEditor);
@@ -481,6 +618,7 @@ namespace Mona.SDK.Brains.UIEditors
 
             _listView.itemsSource = nonAttached;
             _listView.Rebuild();
+            _status.text = $"({nonAttached.Count}) Brain{(nonAttached.Count > 1 ? "s" : "")} Found";
         }
 
         void OnSelectionChange()

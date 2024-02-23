@@ -141,7 +141,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
                 var mouse = Mouse.current.position.ReadValue();
                 if (_player.PlayerCamera != null)
-                    _ray = _player.PlayerCamera.Transform.GetComponent<Camera>().ScreenPointToRay(new Vector3(mouse.x, mouse.y, 0f));
+                    _ray = _player.PlayerCamera.ScreenPointToRay(new Vector3(mouse.x, mouse.y, 0f));
                 else
                     _ray = default;
 

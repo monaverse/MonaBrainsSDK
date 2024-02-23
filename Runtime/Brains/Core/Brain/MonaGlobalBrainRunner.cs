@@ -40,13 +40,15 @@ namespace Mona.SDK.Brains.Core.Brain
         private bool _playerJoined;
 
         private IMonaBody _playerBody;
-        private IMonaBody _playerCamera;
+        private IMonaBody _playerCameraBody;
+        private Camera _playerCamera;
         private int _playerId;
 
         private List<MonaRemotePlayer> _otherPlayers = new List<MonaRemotePlayer>();
 
         public IMonaBody PlayerBody => _playerBody;
-        public IMonaBody PlayerCamera => _playerCamera;
+        public IMonaBody PlayerCameraBody => _playerCameraBody;
+        public Camera PlayerCamera => _playerCamera;
         public List<MonaRemotePlayer> OtherPlayers => _otherPlayers;
         public int PlayerId => _playerId;
 
@@ -187,11 +189,14 @@ namespace Mona.SDK.Brains.Core.Brain
             if (evt.IsLocal)
             {
                 _playerBody = evt.PlayerBody;
-                _playerCamera = _playerBody.FindChildByTag(MonaCoreConstants.MONA_TAG_PLAYER_CAMERA);
+                _playerCameraBody = _playerBody.FindChildByTag(MonaCoreConstants.MONA_TAG_PLAYER_CAMERA);
                 _playerId = evt.PlayerId;
 
-                if(_playerCamera != null)
-                    Debug.Log($"{nameof(HandleMonaPlayerJoined)} {_playerCamera.ActiveTransform}", _playerCamera.ActiveTransform.gameObject);
+                if (_playerCameraBody != null)
+                {
+                    _playerCamera = _playerCameraBody.Transform.GetComponent<Camera>();
+                    Debug.Log($"{nameof(HandleMonaPlayerJoined)} {_playerCamera}", _playerCamera.gameObject);
+                }
 
                 AttachBrainsToPlayer(_playerBody);
 

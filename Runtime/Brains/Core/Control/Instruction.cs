@@ -246,8 +246,8 @@ namespace Mona.SDK.Brains.Core.Control
             }
             else if (IsRunning())
             {
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction still running", _brain.Body.ActiveTransform.gameObject);
+               // if (_brain.LoggingEnabled)
+                //    Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction still running", _brain.Body.ActiveTransform.gameObject);
 
                 /*if (!HasConditional())
                 {
@@ -311,10 +311,10 @@ namespace Mona.SDK.Brains.Core.Control
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Tick:
-                        if (_brain.Body.HasControl() && tile is IActionInstructionTile)
+                        if (_brain.Body.HasControl() && tile is IActionInstructionTile && (evt == null || ((MonaBrainTickEvent)evt).Instruction == this))
                         {
                             //_result = InstructionTileResult.Running;
-                            return ExecuteTile(tile);
+                            ExecuteActionTile(tile);
                         }
                         break;
                     case InstructionEventTypes.Authority:
@@ -442,8 +442,8 @@ namespace Mona.SDK.Brains.Core.Control
 
         private void ExecuteActions()
         {
-            if (_brain.LoggingEnabled)
-                Debug.Log($"{nameof(ExecuteActions)} #{_page.Instructions.IndexOf(this)} start instruction", _brain.Body.ActiveTransform.gameObject);
+            //if (_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(ExecuteActions)} #{_page.Instructions.IndexOf(this)} start instruction", _brain.Body.ActiveTransform.gameObject);
             _result = InstructionTileResult.Running;
             if (_firstActionIndex == -1) return;
             var tile = InstructionTiles[_firstActionIndex];
@@ -519,7 +519,7 @@ namespace Mona.SDK.Brains.Core.Control
                 if (!HasConditional())
                 {
                     //Debug.Log($"TICK IT {_result}");
-                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick));
+                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
                 }
             }
             else
