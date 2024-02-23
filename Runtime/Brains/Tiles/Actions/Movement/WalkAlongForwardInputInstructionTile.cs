@@ -5,6 +5,7 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
 using System;
+using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -51,7 +52,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private void TickGroundedCreature(float deltaTime)
         {
             _controller.SetWalk(GetSpeed());
-            _controller.SetMotionSpeed(GetMotionSpeed(DirectionType));
+            if (DirectionType == MoveDirectionType.X || DirectionType == MoveDirectionType.Y || DirectionType == MoveDirectionType.Z)
+                _controller.SetMotionSpeed(GetMotionSpeed(DirectionType) * Mathf.Sign(GetDistance()));
+            else
+                _controller.SetMotionSpeed(GetMotionSpeed(DirectionType));
         }
 
         private void StopGroundedCreature()

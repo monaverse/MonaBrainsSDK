@@ -9,6 +9,9 @@
         Down=4,
         Left=5,
         Right=6,
-        InputForwardBack=7
+        InputForwardBack=7,
+        X=8,
+        Y=9,
+        Z=10
     }
 }

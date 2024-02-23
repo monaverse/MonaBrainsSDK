@@ -331,6 +331,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             return _currentSpeed;
         }
 
+        protected float GetDistance()
+        {
+            if (!string.IsNullOrEmpty(_distanceValueName))
+                _distance = _brain.Variables.GetFloat(_distanceValueName);
+            return _distance;
+        }
+
         private void MoveOverTime(float deltaTime)
         {
             if (_movingState == MovingStateType.Moving)
@@ -421,6 +428,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.Left: return -1f;
                 case MoveDirectionType.UseInput: return (InputMoveDirection.y == 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
                 case MoveDirectionType.InputForwardBack: return (InputMoveDirection.y == 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
+                case MoveDirectionType.X: return 1f;
+                case MoveDirectionType.Y: return 1f;
+                case MoveDirectionType.Z: return 1f;
                 default: return 0;
             }
         }
@@ -437,6 +447,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.Left: return _brain.Body.ActiveTransform.right * -1f;
                 case MoveDirectionType.UseInput: return _brain.Body.ActiveTransform.forward * ((InputMoveDirection.y == 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + _brain.Body.ActiveTransform.right * ((InputMoveDirection.x == 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
                 case MoveDirectionType.InputForwardBack: return _brain.Body.ActiveTransform.forward * Mathf.Sign(InputMoveDirection.y);
+                case MoveDirectionType.X: return Vector3.right;
+                case MoveDirectionType.Y: return Vector3.up;
+                case MoveDirectionType.Z: return Vector3.forward;
                 default: return Vector3.zero;
             }
         }
