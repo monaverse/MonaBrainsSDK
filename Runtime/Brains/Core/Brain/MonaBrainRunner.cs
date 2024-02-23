@@ -15,6 +15,38 @@ using Mona.SDK.Core.Body.Enums;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
+    public struct WaitFrameQueueItem
+    {
+        public int Index;
+        public Action<IInstructionEvent> Callback;
+        public IInstructionEvent Evt;
+        public Type Type;
+        public int Frame;
+
+        public WaitFrameQueueItem(int index)
+        {
+            Index = index;
+            Callback = null;
+            Evt = null;
+            Type = null;
+            Frame = 0;
+        }
+
+        public WaitFrameQueueItem(int index, Action<IInstructionEvent> callback, IInstructionEvent evt, Type type, int frame)
+        {
+            Index = index;
+            Callback = callback;
+            Evt = evt;
+            Type = type;
+            Frame = frame;
+        }
+
+        public bool ShouldExecute()
+        {
+            return Time.frameCount - Frame > 0;
+        }
+    }
+
     [RequireComponent(typeof(MonaBody))]
     public partial class MonaBrainRunner : MonoBehaviour, IMonaBrainRunner, IMonaTagged
     {
@@ -128,17 +160,12 @@ namespace Mona.SDK.Brains.Core.Brain
             _transformDefaults.Add(new ResetTransform(_body));
         }
 
-        private List<Dictionary<Type, Coroutine>> _coroutine = new List<Dictionary<Type, Coroutine>>();
+        private List<WaitFrameQueueItem> _waitQueue = new List<WaitFrameQueueItem>();
+        private List<Dictionary<Type, WaitFrameQueueItem>> _wait = new List<Dictionary<Type, WaitFrameQueueItem>>();
+        private List<int> _layers = new List<int>();
+        private List<Type> _types = new List<Type>();
         
-        public struct WaitFrameQueueItem
-        {
-            public int Index;
-            public Action<IInstructionEvent> Callback;
-            public IInstructionEvent Evt;
-            public Type Type;
-        }
-
-        private List<List<WaitFrameQueueItem>> _list = new List<List<WaitFrameQueueItem>>();
+        private List<List<WaitFrameQueueItem>> _waitInactiveQueue = new List<List<WaitFrameQueueItem>>();
 
         public void WaitFrame(Action callback)
         {
@@ -151,39 +178,91 @@ namespace Mona.SDK.Brains.Core.Brain
             callback?.Invoke();
         }
 
+        private Action<MonaTickEvent> OnMonaTick;
         public void WaitFrame(int index, Action<IInstructionEvent> callback, IInstructionEvent evt, Type type)
         {
-            if (!_coroutine[index].ContainsKey(type))
-                _coroutine[index].Add(type, null);
+            //Debug.Log($"{nameof(WaitFrame)} WAIT WaitFrame {index}, type {type}, evt: {evt} {Time.frameCount}");
+            if (!_layers.Contains(index))
+                _layers.Add(index);
 
-            if (_coroutine[index][type] != null) return;
+            if (!_types.Contains(type))
+                _types.Add(type);
+
+            if (!_wait[index].ContainsKey(type))
+                _wait[index].Add(type, new WaitFrameQueueItem(-1));
+
+            if (_wait[index][type].Index > -1) return;
             if (gameObject.activeInHierarchy)
             {
-                if(evt is MonaTriggerEvent)
-                    StartCoroutine(DoWaitFrame(index, callback, evt, type));
+                if (evt is MonaTriggerEvent || evt is MonaBrainTickEvent)
+                    _waitQueue.Add(new WaitFrameQueueItem(index, callback, evt, type, Time.frameCount));
                 else
-                    _coroutine[index][type] = StartCoroutine(DoWaitFrame(index, callback, evt, type));
+                    _wait[index][type] = new WaitFrameQueueItem(index, callback, evt, type, Time.frameCount);
+
+                OnMonaTick = HandleMonaTick;
+                EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
             }
             else
-                _list[index].Add(new WaitFrameQueueItem() { Index = index, Callback = callback, Evt = evt, Type = type });
+                _waitInactiveQueue[index].Add(new WaitFrameQueueItem(index, callback, evt, type, Time.frameCount));
         }
 
         private void ClearWaitFrameQueue(int index)
         {
-            while(_list[index].Count > 0)
+            while(_waitInactiveQueue[index].Count > 0)
             {
-                var item = _list[index][0];
+                var item = _waitInactiveQueue[index][0];
                 Debug.Log($"{nameof(ClearWaitFrameQueue)} {item.Type}");
-                _coroutine[index][item.Type] = StartCoroutine(DoWaitFrame(index, item.Callback, item.Evt, item.Type));
-                _list[index].RemoveAt(0);
+                _wait[index][item.Type] = item;
+                _waitInactiveQueue[index].RemoveAt(0);
             }
         }
 
-        private IEnumerator DoWaitFrame(int index, Action<IInstructionEvent> callback, IInstructionEvent evt, Type type)
-        { 
-            yield return null;
-            _coroutine[index][type] = null;
-            callback(evt);
+        private void HandleMonaTick(MonaTickEvent evt)
+        {
+            var queueCleared = true;
+
+            for (var i = 0; i < _layers.Count; i++)
+            {
+                for (var j = 0; j < _types.Count; j++)
+                {
+                    var item = _wait[_layers[i]][_types[j]];
+                    if (item.Index >= 0)
+                    {
+                        if (item.ShouldExecute())
+                        {
+                            //Debug.Log($"{nameof(MonaBrainRunner)} WAIT TICK LATER {item.Index}, type {item.Type}, evt: {((MonaBrainTickEvent)item.Evt).Instruction.InstructionTiles[0]} {Time.frameCount}");
+                            item.Index = -1;
+                            _wait[_layers[i]][_types[j]] = item;
+                            item.Callback(item.Evt);
+                        }
+                        else
+                            queueCleared = false;
+                    }
+                }
+            }
+
+            for(var i = _waitQueue.Count-1; i >= 0; i--)
+            {
+                var item = _waitQueue[i];
+                if (item.ShouldExecute())
+                {
+                   // Debug.Log($"{nameof(MonaBrainRunner)} WAIT QUEUE TICK LATER {item.Index}, type {item.Type}, evt: {item.Evt} {Time.frameCount}");
+                    item.Callback(item.Evt);
+                    _waitQueue.Remove(item);
+                }
+                else
+                {
+                    queueCleared = false;
+                }
+            }
+
+            if (queueCleared)
+            {
+                //Debug.Log($"STOP LISTENIGN FOR TICK");
+                _waitQueue.Clear();
+                EventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
+            }
+
         }
 
         private void AddHotReloadDelegates()
@@ -209,8 +288,10 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             _body.InitializeTags();
 
-            _coroutine.Clear();
-            _list.Clear();
+            _wait.Clear();
+            _waitQueue.Clear();
+            _layers.Clear();
+            _waitInactiveQueue.Clear();
             _brainInstances.Clear();
 
             for (var i = 0; i < _brainGraphs.Count; i++)
@@ -219,11 +300,11 @@ namespace Mona.SDK.Brains.Core.Brain
                 var instance = (IMonaBrain)Instantiate(_brainGraphs[i]);
                 if (instance != null)
                 {
-                    _coroutine.Add(new Dictionary<Type, Coroutine>());
+                    _wait.Add(new Dictionary<Type, WaitFrameQueueItem>());
                     instance.Guid = _brainGraphs[i].Guid;
                     instance.LoggingEnabled = _brainGraphs[i].LoggingEnabled;
                     instance.Preload(gameObject, this, i);
-                    _list.Add(new List<WaitFrameQueueItem>());
+                    _waitInactiveQueue.Add(new List<WaitFrameQueueItem>());
                     _brainInstances.Add(instance);
                 }
             }

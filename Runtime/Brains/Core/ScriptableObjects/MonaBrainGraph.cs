@@ -477,6 +477,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleMonaBrainTick(MonaBrainTickEvent evt)
         {
+            //Debug.Log($"{nameof(HandleMonaBrainTick)} evt.Instruction {evt.Instruction.InstructionTiles[0]}");
             _runner.WaitFrame(_index, ExecuteTickEvent, evt, typeof(MonaBrainTickEvent));
         }
 

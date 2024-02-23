@@ -1,4 +1,5 @@
 using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.ScriptableObjects;
 using Mona.SDK.Core.Assets;
 using Mona.SDK.Core.Assets.Interfaces;
 using System.Collections.Generic;
@@ -37,14 +38,17 @@ namespace Mona.SDK.Brains.UIElements
             button.style.width = 50;
             button.clicked += () =>
             {
-                for (var i = 0; i < _assetSource.Count; i++)
+                if (_assetSource.Count > 0)
                 {
-                    if (_assetSource[i].MonaAsset.Name == _brain.MonaAssets[_listIndex].Name)
+                    for (var i = 0; i < _assetSource.Count; i++)
                     {
+                        if (_assetSource[i].MonaAsset.Name == _brain.MonaAssets[_listIndex].Name)
+                        {
 #if UNITY_EDITOR
-                        Selection.activeObject = (MonaAssetsDefinition)_assetSource[i];
+                            Selection.activeObject = (MonaAssetsDefinition)_assetSource[i];
 #endif
-                        return;
+                            return;
+                        }
                     }
                 }
             };
