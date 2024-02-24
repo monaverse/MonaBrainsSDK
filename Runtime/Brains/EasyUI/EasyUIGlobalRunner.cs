@@ -28,45 +28,24 @@ namespace Mona.SDK.Brains.EasyUI
 
         private static EasyUIGlobalRunner _instance;
 
-        public static EasyUIGlobalRunner Instance
-        {
-            get
-            {
-                Init();
-                return _instance;
-            }
-            private set
-            {
-                _instance = value;
-            }
-        }
-
-        public static void Init()
-        {
-            if (_instance == null)
-            {
-                var existing = GameObject.FindObjectOfType<EasyUIGlobalRunner>();
-                if (existing != null)
-                {
-                    existing.Awake();
-                }
-                else
-                {
-                    var go = new GameObject();
-                    var runner = go.AddComponent<EasyUIGlobalRunner>();
-                    go.name = nameof(EasyUIGlobalRunner);
-                    go.transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
-                    runner.Awake();
-                }
-            }
-        }
+        public static EasyUIGlobalRunner Instance => _instance;
 
         private void Awake()
         {
             if (_instance == null)
             {
-                Instance = this;
+                _instance = this;
             }
+            else
+            {
+                Destroy(this);
+            }
+
+            if (!_primaryScreenRoot)
+                _primaryScreenRoot = Resources.Load<GameObject>("EasyUI_ScreenRoot");
+
+            if (!_primaryObjectRoot)
+                _primaryObjectRoot = Resources.Load<GameObject>("EasyUI_ObjectRoot");
 
             _objectUIs = new List<EasyUIObjectWorldSpaceDefinitions>();
             _displayableVariables = new Dictionary<IMonaVariablesValue, MonaBrainGraph>();
@@ -85,6 +64,12 @@ namespace Mona.SDK.Brains.EasyUI
             if (!_primaryScreenRoot)
             {
                 Debug.LogWarning("WARNING: The prefab for the 'primaryScreenRoot' is null or missing!");
+                return;
+            }
+
+            if (!_primaryObjectRoot)
+            {
+                Debug.LogWarning("WARNING: The prefab for the 'objectScreenRoot' is null or missing!");
                 return;
             }
 

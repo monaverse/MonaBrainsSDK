@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Mona.SDK.Brains.EasyUI;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -72,6 +73,7 @@ namespace Mona.SDK.Brains.Core.Brain
         public List<MonaBrainGraph> PlayerBrainGraphs => _playerBrainGraphs;
 
         private MonaBrainInput _brainInput;
+        private EasyUIGlobalRunner _easyUIRunner;
 
         private static MonaGlobalBrainRunner _instance;
         public static MonaGlobalBrainRunner Instance {
@@ -141,6 +143,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void Start()
         {
+            SetupEasyUIGlobalRunner();
+
 #if UNITY_EDITOR && !OLYMPIA
             IMonaNetworkSpawner mockSpawner = null;
             EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT), new NetworkSpawnerStartedEvent(mockSpawner));
@@ -261,6 +265,16 @@ namespace Mona.SDK.Brains.Core.Brain
         private void TriggerLateTick()
         {
             EventBus.Trigger<MonaLateTickEvent>(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), new MonaLateTickEvent());
+        }
+
+        private void SetupEasyUIGlobalRunner()
+        {
+            _easyUIRunner = GetComponent<EasyUIGlobalRunner>();
+
+            if (_easyUIRunner)
+                return;
+
+            _easyUIRunner = gameObject.AddComponent(typeof(EasyUIGlobalRunner)) as EasyUIGlobalRunner;
         }
     }
 }
