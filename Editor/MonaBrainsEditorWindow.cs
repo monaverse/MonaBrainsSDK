@@ -14,6 +14,7 @@ using System;
 #if UNITY_EDITOR
 
 using UnityEditor;
+using Mona.SDK.Brains.Core.Control;
 
 namespace Mona.SDK.Brains.UIEditors
 {
@@ -100,6 +101,7 @@ namespace Mona.SDK.Brains.UIEditors
             _graph = graph;
             _gameObject = gameObject;
             _runner = runner;
+
             _globalRunner = globalRunner;
             _label.text = (string.IsNullOrEmpty(graph.Name) ? graph.Name : graph.name);
             _button.SetEnabled(gameObject != null);
@@ -463,6 +465,7 @@ namespace Mona.SDK.Brains.UIEditors
             {
                 if (string.IsNullOrEmpty(newName)) return;
                 var brain = ScriptableObject.CreateInstance<MonaBrainGraph>();
+                    brain.CorePage.Instructions.Add(new Instruction());
                     brain.name = newName;
                 AssetDatabase.CreateAsset(brain, "Assets/Brains/" + brain.name + ".asset");
                 AssetDatabase.SaveAssets();

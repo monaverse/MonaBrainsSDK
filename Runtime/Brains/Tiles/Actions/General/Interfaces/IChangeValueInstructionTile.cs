@@ -1,5 +1,5 @@
 ﻿using Mona.SDK.Brains.Core.Tiles;
-using Mona.SDK.Brains.Tiles.Actions.General.Enums;
+using Mona.SDK.Brains.Tiles.Actions.Variables.Enums;
 using Mona.SDK.Brains.Tiles.Conditions.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General.Interfaces

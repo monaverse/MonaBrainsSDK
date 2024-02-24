@@ -2,7 +2,7 @@ using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using UnityEngine;
 
-namespace Mona.SDK.Brains.Tiles.Actions.General.ScriptableObjects
+namespace Mona.SDK.Brains.Tiles.Actions.Variables.ScriptableObjects
 {
     [CreateAssetMenu(menuName = "Mona Brains/Tiles/General/ChangeBoolValue", fileName = "ChangeBoolValue")]
     public class ChangeBoolValueInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition

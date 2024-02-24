@@ -112,6 +112,7 @@ namespace Mona.SDK.Brains.Core.Brain
             {
                 for(var i = 0; i < _brainGraphs.Count; i++)
                 {
+                    if (_brainGraphs[i] == null) continue;
                     if (_brainGraphs[i].HasAnimationTiles())
                         return true;
                 }
@@ -293,6 +294,7 @@ namespace Mona.SDK.Brains.Core.Brain
             _layers.Clear();
             _waitInactiveQueue.Clear();
             _brainInstances.Clear();
+            _brainGraphs.RemoveAll(x => x == null);
 
             for (var i = 0; i < _brainGraphs.Count; i++)
             {

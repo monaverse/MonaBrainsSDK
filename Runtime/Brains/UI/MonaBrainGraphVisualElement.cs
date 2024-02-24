@@ -146,7 +146,7 @@ namespace Mona.SDK.Brains.UIElements
             Add(_leftColumn);
 
             _brainMetaData = CreateHeading("Brain Metadata");
-            _brainMetaData.value = true;
+            _brainMetaData.value = false;
 
             _name = new TextField("Brain Name");
             _name.RegisterValueChangedCallback((evt) => _brain.Name = (string)evt.newValue);
@@ -627,9 +627,15 @@ namespace Mona.SDK.Brains.UIElements
 
         private void CopyToTile(IInstructionTileDefinition def)
         {
-            def.Tile.Id = def.Id;
-            def.Tile.Name = def.Name;
-            def.Tile.Category = def.Category;
+            if (def.Tile == null)
+            {
+                Debug.LogWarning($"{nameof(CopyToTile)} missing tile instance");
+            }
+            else { 
+                def.Tile.Id = def.Id;
+                def.Tile.Name = def.Name;
+                def.Tile.Category = def.Category;
+            }
         }
         public void Dispose()
         {

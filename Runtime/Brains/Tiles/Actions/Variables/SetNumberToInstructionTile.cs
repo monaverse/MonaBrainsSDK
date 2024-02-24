@@ -5,25 +5,22 @@ using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.State;
-using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
+using Mona.SDK.Brains.Tiles.Actions.Variables.Interfaces;
 using Mona.SDK.Brains.Tiles.Actions.Variables.Enums;
 using Mona.SDK.Core.State.Structs;
 
-namespace Mona.SDK.Brains.Tiles.Actions.General
+namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
     [Serializable]
-    public class ChangeValueInstructionTile : InstructionTile, IChangeValueInstructionTile, IActionInstructionTile
+    public class SetNumberToInstructionTile : InstructionTile, ISetNumberToInstructionTile, IActionInstructionTile
     {
-        public const string ID = "ChangeValue";
-        public const string NAME = "ChangeValue";
+        public const string ID = "SetNumberTo";
+        public const string NAME = "SetNumberTo";
         public const string CATEGORY = "Variables";
-        public override Type TileType => typeof(ChangeValueInstructionTile);
+        public override Type TileType => typeof(SetNumberToInstructionTile);
 
-        [SerializeField] private string _valueName;
-        [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
-
-        [SerializeField] private ValueChangeType _operator = ValueChangeType.Set;
-        [BrainPropertyEnum(false)] public ValueChangeType Operator { get => _operator; set => _operator = value; }
+        [SerializeField] private string _numberName;
+        [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string NumberName { get => _numberName; set => _numberName = value; }
 
         [SerializeField] private float _amount;
         [SerializeField] private string _amountValueName;
@@ -32,7 +29,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private IMonaBrain _brain;
 
-        public ChangeValueInstructionTile() { }
+        public SetNumberToInstructionTile() { }
+
+        protected virtual ValueChangeType GetOperator()
+        {
+            return ValueChangeType.Set;
+        }
 
         public void Preload(IMonaBrain brainInstance)
         {
@@ -49,7 +51,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 if (Evaluate(_brain.Variables))
                 {
                     //if(_brain.LoggingEnabled)
-                    //    Debug.Log($"{nameof(ChangeValueInstructionTile)} {_operator} {_amount} = {_brain.Variables.GetFloat(_valueName)}");
+                    //    Debug.Log($"{nameof(SetNumberToInstructionTile)} {_operator} {_amount} = {_brain.Variables.GetFloat(_valueName)}");
                     return Complete(InstructionTileResult.Success);
                 }
             }
@@ -58,19 +60,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private bool Evaluate(IMonaBrainVariables state)
         {
-            var variable = state.GetVariable(_valueName);
+            var variable = state.GetVariable(_numberName);
             if (variable == null)
             {
-                state.Set(_valueName, _amount);
+                state.Set(_numberName, _amount);
                 return true;
             }
 
             if (variable is IMonaVariablesFloatValue)
-                ChangeFloatValue(state, _valueName, ((IMonaVariablesFloatValue)variable).Value, _operator, _amount);
+                ChangeFloatValue(state, _numberName, ((IMonaVariablesFloatValue)variable).Value, GetOperator(), _amount);
             else if(variable is IMonaVariablesVector2Value)
-                ChangeVector2Value(state, _valueName, ((IMonaVariablesVector2Value)variable).Value, _operator, _amount);
+                ChangeVector2Value(state, _numberName, ((IMonaVariablesVector2Value)variable).Value, GetOperator(), _amount);
             else if (variable is IMonaVariablesVector3Value)
-                ChangeVector3Value(state, _valueName, ((IMonaVariablesVector3Value)variable).Value, _operator, _amount);
+                ChangeVector3Value(state, _numberName, ((IMonaVariablesVector3Value)variable).Value, GetOperator(), _amount);
             return true;
         }
 
