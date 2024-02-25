@@ -85,6 +85,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             for (var i = 0; i < _poolCount; i++)
             {
                 var body = (IMonaBody)GameObject.Instantiate(_item.Value);
+                body.Transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
                 ((MonaBodyBase)body).PrefabId = _monaAsset;
                 ((MonaBodyBase)body).MakeUnique(_brain.Player.PlayerId, true);
                 _equipmentInstances.Add(body);
