@@ -183,6 +183,7 @@ namespace Mona.SDK.Brains.UIEditors
         {
             MonaBrainsEditorWindow wnd = GetWindow<MonaBrainsEditorWindow>();
             wnd.titleContent = new GUIContent("Mona Brains Editor");
+            wnd.Show();
         }
 
         private GameObject _target;

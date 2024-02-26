@@ -81,6 +81,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public virtual void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
+
+            if (_brain.Body.ActiveRigidbody == null)
+            {
+                _brain.Body.AddRigidbody();
+
+                if (!_brain.Body.HasCollider())
+                    _brain.Body.AddCollider();
+            }
+
             UpdateActive();
         }
 

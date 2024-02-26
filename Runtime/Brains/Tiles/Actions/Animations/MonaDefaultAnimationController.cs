@@ -54,10 +54,10 @@ namespace Mona.SDK.Brains.Core.Animation
         {
             if (_brain == null)
             {
+                _brain = brain;
                 SetupAnimationController();
                 OnMonaValueChanged = HandleMonaValueChanged;
                 EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, brain.Body), OnMonaValueChanged);
-                _brain = brain;
                 _brain.Body.SetAnimator(_animator);
                 _brain.Variables.Set(MonaBrainConstants.TRIGGER, "");
                 _brain.Variables.Set(MonaBrainConstants.ANIMATION_SPEED, 1f);
@@ -74,7 +74,11 @@ namespace Mona.SDK.Brains.Core.Animation
         {
             if (animator == null)
             {
-                _animator = gameObject.GetComponent<Animator>();
+                var bodyAnimator = _brain.Body.Transform.GetComponent<Animator>();
+                if (bodyAnimator != null)
+                    _animator = bodyAnimator;
+                else
+                    _animator = gameObject.GetComponent<Animator>();
                 if (_animator == null)
                     _animator = gameObject.AddComponent<Animator>();
             }
@@ -97,6 +101,11 @@ namespace Mona.SDK.Brains.Core.Animation
                     return;
                 }
                 var overrideController = new AnimatorOverrideController(controller);
+                _animator.runtimeAnimatorController = overrideController;
+            }
+            else
+            {
+                var overrideController = new AnimatorOverrideController(_animator.runtimeAnimatorController);
                 _animator.runtimeAnimatorController = overrideController;
             }
             _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;

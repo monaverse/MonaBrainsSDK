@@ -108,6 +108,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             _brain.Variables.Set(_progressName, 0f);
 
+            if (_usePhysics && _brain.Body.ActiveRigidbody == null)
+            {
+                _brain.Body.AddRigidbody();
+                if (!_brain.Body.HasCollider())
+                    _brain.Body.AddCollider();
+            }
+
             UpdateActive();
         }
 

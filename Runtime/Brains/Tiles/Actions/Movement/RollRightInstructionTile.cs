@@ -1,10 +1,13 @@
+using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
+using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
+using Mona.SDK.Core.State.Structs;
 using System;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class RollRightInstructionTile : RotateLocalInstructionTile
+    public class RollRightInstructionTile : RotateLocalInstructionTile, IRotateLocalInstructionTile
     {
         public const string ID = "Roll Right";
         public const string NAME = "Roll Right";
@@ -12,5 +15,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override Type TileType => typeof(RollRightInstructionTile);
 
         public override RotateDirectionType DirectionType => RotateDirectionType.RollRight;
+
+        [BrainProperty(true)] public float Angle { get => _angle; set => _angle = value; }
+        [BrainPropertyValueName("Angle", typeof(IMonaVariablesFloatValue))] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
+
     }
 }

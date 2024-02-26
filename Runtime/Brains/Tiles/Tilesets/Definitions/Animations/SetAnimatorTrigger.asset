@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0825281be89cf6945a68f1ed1a546039, type: 3}
+  m_Name: SetAnimatorTrigger
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 6317540420870733842
+  _id: SetAnimatorTrigger
+  _name: Set Animator Trigger
+  _category: Animations
+  references:
+    version: 2
+    RefIds:
+    - rid: 6317540420870733842
+      type: {class: SetAnimatorTriggerInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Animations, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: SetAnimatorTrigger
+        _name: Set Trigger Bool
+        _category: Animations
+        _triggerName: 

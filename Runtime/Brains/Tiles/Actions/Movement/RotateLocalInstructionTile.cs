@@ -19,7 +19,7 @@ using Mona.SDK.Core.Body.Enums;
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class RotateLocalInstructionTile : InstructionTile, IRotateLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, 
+    public class RotateLocalInstructionTile : InstructionTile, IActionInstructionTile, IPauseableInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction,
         IActivateInstructionTile, INeedAuthorityInstructionTile, IProgressInstructionTile
 
     {
@@ -27,11 +27,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public virtual RotateDirectionType DirectionType => RotateDirectionType.SpinRight;
 
-        [SerializeField] private float _angle = 90f;
-        [SerializeField] private string _angleValueName;
-
-        [BrainProperty(true)] public float Angle { get => _angle; set => _angle = value; }
-        [BrainPropertyValueName("Angle", typeof(IMonaVariablesFloatValue))] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
+        [SerializeField] protected float _angle = 90f;
+        [SerializeField] protected string _angleValueName;
 
         [SerializeField] private EasingType _easing = EasingType.EaseInOut;
         [BrainPropertyEnum(true)] public EasingType Easing { get => _easing; set => _easing = value; }
@@ -50,7 +47,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private Quaternion _direction;  
 
-        private IMonaBrain _brain;
+        protected IMonaBrain _brain;
         private IInstruction _instruction;
         private string _progressName;
 
@@ -77,6 +74,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         }
 
         [SerializeField] protected bool _onlyTurnWhenMoving = false;
+        [SerializeField] protected bool _lookStraightAhead = false;
 
         public float Progress
         {
@@ -222,7 +220,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _brain.Body.SetAngularDrag(.2f);
                 _brain.Body.SetOnlyApplyDragWhenGrounded(true);
                 
-                if(_bodyInput.MoveValue.x == 0f || (_onlyTurnWhenMoving && _bodyInput.MoveValue.y == 0))
+                if(_bodyInput.MoveValue.x == 0f || (_lookStraightAhead && _bodyInput.MoveValue.y == 0))
                 {
                     _movingState = MovingStateType.Stopped;
                     return Complete(InstructionTileResult.Success);
@@ -234,7 +232,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if (!string.IsNullOrEmpty(_angleValueName))
                     _angle = _brain.Variables.GetFloat(_angleValueName);
 
-                _direction = GetDirectionRotation(DirectionType, _angle);
+                StartRotation();
+                _direction = GetDirectionRotation(DirectionType, _angle, 1f);
 
                 if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
                 {
@@ -248,10 +247,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (_movingState == MovingStateType.Stopped)
             {
                 Progress = 0;
+                StartRotation();
                 AddFixedTickDelegate();
             }
             _movingState = MovingStateType.Moving;
             return Complete(InstructionTileResult.Running);
+        }
+
+        protected virtual void StartRotation()
+        {
+
         }
 
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
@@ -314,7 +319,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if (!string.IsNullOrEmpty(_angleValueName))
                     _angle = _brain.Variables.GetFloat(_angleValueName);
 
-                _direction = GetDirectionRotation(DirectionType, _angle * diff);
+                _direction = GetDirectionRotation(DirectionType, _angle * diff, diff);
 
                 if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
                 {
@@ -350,7 +355,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if (!string.IsNullOrEmpty(_angleValueName))
                     _angle = _brain.Variables.GetFloat(_angleValueName);
 
-                _direction = GetDirectionRotation(DirectionType, _angle * diff);
+                _direction = GetDirectionRotation(DirectionType, _angle * diff, diff);
 
                 if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
                 {
@@ -376,7 +381,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             Complete(InstructionTileResult.Success, true);
         }
 
-        private Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle)
+        protected virtual Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diif)
         {
             switch (moveType)
             {

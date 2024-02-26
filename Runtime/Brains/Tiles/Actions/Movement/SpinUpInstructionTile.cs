@@ -1,10 +1,13 @@
+using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
+using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
+using Mona.SDK.Core.State.Structs;
 using System;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class SpinUpInstructionTile : RotateLocalInstructionTile
+    public class SpinUpInstructionTile : RotateLocalInstructionTile, IRotateLocalInstructionTile
     {
         public const string ID = "Spin Up";
         public const string NAME = "Spin Up";
@@ -12,5 +15,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override Type TileType => typeof(SpinUpInstructionTile);
 
         public override RotateDirectionType DirectionType => RotateDirectionType.SpinUp;
+
+        [BrainProperty(true)] public float Angle { get => _angle; set => _angle = value; }
+        [BrainPropertyValueName("Angle", typeof(IMonaVariablesFloatValue))] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
+
     }
 }
