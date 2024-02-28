@@ -38,6 +38,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainPropertyEnum(true)] public float Duration { get => _duration; set => _duration = value; }
         [BrainPropertyValueName("Duration", typeof(IMonaVariablesFloatValue))] public string DurationValueName { get => _durationValueName; set => _durationValueName = value; }
 
+        [SerializeField] private float _maxSpeed = .2f;
+        [BrainProperty(false)] public float MaxSpeed { get => _maxSpeed; set => _maxSpeed = value; }
+
         [SerializeField] private DragType _dragType = DragType.Quadratic;
         [BrainPropertyEnum(false)] public DragType DragType { get => _dragType; set => _dragType = value; }
 
@@ -237,6 +240,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 //    Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {InputMoveDirection} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
 
                 body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
+                body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -288,9 +292,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 if (_brain.LoggingEnabled)
                     Debug.Log($"ApplyForce to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _force * deltaTime}", body.ActiveTransform.gameObject);
 
-                body.ApplyForce(_direction.normalized * _force * deltaTime, ForceMode.Acceleration, true);
+                body.ApplyForce(_direction.normalized * _force * deltaTime, ForceMode.Impulse, true);
+                body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
 
-                if(_time >= 1f)
+                if (_time >= 1f)
                 {
                     StopPushing();
                 }
