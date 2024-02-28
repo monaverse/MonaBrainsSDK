@@ -542,6 +542,11 @@ namespace Mona.SDK.Brains.Core.Control
                     //Debug.Log($"{nameof(ExecuteActionTile)} immediately execute next tile {tile.NextExecutionTile} {_result}");
                     ExecuteActionTile(tile.NextExecutionTile);
                 }
+                else if (_result == InstructionTileResult.Failure && HasTickAfter())
+                {
+                    //Debug.Log($"TICK IT {_result}");
+                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
+                }
             }
         }
 

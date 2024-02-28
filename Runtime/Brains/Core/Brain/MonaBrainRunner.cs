@@ -247,7 +247,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 var item = _waitQueue[i];
                 if (item.ShouldExecute())
                 {
-                   // Debug.Log($"{nameof(MonaBrainRunner)} WAIT QUEUE TICK LATER {item.Index}, type {item.Type}, evt: {item.Evt} {Time.frameCount}");
+                    //Debug.Log($"{nameof(MonaBrainRunner)} WAIT QUEUE TICK LATER {item.Index}, type {item.Type}, evt: {item.Evt} {Time.frameCount}");
                     item.Callback(item.Evt);
                     _waitQueue.Remove(item);
                 }
@@ -260,7 +260,7 @@ namespace Mona.SDK.Brains.Core.Brain
             if (queueCleared)
             {
                 //Debug.Log($"STOP LISTENIGN FOR TICK");
-                _waitQueue.Clear();
+                //_waitQueue.Clear();
                 EventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
             }
 
