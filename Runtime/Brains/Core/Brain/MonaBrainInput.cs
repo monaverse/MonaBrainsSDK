@@ -159,8 +159,8 @@ namespace Mona.SDK.Brains.Core.Brain
                     }
                     else
                     {
-                        if(_buttons[logType] == logState)
-                            Debug.Log($"{logType} {_buttons[logType]}");
+                        //if(_buttons[logType] == logState)
+                        //    Debug.Log($"{logType} {_buttons[logType]}");
                     }
                 }
 

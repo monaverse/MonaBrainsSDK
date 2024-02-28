@@ -144,20 +144,20 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private void IncludeIfInsideTrigger(IMonaBody body)
         {
-            if (body != null && _collider != null && body.Intersects(_collider))
+            if (body != null && _collider != null && body.Intersects(_collider, includeTriggers:true))
                 AddBody(body);
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (_collider == null || !_collider.enabled || other.isTrigger) return;
+            if (_collider == null || !_collider.enabled || (other.isTrigger && other.GetComponent<IMonaBodyPart>() == null)) return;
             var body = other.GetComponentInParent<IMonaBody>();
             AddBody(body);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            if (_collider == null || !_collider.enabled || other.isTrigger) return;
+            if (_collider == null || !_collider.enabled || (other.isTrigger && other.GetComponent<IMonaBodyPart>() == null)) return;
             var body = other.GetComponentInParent<IMonaBody>();
             RemoveBody(body);
         }
@@ -178,7 +178,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         return false;
                 }
 
-                if (!_bodiesIndex.ContainsKey(body) && body.Intersects(_collider))
+                if (!_bodiesIndex.ContainsKey(body) && body.Intersects(_collider, includeTriggers:true))
                 {
                     if(_brain.LoggingEnabled)
                         Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
@@ -204,7 +204,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         return false;
                 }
 
-                if (_bodiesIndex.ContainsKey(body) && !body.Intersects(_collider))
+                if (_bodiesIndex.ContainsKey(body) && !body.Intersects(_collider, includeTriggers: true))
                 {
                     if (_brain.LoggingEnabled)
                         Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
