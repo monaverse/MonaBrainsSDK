@@ -209,7 +209,14 @@ namespace Mona.SDK.Brains.UIElements
             tagContainer.Add(_monaAssetsListView);
             _brainMetaData.Add(tagContainer);
             _leftColumn.Add(_brainMetaData);
+#if UNITY_EDITOR
+            _defaultVariablesHeading = CreateHeading("Brain Default Variables");
+            _defaultVariablesHeading.value = true;
+            _leftColumn.Add(_defaultVariablesHeading);
 
+            _defaultVariablesVisualElement = new MonaVariablesVisualElement(callback);
+            _defaultVariablesHeading.Add(_defaultVariablesVisualElement);
+#endif
             _corePageContainer = CreateHeading("Brain Core Page Instructions");
             _corePageContainer.value = true;
             _leftColumn.Add(_corePageContainer);
@@ -317,13 +324,6 @@ namespace Mona.SDK.Brains.UIElements
                 MoveStatePageRight();
             };
             btnBar.Add(_btnMoveRight);
-
-            _defaultVariablesHeading = CreateHeading("Brain Default Variables");
-            _defaultVariablesHeading.value = true;
-            _leftColumn.Add(_defaultVariablesHeading);
-
-            _defaultVariablesVisualElement = new MonaVariablesVisualElement(callback);
-            _defaultVariablesHeading.Add(_defaultVariablesVisualElement);
 
 #if UNITY_EDITOR
 
