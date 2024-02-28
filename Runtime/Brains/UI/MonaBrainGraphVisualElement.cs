@@ -10,6 +10,8 @@ using UnityEngine.UIElements;
 using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Core.Assets.Interfaces;
+using Mona.SDK.Core;
+using Mona.SDK.Brains.Core;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -169,7 +171,7 @@ namespace Mona.SDK.Brains.UIElements
             var label = CreateSmallHeading("Mona Tags");
             tagContainer.Add(label);
 
-            _monaTagListView = new ListView(null, 120, () => new MonaTagReferenceVisualElement(_brain), (elem, i) => ((MonaTagReferenceVisualElement)elem).SetValue(i, _brain.MonaTags[i]));
+            _monaTagListView = new ListView(null, -1, () => new MonaTagReferenceVisualElement(_brain), (elem, i) => ((MonaTagReferenceVisualElement)elem).SetValue(i, _brain.MonaTags[i]));
             _monaTagListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
             _monaTagListView.showFoldoutHeader = false;
             _monaTagListView.headerTitle = "Mona Tags";
@@ -181,7 +183,7 @@ namespace Mona.SDK.Brains.UIElements
             {
                 foreach (var e in elems)
                 {
-                    _brain.MonaTags[e] = _brain.MonaTagSource.Tags[0];
+                    _brain.MonaTags[e] = MonaBrainConstants.TAG_DEFAULT;
                 }
             };
             tagContainer.Add(_monaTagListView);
@@ -190,7 +192,7 @@ namespace Mona.SDK.Brains.UIElements
             label2.style.marginTop = 10;
             tagContainer.Add(label2);
 
-            _monaAssetsListView = new ListView(null, 120, () => new MonaAssetReferenceVisualElement(), (elem, i) => ((MonaAssetReferenceVisualElement)elem).SetValue(_brain, i));
+            _monaAssetsListView = new ListView(null, -1, () => new MonaAssetReferenceVisualElement(), (elem, i) => ((MonaAssetReferenceVisualElement)elem).SetValue(_brain, i));
             _monaAssetsListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
             _monaAssetsListView.showFoldoutHeader = false;
             _monaAssetsListView.headerTitle = "Mona Assets";
@@ -706,8 +708,6 @@ namespace Mona.SDK.Brains.UIElements
                 }
             }
 
-            if (_brain.MonaTags.Count == 0)
-                _brain.MonaTags.Add(_brain.MonaTagSource.Tags[0]);
 #endif
             if (_brain.MonaTagSource == null || _brain.TileSet == null)
             {
@@ -785,6 +785,9 @@ namespace Mona.SDK.Brains.UIElements
 
             _defaultVariablesVisualElement.SetState(_brain.DefaultVariables);
 
+            if (_brain.MonaTags.Count == 0)
+                _brain.MonaTags.Add(MonaBrainConstants.TAG_DEFAULT);
+             
             _monaTagListView.itemsSource = _brain.MonaTags;
             _monaTagListView.Rebuild();
 
