@@ -115,7 +115,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             {
                 _brain.Body.Animator.SetBool(_boolName, ((IMonaVariablesBoolValue)evt.Value).Value);
             }
-            Debug.Log($"{nameof(HandleMonaValueChanged)}", _brain.Body.Transform.gameObject);
+            //Debug.Log($"{nameof(HandleMonaValueChanged)}", _brain.Body.Transform.gameObject);
         }
 
         public override InstructionTileResult Do()

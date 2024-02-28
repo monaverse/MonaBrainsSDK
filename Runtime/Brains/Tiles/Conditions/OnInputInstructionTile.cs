@@ -41,7 +41,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, _inputType, GetInputState());
             if (localInput.GetButton(_inputType) == _inputState)
             {
-                Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_inputState}");
+                //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_inputState}");
                 SetLocalInput(localInput);
             }
         }
@@ -75,9 +75,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (_bodyInput.GetButton(_inputType) == _inputState)
             {
-                Debug.Log($"{nameof(OnInputInstructionTile)} DO {_inputType} {_inputState}");
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnInputInstructionTile)}.{nameof(Do)} input active {_inputType} {_inputState}");
+                //Debug.Log($"{nameof(OnInputInstructionTile)} DO {_inputType} {_inputState}");
+                //if (_brain.LoggingEnabled)
+                //    Debug.Log($"{nameof(OnInputInstructionTile)}.{nameof(Do)} input active {_inputType} {_inputState}");
                 return Complete(InstructionTileResult.Success);
             }            
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);
