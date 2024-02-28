@@ -45,6 +45,16 @@ namespace Mona.SDK.Brains.Core.Brain
         private Camera _playerCamera;
         private int _playerId;
 
+        public Camera SceneCamera
+        {
+            get
+            {
+                if (_playerCamera != null) return _playerCamera;
+                if (Camera.main != null) return Camera.main;
+                return FindObjectOfType<Camera>();
+            }
+        }
+
         private List<MonaRemotePlayer> _otherPlayers = new List<MonaRemotePlayer>();
 
         public IMonaBody PlayerBody => _playerBody;
@@ -200,6 +210,12 @@ namespace Mona.SDK.Brains.Core.Brain
                 {
                     _playerCamera = _playerCameraBody.Transform.GetComponent<Camera>();
                     Debug.Log($"{nameof(HandleMonaPlayerJoined)} {_playerCamera}", _playerCamera.gameObject);
+
+                    if (_playerCamera == null)
+                        _playerCamera = Camera.main;
+
+                    if (_playerCamera == null)
+                        _playerCamera = FindObjectOfType<Camera>();
                 }
 
                 AttachBrainsToPlayer(_playerBody);

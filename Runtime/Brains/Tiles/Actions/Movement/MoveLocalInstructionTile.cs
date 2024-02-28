@@ -438,6 +438,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.X: return 1f;
                 case MoveDirectionType.Y: return 1f;
                 case MoveDirectionType.Z: return 1f;
+                case MoveDirectionType.CameraForward: return 1f;
+                case MoveDirectionType.CameraBackward: return 1f;
+                case MoveDirectionType.CameraRight: return 1f;
+                case MoveDirectionType.CameraLeft: return 1f;
+                case MoveDirectionType.CameraUp: return 1f;
+                case MoveDirectionType.CameraDown: return 1f;
                 default: return 0;
             }
         }
@@ -457,6 +463,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.X: return Vector3.right;
                 case MoveDirectionType.Y: return Vector3.up;
                 case MoveDirectionType.Z: return Vector3.forward;
+                case MoveDirectionType.CameraForward: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward;
+                case MoveDirectionType.CameraBackward: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward * -1f;
+                case MoveDirectionType.CameraRight: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.right;
+                case MoveDirectionType.CameraLeft: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.right * -1f;
+                case MoveDirectionType.CameraUp: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.up;
+                case MoveDirectionType.CameraDown: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.up * -1f;
                 default: return Vector3.zero;
             }
         }

@@ -587,7 +587,7 @@ namespace Mona.SDK.Brains.UIEditors
 
         private void OnDisable()
         {
-
+            if (_listView == null) return;
             _listView.itemsSource = null;
             _listView.Rebuild();
         }
