@@ -37,6 +37,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2f9d9a5889bcfda48a584c0adbcf8f34, type: 2}
   - {fileID: 11400000, guid: 6a79460e7a472d84881acc5fafd290d0, type: 2}
   - {fileID: 11400000, guid: 828916e9c013967449cae3eca2473f4c, type: 2}
+  - {fileID: 11400000, guid: 3f09c6c218a6f2047a0fa8f60d884cea, type: 2}
   _actionTiles:
   - {fileID: 11400000, guid: 658d1cffaf122aa459d3dbf5257f40bf, type: 2}
   - {fileID: 11400000, guid: fd8d84ef12c15254caecb74e3b7e9b24, type: 2}
