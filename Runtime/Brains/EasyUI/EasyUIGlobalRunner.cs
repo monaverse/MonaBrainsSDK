@@ -125,7 +125,8 @@ namespace Mona.SDK.Brains.EasyUI
 
                 if (((IEasyUINumericalDisplay)variable).AllowUIDisplay)
                 {
-                    _displayableVariables.Add(variable, brainGraph);
+                    if(!_displayableVariables.ContainsKey(variable))
+                        _displayableVariables.Add(variable, brainGraph);
                 }
                     
             }
