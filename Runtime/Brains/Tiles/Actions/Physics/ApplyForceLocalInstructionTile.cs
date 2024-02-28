@@ -237,7 +237,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
                 Pushed();
                 //if (_brain.LoggingEnabled)
-                //    Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {InputMoveDirection} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
+                   Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {InputMoveDirection} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
 
                 body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
                 body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
@@ -289,8 +289,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 body.SetBounce(_bounce);
                 body.SetKinematic(false, true);
 
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"ApplyForce to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _force * deltaTime}", body.ActiveTransform.gameObject);
+                //if (_brain.LoggingEnabled)
+                //    Debug.Log($"ApplyForce to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _force * deltaTime}", body.ActiveTransform.gameObject);
 
                 body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
                 body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);

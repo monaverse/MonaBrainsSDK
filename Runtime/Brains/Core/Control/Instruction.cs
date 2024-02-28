@@ -141,6 +141,16 @@ namespace Mona.SDK.Brains.Core.Control
             return false;
         }
 
+        public bool HasTickAfter()
+        {
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                if (InstructionTiles[i] is ITickAfterInstructionTile)
+                    return true;
+            }
+            return false;
+        }
+
         public bool HasAnimationTiles()
         {
             for (var i = 0; i < InstructionTiles.Count; i++)
@@ -311,9 +321,10 @@ namespace Mona.SDK.Brains.Core.Control
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Tick:
-                        if (_brain.Body.HasControl() && tile is IActionInstructionTile && (evt == null || ((MonaBrainTickEvent)evt).Instruction == this))
+                        if (_brain.Body.HasControl() && (tile is IActionInstructionTile || tile is ITickAfterInstructionTile) && (evt == null || ((MonaBrainTickEvent)evt).Instruction == this))
                         {
                             //_result = InstructionTileResult.Running;
+                            //Debug.Log($"execute tick");
                             ExecuteActionTile(tile);
                         }
                         break;
@@ -516,7 +527,7 @@ namespace Mona.SDK.Brains.Core.Control
             {
                 _result = InstructionTileResult.Success;
                 _brain.Variables.Set(_progressTile, -1f);
-                if (!HasConditional())
+                if (!HasConditional() || HasTickAfter())
                 {
                     //Debug.Log($"TICK IT {_result}");
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
