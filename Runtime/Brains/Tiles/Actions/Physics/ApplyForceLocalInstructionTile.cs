@@ -292,7 +292,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 if (_brain.LoggingEnabled)
                     Debug.Log($"ApplyForce to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _force * deltaTime}", body.ActiveTransform.gameObject);
 
-                body.ApplyForce(_direction.normalized * _force * deltaTime, ForceMode.Impulse, true);
+                body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
                 body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
 
                 if (_time >= 1f)
