@@ -28,6 +28,7 @@
         public const string STATE_PAGE_TICK_EVENT = "OnMonaStatePageTickEvent";
 
         public const string MONA_BRAINS_DO_EVENT = "OnMonaBrainsDoEvent";
+        public const string MONA_BRAINS_EVENT = "OnMonaBrainsEvent";
         public const string MONA_BRAINS_THEN_EVENT = "OnMonaBrainsThenEvent";
 
         public const string STATE_CHANGED_EVENT = "OnMonaStateChangedEvent";

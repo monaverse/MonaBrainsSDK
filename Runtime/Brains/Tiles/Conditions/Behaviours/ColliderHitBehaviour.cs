@@ -96,6 +96,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             _collider.enabled = active;
         }
 
+        private Vector3 _lastPosition;
         private void OnCollisionEnter(Collision collision)
         {
             if (_collider == null || !_collider.enabled) return;
@@ -113,10 +114,28 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 }
                 if (!found)
                 {
-                    if (body.ActiveRigidbody != null)
+                    if (_brain.Body.ActiveRigidbody != null)
                         _bodiesThatHit.Add(new TagCollision(body, collision, _brain.Body.ActiveRigidbody.position, Time.frameCount));
                     else
                         _bodiesThatHit.Add(new TagCollision(body, collision, _brain.Body.ActiveTransform.position, Time.frameCount));
+
+                    if (_brain.Body.ActiveRigidbody != null && _brain.Body.ActiveRigidbody.isKinematic)
+                    {
+                        var dir = _brain.Body.ActiveRigidbody.position - _lastPosition;
+                        RaycastHit hitInfo;
+                        if (UnityEngine.Physics.Raycast(_lastPosition, dir, out hitInfo, 1f))
+                        {
+                            if (hitInfo.collider != null && hitInfo.collider != _collider)
+                            {
+                                //Debug.Log($"passthrough {hitInfo.collider} {_collider.bounds.extents} {dir}");
+                                _lastPosition = hitInfo.point - Vector3.Scale(dir.normalized, _collider.bounds.extents);
+                            }
+                        }
+                        Debug.Log($"Added collision {_lastPosition} {_brain.Body.ActiveRigidbody.position} {_brain.Body.ActiveTransform.position}", _brain.Body.Transform.gameObject);
+                        EventBus.Trigger(new EventHook(MonaBrainConstants.MONA_BRAINS_EVENT, _brain.Body), new MonaBrainEvent(MonaBrainEventType.OnStop));
+                        _brain.Body.TeleportPosition(_lastPosition, true);
+                    }
+
                     //Debug.Log($"Added collision {body.ActiveTransform.name} {_monaTag} {Time.frameCount}");
                     EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnCollisionEnter));
                     //_bodiesThatHit.Clear();
@@ -126,6 +145,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private void HandleLateTick(MonaLateTickEvent evt)
         {
+           if (_brain.Body.ActiveRigidbody != null)
+                _lastPosition = _brain.Body.ActiveRigidbody.position;
+           else
+                _lastPosition = _brain.Body.ActiveTransform.position;
+
             for (var i = _bodiesThatHit.Count - 1; i >= 0; i--)
             {
                 if (_bodiesThatHit[i].ShouldClear())

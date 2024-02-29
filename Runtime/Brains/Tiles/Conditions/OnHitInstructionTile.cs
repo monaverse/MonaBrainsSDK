@@ -2,6 +2,7 @@ using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions.Behaviours;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
@@ -9,6 +10,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.State.Structs;
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
@@ -120,11 +122,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 {
                     if (_brain.LoggingEnabled)
                         Debug.Log($"{nameof(OnHitInstructionTile)}.{nameof(Do)} found: {_tag} {body} {tagCollision.Position}", _brain.Body.ActiveTransform.gameObject);
-
-                    if(_brain.Body.ActiveRigidbody != null && _brain.Body.ActiveRigidbody.isKinematic)
-                    {
-                        _brain.Body.TeleportPosition(tagCollision.Position, true);
-                    }
 
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, (tagCollision.Collision.contactCount > 0) ? tagCollision.Collision.contacts[0].point : Vector3.zero);
