@@ -25,6 +25,8 @@ namespace Mona.SDK.Brains.Core.Tiles
         protected MonaInputState _currentLocalInputState;
 
         protected IMonaBrain _brain;
+        public IMonaBrain Brain => _brain;
+
         protected IMonaBrainInput _brainInput;
 
         protected abstract void ProcessLocalInput();
@@ -76,7 +78,7 @@ namespace Mona.SDK.Brains.Core.Tiles
             OnInput = HandleBodyInput;
             EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
 
-            _brainInput.StartListening(_brain.Body);
+            _brainInput.StartListening(this);
         }
 
         protected virtual void RemoveTickDelegate()
@@ -84,7 +86,7 @@ namespace Mona.SDK.Brains.Core.Tiles
             EventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnTick);
             EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
 
-            _brainInput.StopListening(_brain.Body);
+            _brainInput.StopListening(this);
         }
 
         private void UpdateActive()

@@ -32,14 +32,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         protected override void AddTickDelegate()
         {
-            _keyIndex = _brainInput.StartListeningForKey(_key);
+            _keyIndex = _brainInput.StartListeningForKey(_key, this);
             base.AddTickDelegate();
         }
 
         protected override void RemoveTickDelegate()
         {
             base.RemoveTickDelegate();
-            _brainInput.StopListeningForKey(_key);
+            _brainInput.StopListeningForKey(_key, this);
         }
 
         protected override void ProcessLocalInput()

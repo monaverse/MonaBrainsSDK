@@ -16,7 +16,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     [Serializable]
     public class OnHitInstructionTile : InstructionTile, ITriggerInstructionTile, IOnHitInstructionTile,
         IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IActivateInstructionTile,
-        IPauseableInstructionTile, IPlayerTriggeredConditional
+        IPauseableInstructionTile, IPlayerTriggeredConditional, IRigidbodyInstructionTile
     {
         public const string ID = "OnHit";
         public const string NAME = "Hit";
@@ -43,10 +43,25 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             _brain = brainInstance;
             if (_collider == null)
             {
-                _collider = _brain.GameObject.AddComponent<ColliderHitBehaviour>();
-                _collider.SetBrain(_brain);
-                _collider.SetPage(page);
-                _collider.SetMonaTag(_tag);
+                var colliders = _brain.GameObject.GetComponents<ColliderHitBehaviour>();
+                var found = false;
+                for (var i = 0; i < colliders.Length; i++)
+                {
+                    if (colliders[i].MonaTag == _tag)
+                    {
+                        _collider = colliders[i];
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found)
+                {
+                    _collider = _brain.GameObject.AddComponent<ColliderHitBehaviour>();
+                    _collider.SetBrain(_brain);
+                    _collider.SetPage(page);
+                    _collider.SetMonaTag(_tag);
+                }
                 UpdateActive();
             }
         }
@@ -62,8 +77,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public void Pause()
         {
-            if (_collider != null)
-                _collider.SetActive(false);
+            //if (_collider != null)
+            //    _collider.SetActive(false);
         }
 
         public bool Resume()
@@ -74,10 +89,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private void UpdateActive()
         {
-            if (_brain != null && _brain.LoggingEnabled)
-                Debug.Log($"{nameof(OnHitInstructionTile)}.{nameof(UpdateActive)} {_active}");
-            if (_collider != null)
-                _collider.SetActive(_active);
+            //if (_brain != null && _brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(OnHitInstructionTile)}.{nameof(UpdateActive)} {_active}");
+            //if (_collider != null)
+            //    _collider.SetActive(_active);
         }
 
         public override void Unload()
@@ -94,15 +109,23 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (_collider == null) return InstructionTileResult.Failure;
 
             var bodies = _collider.BodiesThatHit;
+            //Debug.Log($"bodies that hit {_collider.BodiesThatHit.Count} {_tag}");
             if (bodies.Count > 0)
             {
+                //Debug.Log($"hit happened");
                 var tagCollision = bodies[0];
                 var body = tagCollision.Body;
+                //Debug.Log($"hit happened {body == null}");
                 if (body != null)
                 {
-                    _collider.BodiesThatHit.Clear();
                     if (_brain.LoggingEnabled)
-                        Debug.Log($"{nameof(OnHitInstructionTile)}.{nameof(Do)} found: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
+                        Debug.Log($"{nameof(OnHitInstructionTile)}.{nameof(Do)} found: {_tag} {body} {tagCollision.Position}", _brain.Body.ActiveTransform.gameObject);
+
+                    if(_brain.Body.ActiveRigidbody != null && _brain.Body.ActiveRigidbody.isKinematic)
+                    {
+                        _brain.Body.TeleportPosition(tagCollision.Position, true);
+                    }
+
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, (tagCollision.Collision.contactCount > 0) ? tagCollision.Collision.contacts[0].point : Vector3.zero);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_NORMAL, (tagCollision.Collision.contactCount > 0) ? tagCollision.Collision.contacts[0].normal : Vector3.zero);

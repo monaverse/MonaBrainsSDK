@@ -1,5 +1,6 @@
 using Mona.SDK.Brains.Core.Brain.Interfaces;
 using Mona.SDK.Brains.Core.Input;
+using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Input;
 using Mona.SDK.Core.Input.Enums;
@@ -15,13 +16,14 @@ namespace Mona.SDK.Brains.Core.Brain
         public Key Key;
         public MonaInputState State;
         public bool Active;
+        public List<IInputInstructionTile> Tiles = new List<IInputInstructionTile>();
     }
 
     public class MonaBrainInput : MonoBehaviour, IMonaBrainInput
     {
         private Inputs _inputs;
         private PlayerInput _playerInput;
-        private List<IMonaBody> _activeListeners = new List<IMonaBody>();
+        private List<IInputInstructionTile> _activeListeners = new List<IInputInstructionTile>();
         private List<KeyState> _activeKeyListeners = new List<KeyState>();
         private IMonaBrainPlayer _player;
 
@@ -52,38 +54,61 @@ namespace Mona.SDK.Brains.Core.Brain
             _player = player;
         }
 
-        public void StartListening(IMonaBody body)
+        public void StartListening(IInputInstructionTile tile)
         {
-            if (!_activeListeners.Contains(body))
-                _activeListeners.Add(body);
+            if (!_activeListeners.Contains(tile))
+            {
+                //Debug.Log($"{nameof(StartListening)} {tile} {tile.Brain.Body.ActiveTransform.name} {_activeListeners.Count}");
+                _activeListeners.Add(tile);
+            }
             UpdateActive();
         }
 
-        public void StopListening(IMonaBody body)
+        public void StopListening(IInputInstructionTile tile)
         {
-            if (_activeListeners.Contains(body))
-                _activeListeners.Remove(body);
+            if (_activeListeners.Contains(tile))
+            {
+                //Debug.Log($"{nameof(StopListening)} {tile} {tile.Brain.Body.ActiveTransform.name} {_activeListeners.Count}");
+                _activeListeners.Remove(tile);
+            }
             UpdateActive();
         }
 
-        public int StartListeningForKey(Key key)
+        public int StartListeningForKey(Key key, IInputInstructionTile tile)
         {
             var idx = _activeKeyListeners.FindIndex(x => x.Key == key);
             if (idx == -1)
             {
-                _activeKeyListeners.Add(new KeyState() { Key = key, State = MonaInputState.None, Active = true });
+                var listener = new KeyState() { Key = key, State = MonaInputState.None, Active = true };
+                if(!listener.Tiles.Contains(tile))
+                    listener.Tiles.Add(tile);
+                _activeKeyListeners.Add(listener);
                 idx = _activeKeyListeners.Count - 1;
             }
             else
-                _activeKeyListeners[idx].Active = true;
+            {
+                var listener = _activeKeyListeners[idx];
+                if(!listener.Tiles.Contains(tile))
+                    listener.Tiles.Add(tile);
+                listener.Active = true;
+                _activeKeyListeners[idx] = listener;
+            }
+
             return idx;
         }
 
-        public void StopListeningForKey(Key key)
+        public void StopListeningForKey(Key key, IInputInstructionTile tile)
         {
             var idx = _activeKeyListeners.FindIndex(x => x.Key == key);
             if (idx > -1)
-                _activeKeyListeners[idx].Active = false;
+            {
+                var listener = _activeKeyListeners[idx];
+                if (listener.Tiles.Contains(tile))
+                    listener.Tiles.Remove(tile);
+                if (listener.Tiles.Count == 0)
+                    listener.Active = false;
+                _activeKeyListeners[idx] = listener;
+            }
         }
 
         private void UpdateActive()

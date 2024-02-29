@@ -121,6 +121,16 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             return PropertyType != MonaBrainPropertyType.Default;
         }
 
+        public bool HasRigidbodyTiles()
+        {
+            if (_corePage.HasRigidbodyTiles()) return true;
+            for (var i = 0; i < _statePages.Count; i++)
+            {
+                if (_statePages[i].HasRigidbodyTiles()) return true;
+            }
+            return false;
+        }
+
         public bool HasMonaTag(string tag) => MonaTags.Contains(tag);
 
         public void AddTag(string tag)
@@ -308,6 +318,11 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
                 _variables.VariableList = _defaultVariables.VariableList;
                 _variables.SetGameObject(_gameObject, this);
+            }
+
+            if(HasRigidbodyTiles())
+            {
+                _body.AddRigidbody();
             }
 
             EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(this));

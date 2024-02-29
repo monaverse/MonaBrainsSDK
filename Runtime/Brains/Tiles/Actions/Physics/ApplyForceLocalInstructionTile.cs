@@ -21,7 +21,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
     [Serializable]
     public class ApplyForceLocalInstructionTile : InstructionTile, IApplyForceLocalInstructionTile, IActionInstructionTile, IPauseableInstructionTile, INeedAuthorityInstructionTile,
-        IActivateInstructionTile
+        IActivateInstructionTile, IRigidbodyInstructionTile
     {
         public override Type TileType => typeof(ApplyForceLocalInstructionTile);
 
@@ -85,13 +85,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             _brain = brainInstance;
 
-            if (_brain.Body.ActiveRigidbody == null)
-            {
-                _brain.Body.AddRigidbody();
-
-                if (!_brain.Body.HasCollider())
-                    _brain.Body.AddCollider();
-            }
+            if (!_brain.Body.HasCollider())
+                _brain.Body.AddCollider();
 
             UpdateActive();
         }

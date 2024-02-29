@@ -1,3 +1,4 @@
+using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Input;
 using Mona.SDK.Core.Input.Enums;
@@ -8,9 +9,9 @@ namespace Mona.SDK.Brains.Core.Brain.Interfaces
     public interface IMonaBrainInput
     {
         MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState);
-        void StartListening(IMonaBody body);
-        void StopListening(IMonaBody body);
-        int StartListeningForKey(Key key);
-        void StopListeningForKey(Key key);
+        void StartListening(IInputInstructionTile tile);
+        void StopListening(IInputInstructionTile tile);
+        int StartListeningForKey(Key key, IInputInstructionTile tile);
+        void StopListeningForKey(Key key, IInputInstructionTile tile);
     }
 }

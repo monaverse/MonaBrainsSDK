@@ -19,11 +19,17 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
     {
         public Collision Collision;
         public IMonaBody Body;
-        public TagCollision(IMonaBody body, Collision collision)
+        public int Frame;
+        public Vector3 Position;
+        public TagCollision(IMonaBody body, Collision collision, Vector3 pos, int frame)
         {
             Body = body;
             Collision = collision;
+            Frame = frame;
+            Position = pos;
         }
+
+        public bool ShouldClear() => Time.frameCount - Frame > 0;
     }
 
     public class ColliderHitBehaviour : MonoBehaviour, IDisposable
@@ -33,7 +39,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         private IMonaBrainPage _page;
         private string _monaTag;
         private List<TagCollision> _bodiesThatHit = new List<TagCollision>();
-        
+        private Action<MonaLateTickEvent> OnLateTick;
+
+        public string MonaTag => _monaTag;
+
         private void Awake()
         {
             var colliders = gameObject.GetComponentsInChildren<Collider>();
@@ -53,6 +62,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             {
                 _collider = gameObject.AddComponent<BoxCollider>();
             }
+
+            OnLateTick = HandleLateTick;
+            EventBus.Register<MonaLateTickEvent>(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
         }
 
         public void Dispose()
@@ -60,6 +72,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             if (_collider != null)
                 Destroy(_collider);
             _collider = null;
+
+            EventBus.Unregister(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
         }
 
         public void SetBrain(IMonaBrain brain)
@@ -97,9 +111,28 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         break;
                     }
                 }
-                if(!found)
-                    _bodiesThatHit.Add(new TagCollision(body, collision));
-                EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnCollisionEnter));
+                if (!found)
+                {
+                    if (body.ActiveRigidbody != null)
+                        _bodiesThatHit.Add(new TagCollision(body, collision, _brain.Body.ActiveRigidbody.position, Time.frameCount));
+                    else
+                        _bodiesThatHit.Add(new TagCollision(body, collision, _brain.Body.ActiveTransform.position, Time.frameCount));
+                    //Debug.Log($"Added collision {body.ActiveTransform.name} {_monaTag} {Time.frameCount}");
+                    EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnCollisionEnter));
+                    //_bodiesThatHit.Clear();
+                }
+            }
+        }
+
+        private void HandleLateTick(MonaLateTickEvent evt)
+        {
+            for (var i = _bodiesThatHit.Count - 1; i >= 0; i--)
+            {
+                if (_bodiesThatHit[i].ShouldClear())
+                {
+                    //Debug.Log($"remove hit collision {_bodiesThatHit[i].Frame} {_monaTag} {Time.frameCount} {Time.frameCount - _bodiesThatHit[i].Frame} {_bodiesThatHit[i].ShouldClear()} {_bodiesThatHit[i].Body.ActiveTransform.name}");
+                    _bodiesThatHit.RemoveAt(i);
+                }
             }
         }
 
@@ -108,14 +141,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         }
 
         public List<TagCollision> BodiesThatHit => _bodiesThatHit;
-        public bool ClearBodiesThatHit(TagCollision collision)
-        {
-            if (_bodiesThatHit.Contains(collision))
-            {
-                _bodiesThatHit.Remove(collision);
-                return true;
-            }
-            return false;
-        }
+        
     }
 }

@@ -46,16 +46,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
         }
 
-        void OnDeviceLost(PlayerInput obj)
-        {
-            Debug.Log("Input Device Lost");
-        }
-
-        void OnDeviceRegained(PlayerInput obj)
-        {
-            Debug.Log("Input Device Regained");
-        }
-
         protected override void HandleBodyInput(MonaInputEvent evt)
         {
             _bodyInput = evt.Input;

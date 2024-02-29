@@ -39,6 +39,15 @@ namespace Mona.SDK.Brains.Core.Control
             return false;
         }
 
+        public bool HasRigidbodyTiles()
+        {
+            for (var i = 0; i < _instructions.Count; i++)
+            {
+                if (_instructions[i].HasRigidbodyTiles()) return true;
+            }
+            return false;
+        }
+
         public MonaBrainPage()
         {
 

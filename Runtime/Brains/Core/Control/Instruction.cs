@@ -129,6 +129,8 @@ namespace Mona.SDK.Brains.Core.Control
                     ((IActivateInstructionTile)tile).SetActive(active);
                 }
             }
+            if (active)
+                ResetExecutionLinks();
         }
 
         public bool HasConditional()
@@ -161,9 +163,24 @@ namespace Mona.SDK.Brains.Core.Control
             return false;
         }
 
-        private bool IsValidTriggerType(ITriggerInstructionTile tile, MonaTriggerEvent evt)
+        public bool HasRigidbodyTiles()
         {
-            return tile.TriggerTypes.Contains(evt.Type);
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                if (InstructionTiles[i] is IRigidbodyInstructionTile)
+                    return true;
+            }
+            return false;
+        }
+
+        private bool HasValidTriggerType(MonaTriggerEvent evt)
+        {
+            for(var i = 0;i < InstructionTiles.Count; i++)
+            {
+                if (InstructionTiles[i] is ITriggerInstructionTile && ((ITriggerInstructionTile)InstructionTiles[i]).TriggerTypes.Contains(evt.Type))
+                    return true;
+            }
+            return false;
         }
 
         private bool HasPlayerTriggeredConditional()
@@ -317,7 +334,7 @@ namespace Mona.SDK.Brains.Core.Control
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Trigger:
-                        if (tile is ITriggerInstructionTile && IsValidTriggerType((ITriggerInstructionTile)tile, (MonaTriggerEvent)evt))
+                        if (HasValidTriggerType((MonaTriggerEvent)evt))
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Tick:

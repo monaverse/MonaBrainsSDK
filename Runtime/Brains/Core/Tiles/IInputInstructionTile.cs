@@ -1,3 +1,4 @@
+using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Input;
 using System.Collections.Generic;
 
@@ -15,5 +16,6 @@ namespace Mona.SDK.Brains.Core.Tiles
     {
         void ReprocessInput(MonaInput input);
         MonaInput GetInput();
+        IMonaBrain Brain { get; }
     }
 }
