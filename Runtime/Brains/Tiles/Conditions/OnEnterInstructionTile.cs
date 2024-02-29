@@ -50,6 +50,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _collider.SetLocalPlayerOnly(PlayerTriggered);
                 UpdateActive();
             }
+
+            _brain.Body.AddRigidbody();
         }
 
         public void SetActive(bool active)

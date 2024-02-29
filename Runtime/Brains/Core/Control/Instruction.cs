@@ -308,7 +308,7 @@ namespace Mona.SDK.Brains.Core.Control
                 {
                     case InstructionEventTypes.Start:
                     case InstructionEventTypes.State:
-                        if (tile is IOnStartInstructionTile)
+                        if (tile is IOnStartInstructionTile || tile is IStartableInstructionTile)
                         {
                             return ExecuteTile(tile);
                         }

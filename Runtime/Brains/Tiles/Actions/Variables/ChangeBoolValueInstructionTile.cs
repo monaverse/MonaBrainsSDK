@@ -7,11 +7,12 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.State;
 using Mona.SDK.Brains.Tiles.Actions.Variables.Interfaces;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
     [Serializable]
-    public class ChangeBoolValueInstructionTile : InstructionTile, IChangeBoolValueInstructionTile, IActionInstructionTile
+    public class ChangeBoolValueInstructionTile : InstructionTile, IChangeBoolValueInstructionTile, IActionInstructionTile, IOnStartInstructionTile
     {
         public const string ID = "ChangeBoolValue";
         public const string NAME = "Change Bool Value";
