@@ -11,6 +11,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Body.Enums;
+using Mona.SDK.Core.State.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Timing
 {
@@ -25,8 +26,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
         [SerializeField]
         private float _seconds = 1f;
 
-        [BrainProperty]
-        public float Seconds { get => _seconds; set => _seconds = value; }
+        [SerializeField] private string _secondsValueName;
+        [BrainProperty] public float Seconds { get => _seconds; set => _seconds = value; }
+        [BrainPropertyValueName("Seconds", typeof(IMonaVariablesFloatValue))] public string SecondsValueName { get => _secondsValueName; set => _secondsValueName = value; }
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
         private Action<MonaBodyEvent> OnBodyEvent;
@@ -107,6 +109,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
         {
             if (!_isRunning)
             {
+                if (!string.IsNullOrEmpty(_secondsValueName))
+                    _seconds = _brain.Variables.GetFloat(_secondsValueName);
                 _remaining = _seconds;
                 _isRunning = true;
                 AddFixedTickDelegate();
