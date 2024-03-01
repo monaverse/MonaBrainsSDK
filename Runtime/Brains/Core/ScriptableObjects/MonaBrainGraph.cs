@@ -563,6 +563,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if (!_began) return;
 
             if (!evt.HasInput) return;
+            //Debug.Log($"has input");
             ExecuteCorePageInstructions(InstructionEventTypes.Input);
             ExecuteStatePageInstructions(InstructionEventTypes.Input);
         }

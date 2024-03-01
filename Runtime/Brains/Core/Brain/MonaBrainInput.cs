@@ -130,7 +130,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private Vector2 _lookValue;
         private Ray _ray;
 
-        private int _lastFrame;
+        private int _lastFrame = -1;
 
         public MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState = MonaInputState.Pressed)
         {
@@ -240,9 +240,10 @@ namespace Mona.SDK.Brains.Core.Brain
         private void ProcessKey(int index, KeyState state)
         {
             var keyControl = Keyboard.current[state.Key];
-            if (keyControl.wasPressedThisFrame)
+            
+            if (keyControl.wasPressedThisFrame && state.State == MonaInputState.None)
                 state.State = MonaInputState.Pressed;
-            else if (keyControl.wasReleasedThisFrame)
+            else if (keyControl.wasReleasedThisFrame && (state.State == MonaInputState.Pressed || state.State == MonaInputState.Held))
                 state.State = MonaInputState.Up;
             else if (keyControl.isPressed)
                 state.State = MonaInputState.Held;

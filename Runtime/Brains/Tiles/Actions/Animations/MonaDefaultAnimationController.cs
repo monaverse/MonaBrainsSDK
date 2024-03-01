@@ -45,6 +45,7 @@ namespace Mona.SDK.Brains.Core.Animation
 
         private Dictionary<string, IMonaAnimationAssetItem> _animationAssets = new Dictionary<string, IMonaAnimationAssetItem>();
         private IMonaBrain _brain;
+        private bool _override = true;
 
         public void Awake()
         {
@@ -62,6 +63,11 @@ namespace Mona.SDK.Brains.Core.Animation
                 _brain.Variables.Set(MonaBrainConstants.TRIGGER, "");
                 _brain.Variables.Set(MonaBrainConstants.ANIMATION_SPEED, 1f);
             }
+        }
+
+        public void SetOverride(bool value)
+        {
+            _override = value;
         }
 
         private void OnDestroy()
@@ -102,13 +108,17 @@ namespace Mona.SDK.Brains.Core.Animation
                 }
                 var overrideController = new AnimatorOverrideController(controller);
                 _animator.runtimeAnimatorController = overrideController;
+                _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
             }
-            else
+            else if(_override)
             {
-                var overrideController = new AnimatorOverrideController(_animator.runtimeAnimatorController);
-                _animator.runtimeAnimatorController = overrideController;
+                //var overrideController = new AnimatorOverrideController(_animator.runtimeAnimatorController);
+                //_animator.runtimeAnimatorController = overrideController;
             }
-            _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
+
+            if(_animator.runtimeAnimatorController is AnimatorOverrideController)
+                _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
+            _animator.Rebind();
         }
 
         public void SetAnimator(Animator animator)
