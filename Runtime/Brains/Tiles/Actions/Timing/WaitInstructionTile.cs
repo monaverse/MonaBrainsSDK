@@ -10,6 +10,7 @@ using Mona.SDK.Brains.Tiles.Actions.Timing.Interfaces;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
+using Mona.SDK.Core.Body.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Timing
 {
@@ -28,6 +29,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
         public float Seconds { get => _seconds; set => _seconds = value; }
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
+        private Action<MonaBodyEvent> OnBodyEvent;
 
         private float _remaining;
 
@@ -66,12 +68,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
         }
         public override void Unload()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            RemoveFixedTickDelegate();
         }
 
         public void Pause()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            RemoveFixedTickDelegate();
         }
 
         public bool Resume()
@@ -101,15 +103,49 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
             {
                 _remaining = _seconds;
                 _isRunning = true;
-                OnFixedTick = HandleFixedTick;
-                EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+                AddFixedTickDelegate();
             }
 
             return Complete(InstructionTileResult.Running);
         }
 
+        private void AddFixedTickDelegate()
+        {
+            OnFixedTick = HandleFixedTick;
+            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+
+            OnBodyEvent = HandleBodyEvent;
+            EventBus.Register<MonaBodyEvent>(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), OnBodyEvent);
+        }
+
+        private void HandleBodyEvent(MonaBodyEvent evt)
+        {
+            if (evt.Type == MonaBodyEventType.OnStop)
+                LostControl();
+        }
+
+        private void RemoveFixedTickDelegate()
+        {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            EventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_EVENT, _brain.Body), OnBodyEvent);
+            //EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+        }
+
+        private void LostControl()
+        {
+            Debug.Log($"{nameof(WaitInstructionTile)} {nameof(LostControl)}");
+            _isRunning = false;
+            Complete(InstructionTileResult.LostAuthority, true);
+        }
+
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
+            if (!_brain.Body.HasControl())
+            {
+                LostControl();
+                return;
+            }
+
             FixedTick(evt.DeltaTime);
         }
 
