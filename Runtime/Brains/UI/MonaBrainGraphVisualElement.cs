@@ -775,6 +775,9 @@ namespace Mona.SDK.Brains.UIElements
 
         public void SetBrain(IMonaBrain brain)
         {
+            _monaTagListView.itemsSource = null;
+            _monaTagListView.Rebuild();
+
             _brain = brain;
 
             _name.value = _brain.Name;
