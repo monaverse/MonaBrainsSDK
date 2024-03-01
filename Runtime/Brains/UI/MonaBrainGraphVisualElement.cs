@@ -183,7 +183,8 @@ namespace Mona.SDK.Brains.UIElements
             {
                 foreach (var e in elems)
                 {
-                    _brain.MonaTags[e] = MonaBrainConstants.TAG_DEFAULT;
+                    if(string.IsNullOrEmpty(_brain.MonaTags[e]))
+                        _brain.MonaTags[e] = MonaBrainConstants.TAG_DEFAULT;
                 }
             };
             tagContainer.Add(_monaTagListView);
