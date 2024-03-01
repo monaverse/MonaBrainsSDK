@@ -540,7 +540,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleBroadcastMessage(MonaBroadcastMessageEvent evt)
         {
-            //Debug.Log($"{nameof(HandleBroadcastMessage)} '{evt.Message}' received by ({Name}) on frame {Time.frameCount}");
+            Debug.Log($"{nameof(HandleBroadcastMessage)} '{evt.Message}' received by ({Name}) on frame {Time.frameCount}");
             if (!HasMessage(evt.Message))
                 _messages.Add(evt);
 
@@ -551,6 +551,11 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             ExecuteCorePageInstructions(InstructionEventTypes.Message);
             ExecuteStatePageInstructions(InstructionEventTypes.Message);
+
+            if(HasMessage(((MonaBroadcastMessageEvent)evt).Message))
+            {
+                _messages.Remove(((MonaBroadcastMessageEvent)evt));
+            }
         }
 
         private void HandleInputOnFixedTick(MonaBodyFixedTickEvent evt)

@@ -95,7 +95,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override InstructionTileResult Do()
         {
             if (_collider == null) return InstructionTileResult.Failure;
-
+            Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(Do)} found: {_tag} {_collider.BodiesThatEntered.Count}", _brain.Body.ActiveTransform.gameObject);
             var bodies = _collider.BodiesThatEntered;
             if (bodies.Count > 0)
             {

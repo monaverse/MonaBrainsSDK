@@ -239,7 +239,7 @@ namespace Mona.SDK.Brains.Core.Brain
                     {
                         if (item.ShouldExecute())
                         {
-                            Debug.Log($"{nameof(MonaBrainRunner)} WAIT TICK LATER {item.Index}, type {item.Type}, evt: {((MonaBrainTickEvent)item.Evt).Instruction.InstructionTiles[0]} {Time.frameCount}");
+                            //Debug.Log($"{nameof(MonaBrainRunner)} WAIT TICK LATER {item.Index}, type {item.Type}, evt: {((MonaBrainTickEvent)item.Evt).Instruction.InstructionTiles[0]} {Time.frameCount}");
                             item.Index = -1;
                             _wait[_layers[i]][_types[j]] = item;
                             item.Callback(item.Evt);
