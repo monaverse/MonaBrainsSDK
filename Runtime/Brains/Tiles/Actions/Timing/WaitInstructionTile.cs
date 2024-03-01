@@ -63,7 +63,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
 
             if (_isRunning)
             {
-                EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+                AddFixedTickDelegate();
             }
         }
         public override void Unload()
@@ -90,7 +90,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
                 _thenCallback.Action = () =>
                 {
                     //Debug.Log($"{nameof(WaitInstructionTile)} ThenCallback");
-                    EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+                    RemoveFixedTickDelegate();
                     if (thenCallback != null) return thenCallback.Action.Invoke();
                     return InstructionTileResult.Success;
                 };
