@@ -116,7 +116,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         public override InstructionTileResult Do()
         {
-            Debug.Log($"{nameof(SetAnimatorTriggerInstructionTile)} {_triggerName}", _brain.Body.Transform.gameObject);
+            //Debug.Log($"{nameof(SetAnimatorTriggerInstructionTile)} {_triggerName}", _brain.Body.Transform.gameObject);
             if (_brain.Body.Animator != null)
                 _brain.Body.Animator.SetTrigger(_triggerName);
             _brain.Body.TriggerRemoteAnimation(_triggerName);

@@ -159,6 +159,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         {
             if (_collider == null || !_collider.enabled || _brain.Body == other.GetComponentInParent<IMonaBody>()) return;
             var body = other.GetComponentInParent<IMonaBody>();
+            Debug.Log($"{nameof(OnTriggerExit)} {body}", body.Transform.gameObject);
             RemoveBody(body);
         }
 
@@ -204,7 +205,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         return false;
                 }
 
-                if (_bodiesIndex.ContainsKey(body) && !body.Intersects(_collider, includeTriggers: true))
+                if (_bodiesIndex.ContainsKey(body))// && !body.Intersects(_collider, includeTriggers: true))
                 {
                     if (_brain.LoggingEnabled)
                         Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);

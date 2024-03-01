@@ -132,29 +132,37 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             _fieldOfView = fieldOfView;
             _foundBodiesInFieldOfView.Clear();
             var dotValue = -1f + ((1f-Mathf.Abs(fieldOfView / 180f))*2f);
-            for(var i = 0;i < _bodies.Count; i++)
+            for(var i = _bodies.Count-1;i >= 0; i--)
             {
                 var dir = (_bodies[i].GetPosition() - transform.position);
                 var fwd = transform.forward;
                 var dot = Vector3.Dot(dir.normalized, fwd.normalized);
                 var body = _bodies[i];
-                if (dot >= dotValue)
+                if (!_bodies[i].GetActive())
                 {
-                    _foundBodiesInFieldOfView.Add(new ForwardBodyStruct() { dot = dot, body = body });
-                    if (!_bodiesIndex[body])
-                    {
-                        //Debug.Log($"in view {body.Transform.name}");
-                        _bodiesIndex[body] = true;
-                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
-                    }
+                    _bodiesIndex.Remove(_bodies[i]);
+                    _bodies.RemoveAt(i);
                 }
                 else
                 {
-                    if (_bodiesIndex[body])
+                    if (dot >= dotValue)
                     {
-                        //Debug.Log($"out of view {body.Transform.name}");
-                        _bodiesIndex[body] = false;
-                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
+                        _foundBodiesInFieldOfView.Add(new ForwardBodyStruct() { dot = dot, body = body });
+                        if (!_bodiesIndex[body])
+                        {
+                            //Debug.Log($"in view {body.Transform.name}");
+                            _bodiesIndex[body] = true;
+                            EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
+                        }
+                    }
+                    else
+                    {
+                        if (_bodiesIndex[body])
+                        {
+                            //Debug.Log($"out of view {body.Transform.name}");
+                            _bodiesIndex[body] = false;
+                            EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
+                        }
                     }
                 }
             }
@@ -166,27 +174,35 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             _fieldOfView = fieldOfView;
             _foundBodiesInFieldOfView.Clear();
             var dotValue = -1f + ((1f - Mathf.Abs(fieldOfView / 180f)) * 2f);
-            for (var i = 0; i < _bodies.Count; i++)
+            for (var i = _bodies.Count-1; i >= 0; i--)
             {
                 var dir = (_bodies[i].GetPosition() - transform.position);
                 var fwd = transform.forward;
                 var dot = Vector3.Dot(dir.normalized, fwd.normalized);
                 var body = _bodies[i];
-                if (dot < dotValue)
+                if (!_bodies[i].GetActive())
                 {
-                    _foundBodiesInFieldOfView.Add(new ForwardBodyStruct() { dot = dot, body = body });
-                    if (_bodiesIndex[body])
-                    {
-                        _bodiesIndex[body] = false;
-                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
-                    }
+                    _bodiesIndex.Remove(_bodies[i]);
+                    _bodies.RemoveAt(i);
                 }
                 else
                 {
-                    if (!_bodiesIndex[body])
+                    if (dot < dotValue)
                     {
-                        _bodiesIndex[body] = true;
-                        EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
+                        _foundBodiesInFieldOfView.Add(new ForwardBodyStruct() { dot = dot, body = body });
+                        if (_bodiesIndex[body])
+                        {
+                            _bodiesIndex[body] = false;
+                            EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
+                        }
+                    }
+                    else
+                    {
+                        if (!_bodiesIndex[body])
+                        {
+                            _bodiesIndex[body] = true;
+                            EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
+                        }
                     }
                 }
             }
@@ -216,16 +232,24 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             var bodies = _bodies;
             IMonaBody closest = null;
             float closestDistance = Mathf.Infinity;
-            for (var i = 0; i < bodies.Count; i++)
+            for (var i = _bodies.Count-1; i >= 0; i--)
             {
                 var pos = bodies[i].GetPosition();
                 var d = Vector3.Distance(pos, _brain.Body.GetPosition());
-                if (d < _collider.radius)
+                if (!_bodies[i].GetActive())
                 {
-                    if (d < closestDistance)
+                    _bodiesIndex.Remove(_bodies[i]);
+                    _bodies.RemoveAt(i);
+                }
+                else
+                {
+                    if (d < _collider.radius)
                     {
-                        closest = bodies[i];
-                        closestDistance = d;
+                        if (d < closestDistance)
+                        {
+                            closest = bodies[i];
+                            closestDistance = d;
+                        }
                     }
                 }
             }
@@ -237,16 +261,24 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             var bodies = MonaBody.FindByTag(tag);
             IMonaBody closest = null;
             float closestDistance = Mathf.Infinity;
-            for(var i = 0;i < bodies.Count;i++)
+            for(var i = _bodies.Count-1;i >= 0;i--)
             {
                 var pos = bodies[i].GetPosition();
                 var d = Vector3.Distance(pos, _brain.Body.GetPosition());
-                if (d > _collider.radius)
+                if (!_bodies[i].GetActive())
                 {
-                    if(d < closestDistance)
+                    _bodiesIndex.Remove(_bodies[i]);
+                    _bodies.RemoveAt(i);
+                }
+                else
+                {
+                    if (d > _collider.radius)
                     {
-                        closest = bodies[i];
-                        closestDistance = d;
+                        if (d < closestDistance)
+                        {
+                            closest = bodies[i];
+                            closestDistance = d;
+                        }
                     }
                 }
             }
