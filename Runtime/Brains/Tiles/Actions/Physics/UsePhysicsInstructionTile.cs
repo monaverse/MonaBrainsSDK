@@ -4,8 +4,6 @@ using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
-using Mona.SDK.Brains.Core.State;
-using Mona.SDK.Brains.Tiles.Actions.Variables.Interfaces;
 using Mona.SDK.Core.State.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Physics

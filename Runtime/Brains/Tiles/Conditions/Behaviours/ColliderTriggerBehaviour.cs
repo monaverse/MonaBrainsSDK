@@ -150,14 +150,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private void OnTriggerEnter(Collider other)
         {
-            if (_collider == null || !_collider.enabled || (other.isTrigger && other.GetComponent<IMonaBodyPart>() == null)) return;
+            if (_collider == null || !_collider.enabled || _brain.Body == other.GetComponentInParent<IMonaBody>() || (other.isTrigger && other.GetComponent<IMonaBodyPart>() == null)) return;
             var body = other.GetComponentInParent<IMonaBody>();
             AddBody(body);
         }
 
         private void OnTriggerExit(Collider other)
         {
-            if (_collider == null || !_collider.enabled || (other.isTrigger && other.GetComponent<IMonaBodyPart>() == null)) return;
+            if (_collider == null || !_collider.enabled || _brain.Body == other.GetComponentInParent<IMonaBody>() || (other.isTrigger && other.GetComponent<IMonaBodyPart>() == null)) return;
             var body = other.GetComponentInParent<IMonaBody>();
             RemoveBody(body);
         }

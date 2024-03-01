@@ -287,13 +287,20 @@ namespace Mona.SDK.Brains.Core.Control
 
             if (_instructionTiles.Count == 0)
                 return;
-            
-            if (ExecuteFirstTile(eventType, evt) == InstructionTileResult.Success)
+
+            var result = ExecuteFirstTile(eventType, evt);
+            if (result == InstructionTileResult.Success)
             {
                 OnReset?.Invoke(this);
                 if (ExecuteRemainingConditionals() == InstructionTileResult.Success)
                     ExecuteActions();
             }
+            /*
+            else if (result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
+            {
+                //Debug.Log($"TICK IT {_result}");
+                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
+            }*/
         }
 
         private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, IInstructionEvent evt = null)
@@ -559,7 +566,7 @@ namespace Mona.SDK.Brains.Core.Control
                     //Debug.Log($"{nameof(ExecuteActionTile)} immediately execute next tile {tile.NextExecutionTile} {_result}");
                     ExecuteActionTile(tile.NextExecutionTile);
                 }
-                else if (_result == InstructionTileResult.Failure && HasTickAfter())
+                else if (_result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
                 {
                     //Debug.Log($"TICK IT {_result}");
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
@@ -717,8 +724,11 @@ namespace Mona.SDK.Brains.Core.Control
                         continue;
                 }
                 var sourceProperty = source.GetType().GetProperty(property.Name);
-                if(sourceProperty != null)
-                    property.SetValue(target, sourceProperty.GetValue(source));
+                if (sourceProperty != null)
+                {
+                    if (!sourceProperty.PropertyType.IsEnum || sourceProperty.PropertyType.GetEnumUnderlyingType().Equals(property.PropertyType.GetEnumUnderlyingType()))  
+                        property.SetValue(target, sourceProperty.GetValue(source));
+                }
             }
         }
 

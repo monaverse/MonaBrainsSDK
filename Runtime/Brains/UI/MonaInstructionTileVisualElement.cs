@@ -393,9 +393,10 @@ namespace Mona.SDK.Brains.UIElements
                 }
                 else if (property.PropertyType == typeof(Vector3))
                 {
+                    fieldContainer.style.minWidth = 180;
                     var field = new Vector3Field();
-                    field.style.width = 130;
                     field.style.flexDirection = FlexDirection.Column;
+                    field.style.minWidth = 160;
                     field.labelElement.style.color = _textColor;
                     field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.style.color = Color.black;
@@ -406,7 +407,15 @@ namespace Mona.SDK.Brains.UIElements
                         property.SetValue(_tile, (Vector3)evt.newValue);
                         Changed();
                     });
+
                     fieldContainer.Add(field);
+
+                    var fields = field.Query<FloatField>().Build();
+                    fields.ForEach<FloatField>(x =>
+                    {
+                        //x.style.minWidth = 30;
+                        return x;
+                    });
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
                 }

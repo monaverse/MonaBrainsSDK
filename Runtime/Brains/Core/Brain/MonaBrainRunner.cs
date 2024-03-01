@@ -192,16 +192,24 @@ namespace Mona.SDK.Brains.Core.Brain
             if (!_wait[index].ContainsKey(type))
                 _wait[index].Add(type, new WaitFrameQueueItem(-1));
 
-            if (_wait[index][type].Index > -1) return;
             if (gameObject.activeInHierarchy)
             {
                 if (evt is MonaTriggerEvent || evt is MonaBrainTickEvent)
+                {
                     _waitQueue.Add(new WaitFrameQueueItem(index, callback, evt, type, Time.frameCount));
+                    //Debug.Log($"add to queue {_waitQueue.Count}");
+                }
                 else
+                {
+                    if (_wait[index][type].Index > -1) return;
                     _wait[index][type] = new WaitFrameQueueItem(index, callback, evt, type, Time.frameCount);
+                }
 
-                OnMonaTick = HandleMonaTick;
-                EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
+                if (OnMonaTick == null)
+                {
+                    OnMonaTick = HandleMonaTick;
+                    EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
+                }
             }
             else
                 _waitInactiveQueue[index].Add(new WaitFrameQueueItem(index, callback, evt, type, Time.frameCount));
@@ -231,7 +239,7 @@ namespace Mona.SDK.Brains.Core.Brain
                     {
                         if (item.ShouldExecute())
                         {
-                            //Debug.Log($"{nameof(MonaBrainRunner)} WAIT TICK LATER {item.Index}, type {item.Type}, evt: {((MonaBrainTickEvent)item.Evt).Instruction.InstructionTiles[0]} {Time.frameCount}");
+                            Debug.Log($"{nameof(MonaBrainRunner)} WAIT TICK LATER {item.Index}, type {item.Type}, evt: {((MonaBrainTickEvent)item.Evt).Instruction.InstructionTiles[0]} {Time.frameCount}");
                             item.Index = -1;
                             _wait[_layers[i]][_types[j]] = item;
                             item.Callback(item.Evt);
@@ -242,14 +250,21 @@ namespace Mona.SDK.Brains.Core.Brain
                 }
             }
 
-            for(var i = _waitQueue.Count-1; i >= 0; i--)
+            var count = _waitQueue.Count-1;
+            //Debug.Log($"clear queue {_waitQueue.Count} fr:{Time.frameCount}");
+            for (var i = count; i >= 0; i--)
             {
                 var item = _waitQueue[i];
                 if (item.ShouldExecute())
                 {
-                    //Debug.Log($"{nameof(MonaBrainRunner)} WAIT QUEUE TICK LATER {item.Index}, type {item.Type}, evt: {item.Evt} {Time.frameCount}");
-                    item.Callback(item.Evt);
+                    //Debug.Log($"{nameof(MonaBrainRunner)} WAIT QUEUE TICK LATER {i} idx, {item.Index}, type {item.Type}, evt: {item.Evt} {((MonaBrainTickEvent)item.Evt).Type} {Time.frameCount}");
                     _waitQueue.Remove(item);
+                    item.Callback(item.Evt);
+                    if(_waitQueue.Count >= count)
+                    {
+                        //Debug.Log($"the Callback resulted in another queue item recursively {i} {_waitQueue.Count} {Time.frameCount}");
+                        //queueCleared = false;
+                    }
                 }
                 else
                 {
@@ -257,11 +272,12 @@ namespace Mona.SDK.Brains.Core.Brain
                 }
             }
 
-            if (queueCleared)
+            if (queueCleared && _waitQueue.Count == 0)
             {
                 //Debug.Log($"STOP LISTENIGN FOR TICK");
                 //_waitQueue.Clear();
                 EventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
+                OnMonaTick = null;
             }
 
         }
