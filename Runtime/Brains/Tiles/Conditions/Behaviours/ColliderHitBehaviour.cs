@@ -5,6 +5,7 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Network.Enums;
 using System;
@@ -132,7 +133,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                             }
                         }
                         Debug.Log($"Added collision {_lastPosition} {_brain.Body.ActiveRigidbody.position} {_brain.Body.ActiveTransform.position}", _brain.Body.Transform.gameObject);
-                        EventBus.Trigger(new EventHook(MonaBrainConstants.MONA_BRAINS_EVENT, _brain.Body), new MonaBrainEvent(MonaBrainEventType.OnStop));
+                        EventBus.Trigger(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), new MonaBodyEvent(MonaBodyEventType.OnStop));
                         _brain.Body.TeleportPosition(_lastPosition, true);
                     }
 

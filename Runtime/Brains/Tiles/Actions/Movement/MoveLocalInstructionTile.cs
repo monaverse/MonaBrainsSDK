@@ -14,6 +14,7 @@ using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Input;
 using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Core.Body.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -61,7 +62,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private MonaInput _bodyInput;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
-        private Action<MonaBrainEvent> OnBrainEvent;
+        private Action<MonaBodyEvent> OnBodyEvent;
         private Action<MonaInputEvent> OnInput;
 
         private float _speed
@@ -190,8 +191,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             OnFixedTick = HandleFixedTick;
             EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
 
-            OnBrainEvent = HandleBrainEvent;
-            EventBus.Register<MonaBrainEvent>(new EventHook(MonaBrainConstants.MONA_BRAINS_EVENT, _brain.Body), OnBrainEvent);
+            OnBodyEvent = HandleBodyEvent;
+            EventBus.Register<MonaBodyEvent>(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), OnBodyEvent);
         }
 
         private void AddInputDelegate()
@@ -213,13 +214,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private void RemoveFixedTickDelegate()
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
-            EventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_EVENT, _brain.Body), OnBrainEvent);
+            EventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_EVENT, _brain.Body), OnBodyEvent);
             //EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
-        private void HandleBrainEvent(MonaBrainEvent evt)
+        private void HandleBodyEvent(MonaBodyEvent evt)
         {
-            if (evt.Type == MonaBrainEventType.OnStop)
+            if (evt.Type == MonaBodyEventType.OnStop)
                 LostControl();
         }
 

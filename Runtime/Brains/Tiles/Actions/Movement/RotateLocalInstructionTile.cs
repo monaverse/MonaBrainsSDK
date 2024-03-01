@@ -240,6 +240,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     _direction = Quaternion.AngleAxis(_angle * Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
                 }
 
+                if(_onlyTurnWhenMoving && _bodyInput.MoveValue.y == 0f)
+                {
+                    _direction = Quaternion.identity;
+                }
+
                 _brain.Body.SetRotation(_direction, !_usePhysics, true);
                 return Complete(InstructionTileResult.Success);
             }
@@ -324,6 +329,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
                 {
                     _direction = Quaternion.AngleAxis(_angle * diff * Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
+                }
+
+                if (_onlyTurnWhenMoving && _bodyInput.MoveValue.y == 0f)
+                {
+                    _direction = Quaternion.identity;
                 }
 
                 //if (!(NextExecutionTile is IChangeDefaultRotationInstructionTile))
