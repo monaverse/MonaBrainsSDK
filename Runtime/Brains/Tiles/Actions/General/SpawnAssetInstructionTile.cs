@@ -109,7 +109,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private IMonaBody GetTarget()
         {
-            if (_brain.MonaTagSource.GetTag(_tag).IsPlayerTag)
+            if (_brain.MonaTagSource.GetTag(_tag).IsPlayerTag && _brain.Player.PlayerBody != null)
             {
                 return _brain.Player.PlayerBody;
             }
@@ -152,6 +152,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     poolItem.TeleportRotation(playerPart.GetRotation() * Quaternion.Euler(_eulerAngles), true);
                     poolItem.Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
                     poolItem.SetVisible(true);
+                    Debug.Log($"{nameof(SpawnAssetInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, poolItem);
                 }
             }
@@ -168,7 +169,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 var instance = _equipmentInstances[i];
                 if (instance == null) continue;
                 instance.OnDisabled -= HandleBodyDisabled;
-                if(instance.Transform != null)
+                if(instance.Transform != null && instance.Transform.gameObject != null)
                     GameObject.Destroy(instance.Transform.gameObject);
             }
             _equipmentInstances.Clear();

@@ -762,7 +762,7 @@ namespace Mona.SDK.Brains.Core.Control
                 var tileIndex = (int)_brain.Variables.GetFloat(_progressTile);
                 //Debug.Log($"{nameof(Instruction)} resume instruction #{_page.Instructions.IndexOf(this)}, tile: {tileIndex}");
                 _result = InstructionTileResult.Success;
-                if (tileIndex > -1)
+                if (tileIndex > -1 && InstructionTiles.Count > 0)
                     ExecuteTile(InstructionTiles[tileIndex]);
             }
         }
