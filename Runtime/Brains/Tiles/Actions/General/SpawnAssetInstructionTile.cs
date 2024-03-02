@@ -30,18 +30,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaBodyAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
 
+        [SerializeField]
+        private float _poolCount = 5;
+        [BrainProperty(true)]
+        public float PoolCount { get => _poolCount; set => _poolCount = value; }
+
+        [SerializeField] private LocationType _location;
+        [BrainPropertyEnum(false)] public LocationType Location { get => _location; set => _location = value; }
+
         [SerializeField] private string _tag;
-        [BrainPropertyMonaTag] public string Tag { get => _tag; set => _tag = value; }
+        [BrainPropertyMonaTag(false)] public string Tag { get => _tag; set => _tag = value; }
 
         [SerializeField]
         private string _part = "Default";
-        [BrainPropertyMonaTag]
+        [BrainPropertyMonaTag(false)]
         public string Part { get => _part; set => _part = value; }
-
-        [SerializeField]
-        private float _poolCount = 5;
-        [BrainProperty(false)]
-        public float PoolCount { get => _poolCount; set => _poolCount = value; }
 
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
@@ -62,6 +65,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private IMonaBodyAssetItem _item;
         private List<IMonaBody> _equipmentInstances = new List<IMonaBody>();
         private List<IMonaBody> _pool = new List<IMonaBody>();
+
+        public enum LocationType
+        {
+            Me,
+            MyPart,
+            OtherWithTag,
+            OtherWithTagPart
+        }
 
         public SpawnAssetInstructionTile() { }
 
@@ -107,7 +118,33 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             return _brain.Body;
         }
 
-        private IMonaBody GetTarget()
+        private IMonaBody GetBody()
+        {
+            var body = _brain.Body;
+
+            switch (_location)
+            {
+                case LocationType.MyPart:
+                    body = body.FindChildByTag(_part);
+                    break;
+
+                case LocationType.OtherWithTag:
+                    return GetTargetBody();
+
+                case LocationType.OtherWithTagPart:
+                    var otherPartBody = GetTargetBody();
+
+                    if (otherPartBody == null)
+                        return null;
+
+                    var otherPart = otherPartBody.FindChildByTag(_part);
+                    return otherPart != null ? otherPart : otherPartBody;
+            }
+            
+            return body;
+        }
+
+        private IMonaBody GetTargetBody()
         {
             if (_brain.MonaTagSource.GetTag(_tag).IsPlayerTag && _brain.Player.PlayerBody != null)
             {
@@ -122,16 +159,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     return body;
                 }
             }
+
             return null;
         }
 
         public override InstructionTileResult Do()
         {
-            var body = GetTarget();
+            var body = GetBody();
             if (body != null)
             {
-                var playerPart = body.FindChildByTag(_part.ToString());
-                if (playerPart == null) playerPart = body;
                 if (_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
@@ -142,14 +178,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     poolItem.SetScale(_scale, true);
 
                     var offset = _offset;
-                    if (playerPart.ActiveTransform.parent != null)
-                        offset = playerPart.ActiveTransform.parent.TransformDirection(_offset);
 
+                    if (body.ActiveTransform != null)
+                        offset = body.ActiveTransform.TransformDirection(_offset);
+ 
                     poolItem.SetActive(true);
                     poolItem.SetVisible(false);
-                    poolItem.ActiveRigidbody.WakeUp();
-                    poolItem.TeleportPosition(playerPart.GetPosition() + offset, true);
-                    poolItem.TeleportRotation(playerPart.GetRotation() * Quaternion.Euler(_eulerAngles), true);
+
+                    if (poolItem.ActiveRigidbody != null)
+                        poolItem.ActiveRigidbody.WakeUp();
+
+                    poolItem.TeleportPosition(body.GetPosition() + offset, true);
+                    poolItem.TeleportRotation(body.GetRotation() * Quaternion.Euler(_eulerAngles), true);
                     poolItem.Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
                     poolItem.SetVisible(true);
                     Debug.Log($"{nameof(SpawnAssetInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
