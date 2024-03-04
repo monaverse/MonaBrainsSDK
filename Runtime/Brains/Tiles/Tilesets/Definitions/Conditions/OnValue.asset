@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164566709764097
   _id: OnValue
-  _name: Value Is
+  _name: Variable = Equals
   _category: Values
   references:
     version: 2

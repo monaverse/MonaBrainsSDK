@@ -15,15 +15,15 @@ MonoBehaviour:
   _tile:
     rid: 6317540366131921092
   _id: OnNumberOdd
-  _name: Value Is Odd
-  _category: Values
+  _name: Number Is Odd
+  _category: Variables
   references:
     version: 2
     RefIds:
     - rid: 6317540366131921092
       type: {class: OnNumberOddInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnNumberOdd
+        _name: Number Is Odd
+        _category: Variables
         _valueName: 

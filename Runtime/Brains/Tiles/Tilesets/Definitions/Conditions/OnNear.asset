@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164585997533187
   _id: OnNear
-  _name: Near
+  _name: When Near
   _category: Proximity
   references:
     version: 2
@@ -24,8 +24,8 @@ MonoBehaviour:
       type: {class: OnNearInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: OnNear
-        _name: On Near
-        _category: Condition
+        _name: When Near
+        _category: Proximity
         _tag: 
         _distance: 2
         _distanceValueName: 

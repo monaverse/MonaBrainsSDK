@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543342
   _id: Spin Up
-  _name: Spin Up
+  _name: "Rotate \u2191 Pitch Up"
   _category: Rotation
   references:
     version: 2
@@ -24,11 +24,14 @@ MonoBehaviour:
       type: {class: SpinUpInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: Spin Up
-        _name: Spin Up
-        _category: Movement
+        _name: "Rotate \u2191 Pitch Up"
+        _category: Rotation
         _angle: 90
         _angleValueName: 
         _easing: 1
         _mode: 1
         _value: 1
         _valueValueName: 
+        _usePhysics: 0
+        _onlyTurnWhenMoving: 0
+        _lookStraightAhead: 0

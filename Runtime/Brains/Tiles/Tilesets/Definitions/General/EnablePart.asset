@@ -24,7 +24,7 @@ MonoBehaviour:
       type: {class: EnablePartInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: EnablePart
-        _name: Enable By Tag
+        _name: Enable Part
         _category: General
         _all: 0
         _tag: 

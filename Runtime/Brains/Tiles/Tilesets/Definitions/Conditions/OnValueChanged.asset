@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164566709764144
   _id: OnValueChanged
-  _name: Value Has Changed
+  _name: Variable Changed
   _category: Values
   references:
     version: 2

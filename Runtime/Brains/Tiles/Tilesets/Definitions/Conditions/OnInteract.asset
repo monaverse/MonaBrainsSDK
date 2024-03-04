@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164610271543306
   _id: OnInteract
-  _name: Interact
+  _name: On Interact
   _category: Input
   references:
     version: 2
@@ -25,4 +25,4 @@ MonoBehaviour:
       data:
         _id: OnInteract
         _name: On Interact
-        _category: Condition/Input
+        _category: Input

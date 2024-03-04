@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540344539382271
   _id: OnHit
-  _name: Hit
+  _name: On Hit
   _category: Proximity
   references:
     version: 2
@@ -23,7 +23,7 @@ MonoBehaviour:
     - rid: 6317540344539382271
       type: {class: OnHitInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnHit
+        _name: On Hit
+        _category: Proximity
         _tag: 

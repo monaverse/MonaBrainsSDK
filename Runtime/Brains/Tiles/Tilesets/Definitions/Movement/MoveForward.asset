@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543330
   _id: Move Forward
-  _name: Move Forward
+  _name: "Move \u2197 Forward"
   _category: Movement
   references:
     version: 2
@@ -23,12 +23,13 @@ MonoBehaviour:
     - rid: 3250164503775543330
       type: {class: MoveForwardInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: Move Forward
+        _name: "Move \u2197 Forward"
+        _category: Movement
         _distance: 1
         _distanceValueName: 
         _easing: 1
-        _mode: 1
+        _mode: 2
         _value: 1
         _valueValueName: 
+        _usePhysics: 0

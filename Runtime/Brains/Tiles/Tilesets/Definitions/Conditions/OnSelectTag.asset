@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164610271543365
   _id: OnSelectTag
-  _name: Select Tag
+  _name: On Select Tag
   _category: Input
   references:
     version: 2
@@ -25,7 +25,7 @@ MonoBehaviour:
       data:
         _id: OnSelectTag
         _name: On Select Tag
-        _category: Condition/Input
+        _category: Input
         _monaTag: 
         _distance: 100
         _distanceValueName: 

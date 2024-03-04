@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164677034377777
   _id: BoolValue
-  _name: Bool Value Is
+  _name: Bool = Equals
   _category: Values
   references:
     version: 2
@@ -23,9 +23,9 @@ MonoBehaviour:
     - rid: 3250164677034377777
       type: {class: BoolValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: BoolValue
+        _name: Bool = ?
+        _category: Values
         _valueName: 
         _operator: 0
         _value: 0
