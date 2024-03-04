@@ -159,7 +159,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         {
             if (_collider == null || !_collider.enabled || _brain.Body == other.GetComponentInParent<IMonaBody>()) return;
             var body = other.GetComponentInParent<IMonaBody>();
-            Debug.Log($"{nameof(OnTriggerExit)} {body}", body.Transform.gameObject);
+            //Debug.Log($"{nameof(OnTriggerExit)} {body}", body.Transform.gameObject);
             RemoveBody(body);
         }
 
