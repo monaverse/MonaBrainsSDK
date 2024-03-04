@@ -234,6 +234,11 @@ namespace Mona.SDK.Brains.Core.Brain
             {
                 for (var j = 0; j < _types.Count; j++)
                 {
+                    if(_wait.Count <= _layers[i] || !_wait[_layers[i]].ContainsKey(_types[j]))
+                    {
+                        //Debug.Log($"can't find event type {_layers[i]} {_types[j]}");
+                        continue;
+                    }
                     var item = _wait[_layers[i]][_types[j]];
                     if (item.Index >= 0)
                     {
@@ -356,7 +361,7 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             if (_began)
             {
-                //Debug.Log($"{nameof(HandleResumed)} Resume Brains");
+                Debug.Log($"{nameof(HandleResumed)} Resume Brains");
                 OnBegin?.Invoke(this);
                 for (var i = 0; i < _brainInstances.Count; i++)
                 {
@@ -395,6 +400,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void RestartBrains()
         {
+            Debug.Log($"Resetart Brains");
             _began = false;
             ResetTransforms();
             UnloadBrains();
