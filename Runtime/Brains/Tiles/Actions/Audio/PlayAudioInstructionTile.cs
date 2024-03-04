@@ -94,6 +94,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         {
             if(_audioSource.clip == _clip.Value)
             {
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"audio pause {_clip}");
                 _audioSource.Pause();
             }
             RemoveFixedTickDelegate();
@@ -103,6 +105,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         {
             if (_audioSource.clip == _clip.Value)
             {
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"audio unpause {_clip}");
                 _audioSource.UnPause();
             }
             UpdateActive();
@@ -154,8 +158,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         private void HandleDefaultFixedTick()
         {
             if (_isPlaying)
-            {               
-                if (_audioSource.clip == _clip.Value && _audioSource.time >= _audioSource.clip.length)
+            {
+                if (!_audioSource.isPlaying || (_audioSource.clip == _clip.Value && _audioSource.time >= _audioSource.clip.length))
                 {
                     Debug.Log($"audio finished {_clip.Value}");
                     _isPlaying = false;
