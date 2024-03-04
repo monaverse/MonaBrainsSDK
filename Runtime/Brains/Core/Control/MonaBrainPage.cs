@@ -48,6 +48,15 @@ namespace Mona.SDK.Brains.Core.Control
             return false;
         }
 
+        public bool HasUsePhysicsTileSetToTrue()
+        {
+            for (var i = 0; i < _instructions.Count; i++)
+            {
+                if (_instructions[i].HasUsePhysicsTileSetToTrue()) return true;
+            }
+            return false;
+        }
+
         public MonaBrainPage()
         {
 

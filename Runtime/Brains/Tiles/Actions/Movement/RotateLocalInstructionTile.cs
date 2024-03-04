@@ -20,7 +20,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
     public class RotateLocalInstructionTile : InstructionTile, IActionInstructionTile, IPauseableInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction,
-        IActivateInstructionTile, INeedAuthorityInstructionTile, IProgressInstructionTile
+        IActivateInstructionTile, INeedAuthorityInstructionTile, IProgressInstructionTile, IRigidbodyInstructionTile
 
     {
         public override Type TileType => typeof(RotateLocalInstructionTile);
@@ -31,7 +31,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] protected string _angleValueName;
 
         [SerializeField] private EasingType _easing = EasingType.EaseInOut;
-        [BrainPropertyEnum(true)] public EasingType Easing { get => _easing; set => _easing = value; }
+        [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
 
         [SerializeField] private MoveModeType _mode = MoveModeType.Time;
         [BrainPropertyEnum(false)] public MoveModeType Mode { get => _mode; set => _mode = value; }
@@ -41,9 +41,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         [BrainProperty(false)] public float Value { get => _value; set => _value= value; }
         [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
-
-        [SerializeField] private bool _usePhysics = false;
-        [BrainProperty(false)] public bool UsePhysics { get => _usePhysics; set => _usePhysics = value; }
 
         private Quaternion _direction;  
 
@@ -245,7 +242,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     _direction = Quaternion.identity;
                 }
 
-                _brain.Body.SetRotation(_direction, !_usePhysics, true);
+                _brain.Body.SetRotation(_direction, true);
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -337,7 +334,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 }
 
                 //if (!(NextExecutionTile is IChangeDefaultRotationInstructionTile))
-                _brain.Body.SetRotation(_direction, !_usePhysics, true);
+                _brain.Body.SetRotation(_direction, true);
 
                 if (Progress >= 1f)
                 {
@@ -373,7 +370,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 }
 
                 //if (!(NextExecutionTile is IChangeDefaultRotationInstructionTile))
-                _brain.Body.SetRotation(_direction, !_usePhysics, true);
+                _brain.Body.SetRotation(_direction, true);
 
                 if (Progress >= 1f)
                 {

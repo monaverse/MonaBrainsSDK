@@ -9,7 +9,8 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
     [Serializable]
-    public class UsePhysicsInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class UsePhysicsInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload,
+        IRigidbodyInstructionTile
     {
         public const string ID = "UsePhysicsInstructionTile";
         public const string NAME = "Use Physics";

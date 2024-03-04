@@ -171,7 +171,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_movingState == MovingStateType.Moving)
             {
-                _brain.Body.MoveDirection(_direction * (deltaTime * (_value * Speed)), true, true);
+                _brain.Body.MoveDirection(_direction * (deltaTime * (_value * Speed)), true);
             }
         }
     }
