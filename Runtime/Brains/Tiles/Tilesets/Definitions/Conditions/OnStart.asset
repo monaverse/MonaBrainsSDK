@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543321
   _id: OnStart
-  _name: Start
+  _name: On Start
   _category: General
   references:
     version: 2
@@ -25,4 +25,4 @@ MonoBehaviour:
       data:
         _id: OnStart
         _name: On Start
-        _category: Condition
+        _category: General

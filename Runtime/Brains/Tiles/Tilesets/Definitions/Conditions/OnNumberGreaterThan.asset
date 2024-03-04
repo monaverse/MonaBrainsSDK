@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540366131921100
   _id: OnNumberGreaterThan
-  _name: Number Greater Than
+  _name: Number > Greater
   _category: Variables
   references:
     version: 2
@@ -23,9 +23,9 @@ MonoBehaviour:
     - rid: 6317540366131921100
       type: {class: OnNumberGreaterThanInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnNumberGreaterThan
+        _name: Number >
+        _category: Variables
         _valueName: 
         _amount: 0
         _amountValueName: 

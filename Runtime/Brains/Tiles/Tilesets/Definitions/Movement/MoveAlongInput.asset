@@ -23,13 +23,13 @@ MonoBehaviour:
     - rid: 6317540027290878090
       type: {class: MoveAlongInputInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: MoveAlongInput
+        _name: Move Along Input
+        _category: Movement
         _distance: 1
         _distanceValueName: 
         _easing: 1
-        _mode: 1
-        _value: 1
+        _mode: 2
+        _value: 0.1
         _valueValueName: 
         _usePhysics: 0

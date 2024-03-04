@@ -22,7 +22,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
     [Serializable]
     public class MoveLocalInstructionTile : InstructionTile, IMoveLocalInstructionTile, IActionInstructionTile, 
         IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile,
-        IProgressInstructionTile
+        IProgressInstructionTile, IRigidbodyInstructionTile
     {
         public override Type TileType => typeof(MoveLocalInstructionTile);
 
@@ -35,7 +35,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
 
         [SerializeField] private EasingType _easing = EasingType.EaseInOut;
-        [BrainPropertyEnum(true)] public EasingType Easing { get => _easing; set => _easing = value; }
+        [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
 
         [SerializeField] protected MoveModeType _mode = MoveModeType.Time;
         [BrainProperty(false)] public MoveModeType Mode { get => _mode; set => _mode = value; }
@@ -45,10 +45,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         [BrainProperty(false)] public float Value { get => _value; set => _value = value; }
         [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
-
-        [SerializeField] private bool _usePhysics = false;
-        [BrainProperty(false)] public bool UsePhysics { get => _usePhysics; set => _usePhysics = value; }
-
 
         private Vector3 _direction;
 
@@ -110,13 +106,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
 
             _brain.Variables.Set(_progressName, 0f);
-
-            if (_usePhysics && _brain.Body.ActiveRigidbody == null)
-            {
-                _brain.Body.AddRigidbody();
-                if (!_brain.Body.HasCollider())
-                    _brain.Body.AddCollider();
-            }
 
             UpdateActive();
         }
@@ -262,7 +251,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if (!string.IsNullOrEmpty(_distanceValueName))
                     _distance = _brain.Variables.GetFloat(_distanceValueName);
                 
-                _brain.Body.AddPosition(_direction * _distance, !_usePhysics, true);
+                _brain.Body.AddPosition(_direction * _distance, true);
                 AddFixedTickDelegate();
 
                 _coolingDown = true;
@@ -377,7 +366,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     _distance = _brain.Variables.GetFloat(_distanceValueName);
 
                 float diff = Evaluate(Progress + progressDelta) - Evaluate(Progress);
-                _brain.Body.AddPosition(_direction.normalized * (_distance * diff), !_usePhysics, true);
+                _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
 
                 if (Progress >= 1f)
                 {
@@ -405,7 +394,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 Progress = Mathf.Clamp01(Progress);
 
                 float diff = Evaluate(Mathf.Clamp01(Progress + progressDelta)) - Evaluate(Progress);
-                _brain.Body.AddPosition(_direction.normalized * (_distance * diff), !_usePhysics, true);
+                _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
 
                 if (Progress >= 1f)
                 {

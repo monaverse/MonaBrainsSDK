@@ -23,16 +23,18 @@ MonoBehaviour:
     - rid: 3250164786554994693
       type: {class: PullTargetInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: Pull
-        _name: Pull
+        _id: PullTarget
+        _name: Pull Target
         _category: Physics
         _force: 1
         _forceValueName: 
         _duration: 0
         _durationValueName: 
+        _maxSpeed: 0.2
         _dragType: 1
         _drag: 0.2
         _angularDrag: 0.2
         _friction: 0.5
         _bounce: 0.2
+        _source: 1
         _target: 

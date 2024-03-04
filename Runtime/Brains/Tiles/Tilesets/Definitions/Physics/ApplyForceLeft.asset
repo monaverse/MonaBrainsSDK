@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164677034377629
   _id: ApplyForceLeft
-  _name: Apply Force Left
+  _name: "Apply Force \u2190 Left"
   _category: Physics
   references:
     version: 2
@@ -23,13 +23,14 @@ MonoBehaviour:
     - rid: 3250164677034377629
       type: {class: ApplyForceLeftInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: ApplyForceLeft
+        _name: "Apply Force \u2190 Left"
+        _category: Physics
         _force: 1
         _forceValueName: 
         _duration: 0
         _durationValueName: 
+        _maxSpeed: 0.2
         _dragType: 1
         _drag: 0.2
         _angularDrag: 0.2

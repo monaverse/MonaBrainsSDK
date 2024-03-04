@@ -23,13 +23,15 @@ MonoBehaviour:
     - rid: 6317540027290878386
       type: {class: RotateAroundInputInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: RotateAroundInput
+        _name: Rotate Around Input
+        _category: Rotation
         _angle: 90
         _angleValueName: 
         _easing: 1
-        _mode: 1
-        _value: 1
+        _mode: 3
+        _value: 5
         _valueValueName: 
         _usePhysics: 0
+        _onlyTurnWhenMoving: 0
+        _lookStraightAhead: 0

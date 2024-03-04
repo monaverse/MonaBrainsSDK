@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543331
   _id: Move Left
-  _name: Move Left
+  _name: "Move \u2190 Left"
   _category: Movement
   references:
     version: 2
@@ -23,12 +23,13 @@ MonoBehaviour:
     - rid: 3250164503775543331
       type: {class: MoveLeftInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: Move Left
+        _name: "Move \u2190 Left"
+        _category: Movement
         _distance: 1
         _distanceValueName: 
         _easing: 1
-        _mode: 1
+        _mode: 2
         _value: 1
         _valueValueName: 
+        _usePhysics: 0

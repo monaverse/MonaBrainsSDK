@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543318
   _id: OnKey
-  _name: Keyboard
+  _name: On Keyboard Key
   _category: Input
   references:
     version: 2
@@ -24,7 +24,7 @@ MonoBehaviour:
       type: {class: OnKeyInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: OnKey
-        _name: On Key
-        _category: Condition/Input
+        _name: On Keyboard Key
+        _category: Input
         _key: 1
         _inputState: 2

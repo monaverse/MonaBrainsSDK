@@ -173,6 +173,19 @@ namespace Mona.SDK.Brains.Core.Control
             return false;
         }
 
+        public bool HasUsePhysicsTileSetToTrue()
+        {
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                if (InstructionTiles[i].GetType() == typeof(Brains.Tiles.Actions.Physics.UsePhysicsInstructionTile))
+                {
+                    return ((Brains.Tiles.Actions.Physics.UsePhysicsInstructionTile)InstructionTiles[i]).Value;
+                }
+                    
+            }
+            return false;
+        }
+
         private bool HasValidTriggerType(MonaTriggerEvent evt)
         {
             for(var i = 0;i < InstructionTiles.Count; i++)

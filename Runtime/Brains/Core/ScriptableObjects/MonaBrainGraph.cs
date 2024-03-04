@@ -131,6 +131,16 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             return false;
         }
 
+        public bool HasUsePhysicsTileSetToTrue()
+        {
+            if (_corePage.HasUsePhysicsTileSetToTrue()) return true;
+            for (var i = 0; i < _statePages.Count; i++)
+            {
+                if (_statePages[i].HasUsePhysicsTileSetToTrue()) return true;
+            }
+            return false;
+        }
+
         public bool HasMonaTag(string tag) => MonaTags.Contains(tag);
 
         public void AddTag(string tag)
@@ -322,7 +332,11 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             if(HasRigidbodyTiles())
             {
-                _body.AddRigidbody();
+                if (_body.ActiveRigidbody == null)
+                    _body.AddRigidbody();
+
+                if ((!_body.ActiveRigidbody.isKinematic || HasUsePhysicsTileSetToTrue()) && !_body.HasCollider())
+                    _body.AddCollider();
             }
 
             EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(this));

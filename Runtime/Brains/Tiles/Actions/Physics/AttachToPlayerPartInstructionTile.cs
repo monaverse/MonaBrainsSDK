@@ -60,8 +60,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 _brain.Body.SetScale(_scale, true);
                 _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true, true);
                 _brain.Body.SetTransformParent(_playerPart.ActiveTransform);
-                _brain.Body.SetPosition(_playerPart.ActiveTransform.position + _playerPart.ActiveTransform.parent.TransformDirection(_offset), true, true);
-                _brain.Body.SetRotation(_playerPart.ActiveTransform.rotation, true, true);
+                _brain.Body.SetPosition(_playerPart.ActiveTransform.position + _playerPart.ActiveTransform.parent.TransformDirection(_offset), true);
+                _brain.Body.SetRotation(_playerPart.ActiveTransform.rotation, true);
             }
          
             return Complete(InstructionTileResult.Success);
