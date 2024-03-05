@@ -30,9 +30,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] protected float _angle = 90f;
         [SerializeField] protected string _angleValueName;
 
-        [SerializeField] private EasingType _easing = EasingType.EaseInOut;
-        [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
-
         [SerializeField] private MoveModeType _mode = MoveModeType.Time;
         [BrainPropertyEnum(false)] public MoveModeType Mode { get => _mode; set => _mode = value; }
 
@@ -42,7 +39,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainProperty(false)] public float Value { get => _value; set => _value= value; }
         [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
-        private Quaternion _direction;  
+        [SerializeField] private EasingType _easing = EasingType.EaseInOut;
+        [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
+
+        private Quaternion _direction;
 
         protected IMonaBrain _brain;
         private IInstruction _instruction;
