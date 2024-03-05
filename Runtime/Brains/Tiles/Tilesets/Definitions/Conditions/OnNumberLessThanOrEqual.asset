@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540366131921104
   _id: OnNumberLessThanOrEqual
-  _name: Number <= Less or Equal
+  _name: "Number \u2264 Less or Equal"
   _category: Variables
   references:
     version: 2
@@ -24,7 +24,7 @@ MonoBehaviour:
       type: {class: OnNumberLessThanOrEqualInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: OnNumberLessThanOrEqual
-        _name: Number <=
+        _name: "Number \u2264 Less or Equal"
         _category: Variables
         _valueName: 
         _amount: 0

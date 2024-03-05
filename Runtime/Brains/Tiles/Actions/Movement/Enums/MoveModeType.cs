@@ -2,7 +2,7 @@
 {
     public enum MoveModeType
     {
-        None=0,
+        PerSecondMovement=0,
         Time=1,
         Speed=2,
         Instant=3

@@ -61,6 +61,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Action<MonaBodyEvent> OnBodyEvent;
         private Action<MonaInputEvent> OnInput;
 
+        private bool InstantMovement => _mode == MoveModeType.PerSecondMovement || _mode == MoveModeType.Instant;
+
         private float _speed
         {
             get => _brain.Variables.GetFloat(MonaBrainConstants.SPEED_FACTOR);
@@ -244,14 +246,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return Complete(InstructionTileResult.Success);
             }
 
-            if (_mode == MoveModeType.Instant)
+            if (InstantMovement)
             {
                 _direction = GetDirectionVector(DirectionType);
-                
+
                 if (!string.IsNullOrEmpty(_distanceValueName))
                     _distance = _brain.Variables.GetFloat(_distanceValueName);
-                
-                _brain.Body.AddPosition(_direction * _distance, true);
+
+                float step = _mode == MoveModeType.PerSecondMovement ?
+                    _distance * Time.smoothDeltaTime :
+                    _distance;
+
+                _brain.Body.AddPosition(_direction * step, true);
                 AddFixedTickDelegate();
 
                 _coolingDown = true;

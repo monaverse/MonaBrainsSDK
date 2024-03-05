@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540366131921090
   _id: OnNumberGreaterThanOrEqual
-  _name: Number >= Greater or Equal
+  _name: "Number \u2265 Greater or Equal"
   _category: Variables
   references:
     version: 2
@@ -24,7 +24,7 @@ MonoBehaviour:
       type: {class: OnNumberGreaterThanOrEqualInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: OnNumberGreaterThanOrEqual
-        _name: Number >=
+        _name: "Number \u2265 Greater or Equal"
         _category: Variables
         _valueName: 
         _amount: 0

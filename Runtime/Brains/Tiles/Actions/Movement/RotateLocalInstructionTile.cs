@@ -58,6 +58,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private MonaInput _bodyInput;
 
+        private bool InstantRotation => _mode == MoveModeType.PerSecondMovement || _mode == MoveModeType.Instant;
+
         private float _speed
         {
             get => _brain.Variables.GetFloat(MonaBrainConstants.SPEED_FACTOR);
@@ -224,20 +226,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 }
             }
 
-            if (_mode == MoveModeType.Instant)
+            if (InstantRotation)
             {
                 if (!string.IsNullOrEmpty(_angleValueName))
                     _angle = _brain.Variables.GetFloat(_angleValueName);
 
                 StartRotation();
-                _direction = GetDirectionRotation(DirectionType, _angle, 1f);
+
+                float step = _mode == MoveModeType.PerSecondMovement ?
+                    _angle * Time.smoothDeltaTime :
+                    _angle;
+
+                _direction = GetDirectionRotation(DirectionType, step, 1f);
 
                 if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
                 {
                     _direction = Quaternion.AngleAxis(_angle * Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
                 }
 
-                if(_onlyTurnWhenMoving && _bodyInput.MoveValue.y == 0f)
+                if (_onlyTurnWhenMoving && _bodyInput.MoveValue.y == 0f)
                 {
                     _direction = Quaternion.identity;
                 }
