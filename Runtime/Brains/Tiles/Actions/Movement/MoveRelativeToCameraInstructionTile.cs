@@ -16,6 +16,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override MoveDirectionType DirectionType => (MoveDirectionType)(20 + (int)_cameraDirection);
 
         [SerializeField] public MoveCameraDirectionType _cameraDirection = MoveCameraDirectionType.UseInput;
-        [BrainPropertyEnum(true)] public MoveCameraDirectionType CameraDirection { get => _cameraDirection; set => _cameraDirection = value; }
+        [BrainPropertyEnum(false)] public MoveCameraDirectionType CameraDirection { get => _cameraDirection; set => _cameraDirection = value; }
     }
 }

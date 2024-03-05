@@ -20,7 +20,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
     public class RotateLocalInstructionTile : InstructionTile, IActionInstructionTile, IPauseableInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction,
-        IActivateInstructionTile, INeedAuthorityInstructionTile, IProgressInstructionTile, IRigidbodyInstructionTile
+        IActivateInstructionTile, INeedAuthorityInstructionTile, IProgressInstructionTile
 
     {
         public override Type TileType => typeof(RotateLocalInstructionTile);

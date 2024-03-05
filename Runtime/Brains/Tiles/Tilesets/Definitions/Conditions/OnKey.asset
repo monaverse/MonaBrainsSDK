@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543318
   _id: OnKey
-  _name: On Keyboard Key
+  _name: On Key Press
   _category: Input
   references:
     version: 2

@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164610271543323
   _id: OnSelect
-  _name: On Select
+  _name: On Selected
   _category: Input
   references:
     version: 2

@@ -333,9 +333,15 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if(HasRigidbodyTiles())
             {
                 if (_body.ActiveRigidbody == null)
-                    _body.AddRigidbody();
+                {
+                    Rigidbody parentRB = _body.Transform.GetComponentInParent<Rigidbody>();
+                    IMonaBody parentMB = parentRB != null ? parentRB.GetComponent<IMonaBody>() : null;
 
-                if ((!_body.ActiveRigidbody.isKinematic || HasUsePhysicsTileSetToTrue()) && !_body.HasCollider())
+                    if (parentRB == null || (parentRB != null && parentMB == null))
+                        _body.AddRigidbody();
+                }
+
+                if (((_body.ActiveRigidbody != null &&!_body.ActiveRigidbody.isKinematic) || HasUsePhysicsTileSetToTrue()) && !_body.HasCollider())
                     _body.AddCollider();
             }
 
