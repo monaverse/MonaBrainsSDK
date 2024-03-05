@@ -15,16 +15,16 @@ MonoBehaviour:
   _tile:
     rid: 4011123000803590516
   _id: TeleportToRotationInstructionTile
-  _name: Teleport To Rotation
-  _category: Physics
+  _name: Pop Rotation To
+  _category: Rotation
   references:
     version: 2
     RefIds:
     - rid: 4011123000803590516
       type: {class: TeleportToRotationInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: TeleportToRotationInstructionTile
+        _name: Pop Rotation To
+        _category: Rotation
         _value: {x: 0, y: 0, z: 0}
         _valueValueName: 
