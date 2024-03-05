@@ -182,15 +182,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             //Debug.Log($"{nameof(PlayAnimationInstructionTile)} do {_clip.Value}");
             if (!_isPlaying)
             {
-                if (_canInterrupt || !_audioSource.isPlaying)
+                try
                 {
-                    if(_brain.LoggingEnabled)
-                        Debug.Log($"{nameof(PlayAudioInstructionTile)} play audio {_clip.Value}");
-                    SetupClip();
-                    _audioSource.Play();
-                    _isPlaying = true;
-                    AddFixedTickDelegate();
-                    return Complete(InstructionTileResult.Running);
+                    if (_canInterrupt || !_audioSource.isPlaying)
+                    {
+                        if (_brain.LoggingEnabled)
+                            Debug.Log($"{nameof(PlayAudioInstructionTile)} play audio {_clip.Value}");
+                        SetupClip();
+                        _audioSource.Play();
+                        _isPlaying = true;
+                        AddFixedTickDelegate();
+                        return Complete(InstructionTileResult.Running);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Debug.LogError($"Could not play AUDIO: {e.Message}");
                 }
                 return Complete(InstructionTileResult.Success);
             }

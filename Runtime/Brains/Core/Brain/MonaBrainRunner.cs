@@ -125,6 +125,19 @@ namespace Mona.SDK.Brains.Core.Brain
             EnsureGlobalRunnerExists();
             CacheComponents();
             AddHotReloadDelegates();
+            DetectRigidbody();
+        }
+
+        private void DetectRigidbody()
+        {
+            for(var i = 0;i < BrainGraphs.Count; i++)
+            {
+                if(BrainGraphs[i].HasRigidbodyTiles())
+                {
+                    _body.AddRigidbody();
+                    break;
+                }
+            }
         }
 
         private void OnEnable()
