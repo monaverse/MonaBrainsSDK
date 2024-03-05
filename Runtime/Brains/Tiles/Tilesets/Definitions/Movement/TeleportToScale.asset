@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2b2d2bfe8a1745519874bcd96796b73, type: 3}
+  m_Name: TeleportToScale
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 4011123000803590518
+  _id: TeleportToScaleInstructionTile
+  _name: Teleport To Scale
+  _category: Physics
+  references:
+    version: 2
+    RefIds:
+    - rid: 4011123000803590518
+      type: {class: TeleportToScaleInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
+        _value: {x: 0, y: 0, z: 0}
+        _valueValueName: 

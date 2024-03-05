@@ -3,6 +3,8 @@
     public enum MonaBodyValueType
     {
         Position = 0,
-        Velocity = 1
+        Rotation = 4,
+        Scale = 8,
+        Velocity = 12
     }
 }
