@@ -15,14 +15,14 @@ MonoBehaviour:
   _tile:
     rid: 4011123000803590559
   _id: TeleportToStartRotationInstructionTile
-  _name: Teleport To Start Rotation
-  _category: Physics
+  _name: Reset Rotation
+  _category: Rotation
   references:
     version: 2
     RefIds:
     - rid: 4011123000803590559
       type: {class: TeleportToStartRotationInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: TeleportToStartRotationInstructionTile
+        _name: Reset Rotation
+        _category: Rotation

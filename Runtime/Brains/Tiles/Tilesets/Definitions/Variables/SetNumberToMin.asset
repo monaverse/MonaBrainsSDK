@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540366131921122
   _id: SetNumberToMin
-  _name: Set Number To Min
+  _name: Number = Min
   _category: Variables
   references:
     version: 2
@@ -24,8 +24,6 @@ MonoBehaviour:
       type: {class: SetNumberToMinInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: SetNumberToMin
-        _name: SetNumberToMin
+        _name: Number = Min
         _category: Variables
         _numberName: 
-        _amount: 0
-        _amountValueName: 
