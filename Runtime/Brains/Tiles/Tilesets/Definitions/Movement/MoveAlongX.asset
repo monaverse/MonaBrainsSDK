@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540366131921051
   _id: Move Along X
-  _name: Move World X
+  _name: "Go \u2192 East (X+)"
   _category: Movement
   references:
     version: 2
@@ -24,12 +24,11 @@ MonoBehaviour:
       type: {class: MoveAlongXInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: Move Along X
-        _name: Move Along X
+        _name: "Go \u2192 East (X+)"
         _category: Movement
         _distance: 1
         _distanceValueName: 
-        _easing: 1
         _mode: 2
         _value: 1
         _valueValueName: 
-        _usePhysics: 0
+        _easing: 1

@@ -451,6 +451,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.X: return 1f;
                 case MoveDirectionType.Y: return 1f;
                 case MoveDirectionType.Z: return 1f;
+                case MoveDirectionType.XNegative: return -1f;
+                case MoveDirectionType.YNegative: return -1f;
+                case MoveDirectionType.ZNegative: return -1f;
                 case MoveDirectionType.CameraAll: return Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
                 case MoveDirectionType.CameraForward: return 1f;
                 case MoveDirectionType.CameraBackward: return 1f;
@@ -484,6 +487,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.X: return Vector3.right;
                 case MoveDirectionType.Y: return Vector3.up;
                 case MoveDirectionType.Z: return Vector3.forward;
+                case MoveDirectionType.XNegative: return Vector3.right * -1f;
+                case MoveDirectionType.YNegative: return Vector3.up * -1f;
+                case MoveDirectionType.ZNegative: return Vector3.forward * -1f;
                 case MoveDirectionType.CameraAll: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward) * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.right) * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
                 case MoveDirectionType.CameraForward: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward);
                 case MoveDirectionType.CameraBackward: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward * -1f);

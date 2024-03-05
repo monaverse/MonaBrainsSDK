@@ -9,22 +9,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6288a123dd05d9241be432dd2125ccae, type: 3}
-  m_Name: MoveAlongZ
+  m_Script: {fileID: 11500000, guid: 78255facf12e94083a04eebf5e1080f5, type: 3}
+  m_Name: MoveAlongZNegative
   m_EditorClassIdentifier: 
   _tile:
-    rid: 6317540366131921053
-  _id: Move Along Z
-  _name: "Go \u2197 North (Z+)"
+    rid: 4011123000803590473
+  _id: Move Along Z Negative
+  _name: "Go \u2199 South (Z-)"
   _category: Movement
   references:
     version: 2
     RefIds:
-    - rid: 6317540366131921053
-      type: {class: MoveAlongZInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
+    - rid: 4011123000803590473
+      type: {class: MoveAlongZNegativeInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: Move Along Z
-        _name: Move World Z
+        _id: Move Along Z Negative
+        _name: "Go \u2199 South (Z-)"
         _category: Movement
         _distance: 1
         _distanceValueName: 
