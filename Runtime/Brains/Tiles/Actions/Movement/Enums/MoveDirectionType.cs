@@ -13,21 +13,37 @@
         X=8,
         Y=9,
         Z=10,
-        CameraForward=11,
-        CameraBackward=12,
-        CameraRight=13,
-        CameraLeft=14,
-        CameraUp=15,
-        CameraDown=16
+        CameraAll=20,
+        CameraForward=21,
+        CameraBackward=22,
+        CameraRight=23,
+        CameraLeft=24,
+        CameraUp=25,
+        CameraDown=26,
+        CameraTruePlanar = 27,
+        CameraTrueForward = 28,
+        CameraTrueBackward = 29,
+        CameraTrueRight = 30,
+        CameraTrueLeft = 31,
+        CameraTrueUp = 32,
+        CameraTrueDown = 33
     }
 
     public enum MoveCameraDirectionType
     {
-        CameraForward = 11,
-        CameraBackward = 12,
-        CameraRight = 13,
-        CameraLeft = 14,
-        CameraUp = 15,
-        CameraDown = 16
+        UseInput = 0,
+        CameraForward = 1,
+        CameraBackward = 2,
+        CameraRight = 3,
+        CameraLeft = 4,
+        //CameraUp = 5,
+        //CameraDown = 6,
+        //CameraTruePlanar = 7,
+        //CameraTrueForward = 8,
+        //CameraTrueBackward = 9,
+        //CameraTrueRight = 10,
+        //CameraTrueLeft = 11,
+        CameraTrueUp = 12,
+        CameraTrueDown = 13
     }
 }

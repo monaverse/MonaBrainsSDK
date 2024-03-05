@@ -188,7 +188,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void AddInputDelegate()
         { 
-            if(DirectionType == MoveDirectionType.UseInput || DirectionType == MoveDirectionType.InputForwardBack)
+            if(DirectionType == MoveDirectionType.UseInput || DirectionType == MoveDirectionType.InputForwardBack || DirectionType == MoveDirectionType.CameraAll)
             {
                 OnInput = HandleBodyInput;
                 EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
@@ -239,7 +239,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetFloat(_valueValueName);
 
-            if (DirectionType == MoveDirectionType.InputForwardBack && _bodyInput.MoveValue.y == 0f)
+            if (DirectionType == MoveDirectionType.InputForwardBack && Mathf.Approximately(_bodyInput.MoveValue.y, 0f))
             {
                 _movingState = MovingStateType.Stopped;
                 StoppedMoving();
@@ -446,17 +446,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.Down: return -1f;
                 case MoveDirectionType.Right: return 1f;
                 case MoveDirectionType.Left: return -1f;
-                case MoveDirectionType.UseInput: return (InputMoveDirection.y == 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
-                case MoveDirectionType.InputForwardBack: return (InputMoveDirection.y == 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
+                case MoveDirectionType.UseInput: return Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
+                case MoveDirectionType.InputForwardBack: return Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
                 case MoveDirectionType.X: return 1f;
                 case MoveDirectionType.Y: return 1f;
                 case MoveDirectionType.Z: return 1f;
+                case MoveDirectionType.CameraAll: return Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
                 case MoveDirectionType.CameraForward: return 1f;
                 case MoveDirectionType.CameraBackward: return 1f;
                 case MoveDirectionType.CameraRight: return 1f;
                 case MoveDirectionType.CameraLeft: return 1f;
                 case MoveDirectionType.CameraUp: return 1f;
                 case MoveDirectionType.CameraDown: return 1f;
+                case MoveDirectionType.CameraTruePlanar: return Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
+                case MoveDirectionType.CameraTrueForward: return 1f;
+                case MoveDirectionType.CameraTrueBackward: return 1f;
+                case MoveDirectionType.CameraTrueRight: return 1f;
+                case MoveDirectionType.CameraTrueLeft: return 1f;
+                case MoveDirectionType.CameraTrueUp: return 1f;
+                case MoveDirectionType.CameraTrueDown: return 1f;
                 default: return 0;
             }
         }
@@ -471,20 +479,35 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.Down: return _brain.Body.ActiveTransform.up * -1f;
                 case MoveDirectionType.Right: return _brain.Body.ActiveTransform.right;
                 case MoveDirectionType.Left: return _brain.Body.ActiveTransform.right * -1f;
-                case MoveDirectionType.UseInput: return _brain.Body.ActiveTransform.forward * ((InputMoveDirection.y == 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + _brain.Body.ActiveTransform.right * ((InputMoveDirection.x == 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+                case MoveDirectionType.UseInput: return _brain.Body.ActiveTransform.forward * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + _brain.Body.ActiveTransform.right * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
                 case MoveDirectionType.InputForwardBack: return _brain.Body.ActiveTransform.forward * Mathf.Sign(InputMoveDirection.y);
                 case MoveDirectionType.X: return Vector3.right;
                 case MoveDirectionType.Y: return Vector3.up;
                 case MoveDirectionType.Z: return Vector3.forward;
-                case MoveDirectionType.CameraForward: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward;
-                case MoveDirectionType.CameraBackward: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward * -1f;
-                case MoveDirectionType.CameraRight: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.right;
-                case MoveDirectionType.CameraLeft: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.right * -1f;
-                case MoveDirectionType.CameraUp: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.up;
-                case MoveDirectionType.CameraDown: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.up * -1f;
+                case MoveDirectionType.CameraAll: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward) * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.right) * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+                case MoveDirectionType.CameraForward: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward);
+                case MoveDirectionType.CameraBackward: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward * -1f);
+                case MoveDirectionType.CameraRight: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.right);
+                case MoveDirectionType.CameraLeft: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.right * -1f);
+                case MoveDirectionType.CameraUp: return Vector3.up * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y));
+                case MoveDirectionType.CameraDown: return Vector3.up * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y) * -1f);
+                case MoveDirectionType.CameraTruePlanar: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + MonaGlobalBrainRunner.Instance.SceneCamera.transform.right * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+                case MoveDirectionType.CameraTrueForward: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward;
+                case MoveDirectionType.CameraTrueBackward: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward * -1f;
+                case MoveDirectionType.CameraTrueRight: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.right;
+                case MoveDirectionType.CameraTrueLeft: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.right * -1f;
+                case MoveDirectionType.CameraTrueUp: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.up;
+                case MoveDirectionType.CameraTrueDown: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.up * -1f;
+
                 default: return Vector3.zero;
             }
         }
 
+        private Vector3 FlattenVector(Vector3 vector)
+        {
+            vector.y = 0;
+            vector.Normalize();
+            return vector;
+        }
     }
 }

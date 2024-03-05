@@ -219,7 +219,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _brain.Body.SetAngularDrag(.2f);
                 _brain.Body.SetOnlyApplyDragWhenGrounded(true);
                 
-                if(_bodyInput.MoveValue.x == 0f || (_lookStraightAhead && _bodyInput.MoveValue.y == 0))
+                if(Mathf.Approximately(_bodyInput.MoveValue.x, 0f) || (_lookStraightAhead && Mathf.Approximately(_bodyInput.MoveValue.y, 0)))
                 {
                     _movingState = MovingStateType.Stopped;
                     return Complete(InstructionTileResult.Success);
@@ -244,7 +244,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     _direction = Quaternion.AngleAxis(_angle * Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
                 }
 
-                if (_onlyTurnWhenMoving && _bodyInput.MoveValue.y == 0f)
+                if (_onlyTurnWhenMoving && Mathf.Approximately(_bodyInput.MoveValue.y, 0f))
                 {
                     _direction = Quaternion.identity;
                 }
@@ -335,7 +335,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     _direction = Quaternion.AngleAxis(_angle * diff * Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
                 }
 
-                if (_onlyTurnWhenMoving && _bodyInput.MoveValue.y == 0f)
+                if (_onlyTurnWhenMoving && Mathf.Approximately(_bodyInput.MoveValue.y, 0f))
                 {
                     _direction = Quaternion.identity;
                 }

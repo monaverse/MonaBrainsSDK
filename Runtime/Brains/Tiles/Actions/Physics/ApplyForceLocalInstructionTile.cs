@@ -325,7 +325,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 case PushDirectionType.Pull: return _brain.Body.GetPosition() - body.GetPosition();
                 case PushDirectionType.Away: return _brain.Body.GetPosition() - body.GetPosition();
                 case PushDirectionType.Toward: return body.GetPosition() - _brain.Body.GetPosition();
-                case PushDirectionType.UseInput: return _brain.Body.ActiveTransform.forward * ((InputMoveDirection.y == 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + _brain.Body.ActiveTransform.right * ((InputMoveDirection.x == 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+                case PushDirectionType.UseInput: return _brain.Body.ActiveTransform.forward * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + _brain.Body.ActiveTransform.right * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
                 case PushDirectionType.InputForwardBack: return _brain.Body.ActiveTransform.forward * Mathf.Sign(InputMoveDirection.y);
 
                 default: return Vector3.zero;
