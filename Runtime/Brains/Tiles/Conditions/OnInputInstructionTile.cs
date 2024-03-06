@@ -28,6 +28,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyEnum(true)]
         public MonaInputState InputState { get => _inputState; set => _inputState = value; }
 
+        [SerializeField]
+        private MonaInputMoveType _moveDirection = MonaInputMoveType.AllDirections;
+        [BrainPropertyEnum(true)]
+        [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Move)]
+        [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Look)]
+        public MonaInputMoveType MoveDirection { get => _moveDirection; set => _moveDirection = value; }
+
         protected override MonaInputState GetInputState() => _inputState;
 
         private float _mouseLookSensitivity = 30f;
@@ -46,10 +53,41 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
         }
 
+        private Vector2 _lastInput;
         protected override void HandleBodyInput(MonaInputEvent evt)
         {
             //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {evt.Input.GetButton(_inputType)}");
             _bodyInput = evt.Input;
+            var input = _bodyInput.MoveValue;
+            switch (_moveDirection)
+            {
+                case MonaInputMoveType.FourWay:
+                    if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
+                    {
+                        input.y = 0;
+                    }
+                    else if (Mathf.Abs(input.y) > Mathf.Abs(input.x))
+                    {
+                        input.x = 0;
+                    }
+                    else if (Mathf.Abs(input.y) != 0 && Mathf.Abs(input.y) == Mathf.Abs(input.x))
+                    {
+                        if(input.y != _lastInput.y)
+                        {
+                            input.x = 0;
+                        }
+                        else if(input.x != _lastInput.x)
+                        {
+                            input.y = 0;
+                        }
+                    }
+                    break;
+
+                default:
+                    //do nothing;
+                    break;
+            }
+            _bodyInput.MoveValue = input;
         }
         
         public override void ReprocessInput(MonaInput input)

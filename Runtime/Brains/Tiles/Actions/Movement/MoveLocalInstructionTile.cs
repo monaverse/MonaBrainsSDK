@@ -32,7 +32,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private string _distanceValueName = null;
 
         [BrainProperty(true)] public float Distance { get => _distance; set => _distance = value; }
-        [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
+        [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))]
+        public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
 
         [SerializeField] protected MoveModeType _mode = MoveModeType.Time;
         [BrainProperty(false)] public MoveModeType Mode { get => _mode; set => _mode = value; }

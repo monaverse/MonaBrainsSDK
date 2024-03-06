@@ -39,11 +39,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyEnum(false)] public LocationType Location { get => _location; set => _location = value; }
 
         [SerializeField] private string _tag;
+        [BrainPropertyShow(nameof(Location), (int)LocationType.OtherWithTag)]
+        [BrainPropertyShow(nameof(Location), (int)LocationType.OtherWithTagPart)]
         [BrainPropertyMonaTag(false)] public string Tag { get => _tag; set => _tag = value; }
 
         [SerializeField]
         private string _part = "Default";
         [BrainPropertyMonaTag(false)]
+        [BrainPropertyShow(nameof(Location), (int)LocationType.MyPart)]
+        [BrainPropertyShow(nameof(Location), (int)LocationType.OtherWithTagPart)]
         public string Part { get => _part; set => _part = value; }
 
         [SerializeField]

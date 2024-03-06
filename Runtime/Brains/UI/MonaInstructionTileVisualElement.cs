@@ -220,6 +220,60 @@ namespace Mona.SDK.Brains.UIElements
             var container = _values;
             var properties = new List<PropertyInfo>(_tile.GetType().GetProperties());
             var count = 0;
+
+            var fieldDictionary = new Dictionary<string, VisualElement>();
+            var showAttributes = new Dictionary<string, List<BrainPropertyShow>>();
+            for (var i = 0; i < properties.Count; i++)
+            {
+                var property = properties[i];
+                var isVisible = (BrainPropertyShow[])property.GetCustomAttributes(typeof(BrainPropertyShow), true);
+
+                for (var j = 0; j < isVisible.Length; j++)
+                {
+                    if (isVisible[j] != null)
+                    {
+                        if (!showAttributes.ContainsKey(property.Name))
+                            showAttributes.Add(property.Name, new List<BrainPropertyShow>());
+
+                        showAttributes[property.Name].Add(isVisible[j]);
+                    }
+                }
+            }
+
+            Action CheckVisibleChange = () =>
+            {
+                foreach (var pair in showAttributes)
+                {
+                    if (pair.Value is BrainPropertyShowLabel)
+                    {
+                       // fieldDictionary[pair.Key].style.display = DisplayStyle.Flex; 
+                        for (var i = 0; i < pair.Value.Count; i++)
+                        {
+                            var labelAttribute = (BrainPropertyShowLabel)pair.Value[i];
+                            var otherProperty = _tile.GetType().GetProperty(pair.Value[i].Name);
+                            if (((int)otherProperty.GetValue(_tile)) == pair.Value[i].Value)
+                            {
+                                var field = fieldDictionary[pair.Key];
+                                var prop = (new List<PropertyInfo>(_tile.GetType().GetProperties())).Find(x => x.Name == "label");
+                                if (prop != null)
+                                {
+                                    prop.SetValue(_tile, labelAttribute.Label);
+                                }
+                            }
+                        }
+                    }
+                    else { 
+                        fieldDictionary[pair.Key].style.display = DisplayStyle.None;
+                        for (var i = 0; i < pair.Value.Count; i++)
+                        {
+                            var otherProperty = _tile.GetType().GetProperty(pair.Value[i].Name);
+                            if (((int)otherProperty.GetValue(_tile)) == pair.Value[i].Value)
+                                fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                        }
+                    }
+                }
+            };
+
             for (var i = 0; i < properties.Count; i++)
             {
                 var property = properties[i];
@@ -259,8 +313,10 @@ namespace Mona.SDK.Brains.UIElements
                         field.value = (string)evt.newValue;
                         property.SetValue(_tile, field.value);
                         Changed();
+                        CheckVisibleChange();
                     });
                     fieldContainer.Add(field);
+                    fieldDictionary.Add(property.Name, field);
                 }
                 else if (isValue != null)
                 {
@@ -282,8 +338,10 @@ namespace Mona.SDK.Brains.UIElements
                         field.value = (string)evt.newValue;
                         property.SetValue(_tile, field.value);
                         Changed();
+                        CheckVisibleChange();
                     });
                     fieldContainer.Add(field);
+                    fieldDictionary.Add(property.Name, field);
                 }
                 else if (isTag != null)
                 {
@@ -299,8 +357,10 @@ namespace Mona.SDK.Brains.UIElements
                         field.value = (string)evt.newValue;
                         property.SetValue(_tile, field.value);
                         Changed();
+                        CheckVisibleChange();
                     });
                     fieldContainer.Add(field);
+                    fieldDictionary.Add(property.Name, field);
                 }
                 else if (property.PropertyType == typeof(string))
                 {
@@ -314,8 +374,10 @@ namespace Mona.SDK.Brains.UIElements
                     field.RegisterValueChangedCallback((evt) => {
                         property.SetValue(_tile, (string)evt.newValue);
                         Changed();
+                        CheckVisibleChange();
                     });
                     fieldContainer.Add(field);
+                    fieldDictionary.Add(property.Name, field);
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
                 }
@@ -331,8 +393,10 @@ namespace Mona.SDK.Brains.UIElements
                     field.RegisterValueChangedCallback((evt) => {
                         property.SetValue(_tile, (float)evt.newValue);
                         Changed();
+                        CheckVisibleChange();
                     });
                     fieldContainer.Add(field);
+                    fieldDictionary.Add(property.Name, field);
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
                 }
@@ -349,8 +413,10 @@ namespace Mona.SDK.Brains.UIElements
                     {
                         property.SetValue(_tile, (int)evt.newValue);
                         Changed();
+                        CheckVisibleChange();
                     });
                     fieldContainer.Add(field);
+                    fieldDictionary.Add(property.Name, field);
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
                 }
@@ -367,8 +433,10 @@ namespace Mona.SDK.Brains.UIElements
                     {
                         property.SetValue(_tile, (bool)evt.newValue);
                         Changed();
+                        CheckVisibleChange();
                     });
                     fieldContainer.Add(field);
+                    fieldDictionary.Add(property.Name, field);
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
                 }
@@ -386,8 +454,10 @@ namespace Mona.SDK.Brains.UIElements
                     {
                         property.SetValue(_tile, (Vector2)evt.newValue);
                         Changed();
+                        CheckVisibleChange();
                     });
                     fieldContainer.Add(field);
+                    fieldDictionary.Add(property.Name, field);
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
                 }
@@ -406,9 +476,11 @@ namespace Mona.SDK.Brains.UIElements
                     {
                         property.SetValue(_tile, (Vector3)evt.newValue);
                         Changed();
+                        CheckVisibleChange();
                     });
 
                     fieldContainer.Add(field);
+                    fieldDictionary.Add(property.Name, field);
 
                     var fields = field.Query<FloatField>().Build();
                     fields.ForEach<FloatField>(x =>
@@ -433,8 +505,10 @@ namespace Mona.SDK.Brains.UIElements
                     {
                         property.SetValue(_tile, (Enum)evt.newValue);
                         Changed();
+                        CheckVisibleChange();
                     });
                     fieldContainer.Add(field);
+                    fieldDictionary.Add(property.Name, field);
 
                     AddTargetFieldIfExists(fieldContainer, field, properties, property);
                 }
@@ -453,11 +527,14 @@ namespace Mona.SDK.Brains.UIElements
                     {
                         property.SetValue(_tile, (Color)evt.newValue);
                         Changed();
+                        CheckVisibleChange();
                     });
                     container.Add(field);
+                    fieldDictionary.Add(property.Name, field);
                 }
 #endif
             }
+            CheckVisibleChange();
         }
 
         private Color _darkRed = Color.HSVToRGB(347f / 360f, .66f, .1f);
