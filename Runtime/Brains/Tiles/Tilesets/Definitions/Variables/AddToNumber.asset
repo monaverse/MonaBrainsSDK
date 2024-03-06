@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540366131921112
   _id: AddToNumber
-  _name: Add To Number
+  _name: + Number Add
   _category: Variables
   references:
     version: 2
@@ -23,9 +23,9 @@ MonoBehaviour:
     - rid: 6317540366131921112
       type: {class: AddToNumberInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: AddToNumber
+        _name: + Number Add
+        _category: Variables
         _numberName: 
         _amount: 0
         _amountValueName: 

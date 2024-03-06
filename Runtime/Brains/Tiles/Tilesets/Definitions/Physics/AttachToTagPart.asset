@@ -16,16 +16,16 @@ MonoBehaviour:
     rid: 3250164677034377507
   _id: AttachToTagPart
   _name: Attach To Tag Part
-  _category: Physics
+  _category: Attaching
   references:
     version: 2
     RefIds:
     - rid: 3250164677034377507
       type: {class: AttachToTagPartInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: AttachToTagPart
+        _name: Attach To Tag Part
+        _category: Attaching
         _tag: 
         _part: Default
         _offset: {x: 0, y: 0, z: 0}

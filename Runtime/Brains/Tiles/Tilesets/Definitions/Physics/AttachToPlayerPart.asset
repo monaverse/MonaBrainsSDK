@@ -16,16 +16,16 @@ MonoBehaviour:
     rid: 3250164677034377495
   _id: AttachToPlayerPart
   _name: Attach To Player Part
-  _category: Physics
+  _category: Attaching
   references:
     version: 2
     RefIds:
     - rid: 3250164677034377495
       type: {class: AttachToPlayerPartInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: AttachToPlayerPart
+        _name: Attach To Player Part
+        _category: Attaching
         _part: 8
         _offset: {x: 0, y: 0, z: 0}
         _scale: {x: 1, y: 1, z: 1}

@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540366131921116
   _id: MultiplyNumber
-  _name: Multiply Number
+  _name: "\xD7 Number Multiply"
   _category: Variables
   references:
     version: 2
@@ -23,9 +23,9 @@ MonoBehaviour:
     - rid: 6317540366131921116
       type: {class: MultiplyNumberInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: MultiplyNumber
+        _name: "\xD7 Number Multiply"
+        _category: Variables
         _numberName: 
         _amount: 0
         _amountValueName: 

@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540366131921114
   _id: SetNumberToMax
-  _name: Set Number To Max
+  _name: Number = Max
   _category: Variables
   references:
     version: 2
@@ -24,8 +24,6 @@ MonoBehaviour:
       type: {class: SetNumberToMaxInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: SetNumberToMax
-        _name: Set Number To Max
+        _name: Number = Max
         _category: Variables
         _numberName: 
-        _amount: 0
-        _amountValueName: 
