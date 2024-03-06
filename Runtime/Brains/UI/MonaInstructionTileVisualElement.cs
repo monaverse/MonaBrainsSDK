@@ -250,9 +250,12 @@ namespace Mona.SDK.Brains.UIElements
                     {
                         if (i == 0)
                         {
-                            fieldDictionary[pair.Key].style.display = DisplayStyle.None;
-                            if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
-                                buttonDictionary[pair.Key].style.display = DisplayStyle.None;
+                            if (pair.Value.FindAll(x => x is BrainPropertyShowLabel).Count < pair.Value.Count)
+                            {
+                                fieldDictionary[pair.Key].style.display = DisplayStyle.None;
+                                if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
+                                    buttonDictionary[pair.Key].style.display = DisplayStyle.None;
+                            }
                         
                             var field = fieldDictionary[pair.Key];
                             var prop = (new List<PropertyInfo>(field.GetType().GetProperties())).Find(x => x.Name == "labelElement");
@@ -278,9 +281,12 @@ namespace Mona.SDK.Brains.UIElements
                                     label.text = labelAttribute.Label;
                                 }
                             }
-                            fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
-                            if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
-                                buttonDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                            if (pair.Value.FindAll(x => x is BrainPropertyShowLabel).Count == pair.Value.Count)
+                            {
+                                fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
+                                    buttonDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                            }
                         }
                         else
                         {
