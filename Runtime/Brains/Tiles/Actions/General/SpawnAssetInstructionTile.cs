@@ -194,7 +194,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
                     poolItem.TeleportPosition(body.GetPosition() + offset, true);
                     poolItem.TeleportRotation(body.GetRotation() * Quaternion.Euler(_eulerAngles), true);
-                    poolItem.Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
+                    if(poolItem.Transform.GetComponent<IMonaBrainRunner>() != null)
+                        poolItem.Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
                     poolItem.SetVisible(true);
                     Debug.Log($"{nameof(SpawnAssetInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, poolItem);
