@@ -229,12 +229,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         public IMonaBody FindClosestInRangeWithMonaTag(string tag)
         {
-            var bodies = _bodies;
             IMonaBody closest = null;
             float closestDistance = Mathf.Infinity;
             for (var i = _bodies.Count-1; i >= 0; i--)
             {
-                var pos = bodies[i].GetPosition();
+                var pos = _bodies[i].GetPosition();
                 var d = Vector3.Distance(pos, _brain.Body.GetPosition());
                 if (!_bodies[i].GetActive())
                 {
@@ -243,16 +242,17 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 }
                 else
                 {
-                    if (d < _collider.radius)
+                    //if (_bodies.Contains(_)
                     {
                         if (d < closestDistance)
                         {
-                            closest = bodies[i];
+                            closest = _bodies[i];
                             closestDistance = d;
                         }
                     }
                 }
             }
+            //Debug.Log($"{nameof(FindClosestInRangeWithMonaTag)} {_bodies.Count} {closest == null}");
             return closest;
         }
 
@@ -261,18 +261,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             var bodies = MonaBody.FindByTag(tag);
             IMonaBody closest = null;
             float closestDistance = Mathf.Infinity;
-            for(var i = _bodies.Count-1;i >= 0;i--)
+            for(var i = bodies.Count-1;i >= 0;i--)
             {
                 var pos = bodies[i].GetPosition();
                 var d = Vector3.Distance(pos, _brain.Body.GetPosition());
-                if (!_bodies[i].GetActive())
+                if (bodies[i] == _brain.Body) continue;
+                if (bodies[i].GetActive())
                 {
-                    _bodiesIndex.Remove(_bodies[i]);
-                    _bodies.RemoveAt(i);
-                }
-                else
-                {
-                    if (d > _collider.radius)
+                    if(!_bodies.Contains(bodies[i]))
                     {
                         if (d < closestDistance)
                         {
@@ -282,6 +278,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     }
                 }
             }
+            //Debug.Log($"{nameof(FindClosestOutOfRangeWithMonaTag)} {_bodies.Count}");
             return closest;
         }
 
@@ -315,11 +312,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     if (body.HasMonaTag(MonaBrainConstants.TAG_REMOTE_PLAYER))
                         return false;
                 }
+                //Debug.Log($"{nameof(OnTriggerEnter)} {_collider.radius} {body.ActiveTransform.name} {_bodiesIndex.ContainsKey(body)} {body.WithinRadius(_brain.Body, _collider.radius)}", body.ActiveTransform.gameObject);
 
-                if (!_bodiesIndex.ContainsKey(body) && body.Intersects(_collider))
+                if (!_bodiesIndex.ContainsKey(body) && body.WithinRadius(_brain.Body, _collider.radius))
                 {
                     if(_brain.LoggingEnabled)
-                        Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+                        Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {_collider.radius} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _bodiesIndex.Add(body, true);
                     _bodies.Add(body);
                     EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerEnter));
@@ -340,10 +338,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         return false;
                 }
 
-                if (_bodiesIndex.ContainsKey(body) && !body.Intersects(_collider))
+                if (_bodiesIndex.ContainsKey(body) && !_brain.Body.WithinRadius(body, _collider.radius))
                 {
                     if (_brain.LoggingEnabled)
-                        Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+                        Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {_collider.radius}  {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _bodiesIndex.Remove(body);
                     _bodies.Remove(body);
                     EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerExit));

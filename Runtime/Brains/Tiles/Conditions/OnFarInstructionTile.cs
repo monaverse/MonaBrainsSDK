@@ -15,7 +15,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     [Serializable]
     public class OnFarInstructionTile : InstructionTile, ITriggerInstructionTile, IOnFarInstructionTile, 
         IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IActivateInstructionTile,
-        IPauseableInstructionTile, IPlayerTriggeredConditional, ITickAfterInstructionTile
+        IPauseableInstructionTile, IPlayerTriggeredConditional, ITickAfterInstructionTile, IRigidbodyInstructionTile
     {
         public const string ID = "OnFar";
         public const string NAME = "Far";

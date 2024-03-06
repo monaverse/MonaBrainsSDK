@@ -16,7 +16,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     [Serializable]
     public class OnNearInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile,
         IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IActivateInstructionTile,
-        IPauseableInstructionTile, IPlayerTriggeredConditional, ITickAfterInstructionTile
+        IPauseableInstructionTile, IPlayerTriggeredConditional, ITickAfterInstructionTile, IRigidbodyInstructionTile
     {
         public const string ID = "OnNear";
         public const string NAME = "Near";
