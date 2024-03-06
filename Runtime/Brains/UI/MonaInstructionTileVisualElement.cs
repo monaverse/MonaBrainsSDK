@@ -222,6 +222,7 @@ namespace Mona.SDK.Brains.UIElements
             var count = 0;
 
             var fieldDictionary = new Dictionary<string, VisualElement>();
+            var buttonDictionary = new Dictionary<string, Button>();
             var showAttributes = new Dictionary<string, List<BrainPropertyShow>>();
             for (var i = 0; i < properties.Count; i++)
             {
@@ -244,33 +245,53 @@ namespace Mona.SDK.Brains.UIElements
             {
                 foreach (var pair in showAttributes)
                 {
-                    if (pair.Value is BrainPropertyShowLabel)
+                    // fieldDictionary[pair.Key].style.display = DisplayStyle.Flex; 
+                    for (var i = 0; i < pair.Value.Count; i++)
                     {
-                       // fieldDictionary[pair.Key].style.display = DisplayStyle.Flex; 
-                        for (var i = 0; i < pair.Value.Count; i++)
+                        if (i == 0)
+                        {
+                            fieldDictionary[pair.Key].style.display = DisplayStyle.None;
+                            if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
+                                buttonDictionary[pair.Key].style.display = DisplayStyle.None;
+                        
+                            var field = fieldDictionary[pair.Key];
+                            var prop = (new List<PropertyInfo>(field.GetType().GetProperties())).Find(x => x.Name == "labelElement");
+                            if (prop != null)
+                            {
+                                var label = (Label)prop.GetValue(field);
+                                label.text = pair.Key;
+                            }
+                        }
+
+
+                        if (pair.Value[i] is BrainPropertyShowLabel)
                         {
                             var labelAttribute = (BrainPropertyShowLabel)pair.Value[i];
                             var otherProperty = _tile.GetType().GetProperty(pair.Value[i].Name);
                             if (((int)otherProperty.GetValue(_tile)) == pair.Value[i].Value)
                             {
-                                var field = fieldDictionary[pair.Key];
-                                var prop = (new List<PropertyInfo>(_tile.GetType().GetProperties())).Find(x => x.Name == "label");
                                 if (prop != null)
                                 {
-                                    prop.SetValue(_tile, labelAttribute.Label);
+                                    var label = (Label)prop.GetValue(field);
+                                    label.text = labelAttribute.Label;
                                 }
                             }
+                            fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                            if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
+                                buttonDictionary[pair.Key].style.display = DisplayStyle.Flex;
                         }
-                    }
-                    else { 
-                        fieldDictionary[pair.Key].style.display = DisplayStyle.None;
-                        for (var i = 0; i < pair.Value.Count; i++)
+                        else
                         {
                             var otherProperty = _tile.GetType().GetProperty(pair.Value[i].Name);
                             if (((int)otherProperty.GetValue(_tile)) == pair.Value[i].Value)
+                            {
                                 fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
+                                    buttonDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                            }
+
                         }
-                    }
+                    }                    
                 }
             };
 
@@ -379,7 +400,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    AddTargetFieldIfExists(fieldContainer, field, properties, property);
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
                 }
                 else if (property.PropertyType == typeof(float))
                 {
@@ -398,7 +419,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    AddTargetFieldIfExists(fieldContainer, field, properties, property);
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
                 }
                 else if (property.PropertyType == typeof(int))
                 {
@@ -418,7 +439,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    AddTargetFieldIfExists(fieldContainer, field, properties, property);
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
                 }
                 else if (property.PropertyType == typeof(bool))
                 {
@@ -438,7 +459,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    AddTargetFieldIfExists(fieldContainer, field, properties, property);
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
                 }
                 else if (property.PropertyType == typeof(Vector2))
                 {
@@ -459,7 +480,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    AddTargetFieldIfExists(fieldContainer, field, properties, property);
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
                 }
                 else if (property.PropertyType == typeof(Vector3))
                 {
@@ -489,7 +510,7 @@ namespace Mona.SDK.Brains.UIElements
                         return x;
                     });
 
-                    AddTargetFieldIfExists(fieldContainer, field, properties, property);
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
                 }
                 else if (property.PropertyType.IsEnum)
                 {
@@ -510,7 +531,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    AddTargetFieldIfExists(fieldContainer, field, properties, property);
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
                 }
 #if UNITY_EDITOR
                 else if (property.PropertyType == typeof(Color))
@@ -538,7 +559,7 @@ namespace Mona.SDK.Brains.UIElements
         }
 
         private Color _darkRed = Color.HSVToRGB(347f / 360f, .66f, .1f);
-        private void AddTargetFieldIfExists(VisualElement fieldContainer, VisualElement field, List<PropertyInfo> properties, PropertyInfo property)
+        private Button AddTargetFieldIfExists(VisualElement fieldContainer, VisualElement field, List<PropertyInfo> properties, PropertyInfo property)
         {
             var targetProperty = properties.Find(x =>
             {
@@ -624,7 +645,9 @@ namespace Mona.SDK.Brains.UIElements
                     }
                 };
                 fieldContainer.Add(btn);
+                return btn;
             }
+            return null;
         }
 
         private void CopyToTile(IInstructionTileDefinition def)

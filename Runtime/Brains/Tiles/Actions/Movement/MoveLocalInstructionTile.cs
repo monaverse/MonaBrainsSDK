@@ -31,7 +31,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private float _distance = 1f;
         [SerializeField] private string _distanceValueName = null;
 
-        [BrainProperty(true)] public float Distance { get => _distance; set => _distance = value; }
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Meters/Sec")]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.PerSecondMovement, "Meters/Tick")]
+        [BrainProperty(true)] 
+        public float Distance { get => _distance; set => _distance = value; }
+
         [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))]
         public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
 
@@ -41,10 +45,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private float _value = 1f;
         [SerializeField] private string _valueValueName = null;
 
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Time)]
         [BrainProperty(false)] public float Value { get => _value; set => _value = value; }
         [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
         [SerializeField] private EasingType _easing = EasingType.EaseInOut;
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Time)]
         [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
 
         private Vector3 _direction;

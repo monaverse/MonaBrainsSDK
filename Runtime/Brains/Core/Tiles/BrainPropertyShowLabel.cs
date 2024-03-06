@@ -2,6 +2,7 @@
 
 namespace Mona.SDK.Brains.Core
 {
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class BrainPropertyShowLabel : BrainPropertyShow
     {
         public string Label;
