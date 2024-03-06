@@ -270,9 +270,11 @@ namespace Mona.SDK.Brains.UIElements
                             var otherProperty = _tile.GetType().GetProperty(pair.Value[i].Name);
                             if (((int)otherProperty.GetValue(_tile)) == pair.Value[i].Value)
                             {
-                                if (prop != null)
+                                var field2 = fieldDictionary[pair.Key];
+                                var prop2 = (new List<PropertyInfo>(field2.GetType().GetProperties())).Find(x => x.Name == "labelElement");
+                                if (prop2 != null)
                                 {
-                                    var label = (Label)prop.GetValue(field);
+                                    var label = (Label)prop2.GetValue(field2);
                                     label.text = labelAttribute.Label;
                                 }
                             }
