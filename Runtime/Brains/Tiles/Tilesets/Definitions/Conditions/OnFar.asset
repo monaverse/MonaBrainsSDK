@@ -26,6 +26,6 @@ MonoBehaviour:
         _id: OnFar
         _name: When Far
         _category: Proximity
-        _tag: 
+        _tag: Player
         _distance: 2
         _distanceValueName: 

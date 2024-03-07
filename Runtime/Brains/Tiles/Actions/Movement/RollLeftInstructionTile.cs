@@ -15,9 +15,5 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override Type TileType => typeof(RollLeftInstructionTile);
 
         public override RotateDirectionType DirectionType => RotateDirectionType.RollLeft;
-
-        [BrainProperty(true)] public float Angle { get => _angle; set => _angle = value; }
-        [BrainPropertyValueName("Angle", typeof(IMonaVariablesFloatValue))] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
-
     }
 }

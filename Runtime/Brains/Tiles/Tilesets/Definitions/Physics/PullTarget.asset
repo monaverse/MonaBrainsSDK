@@ -26,7 +26,7 @@ MonoBehaviour:
         _id: PullTarget
         _name: Pull Target
         _category: Physics
-        _force: 1
+        _force: 5
         _forceValueName: 
         _duration: 0
         _durationValueName: 

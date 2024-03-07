@@ -32,14 +32,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private Color _color = Color.white;
         [BrainProperty(true)] public Color Color { get => _color; set => _color = value; }
 
-        [SerializeField] private EasingType _easing = EasingType.EaseInOut;
-        [BrainPropertyEnum(true)] public EasingType Easing { get => _easing; set => _easing = value; }
-
         [SerializeField] private float _duration = 1f;
         [SerializeField] private string _durationValueName = null;
 
         [BrainProperty(false)] public float Duration { get => _duration; set => _duration = value; }
         [BrainPropertyValueName("Duration", typeof(IMonaVariablesFloatValue))] public string DurationValueName { get => _durationValueName; set => _durationValueName = value; }
+
+        [SerializeField] private EasingType _easing = EasingType.EaseInOut;
+        [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
 
         private Vector3 _direction;
 

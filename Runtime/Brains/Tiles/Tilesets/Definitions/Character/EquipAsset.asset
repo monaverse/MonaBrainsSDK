@@ -23,12 +23,11 @@ MonoBehaviour:
     - rid: 6317540209771676302
       type: {class: EquipAssetInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Character, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: EquipAsset
+        _name: Equip Asset
+        _category: Character
         _monaAsset: 
-        _tag: 
-        _part: Default
+        _part: RightHand
         _offset: {x: 0, y: 0, z: 0}
         _eulerAngles: {x: 0, y: 0, z: 0}
         _scale: {x: 1, y: 1, z: 1}

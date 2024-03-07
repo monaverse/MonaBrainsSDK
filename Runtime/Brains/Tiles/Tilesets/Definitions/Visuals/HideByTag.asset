@@ -23,7 +23,7 @@ MonoBehaviour:
     - rid: 3250164677034377348
       type: {class: HideByTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
-        _tag: 
+        _id: HideByTag
+        _name: Hide By Tag
+        _category: Visuals
+        _tag: Default

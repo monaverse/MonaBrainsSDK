@@ -20,7 +20,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
     public class RotateLocalInstructionTile : InstructionTile, IActionInstructionTile, IPauseableInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction,
-        IActivateInstructionTile, INeedAuthorityInstructionTile, IProgressInstructionTile
+        IActivateInstructionTile, INeedAuthorityInstructionTile, IProgressInstructionTile, IRotateLocalInstructionTile
 
     {
         public override Type TileType => typeof(RotateLocalInstructionTile);
@@ -30,16 +30,29 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] protected float _angle = 90f;
         [SerializeField] protected string _angleValueName;
 
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Angle")]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Time, "Angle")]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Instant, "Angle")]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.PerSecondMovement, "Angles/Sec")]
+        [BrainProperty(true)] public float Angle { get => _angle; set => _angle = value; }
+        [BrainPropertyValueName("Angle", typeof(IMonaVariablesFloatValue))] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
+
         [SerializeField] private MoveModeType _mode = MoveModeType.Time;
         [BrainPropertyEnum(false)] public MoveModeType Mode { get => _mode; set => _mode = value; }
 
         [SerializeField] private float _value = 1f;
         [SerializeField] private string _valueValueName = null;
 
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Time)]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Time, "Seconds")]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Angles/Sec")]
         [BrainProperty(false)] public float Value { get => _value; set => _value= value; }
         [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
         [SerializeField] private EasingType _easing = EasingType.EaseInOut;
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Time)]
         [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
 
         private Quaternion _direction;

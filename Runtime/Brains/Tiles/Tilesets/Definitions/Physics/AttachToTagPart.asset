@@ -26,7 +26,7 @@ MonoBehaviour:
         _id: AttachToTagPart
         _name: Attach To Tag Part
         _category: Attaching
-        _tag: 
+        _tag: Default
         _part: Default
         _offset: {x: 0, y: 0, z: 0}
         _scale: {x: 1, y: 1, z: 1}

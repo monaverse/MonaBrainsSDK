@@ -23,14 +23,15 @@ MonoBehaviour:
     - rid: 3250164677034377635
       type: {class: ApplyForceTowardInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
-        _force: 1
+        _id: ApplyForceToward
+        _name: Apply Force Toward
+        _category: Physics
+        _force: 5
         _forceValueName: 
         _duration: 0
         _durationValueName: 
-        _dragType: 1
+        _maxSpeed: 0.2
+        _dragType: 0
         _drag: 0.2
         _angularDrag: 0.2
         _friction: 0.5

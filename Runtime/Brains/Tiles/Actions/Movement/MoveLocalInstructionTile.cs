@@ -51,8 +51,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Time)]
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Time, "Seconds")]
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Meters/Sec")]
-        //[BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Meters/Second")]
-        //[BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Time, "Seconds")]
         [BrainProperty(false)] public float Value { get => _value; set => _value = value; }
         
 

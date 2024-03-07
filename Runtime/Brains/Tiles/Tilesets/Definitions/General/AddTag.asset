@@ -23,7 +23,7 @@ MonoBehaviour:
     - rid: 3250164677034377237
       type: {class: AddTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
-        _tag: 
+        _id: AddTag
+        _name: Add Tag
+        _category: General
+        _tag: Default

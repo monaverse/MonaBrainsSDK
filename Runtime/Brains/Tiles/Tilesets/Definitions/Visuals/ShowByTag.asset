@@ -23,7 +23,7 @@ MonoBehaviour:
     - rid: 3250164677034377340
       type: {class: ShowByTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
-        _tag: 
+        _id: ShowByTag
+        _name: Show By Tag
+        _category: Visuals
+        _tag: Default

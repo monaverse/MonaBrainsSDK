@@ -24,9 +24,9 @@ MonoBehaviour:
       type: {class: OnCanSeeInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: OnCanSee
-        _name: On Can See
-        _category: Condition
-        _tag: 
+        _name: Can See
+        _category: Vision
+        _tag: Player
         _fieldOfView: 45
         _fieldOfViewValueName: 
         _distance: 100

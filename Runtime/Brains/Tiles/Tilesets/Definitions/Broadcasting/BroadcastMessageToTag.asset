@@ -24,7 +24,8 @@ MonoBehaviour:
       type: {class: BroadcastMessageToTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Broadcasting, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: BroadcastMessageToTag
-        _name: "Broadcast Message\n To Tag"
-        _category: Broadcasting
+        _name: Message Tag
+        _category: Messaging
         _message: 
-        _Tag: 
+        _Tag: Default
+        _appendPlayerId: 0

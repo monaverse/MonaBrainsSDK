@@ -26,4 +26,4 @@ MonoBehaviour:
         _id: OnHit
         _name: On Hit
         _category: Proximity
-        _tag: 
+        _tag: Player

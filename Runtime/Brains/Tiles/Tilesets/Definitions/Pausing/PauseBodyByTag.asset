@@ -25,5 +25,5 @@ MonoBehaviour:
       data:
         _id: PauseBodyByTag
         _name: Pause Body By Tag
-        _category: General
-        _tag: 
+        _category: Pausing
+        _tag: Default
