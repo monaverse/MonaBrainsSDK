@@ -41,8 +41,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 if (_lookStraightAhead)
                     fwd.y = 0;
-                var myAngle = Quaternion.Angle(_startRotation, Quaternion.LookRotation(fwd, Vector3.up));
-                return Quaternion.RotateTowards(_brain.Body.GetRotation(), Quaternion.LookRotation(fwd, Vector3.up), myAngle*diff) * Quaternion.Inverse(_brain.Body.GetRotation());
+
+                var rot = _brain.Body.GetRotation();
+                _brain.Body.SetRotation(Quaternion.Inverse(rot), true);
+                if (progress >= 1f)
+                    return Quaternion.RotateTowards(rot, Quaternion.LookRotation(fwd, Vector3.up), .2f);
+                else
+                    return Quaternion.RotateTowards(rot, Quaternion.LookRotation(fwd, Vector3.up), angle);
             }            
         }
     }

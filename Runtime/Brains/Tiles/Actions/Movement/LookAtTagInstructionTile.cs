@@ -56,7 +56,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
                     var rot = _brain.Body.GetRotation();
                     _brain.Body.SetRotation(Quaternion.Inverse(rot), true);
-                    return Quaternion.RotateTowards(rot, Quaternion.LookRotation(fwd, Vector3.up), progress == 1f ? 360f : angle);
+                    if(progress >= 1f)
+                        return Quaternion.RotateTowards(rot, Quaternion.LookRotation(fwd, Vector3.up), .2f);
+                    else
+                        return Quaternion.RotateTowards(rot, Quaternion.LookRotation(fwd, Vector3.up), angle);
                 }
             }
             else

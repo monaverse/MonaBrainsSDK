@@ -30,13 +30,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] protected float _angle = 90f;
         [SerializeField] protected string _angleValueName;
 
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Angle")]
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Time, "Angle")]
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Instant, "Angle")]
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.PerSecondMovement, "Angles/Sec")]
-        [BrainProperty(true)] public float Angle { get => _angle; set => _angle = value; }
-        [BrainPropertyValueName("Angle", typeof(IMonaVariablesFloatValue))] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
-
         [SerializeField] private MoveModeType _mode = MoveModeType.Time;
         [BrainPropertyEnum(false)] public MoveModeType Mode { get => _mode; set => _mode = value; }
 
@@ -382,7 +375,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if (!string.IsNullOrEmpty(_angleValueName))
                     _angle = _brain.Variables.GetFloat(_angleValueName);
 
-                _direction = GetDirectionRotation(DirectionType, _angle * diff, diff, Progress);
+                _direction = GetDirectionRotation(DirectionType, _angle * diff, diff, 1f);
 
                 if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
                 {

@@ -5,7 +5,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces
 {
     public interface IRotateLocalInstructionTile : IInstructionTileWithPreloadAndPageAndInstruction
     {
-        float Angle { get; set; }
+        //float Angle { get; set; }
         MoveModeType Mode { get; set; }
         float Value { get; set; }
     }
