@@ -58,7 +58,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             return null;
         }
 
-        protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff)
+        protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress)
         {
             IMonaBody body = GetTarget();
             if (body != null)

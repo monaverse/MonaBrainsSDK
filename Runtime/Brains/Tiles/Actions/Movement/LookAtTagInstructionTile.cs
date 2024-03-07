@@ -28,7 +28,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _startRotation = _brain.Body.GetRotation();
         }
 
-        protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff)
+        protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress)
         {
             var tags = MonaBody.FindByTag(_tag);
             IMonaBody body;
@@ -53,8 +53,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 {
                     if (_lookStraightAhead)
                         fwd.y = 0;
-                    var myAngle = Quaternion.Angle(_startRotation, Quaternion.LookRotation(fwd, Vector3.up));
-                    return Quaternion.RotateTowards(_brain.Body.GetRotation(), Quaternion.LookRotation(fwd, Vector3.up), myAngle * diff) * Quaternion.Inverse(_brain.Body.GetRotation());
+
+                    var rot = _brain.Body.GetRotation();
+                    _brain.Body.SetRotation(Quaternion.Inverse(rot), true);
+                    return Quaternion.RotateTowards(rot, Quaternion.LookRotation(fwd, Vector3.up), progress == 1f ? 360f : angle);
                 }
             }
             else

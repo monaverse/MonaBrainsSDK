@@ -237,7 +237,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     _angle * Time.smoothDeltaTime :
                     _angle;
 
-                _direction = GetDirectionRotation(DirectionType, step, 1f);
+                _direction = GetDirectionRotation(DirectionType, step, Time.smoothDeltaTime, 1f);
 
                 if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
                 {
@@ -328,7 +328,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if (!string.IsNullOrEmpty(_angleValueName))
                     _angle = _brain.Variables.GetFloat(_angleValueName);
 
-                _direction = GetDirectionRotation(DirectionType, _angle * diff, diff);
+                _direction = GetDirectionRotation(DirectionType, _angle * diff, diff, Progress);
 
                 if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
                 {
@@ -369,7 +369,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if (!string.IsNullOrEmpty(_angleValueName))
                     _angle = _brain.Variables.GetFloat(_angleValueName);
 
-                _direction = GetDirectionRotation(DirectionType, _angle * diff, diff);
+                _direction = GetDirectionRotation(DirectionType, _angle * diff, diff, Progress);
 
                 if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
                 {
@@ -395,7 +395,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             Complete(InstructionTileResult.Success, true);
         }
 
-        protected virtual Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diif)
+        protected virtual Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diif, float progress)
         {
             switch (moveType)
             {

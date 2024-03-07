@@ -30,7 +30,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _startRotation = _brain.Body.GetRotation();
         }
 
-        protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff)
+        protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress)
         {
             var fwd = _brain.Body.GetVelocity();
             fwd.Normalize();
