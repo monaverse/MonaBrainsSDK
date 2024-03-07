@@ -15,7 +15,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     [Serializable]
     public class OnCanNotSeeInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, 
         IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IActivateInstructionTile,
-        IPauseableInstructionTile
+        IPauseableInstructionTile, IRigidbodyInstructionTile
     {
         public const string ID = "OnCanNotSee";
         public const string NAME = "Can Not See";
