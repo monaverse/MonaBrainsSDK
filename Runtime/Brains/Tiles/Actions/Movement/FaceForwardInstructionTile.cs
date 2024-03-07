@@ -30,7 +30,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _startRotation = _brain.Body.GetRotation();
         }
 
-        protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress)
+        private Quaternion _look;
+        protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress, bool immediate)
         {
             var fwd = _brain.Body.GetVelocity();
             fwd.Normalize();
@@ -43,11 +44,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     fwd.y = 0;
 
                 var rot = _brain.Body.GetRotation();
-                _brain.Body.SetRotation(Quaternion.Inverse(rot), true);
-                if (progress >= 1f)
-                    return Quaternion.RotateTowards(rot, Quaternion.LookRotation(fwd, Vector3.up), .2f);
+                if (immediate)
+                {
+                    _look = Quaternion.LookRotation(fwd, Vector3.up);
+                    _brain.Body.TeleportRotation(_look, true);
+                    return Quaternion.identity;
+                }
                 else
-                    return Quaternion.RotateTowards(rot, Quaternion.LookRotation(fwd, Vector3.up), angle);
+                {
+                    if (progress == 0f)
+                        _look = Quaternion.LookRotation(fwd, Vector3.up);
+                    _brain.Body.SetRotation(Quaternion.Inverse(rot));
+                    return Quaternion.RotateTowards(rot, _look, angle);
+                }
             }            
         }
     }

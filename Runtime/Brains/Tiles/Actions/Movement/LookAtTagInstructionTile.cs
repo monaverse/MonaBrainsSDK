@@ -1,6 +1,7 @@
 using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Core.State.Structs;
 using System;
 using UnityEngine;
 
@@ -21,6 +22,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         [BrainProperty(false)] public bool LookStraightAhead { get => _lookStraightAhead; set => _lookStraightAhead = value; }
 
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Angles/Sec")]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.PerSecondMovement, "Angles/Sec")]
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.PerSecondMovement)]
+        [BrainProperty(false)] public float Angle { get => _angle; set => _angle = value; }
+        [BrainPropertyValueName("Angle", typeof(IMonaVariablesFloatValue))] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
+
         private Quaternion _startRotation;
 
         protected override void StartRotation()
@@ -28,7 +36,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _startRotation = _brain.Body.GetRotation();
         }
 
-        protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress)
+        private Quaternion _look;
+        protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress, bool immediate)
         {
             var tags = MonaBody.FindByTag(_tag);
             IMonaBody body;
@@ -55,11 +64,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                         fwd.y = 0;
 
                     var rot = _brain.Body.GetRotation();
-                    _brain.Body.SetRotation(Quaternion.Inverse(rot), true);
-                    if(progress >= 1f)
-                        return Quaternion.RotateTowards(rot, Quaternion.LookRotation(fwd, Vector3.up), .2f);
+                    if (immediate)
+                    {
+                        _look = Quaternion.LookRotation(fwd, Vector3.up);
+                        _brain.Body.TeleportRotation(_look, true);
+                        return Quaternion.identity;
+                    }
                     else
-                        return Quaternion.RotateTowards(rot, Quaternion.LookRotation(fwd, Vector3.up), angle);
+                    {
+                        if(progress == 0f)
+                            _look = Quaternion.LookRotation(fwd, Vector3.up);
+                        _brain.Body.SetRotation(Quaternion.Inverse(rot));
+                        return Quaternion.RotateTowards(rot, _look, angle);
+                    }
                 }
             }
             else
