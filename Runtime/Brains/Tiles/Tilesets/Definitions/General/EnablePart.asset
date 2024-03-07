@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164677034377430
   _id: EnablePart
   _name: Enable Part
-  _category: General
+  _category: Enable / Disable
   references:
     version: 2
     RefIds:
@@ -25,6 +25,6 @@ MonoBehaviour:
       data:
         _id: EnablePart
         _name: Enable Part
-        _category: General
+        _category: Enable / Disable
         _all: 0
         _tag: 

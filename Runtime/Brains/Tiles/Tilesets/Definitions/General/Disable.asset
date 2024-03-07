@@ -16,13 +16,13 @@ MonoBehaviour:
     rid: 6317540209771676573
   _id: Disable
   _name: Disable
-  _category: General
+  _category: Enable / Disable
   references:
     version: 2
     RefIds:
     - rid: 6317540209771676573
       type: {class: DisableInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: Disable
+        _name: Disable
+        _category: Enable / Disable

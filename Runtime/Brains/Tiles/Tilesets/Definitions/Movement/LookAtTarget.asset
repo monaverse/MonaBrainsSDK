@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540420870733834
   _id: LookAtTarget
   _name: Look At Target
-  _category: Rotation
+  _category: Adv Rotation
   references:
     version: 2
     RefIds:
@@ -25,7 +25,7 @@ MonoBehaviour:
       data:
         _id: LookAtTarget
         _name: Look At Target
-        _category: Rotation
+        _category: Adv Rotation
         _angle: 90
         _angleValueName: 
         _mode: 1

@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540477283336391
   _id: Move Relative To Camera
   _name: View Based Mover
-  _category: Movement
+  _category: Adv Movement
   references:
     version: 2
     RefIds:
@@ -24,8 +24,8 @@ MonoBehaviour:
       type: {class: MoveRelativeToCameraInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: Move Relative To Camera
-        _name: View Based Movement
-        _category: Movement
+        _name: View Based Mover
+        _category: Adv Movement
         _distance: 1
         _distanceValueName: 
         _mode: 0

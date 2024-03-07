@@ -16,14 +16,14 @@ MonoBehaviour:
     rid: 6317540366131921096
   _id: OnNumberEven
   _name: Number Is Even
-  _category: Variables
+  _category: Numbers
   references:
     version: 2
     RefIds:
     - rid: 6317540366131921096
       type: {class: OnNumberEvenInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnNumberEven
+        _name: Number Is Even
+        _category: Numbers
         _valueName: 

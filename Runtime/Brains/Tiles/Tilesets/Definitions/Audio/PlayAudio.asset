@@ -16,15 +16,14 @@ MonoBehaviour:
     rid: 6317540113065968576
   _id: PlayAudio
   _name: Play Audio
-  _category: Audio
+  _category: Audio / Visual
   references:
     version: 2
     RefIds:
     - rid: 6317540113065968576
       type: {class: PlayAudioInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Audio, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: PlayAudio
+        _name: Play Audio
+        _category: Audio / Visual
         _monaAsset: 
-        _animationSpeed: 1

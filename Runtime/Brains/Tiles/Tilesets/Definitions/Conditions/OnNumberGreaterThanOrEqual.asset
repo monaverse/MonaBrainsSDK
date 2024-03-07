@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540366131921090
   _id: OnNumberGreaterThanOrEqual
   _name: "Number \u2265 Greater or Equal"
-  _category: Variables
+  _category: Numbers
   references:
     version: 2
     RefIds:
@@ -25,7 +25,7 @@ MonoBehaviour:
       data:
         _id: OnNumberGreaterThanOrEqual
         _name: "Number \u2265 Greater or Equal"
-        _category: Variables
+        _category: Numbers
         _valueName: 
         _amount: 0
         _amountValueName: 

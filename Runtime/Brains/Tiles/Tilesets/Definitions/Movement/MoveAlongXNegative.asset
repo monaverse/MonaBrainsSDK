@@ -15,8 +15,8 @@ MonoBehaviour:
   _tile:
     rid: 4011123000803590467
   _id: Move Along X Negative
-  _name: "Go \u2190 West  (X-)"
-  _category: Movement
+  _name: "Move \u2190 West  (X-)"
+  _category: Global Movement
   references:
     version: 2
     RefIds:
@@ -24,8 +24,8 @@ MonoBehaviour:
       type: {class: MoveAlongXNegativeInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: Move Along X Negative
-        _name: "Go \u2190 West  (X-)"
-        _category: Movement
+        _name: "Move \u2190 West  (X-)"
+        _category: Global Movement
         _distance: 1
         _distanceValueName: 
         _mode: 2

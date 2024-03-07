@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164677034377428
   _id: HidePart
   _name: Hide Part
-  _category: Visuals
+  _category: Show / Hide
   references:
     version: 2
     RefIds:
@@ -25,6 +25,6 @@ MonoBehaviour:
       data:
         _id: HidePart
         _name: Hide Part
-        _category: Visuals
+        _category: Show / Hide
         _all: 0
         _tag: 

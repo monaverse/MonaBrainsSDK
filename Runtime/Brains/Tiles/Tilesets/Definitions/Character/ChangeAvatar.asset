@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540276382466707
   _id: ChangeAvatar
-  _name: Change Avatar Asset
+  _name: Change Avatar
   _category: Character
   references:
     version: 2
@@ -23,10 +23,9 @@ MonoBehaviour:
     - rid: 6317540276382466707
       type: {class: ChangeAvatarInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Character, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: ChangeAvatar
+        _name: Change Avatar
+        _category: Character
         _monaAsset: 
-        _tag: 
         _offset: {x: 0, y: 0, z: 0}
         _eulerAngles: {x: 0, y: 0, z: 0}

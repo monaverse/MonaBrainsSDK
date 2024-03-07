@@ -15,8 +15,8 @@ MonoBehaviour:
   _tile:
     rid: 3250164677034377503
   _id: AttachToTarget
-  _name: Attach To Target
-  _category: Attaching
+  _name: Glue To Target
+  _category: Glue
   references:
     version: 2
     RefIds:
@@ -24,8 +24,8 @@ MonoBehaviour:
       type: {class: AttachToTargetInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: AttachToTarget
-        _name: Attach To Target
-        _category: Attaching
+        _name: Glue To Target
+        _category: Glue
         _source: 1
         _target: 
         _offset: {x: 0, y: 0, z: 0}

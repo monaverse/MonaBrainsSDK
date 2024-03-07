@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164786554994691
   _id: PushTarget
   _name: Push Target
-  _category: Physics
+  _category: Push / Pull
   references:
     version: 2
     RefIds:
@@ -25,7 +25,7 @@ MonoBehaviour:
       data:
         _id: PushTarget
         _name: Push Target
-        _category: Physics
+        _category: Push / Pull
         _force: 5
         _forceValueName: 
         _duration: 0

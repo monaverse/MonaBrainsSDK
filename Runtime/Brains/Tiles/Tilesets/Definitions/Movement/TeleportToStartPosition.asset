@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 4011123000803590557
   _id: TeleportToStartPositionInstructionTile
   _name: Reset Position
-  _category: Movement
+  _category: Adv Movement
   references:
     version: 2
     RefIds:
@@ -25,4 +25,4 @@ MonoBehaviour:
       data:
         _id: TeleportToStartPositionInstructionTile
         _name: Reset Position
-        _category: Movement
+        _category: Adv Movement

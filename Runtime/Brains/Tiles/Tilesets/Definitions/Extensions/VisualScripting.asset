@@ -16,14 +16,14 @@ MonoBehaviour:
     rid: 3250164503775543323
   _id: VisualScript
   _name: Visual Script
-  _category: Extensions
+  _category: Adv Coding
   references:
     version: 2
     RefIds:
     - rid: 3250164503775543323
       type: {class: VisualScriptingInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Extensions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: VisualScript
+        _name: Visual Script
+        _category: Adv Coding
         _eventName: 

@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540366131921110
   _id: OnNumberEqual
   _name: Number = Equals
-  _category: Variables
+  _category: Numbers
   references:
     version: 2
     RefIds:
@@ -24,8 +24,8 @@ MonoBehaviour:
       type: {class: OnNumberEqualInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: OnNumberEqual
-        _name: Number =
-        _category: Variables
+        _name: Number = Equals
+        _category: Numbers
         _valueName: 
         _amount: 0
         _amountValueName: 

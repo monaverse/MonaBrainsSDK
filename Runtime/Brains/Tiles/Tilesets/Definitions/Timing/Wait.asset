@@ -16,14 +16,15 @@ MonoBehaviour:
     rid: 3250164503775543343
   _id: Wait
   _name: Wait
-  _category: Timing
+  _category: General
   references:
     version: 2
     RefIds:
     - rid: 3250164503775543343
       type: {class: WaitInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Timing, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: Wait
+        _name: Wait
+        _category: General
         _seconds: 1
+        _secondsValueName: 

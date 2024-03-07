@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164677034377340
   _id: ShowByTag
   _name: Show By Tag
-  _category: Visuals
+  _category: Show / Hide
   references:
     version: 2
     RefIds:
@@ -25,5 +25,5 @@ MonoBehaviour:
       data:
         _id: ShowByTag
         _name: Show By Tag
-        _category: Visuals
+        _category: Show / Hide
         _tag: Default

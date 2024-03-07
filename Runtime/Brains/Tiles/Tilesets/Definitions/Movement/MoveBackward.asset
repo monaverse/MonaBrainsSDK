@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164503775543329
   _id: Move Backward
   _name: "Move \u2199 Backward"
-  _category: Movement
+  _category: Local Movement
   references:
     version: 2
     RefIds:
@@ -25,11 +25,10 @@ MonoBehaviour:
       data:
         _id: Move Backward
         _name: "Move \u2199 Backward"
-        _category: Movement
+        _category: Local Movement
         _distance: 1
         _distanceValueName: 
-        _easing: 1
         _mode: 2
         _value: 1
         _valueValueName: 
-        _usePhysics: 0
+        _easing: 1

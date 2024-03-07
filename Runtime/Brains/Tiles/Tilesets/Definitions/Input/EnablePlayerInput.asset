@@ -15,14 +15,14 @@ MonoBehaviour:
   _tile:
     rid: 6317540027290878053
   _id: EnablePlayerInput
-  _name: Enable Player Input
-  _category: Input
+  _name: Avatar Control On
+  _category: Character
   references:
     version: 2
     RefIds:
     - rid: 6317540027290878053
       type: {class: EnablePlayerInputInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Input, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: EnablePlayerInput
+        _name: Avatar Control On
+        _category: Character
