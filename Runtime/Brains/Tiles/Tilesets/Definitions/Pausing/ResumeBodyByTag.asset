@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164677034377305
   _id: ResumeBodyByTag
-  _name: Resume Body By Tag
+  _name: Resume By Tag
   _category: Pausing
   references:
     version: 2
@@ -24,6 +24,6 @@ MonoBehaviour:
       type: {class: ResumeBodyByTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ResumeBodyByTag
-        _name: Resume Body By Tag
+        _name: Resume By Tag
         _category: Pausing
         _tag: Default

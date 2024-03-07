@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 4011123000803590559
   _id: TeleportToStartRotationInstructionTile
   _name: Reset Rotation
-  _category: Rotation
+  _category: Adv Rotation
   references:
     version: 2
     RefIds:
@@ -25,4 +25,4 @@ MonoBehaviour:
       data:
         _id: TeleportToStartRotationInstructionTile
         _name: Reset Rotation
-        _category: Rotation
+        _category: Adv Rotation

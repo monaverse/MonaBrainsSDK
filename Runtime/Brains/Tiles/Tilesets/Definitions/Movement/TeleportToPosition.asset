@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 8514828729091621459
   _id: TeleportToPositionInstructionTile
   _name: Teleport To Position
-  _category: Movement
+  _category: Adv Movement
   references:
     version: 2
     RefIds:
@@ -25,6 +25,6 @@ MonoBehaviour:
       data:
         _id: TeleportToPositionInstructionTile
         _name: Teleport To Position
-        _category: Physics
+        _category: Adv Movement
         _value: {x: 0, y: 0, z: 0}
         _valueValueName: 

@@ -15,8 +15,8 @@ MonoBehaviour:
   _tile:
     rid: 6317540366131921055
   _id: Move Along Y
-  _name: "Go \u2191 Zenith (Y+)"
-  _category: Movement
+  _name: "Move \u2191 Zenith (Y+)"
+  _category: Global Movement
   references:
     version: 2
     RefIds:
@@ -24,8 +24,8 @@ MonoBehaviour:
       type: {class: MoveAlongYInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: Move Along Y
-        _name: Move World Y
-        _category: Movement
+        _name: "Move \u2191 Zenith (Y+)"
+        _category: Global Movement
         _distance: 1
         _distanceValueName: 
         _mode: 2

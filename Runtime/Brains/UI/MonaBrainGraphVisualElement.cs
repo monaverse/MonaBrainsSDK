@@ -545,14 +545,14 @@ namespace Mona.SDK.Brains.UIElements
             
             string lastCategory = null;
             var tiles = _brain.TileSet.ConditionTiles;
-            tiles.Sort((a, b) =>
-            {
-                if (a == null || b == null) return -1;
-                if (a.Category.CompareTo(b.Category) == 0)
-                    return a.Name.CompareTo(b.Name);
-                else
-                    return a.Category.CompareTo(b.Category);
-            });
+            //tiles.Sort((a, b) =>
+            //{
+            //    if (a == null || b == null) return -1;
+            //    if (a.Category.CompareTo(b.Category) == 0)
+            //        return a.Name.CompareTo(b.Name);
+            //    else
+            //        return a.Category.CompareTo(b.Category);
+            //});
 
             for (var i = 0; i < tiles.Count; i++)
             {
@@ -570,14 +570,14 @@ namespace Mona.SDK.Brains.UIElements
             _tileSource.Add(new TileMenuItem() { Label = "THEN DO TILES", IsCategory = true, IsHeader = true });
 
             var tiles2 = _brain.TileSet.ActionTiles;
-            tiles2.Sort((a, b) =>
-            {
-                if (a == null || b == null) return -1;
-                if (a.Category.CompareTo(b.Category) == 0)
-                    return a.Name.CompareTo(b.Name);
-                else
-                    return a.Category.CompareTo(b.Category);
-            });
+            //tiles2.Sort((a, b) =>
+            //{
+            //    if (a == null || b == null) return -1;
+            //    if (a.Category.CompareTo(b.Category) == 0)
+            //        return a.Name.CompareTo(b.Name);
+            //    else
+            //        return a.Category.CompareTo(b.Category);
+            //});
 
             lastCategory = null;
             for (var i = 0; i < tiles2.Count; i++)

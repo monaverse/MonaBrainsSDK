@@ -16,13 +16,13 @@ MonoBehaviour:
     rid: 3250164677034377344
   _id: Show
   _name: Show
-  _category: Visuals
+  _category: Show / Hide
   references:
     version: 2
     RefIds:
     - rid: 3250164677034377344
       type: {class: ShowInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: Show
+        _name: Show
+        _category: Show / Hide

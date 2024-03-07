@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 4011123000803590516
   _id: TeleportToRotationInstructionTile
   _name: Pop Rotation To
-  _category: Rotation
+  _category: Adv Rotation
   references:
     version: 2
     RefIds:
@@ -25,6 +25,6 @@ MonoBehaviour:
       data:
         _id: TeleportToRotationInstructionTile
         _name: Pop Rotation To
-        _category: Rotation
+        _category: Adv Rotation
         _value: {x: 0, y: 0, z: 0}
         _valueValueName: 

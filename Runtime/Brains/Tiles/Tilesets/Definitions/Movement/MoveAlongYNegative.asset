@@ -15,17 +15,17 @@ MonoBehaviour:
   _tile:
     rid: 4011123000803590469
   _id: Move Along Y Negative
-  _name: "Go \u2193 Nadir (Y-)"
-  _category: Movement
+  _name: "Move \u2193 Nadir (Y-)"
+  _category: Global Movement
   references:
     version: 2
     RefIds:
     - rid: 4011123000803590469
       type: {class: MoveAlongYNegativeInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: Move Along Y Negative
+        _name: "Move \u2193 Nadir (Y-)"
+        _category: Global Movement
         _distance: 1
         _distanceValueName: 
         _mode: 2

@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540366131921108
   _id: OnNumberLessThan
   _name: Number < Less
-  _category: Variables
+  _category: Numbers
   references:
     version: 2
     RefIds:
@@ -24,8 +24,8 @@ MonoBehaviour:
       type: {class: OnNumberLessThanInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: OnNumberLessThan
-        _name: Number <
-        _category: Variables
+        _name: Number < Less
+        _category: Numbers
         _valueName: 
         _amount: 0
         _amountValueName: 

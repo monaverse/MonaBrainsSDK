@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164677034377303
   _id: PauseBodyByTag
-  _name: Pause Body By Tag
+  _name: Pause By Tag
   _category: Pausing
   references:
     version: 2
@@ -24,6 +24,6 @@ MonoBehaviour:
       type: {class: PauseBodyByTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: PauseBodyByTag
-        _name: Pause Body By Tag
+        _name: Pause By Tag
         _category: Pausing
         _tag: Default

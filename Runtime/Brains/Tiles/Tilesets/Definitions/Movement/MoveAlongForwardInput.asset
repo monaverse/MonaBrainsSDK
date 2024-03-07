@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540027290878376
   _id: MoveAlongForward
   _name: Move Along Forward Input
-  _category: Movement
+  _category: Adv Movement
   references:
     version: 2
     RefIds:
@@ -25,11 +25,10 @@ MonoBehaviour:
       data:
         _id: MoveAlongForward
         _name: Move Along Forward Input
-        _category: Movement
+        _category: Adv Movement
         _distance: 0.1
         _distanceValueName: 
-        _easing: 1
         _mode: 3
         _value: 1
         _valueValueName: 
-        _usePhysics: 0
+        _easing: 1

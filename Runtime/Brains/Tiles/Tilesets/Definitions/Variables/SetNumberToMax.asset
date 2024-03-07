@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540366131921114
   _id: SetNumberToMax
   _name: Number = Max
-  _category: Variables
+  _category: Numbers
   references:
     version: 2
     RefIds:
@@ -25,5 +25,5 @@ MonoBehaviour:
       data:
         _id: SetNumberToMax
         _name: Number = Max
-        _category: Variables
+        _category: Numbers
         _numberName: 

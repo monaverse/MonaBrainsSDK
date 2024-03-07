@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164677034377288
   _id: DisableByTag
   _name: Disable By Tag
-  _category: General
+  _category: Enable / Disable
   references:
     version: 2
     RefIds:
@@ -25,5 +25,5 @@ MonoBehaviour:
       data:
         _id: DisableByTag
         _name: Disable By Tag
-        _category: General
+        _category: Enable / Disable
         _tag: Default

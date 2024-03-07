@@ -15,8 +15,8 @@ MonoBehaviour:
   _tile:
     rid: 3250164677034377507
   _id: AttachToTagPart
-  _name: Attach To Tag Part
-  _category: Attaching
+  _name: Glue To Tag Part
+  _category: Glue
   references:
     version: 2
     RefIds:
@@ -24,8 +24,8 @@ MonoBehaviour:
       type: {class: AttachToTagPartInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: AttachToTagPart
-        _name: Attach To Tag Part
-        _category: Attaching
+        _name: Glue To Tag Part
+        _category: Glue
         _tag: Default
         _part: Default
         _offset: {x: 0, y: 0, z: 0}
