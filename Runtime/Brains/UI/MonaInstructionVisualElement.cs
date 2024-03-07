@@ -162,7 +162,7 @@ namespace Mona.SDK.Brains.UIElements
                 _scrollView.Add(view);
                 _scrollView.schedule.Execute(() =>
                 {
-                    if (_scrollView.contentContainer.childCount > _scrollToIndex)
+                    if (_scrollView.contentContainer.childCount > _scrollToIndex && _scrollView.contentContainer.childCount >= _scrollToIndex)
                         _scrollView.ScrollTo(_scrollView.contentContainer.ElementAt(_scrollToIndex));
                 }).ExecuteLater(100);
             }
