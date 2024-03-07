@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540209771675968
   _id: Jump
   _name: Jump
-  _category: Character
+  _category: In Progress
   references:
     version: 2
     RefIds:
@@ -25,7 +25,7 @@ MonoBehaviour:
       data:
         _id: Jump
         _name: Jump
-        _category: Character
+        _category: In Progress
         _force: 1
         _forceValueName: 
         _duration: 0

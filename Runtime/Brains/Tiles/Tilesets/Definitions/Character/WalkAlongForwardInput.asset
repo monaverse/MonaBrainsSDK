@@ -16,20 +16,19 @@ MonoBehaviour:
     rid: 6317540209771675817
   _id: WalkAlongForward
   _name: Walk Along Forward Input
-  _category: Character
+  _category: In Progress
   references:
     version: 2
     RefIds:
     - rid: 6317540209771675817
       type: {class: WalkAlongForwardInputInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: WalkAlongForward
+        _name: Walk Along Forward Input
+        _category: In Progress
         _distance: 0.1
         _distanceValueName: 
-        _easing: 1
         _mode: 2
         _value: 1
         _valueValueName: 
-        _usePhysics: 0
+        _easing: 1
