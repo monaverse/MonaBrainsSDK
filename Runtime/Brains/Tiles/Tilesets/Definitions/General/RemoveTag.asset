@@ -23,7 +23,7 @@ MonoBehaviour:
     - rid: 3250164677034377239
       type: {class: RemoveTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
-        _tag: 
+        _id: RemoveTag
+        _name: Remove Tag
+        _category: General
+        _tag: Default

@@ -26,7 +26,7 @@ MonoBehaviour:
         _id: OnNear
         _name: When Near
         _category: Proximity
-        _tag: 
+        _tag: Player
         _distance: 2
         _distanceValueName: 
         _fieldOfView: 180

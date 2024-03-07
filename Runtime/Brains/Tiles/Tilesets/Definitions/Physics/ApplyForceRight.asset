@@ -26,12 +26,12 @@ MonoBehaviour:
         _id: ApplyForceRight
         _name: "Apply Force \u2192 Right"
         _category: Physics
-        _force: 1
+        _force: 5
         _forceValueName: 
         _duration: 0
         _durationValueName: 
         _maxSpeed: 0.2
-        _dragType: 1
+        _dragType: 0
         _drag: 0.2
         _angularDrag: 0.2
         _friction: 0.5

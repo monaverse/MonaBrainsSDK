@@ -23,16 +23,15 @@ MonoBehaviour:
     - rid: 6317540420870733832
       type: {class: LookAtTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: LookAtTag
+        _name: Look At Tag
+        _category: Rotation
         _angle: 90
         _angleValueName: 
-        _easing: 1
         _mode: 1
-        _value: 1
+        _value: 0.1
         _valueValueName: 
-        _usePhysics: 0
+        _easing: 1
         _onlyTurnWhenMoving: 0
-        _lookStraightAhead: 0
-        _tag: 
+        _lookStraightAhead: 1
+        _tag: Default

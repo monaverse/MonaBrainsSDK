@@ -35,7 +35,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         [SerializeField] private float _duration = 0f;
         [SerializeField] private string _durationValueName = null;
-        [BrainPropertyEnum(true)] public float Duration { get => _duration; set => _duration = value; }
+        [BrainPropertyEnum(false)] public float Duration { get => _duration; set => _duration = value; }
         [BrainPropertyValueName("Duration", typeof(IMonaVariablesFloatValue))] public string DurationValueName { get => _durationValueName; set => _durationValueName = value; }
 
         [SerializeField] private float _maxSpeed = .2f;
