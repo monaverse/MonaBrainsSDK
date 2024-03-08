@@ -107,6 +107,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 Debug.Log($"{nameof(OnInputInstructionTile)} DO {_inputType} {_inputState}");
                 //if (_brain.LoggingEnabled)
                 //    Debug.Log($"{nameof(OnInputInstructionTile)}.{nameof(Do)} input active {_inputType} {_inputState}");
+                _bodyInput = default;
                 return Complete(InstructionTileResult.Success);
             }            
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);
