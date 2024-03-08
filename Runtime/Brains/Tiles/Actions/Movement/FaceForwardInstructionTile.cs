@@ -43,6 +43,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if (_lookStraightAhead)
                     fwd.y = 0;
 
+                if (fwd.magnitude < Mathf.Epsilon)
+                    return Quaternion.identity;
+
                 var rot = _brain.Body.GetRotation();
                 if (immediate)
                 {
