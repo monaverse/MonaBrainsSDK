@@ -30,7 +30,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         protected override void Tick(float deltaTime)
         {
             base.Tick(deltaTime);
-            if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant)
+            if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant || _mode == MoveModeType.PerSecondMovement)
             {
                 switch (_brain.PropertyType)
                 {

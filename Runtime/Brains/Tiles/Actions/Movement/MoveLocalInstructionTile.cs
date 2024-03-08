@@ -15,6 +15,7 @@ using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Input;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.Body.Enums;
+using Mona.SDK.Brains.Core.Animation;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -72,6 +73,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Vector3 _end;
         private bool _active;
         private MonaInput _bodyInput;
+        private IMonaAnimationController _controller;
+
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
         private Action<MonaBodyEvent> OnBodyEvent;
@@ -124,6 +127,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
 
             _brain.Variables.Set(_progressName, 0f);
+
+            if(_brain.Root != null)
+                _controller = _brain.Root.GetComponent<IMonaAnimationController>();
 
             UpdateActive();
         }
@@ -297,7 +303,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             Tick(evt.DeltaTime);
             
-            if(_coolingDown)
+            if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant || _mode == MoveModeType.PerSecondMovement)
+            {
+                switch (_brain.PropertyType)
+                {
+                    case MonaBrainPropertyType.GroundedCreature: TickGroundedCreature(evt.DeltaTime); break;
+                    default: TickDefault(evt.DeltaTime); break;
+                }
+            }
+
+            if (_coolingDown)
             {
                 if (_cooldown <= 0)
                 {
@@ -314,6 +329,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _cooldown--;
             }
         }
+                
+        private void TickGroundedCreature(float deltaTime)
+        {
+            if (_controller == null) return;
+            _controller.SetWalk(GetSpeed());
+            _controller.SetMotionSpeed(GetMotionSpeed(DirectionType));
+        }
+
+        private void StopGroundedCreature()
+        {
+            if (_controller == null) return;
+            _controller.SetWalk(0);
+        }
+
+        private void TickDefault(float deltaTime)
+        {
+
+        }
+
 
         private float _timeMoving;
         private float _currentSpeed;
@@ -448,6 +482,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         }
 
         protected virtual void StoppedMoving()
+        {
+            switch (_brain.PropertyType)
+            {
+                case MonaBrainPropertyType.GroundedCreature: StopGroundedCreature(); break;
+                default: StopDefault(); break;
+            }
+        }
+
+        private void StopDefault()
         {
 
         }
