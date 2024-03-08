@@ -159,6 +159,15 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public bool HasPlayerTag()
         {
+            if(_monaTagSource == null)
+            {
+                if(_body != null)
+                    Debug.Log($"Please Attach Mona Tags to this brain. ", _body.Transform.gameObject);
+                else
+                    Debug.Log($"Please Attach Mona Tags to this brain. {this.Name}");
+                return false;
+            }
+
             for(var i = 0;i < _body.MonaTags.Count; i++)
             {
                 var tag = _body.MonaTags[i];
@@ -178,6 +187,15 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public bool HasPlayerTag(List<string> monaTags)
         {
+            if (_monaTagSource == null)
+            {
+                if (_body != null)
+                    Debug.Log($"Please Attach Mona Tags to this brain. ", _body.Transform.gameObject);
+                else
+                    Debug.Log($"Please Attach Mona Tags to this brain. {this.Name}");
+                return false;
+            }
+
             for (var i = 0; i < monaTags.Count; i++)
             {
                 var tag = monaTags[i];

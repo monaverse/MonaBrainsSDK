@@ -72,7 +72,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public List<string> Tags {
             get {
-                return _tags.ConvertAll<string>(x => x.Tag);
+                return _tags.ConvertAll<string>(x => x == null ? "Default" : x.Tag);
             }
         }
 
