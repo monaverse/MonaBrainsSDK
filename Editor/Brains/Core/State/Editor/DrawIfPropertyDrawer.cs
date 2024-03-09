@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -71,3 +72,4 @@ public class DrawIfPropertyDrawer : PropertyDrawer
 		}
 	}
 }
+#endif
