@@ -80,10 +80,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects.Dialog
     {
         public bool enabled;
 
-        [DrawIf("enabled", true)]
+        [DrawIfBrain("enabled", true)]
         public Vector2 offset;
 
-        [DrawIf("enabled", true)]
+        [DrawIfBrain("enabled", true)]
         public Color color;
     }
 
@@ -113,19 +113,19 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects.Dialog
 
         [SerializeField] private DialogDisplaySpace _displaySpace = DialogDisplaySpace.OnObject;
 
-        [DrawIf("_displaySpace", DialogDisplaySpace.HeadsUpDisplay)]
+        [DrawIfBrain("_displaySpace", DialogDisplaySpace.HeadsUpDisplay)]
         [SerializeField] private DialogScreenSpace _screenLocation = DialogScreenSpace.Bottom;
 
-        [DrawIf("_displaySpace", DialogDisplaySpace.OnObject)]
+        [DrawIfBrain("_displaySpace", DialogDisplaySpace.OnObject)]
         [SerializeField] private DialogObjectSpace _objectLocation = DialogObjectSpace.Above;
 
-        [DrawIf("_displaySpace", DialogDisplaySpace.OnObject)]
+        [DrawIfBrain("_displaySpace", DialogDisplaySpace.OnObject)]
         [SerializeField] private Vector2 _displayOffset = Vector2.zero;
 
-        [DrawIf("_displaySpace", DialogDisplaySpace.OnObject)]
+        [DrawIfBrain("_displaySpace", DialogDisplaySpace.OnObject)]
         [SerializeField] private DialogBoxSize _dialogBoxSize = DialogBoxSize.Autosize;
 
-        [DrawIf("_displaySpace", DialogDisplaySpace.OnObject)]
+        [DrawIfBrain("_displaySpace", DialogDisplaySpace.OnObject)]
         [SerializeField] private Vector2 _maxSize = new Vector2(50, 20);
 
         public DialogDisplaySpace DisplaySpace { get => _displaySpace; }

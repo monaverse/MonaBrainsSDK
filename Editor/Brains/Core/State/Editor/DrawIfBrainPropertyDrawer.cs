@@ -9,13 +9,13 @@ namespace Mona
 	/// Based on: https://forum.unity.com/threads/draw-a-field-only-if-a-condition-is-met.448855/
 	/// </summary>
 #if UNITY_EDITOR
-	[CustomPropertyDrawer(typeof(DrawIfAttribute))]
-	public class DrawIfPropertyDrawer : PropertyDrawer
+	[CustomPropertyDrawer(typeof(DrawIfBrainAttribute))]
+	public class DrawIfBrainPropertyDrawer : PropertyDrawer
 	{
 		#region Fields
 
 		// Reference to the attribute on the property.
-		DrawIfAttribute drawIf;
+		DrawIfBrainAttribute drawIf;
 
 		// Field that is being compared.
 		SerializedProperty comparedField;
@@ -24,7 +24,7 @@ namespace Mona
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-			if (!ShowMe(property) && drawIf.disablingType == DrawIfAttribute.DisablingType.DontDraw)
+			if (!ShowMe(property) && drawIf.disablingType == DrawIfBrainAttribute.DisablingType.DontDraw)
 				return 0f;
 
 			// The height of the property should be defaulted to the default height.
@@ -36,7 +36,7 @@ namespace Mona
 		/// </summary>
 		private bool ShowMe(SerializedProperty property)
 		{
-			drawIf = attribute as DrawIfAttribute;
+			drawIf = attribute as DrawIfBrainAttribute;
 			// Replace propertyname to the value from the parameter
 			string path = property.propertyPath.Contains(".") ? System.IO.Path.ChangeExtension(property.propertyPath, drawIf.comparedPropertyName) : drawIf.comparedPropertyName;
 
@@ -68,7 +68,7 @@ namespace Mona
 			{
 				EditorGUI.PropertyField(position, property);
 			} //...check if the disabling type is read only. If it is, draw it disabled
-			else if (drawIf.disablingType == DrawIfAttribute.DisablingType.ReadOnly)
+			else if (drawIf.disablingType == DrawIfBrainAttribute.DisablingType.ReadOnly)
 			{
 				GUI.enabled = false;
 				EditorGUI.PropertyField(position, property);
