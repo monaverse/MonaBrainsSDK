@@ -1,3 +1,11 @@
+# MonaBrainsSDK 0.4.0
+
+### Bug Fixes
+- move local on grounded creature now triggers animation
+- null check for monatag
+- reset input on tile after processing 
+- stubbing out DialogStyle  
+
 # MonaBrainsSDK 0.3.0
 
 40+ New Tiles for controlling Visuals, Pausing Brains, and basic Physics forces
