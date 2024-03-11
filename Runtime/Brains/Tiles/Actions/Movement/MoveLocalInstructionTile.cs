@@ -32,6 +32,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] protected float _distance = 1f;
         [SerializeField] protected string _distanceValueName = null;
         [SerializeField] protected string _coordinatesName;
+        [SerializeField] protected Vector3 _moveToCoordinates = Vector3.zero;
 
         [SerializeField] protected MoveModeType _mode = MoveModeType.Time;
         [BrainProperty(false)] public MoveModeType Mode { get => _mode; set => _mode = value; }
@@ -44,7 +45,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Time, "Seconds")]
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Meters/Sec")]
         [BrainProperty(false)] public float Value { get => _value; set => _value = value; }
-        
 
         [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))]
         public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
@@ -53,9 +53,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Time)]
         [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
-
+        
         private Vector3 _direction;
-        protected Vector3 _moveToCoordinates;
+        private Vector3 _startPosition;
 
         protected IMonaBrain _brain;
         private IInstruction _instruction;
@@ -244,6 +244,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override InstructionTileResult Do()
         {
+            _startPosition = _brain.Body.ActiveTransform.position;
+
             _direction = GetDirectionVector(DirectionType);
             //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
 
@@ -402,7 +404,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _brain.Variables.GetVector3(_coordinatesName) :
                 _moveToCoordinates;
 
-                distance = Vector3.Distance(endPosition, _brain.Body.ActiveTransform.position);
+                distance = Vector3.Distance(endPosition, _startPosition);
             }
             else if (!string.IsNullOrEmpty(_distanceValueName))
             {
@@ -580,7 +582,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _brain.Variables.GetVector3(_coordinatesName) :
                 _moveToCoordinates;
 
-            return endPosition - _brain.Body.ActiveTransform.position;
+            return endPosition - _startPosition;
         }
     }
 }
