@@ -4,7 +4,7 @@ using System;
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class MoveAlongInputInstructionTile : MoveLocalInstructionTile
+    public class MoveAlongInputInstructionTile : MoveLocalWithDistanceInstructionTile
     {
         public const string ID = "MoveAlongInput";
         public const string NAME = "Move Along Input";

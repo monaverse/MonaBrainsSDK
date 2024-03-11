@@ -29,18 +29,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public virtual MoveDirectionType DirectionType => MoveDirectionType.Forward;
 
-        [SerializeField] private float _distance = 1f;
-        [SerializeField] private string _distanceValueName = null;
-
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Meters")]
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Time, "Meters")]
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Instant, "Meters")]
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.PerSecondMovement, "Meters/Sec")]
-        [BrainProperty(true)] 
-        public float Distance { get => _distance; set => _distance = value; }
-
-        [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))]
-        public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
+        [SerializeField] protected float _distance = 1f;
+        [SerializeField] protected string _distanceValueName = null;
+        [SerializeField] protected string _coordinatesName;
 
         [SerializeField] protected MoveModeType _mode = MoveModeType.Time;
         [BrainProperty(false)] public MoveModeType Mode { get => _mode; set => _mode = value; }
@@ -64,6 +55,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
 
         private Vector3 _direction;
+        protected Vector3 _moveToCoordinates;
 
         protected IMonaBrain _brain;
         private IInstruction _instruction;
@@ -255,8 +247,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _direction = GetDirectionVector(DirectionType);
             //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
 
-            if (!string.IsNullOrEmpty(_distanceValueName))
-                _distance = _brain.Variables.GetFloat(_distanceValueName);
+            _distance = GetDistance();
 
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetFloat(_valueValueName);
@@ -403,9 +394,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         protected float GetDistance()
         {
-            if (!string.IsNullOrEmpty(_distanceValueName))
-                _distance = _brain.Variables.GetFloat(_distanceValueName);
-            return _distance;
+            float distance = _distance;
+
+            if (DirectionType == MoveDirectionType.GlobalCoordinates)
+            {
+                Vector3 endPosition = !string.IsNullOrEmpty(_coordinatesName) ?
+                _brain.Variables.GetVector3(_coordinatesName) :
+                _moveToCoordinates;
+
+                distance = Vector3.Distance(endPosition, _brain.Body.ActiveTransform.position);
+            }
+            else if (!string.IsNullOrEmpty(_distanceValueName))
+            {
+                distance = _brain.Variables.GetFloat(_distanceValueName);
+            }
+                
+            return distance;
         }
 
         private void MoveOverTime(float deltaTime)
@@ -417,9 +421,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _direction = GetDirectionVector(DirectionType);
 
                 Progress = Mathf.Clamp01(Progress);
-
-                if (!string.IsNullOrEmpty(_distanceValueName))
-                    _distance = _brain.Variables.GetFloat(_distanceValueName);
 
                 float diff = Evaluate(Progress + progressDelta) - Evaluate(Progress);
                 _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
@@ -443,9 +444,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 var progressDelta = Mathf.Round((((_value * _speed) / _distance) * deltaTime) * 100000f) / 100000f;
 
                 _direction = GetDirectionVector(DirectionType);
-
-                if (!string.IsNullOrEmpty(_distanceValueName))
-                    _distance = _brain.Variables.GetFloat(_distanceValueName);
 
                 Progress = Mathf.Clamp01(Progress);
 
@@ -563,6 +561,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.CameraTrueLeft: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.right * -1f;
                 case MoveDirectionType.CameraTrueUp: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.up;
                 case MoveDirectionType.CameraTrueDown: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.up * -1f;
+                case MoveDirectionType.GlobalCoordinates: return MoveToDirection();
 
                 default: return Vector3.zero;
             }
@@ -573,6 +572,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             vector.y = 0;
             vector.Normalize();
             return vector;
+        }
+
+        private Vector3 MoveToDirection()
+        {
+            Vector3 endPosition = !string.IsNullOrEmpty(_coordinatesName) ?
+                _brain.Variables.GetVector3(_coordinatesName) :
+                _moveToCoordinates;
+
+            return endPosition - _brain.Body.ActiveTransform.position;
         }
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class MoveRelativeToCameraInstructionTile : MoveLocalInstructionTile
+    public class MoveRelativeToCameraInstructionTile : MoveLocalWithDistanceInstructionTile
     {
         public const string ID = "Move Relative To Camera";
         public const string NAME = "Move Relative To Camera";
