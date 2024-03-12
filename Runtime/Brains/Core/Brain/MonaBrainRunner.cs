@@ -132,7 +132,7 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             for(var i = 0;i < BrainGraphs.Count; i++)
             {
-                if(BrainGraphs[i] != null && BrainGraphs[i].HasRigidbodyTiles())
+                if(BrainGraphs[i].HasRigidbodyTiles())
                 {
                     _body.AddRigidbody();
                     break;
