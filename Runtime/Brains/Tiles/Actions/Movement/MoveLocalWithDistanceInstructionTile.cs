@@ -6,6 +6,7 @@ using System;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
+    [Serializable]
     public class MoveLocalWithDistanceInstructionTile : MoveLocalInstructionTile
     {
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Meters")]

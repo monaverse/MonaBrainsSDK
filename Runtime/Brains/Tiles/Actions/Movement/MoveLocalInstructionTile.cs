@@ -264,8 +264,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (InstantMovement)
             {
-                _direction = GetDirectionVector(DirectionType);
-
                 float step = _mode == MoveModeType.PerSecondMovement ?
                     _distance * Time.smoothDeltaTime :
                     _distance;
