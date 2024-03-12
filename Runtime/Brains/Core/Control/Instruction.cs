@@ -308,12 +308,11 @@ namespace Mona.SDK.Brains.Core.Control
                 if (ExecuteRemainingConditionals() == InstructionTileResult.Success)
                     ExecuteActions();
             }
-            /*
             else if (result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
             {
-                //Debug.Log($"TICK IT {_result}");
+                //if (HasTickAfter()) Debug.Log($"TICK IT needed has tick after present {_result}");
                 EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
-            }*/
+            }
         }
 
         private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, IInstructionEvent evt = null)
@@ -566,7 +565,7 @@ namespace Mona.SDK.Brains.Core.Control
                 _brain.Variables.Set(_progressTile, -1f);
                 if (!HasConditional() || HasTickAfter())
                 {
-                    //Debug.Log($"TICK IT {_result}");
+                    //if(HasTickAfter()) Debug.Log($"TICK IT {_result}");
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
                 }
             }
@@ -581,7 +580,7 @@ namespace Mona.SDK.Brains.Core.Control
                 }
                 else if (_result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
                 {
-                    //Debug.Log($"TICK IT {_result}");
+                    //if (HasTickAfter()) Debug.Log($"TICK IT {_result}");
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
                 }
             }
