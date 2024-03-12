@@ -64,7 +64,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private MonaInput _bodyInput;
 
-        private bool InstantRotation => _mode == MoveModeType.PerSecondMovement || _mode == MoveModeType.Instant;
+        private bool InstantRotation => _mode == MoveModeType.SpeedOnly || _mode == MoveModeType.Instant;
 
         private float _speed
         {
@@ -239,7 +239,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
                 StartRotation();
 
-                float step = _mode == MoveModeType.PerSecondMovement ?
+                float step = _mode == MoveModeType.SpeedOnly ?
                     _angle * Time.smoothDeltaTime :
                     _angle;
 

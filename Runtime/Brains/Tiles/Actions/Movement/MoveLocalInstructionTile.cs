@@ -73,7 +73,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Action<MonaBodyEvent> OnBodyEvent;
         private Action<MonaInputEvent> OnInput;
 
-        private bool InstantMovement => _mode == MoveModeType.PerSecondMovement || _mode == MoveModeType.Instant;
+        private bool InstantMovement => _mode == MoveModeType.SpeedOnly || _mode == MoveModeType.Instant;
 
         private float _speed
         {
@@ -264,7 +264,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (InstantMovement)
             {
-                float step = _mode == MoveModeType.PerSecondMovement ?
+                float step = _mode == MoveModeType.SpeedOnly ?
                     _distance * Time.smoothDeltaTime :
                     _distance;
 
@@ -292,7 +292,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             Tick(evt.DeltaTime);
             
-            if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant || _mode == MoveModeType.PerSecondMovement)
+            if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant || _mode == MoveModeType.SpeedOnly)
             {
                 switch (_brain.PropertyType)
                 {

@@ -1,4 +1,4 @@
-using Mona.SDK.Brains.Core.Animation;
+﻿using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Enums;
@@ -30,7 +30,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         protected override void Tick(float deltaTime)
         {
             base.Tick(deltaTime);
-            if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant || _mode == MoveModeType.PerSecondMovement)
+            if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant || _mode == MoveModeType.SpeedOnly)
             {
                 switch (_brain.PropertyType)
                 {

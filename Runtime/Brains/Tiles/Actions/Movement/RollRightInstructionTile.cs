@@ -1,4 +1,4 @@
-using Mona.SDK.Brains.Core;
+﻿using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
 using Mona.SDK.Core.State.Structs;
@@ -19,7 +19,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Angle")]
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Time, "Angle")]
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Instant, "Angle")]
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.PerSecondMovement, "Angles/Sec")]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.SpeedOnly, "Angles/Sec")]
         [BrainProperty(true)] public float Angle { get => _angle; set => _angle = value; }
         [BrainPropertyValueName("Angle", typeof(IMonaVariablesFloatValue))] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
 
