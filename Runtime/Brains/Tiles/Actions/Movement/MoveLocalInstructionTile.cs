@@ -33,6 +33,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] protected string _distanceValueName = null;
         [SerializeField] protected string _coordinatesName;
         [SerializeField] protected Vector3 _moveToCoordinates = Vector3.zero;
+        [SerializeField] protected MovementPlaneType _movementPlane = MovementPlaneType.NorthSouthEastWest;
 
         [SerializeField] protected MoveModeType _mode = MoveModeType.Time;
         [BrainProperty(false)] public MoveModeType Mode { get => _mode; set => _mode = value; }
@@ -264,9 +265,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (InstantMovement)
             {
                 _direction = GetDirectionVector(DirectionType);
-
-                if (!string.IsNullOrEmpty(_distanceValueName))
-                    _distance = _brain.Variables.GetFloat(_distanceValueName);
 
                 float step = _mode == MoveModeType.PerSecondMovement ?
                     _distance * Time.smoothDeltaTime :
@@ -549,7 +547,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.XNegative: return Vector3.right * -1f;
                 case MoveDirectionType.YNegative: return Vector3.up * -1f;
                 case MoveDirectionType.ZNegative: return Vector3.forward * -1f;
-                case MoveDirectionType.CameraAll: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward) * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.right) * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+                case MoveDirectionType.CameraAll: return CameraMovementVector();
                 case MoveDirectionType.CameraForward: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward);
                 case MoveDirectionType.CameraBackward: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward * -1f);
                 case MoveDirectionType.CameraRight: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.right);
@@ -567,6 +565,37 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
                 default: return Vector3.zero;
             }
+        }
+
+        private Vector3 CameraMovementVector()
+        {
+            Vector3 cameraRight = MonaGlobalBrainRunner.Instance.SceneCamera.transform.right;
+            Vector3 cameraUp = MonaGlobalBrainRunner.Instance.SceneCamera.transform.up;
+            Vector3 cameraForward = MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward;
+
+            switch ((int)_movementPlane)
+            {
+                case 0:
+                    cameraForward.y = 0;
+                    cameraRight.y = 0;
+                    cameraForward.Normalize();
+                    cameraRight.Normalize();
+                    return cameraForward * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + cameraRight * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+                case 1:
+                    cameraRight.x = 0;
+                    cameraUp.x = 0;
+                    cameraRight.Normalize();
+                    cameraUp.Normalize();
+                    return cameraUp * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + cameraRight * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+                case 2:
+                    cameraRight.z = 0;
+                    cameraUp.z = 0;
+                    cameraRight.Normalize();
+                    cameraUp.Normalize();
+                    return cameraUp * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + cameraRight * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+            }
+
+            return Vector3.zero;
         }
 
         private Vector3 FlattenVector(Vector3 vector)
