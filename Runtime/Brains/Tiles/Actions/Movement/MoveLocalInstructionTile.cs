@@ -245,7 +245,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override InstructionTileResult Do()
         {
-            _startPosition = _brain.Body.ActiveTransform.position;
+            _startPosition = _brain.Body.GetPosition();
 
             _direction = GetDirectionVector(DirectionType);
             //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
