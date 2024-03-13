@@ -147,7 +147,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 }
                 else
                 {
-                    if(_brain.LoggingEnabled) Debug.Log($"{nameof(FindBodiesWithMonaTagInFieldOfView)} {dot} {dotValue} {_brain.Body.Transform} {_radius} {_brain.Body.WithinRadius(_bodies[i], _radius)}");
+                    //if(_brain.LoggingEnabled) Debug.Log($"{nameof(FindBodiesWithMonaTagInFieldOfView)} {dot} {dotValue} {_brain.Body.Transform} {_radius} {_brain.Body.WithinRadius(_bodies[i], _radius)}");
                     if (dot >= dotValue && _brain.Body.WithinRadius(_bodies[i], _radius))
                     {
                         _foundBodiesInFieldOfView.Add(new ForwardBodyStruct() { dot = dot, body = body });

@@ -285,21 +285,29 @@ namespace Mona.SDK.Brains.UIEditors
                 _tagsEditor.style.display = DisplayStyle.Flex;
                 tagsTab.style.backgroundColor = _darkRed;
 
-                string[] guids = AssetDatabase.FindAssets("t:MonaTags", null);
-                foreach (string guid in guids)
+                if (_brain != null)
                 {
-                    var path = AssetDatabase.GUIDToAssetPath(guid);
-                    _monaTags = (MonaTags)AssetDatabase.LoadAssetAtPath(path, typeof(MonaTags));
-                    if (!path.Contains("com.monaverse.brainssdk"))
+                    _monaTags = (MonaTags)_brain.MonaTagSource;
+                    _tagsEditor.SetMonaTags(_monaTags);
+                    tagsWarning.style.display = DisplayStyle.Flex;
+                }
+                else
+                {
+                    string[] guids = AssetDatabase.FindAssets("t:MonaTags", null);
+                    foreach (string guid in guids)
                     {
-                        _tagsEditor.SetMonaTags(_monaTags);
-                        tagsWarning.style.display = DisplayStyle.None;
+                        var path = AssetDatabase.GUIDToAssetPath(guid);
+                        if (!path.Contains("com.monaverse.brainssdk"))
+                        {
+                            _monaTags = (MonaTags)AssetDatabase.LoadAssetAtPath(path, typeof(MonaTags));
+                            _tagsEditor.SetMonaTags(_monaTags);
+                            tagsWarning.style.display = DisplayStyle.None;
+                        }
+                        else
+                        {
+                            tagsWarning.style.display = DisplayStyle.Flex;
+                        }
                     }
-                    else
-                    {
-                        tagsWarning.style.display = DisplayStyle.Flex;
-                    }
-                    break;
                 }
             }));
 
@@ -629,6 +637,9 @@ namespace Mona.SDK.Brains.UIEditors
             {
                 _attachedView.SetSelection(items.IndexOf(lastAdded));
             }
+
+            ListSelectionChanged();
+            ListSelectionChangedAttached();
 
             _listView.itemsSource = nonAttached;
             _listView.Rebuild();
