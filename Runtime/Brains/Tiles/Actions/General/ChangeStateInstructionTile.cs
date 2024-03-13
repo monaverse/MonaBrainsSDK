@@ -40,7 +40,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override InstructionTileResult Do()
         {
             _brain.BrainState = _changeState;
-            //Debug.Log($"{nameof(ChangeStateInstructionTile)} state: {_changeState}");
+            if(_brain.LoggingEnabled) Debug.Log($"{nameof(ChangeStateInstructionTile)} state: {_changeState}");
             return Complete(InstructionTileResult.Success);
         }
     }

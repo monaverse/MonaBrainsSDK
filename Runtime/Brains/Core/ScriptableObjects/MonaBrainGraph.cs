@@ -528,8 +528,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleMonaBrainTick(MonaBrainTickEvent evt)
         {
-            //Debug.Log($"{nameof(HandleMonaBrainTick)} evt.Instruction {evt.Instruction.InstructionTiles[0]}");
-            _runner.WaitFrame(_index, ExecuteTickEvent, evt, typeof(MonaBrainTickEvent));
+            //if(LoggingEnabled) Debug.Log($"{nameof(HandleMonaBrainTick)} evt.Instruction {evt.Instruction.InstructionTiles[0]}");
+            _runner.WaitFrame(_index, ExecuteTickEvent, evt, typeof(MonaBrainTickEvent), LoggingEnabled);
         }
 
         private void ExecuteTickEvent(IInstructionEvent evt)
@@ -547,7 +547,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             if (evt.Type == MonaTriggerType.OnFieldOfViewChanged)
             {
-                _runner.WaitFrame(_index, ExecuteTriggerEvent, evt, typeof(MonaTriggerEvent));
+                _runner.WaitFrame(_index, ExecuteTriggerEvent, evt, typeof(MonaTriggerEvent), LoggingEnabled);
             }
             else
             {
@@ -580,7 +580,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if (!HasMessage(evt.Message))
                 _messages.Add(evt);
 
-            _runner.WaitFrame(_index, ExecuteMessage, evt, typeof(MonaBroadcastMessageEvent));
+            _runner.WaitFrame(_index, ExecuteMessage, evt, typeof(MonaBroadcastMessageEvent), LoggingEnabled);
         }
 
         private void ExecuteMessage(IInstructionEvent evt)

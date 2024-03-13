@@ -37,7 +37,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private GameObject _gameObject;
         private bool _active;
 
-        private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnTriggerExit };
+        private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnTriggerEnter, MonaTriggerType.OnTriggerExit };
         public List<MonaTriggerType> TriggerTypes => _triggerTypes;
 
         public OnFarInstructionTile() { }
@@ -99,13 +99,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (!string.IsNullOrEmpty(_distanceValueName))
                 _distance = _brain.Variables.GetFloat(_distanceValueName);
 
-            //_collider.SetRadius(_distance);
+            _collider.SetRadius(_distance);
             var body = _collider.FindClosestOutOfRangeWithMonaTag(_tag);
-            //Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} chck on near: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
+            //if(_brain.LoggingEnabled) Debug.Log($"{nameof(OnFarInstructionTile)}.{nameof(Do)} chck on near: {_tag} {body} {_collider.FindClosestInRangeWithMonaTag(_tag)}", _brain.Body.ActiveTransform.gameObject);
             if (body != null && _collider.FindClosestInRangeWithMonaTag(_tag) == null)
             {
-                if(_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnFarInstructionTile)}.{nameof(Do)} found: {body}");
+                //if(_brain.LoggingEnabled)
+                //    Debug.Log($"{nameof(OnFarInstructionTile)}.{nameof(Do)} {_distance} found: {body}");
                 _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
                 return Complete(InstructionTileResult.Success);
             }

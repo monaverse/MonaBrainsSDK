@@ -111,13 +111,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (!string.IsNullOrEmpty(_fieldOfViewValueName))
                 _fieldOfView = _brain.Variables.GetFloat(_fieldOfViewValueName);
 
-            //_collider.SetRadius(_distance);
+            _collider.SetRadius(_distance);
             var body = _collider.FindForwardMostBodyWithMonaTagInFieldOfView(_tag, _fieldOfView);
             //Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} chck on near: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
             if (body != null)
             {
                 if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
+                    Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {_tag} {body} {_distance}", _brain.Body.ActiveTransform.gameObject);
                 _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
                 return Complete(InstructionTileResult.Success);
             }

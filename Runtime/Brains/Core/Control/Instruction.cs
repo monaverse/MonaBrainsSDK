@@ -310,7 +310,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
             else if (result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
             {
-                //if(!HasConditional() && _brain.LoggingEnabled) Debug.Log($"TICK IT needed no conditional #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
+                //if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
                 EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
             }
         }
@@ -580,7 +580,7 @@ namespace Mona.SDK.Brains.Core.Control
                 }
                 else if (_result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
                 {
-                    //if (HasTickAfter()) Debug.Log($"TICK IT failure {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
+                    //if (HasTickAfter() && _brain.LoggingEnabled) Debug.Log($"TICK IT failure {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
                     EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
                 }
             }

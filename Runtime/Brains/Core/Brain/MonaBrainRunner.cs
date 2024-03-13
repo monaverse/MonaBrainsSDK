@@ -196,8 +196,11 @@ namespace Mona.SDK.Brains.Core.Brain
         }
 
         private Action<MonaTickEvent> OnMonaTick;
-        public void WaitFrame(int index, Action<IInstructionEvent> callback, IInstructionEvent evt, Type type)
+        private bool _waitFrameRequested;
+        private bool _debug;
+        public void WaitFrame(int index, Action<IInstructionEvent> callback, IInstructionEvent evt, Type type, bool debug = false)
         {
+            _debug = debug;
             //Debug.Log($"{nameof(WaitFrame)} WAIT WaitFrame {index}, type {type}, evt: {evt} {Time.frameCount}");
             if (!_layers.Contains(index))
                 _layers.Add(index);
@@ -223,25 +226,28 @@ namespace Mona.SDK.Brains.Core.Brain
                 if (evt is MonaTriggerEvent)
                 {
                     _waitQueue.Add(new WaitFrameQueueItem(index, callback, evt, type, Time.frameCount));
+                    _waitFrameRequested = true;
                     //Debug.Log($"add to queue {_waitQueue.Count}");
                 }
                 else if(evt is MonaBrainTickEvent)
                 {
                     var tevt = (MonaBrainTickEvent)evt;
-                    if (_waitForNextBrainTick[index][tevt.Instruction].Index == -1)
+                    if(_waitForNextBrainTick[index][tevt.Instruction].Index == -1)
                         _waitForNextBrainTick[index][tevt.Instruction] = new WaitFrameQueueItem(index, callback, evt, type, Time.frameCount);
+                    _waitFrameRequested = true;
+                    //if(debug) Debug.Log($"add to _waitForNextBrainTick {index} {tevt.Instruction.InstructionTiles[0]}");
                 }
                 else
                 {
-                    if (_wait[index][type].Index > -1)
+                    if (_wait[index][type].Index == -1)
                         _wait[index][type] = new WaitFrameQueueItem(index, callback, evt, type, Time.frameCount);
+                    _waitFrameRequested = true;
                 }
 
                 if (OnMonaTick == null)
                 {
                     OnMonaTick = HandleMonaTick;
                     EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
-                    //HandleMonaTick(MonaTickEvent);
                 }
             }
             else
@@ -269,6 +275,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void HandleMonaTick(MonaTickEvent evt)
         {
+            _waitFrameRequested = false; //if this gets flipped to true during the following callbacks, we know an instruction tile added another frame request to the queue recursively.
+
             var queueCleared = true;
 
             for (var i = 0; i < _layers.Count; i++)
@@ -303,11 +311,13 @@ namespace Mona.SDK.Brains.Core.Brain
                         continue;
                     }
                     var item = _waitForNextBrainTick[_layers[i]][_instructions[j]];
+                   // if (_debug)
+                    //    Debug.Log($"{nameof(MonaBrainRunner)} WAIT INSTRUCTION TICK LATER {item.Index}, type {item.Type}, evt: {((MonaBrainTickEvent)item.Evt).Instruction.InstructionTiles[0]} {Time.frameCount} {item.ShouldExecute()}");
+
                     if (item.Index >= 0)
                     {
                         if (item.ShouldExecute())
                         {
-                            //Debug.Log($"{nameof(MonaBrainRunner)} WAIT INSTRUCTION TICK LATER {item.Index}, type {item.Type}, evt: {((MonaBrainTickEvent)item.Evt).Instruction.InstructionTiles[0]} {Time.frameCount}");
                             item.Index = -1;
                             _waitForNextBrainTick[_layers[i]][_instructions[j]] = item;
                             item.Callback(item.Evt);
@@ -318,7 +328,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 }
             }
 
-            var count = _waitQueue.Count-1;
+            var count = _waitQueue.Count - 1;
             //Debug.Log($"clear queue {_waitQueue.Count} fr:{Time.frameCount}");
             for (var i = count; i >= 0; i--)
             {
@@ -328,7 +338,7 @@ namespace Mona.SDK.Brains.Core.Brain
                     //Debug.Log($"{nameof(MonaBrainRunner)} WAIT QUEUE TICK LATER {i} idx, {item.Index}, type {item.Type}, evt: {item.Evt} {((MonaBrainTickEvent)item.Evt).Type} {Time.frameCount}");
                     _waitQueue.Remove(item);
                     item.Callback(item.Evt);
-                    if(_waitQueue.Count >= i)
+                    if (_waitQueue.Count >= i)
                     {
                         //Debug.Log($"the Callback resulted in another queue item recursively {i} {_waitQueue.Count} {Time.frameCount}");
                         //queueCleared = false;
@@ -340,9 +350,10 @@ namespace Mona.SDK.Brains.Core.Brain
                 }
             }
 
-            if (queueCleared && _waitQueue.Count == 0)
+            if (queueCleared && _waitQueue.Count == 0 && !_waitFrameRequested)
             {
-                //Debug.Log($"STOP LISTENIGN FOR TICK");
+                //if (_debug)
+                 //   Debug.Log($"STOP LISTENIGN FOR TICK");
                 //_waitQueue.Clear();
                 EventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
                 OnMonaTick = null;

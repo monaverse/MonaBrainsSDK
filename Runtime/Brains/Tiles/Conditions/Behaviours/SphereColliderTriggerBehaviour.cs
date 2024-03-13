@@ -92,7 +92,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         public void SetRadius(float radius)
         {
-            _collider.radius = radius * 2f;
+            _collider.radius = radius + 2f;
             _radius = radius;
         }
 
@@ -147,13 +147,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 }
                 else
                 {
-                    //Debug.Log($"{nameof(FindBodiesWithMonaTagInFieldOfView)} {dot} {dotValue} {_brain.Body.Transform} {_radius} {_brain.Body.WithinRadius(_bodies[i], _radius)}");
+                    if(_brain.LoggingEnabled) Debug.Log($"{nameof(FindBodiesWithMonaTagInFieldOfView)} {dot} {dotValue} {_brain.Body.Transform} {_radius} {_brain.Body.WithinRadius(_bodies[i], _radius)}");
                     if (dot >= dotValue && _brain.Body.WithinRadius(_bodies[i], _radius))
                     {
                         _foundBodiesInFieldOfView.Add(new ForwardBodyStruct() { dot = dot, body = body });
                         if (!_bodiesIndex[body])
                         {
-                            Debug.Log($"in view {body.Transform.name}");
+                            //Debug.Log($"in view {body.Transform.name}");
                             _bodiesIndex[body] = true;
                             EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
                         }
@@ -162,7 +162,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     {
                         if (_bodiesIndex[body])
                         {
-                            Debug.Log($"out of view {body.Transform.name}");
+                            //Debug.Log($"out of view {body.Transform.name}");
                             _bodiesIndex[body] = false;
                             EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnFieldOfViewChanged));
                         }
@@ -271,13 +271,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 if (bodies[i] == _brain.Body) continue;
                 if (bodies[i].GetActive())
                 {
-                    if(!_bodies.Contains(bodies[i]))
+                    if (d < closestDistance && !_brain.Body.WithinRadius(bodies[i], _radius))
                     {
-                        if (d < closestDistance && d > _radius)
-                        {
-                            closest = bodies[i];
-                            closestDistance = d;
-                        }
+                        closest = bodies[i];
+                        closestDistance = d;
                     }
                 }
             }
@@ -315,7 +312,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     if (body.HasMonaTag(MonaBrainConstants.TAG_REMOTE_PLAYER))
                         return false;
                 }
-                Debug.Log($"{nameof(OnTriggerEnter)} {_collider.radius} {_radius} {body.ActiveTransform.name} {_bodiesIndex.ContainsKey(body)} {body.WithinRadius(_brain.Body, _collider.radius)}", body.ActiveTransform.gameObject);
+                //Debug.Log($"{nameof(OnTriggerEnter)} {_collider.radius} {_radius} {body.ActiveTransform.name} {_bodiesIndex.ContainsKey(body)} {body.WithinRadius(_brain.Body, _collider.radius)}", body.ActiveTransform.gameObject);
 
                 if (!_bodiesIndex.ContainsKey(body))
                 {
