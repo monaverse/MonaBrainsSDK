@@ -65,7 +65,7 @@ namespace Mona.SDK.Brains.UIEditors
                 else if (_runner != null && _graph != null && _runner.BrainGraphs.Contains(_graph))
                 {
                     _runner.BrainGraphs.Remove(_graph);
-                    _window.Refresh();
+                    _window.Refresh(_graph);
                 }
                 else
                 {
@@ -86,7 +86,7 @@ namespace Mona.SDK.Brains.UIEditors
                         if (!runner.BrainGraphs.Contains(_graph))
                             runner.BrainGraphs.Add(_graph);
                     }
-                    _window.Refresh();
+                    _window.Refresh(_graph);
                 }
             };
 
@@ -402,6 +402,7 @@ namespace Mona.SDK.Brains.UIEditors
             _attachedView.showAddRemoveFooter = false;
             _attachedView.style.borderBottomColor = _lightRed;
             _attachedView.style.marginTop = 10;
+            _attachedView.style.minHeight = 100;
             _attachedView.style.borderBottomWidth = 5;
             _attachedView.selectionChanged += (items) =>
             {
@@ -468,6 +469,10 @@ namespace Mona.SDK.Brains.UIEditors
                 var brain = ScriptableObject.CreateInstance<MonaBrainGraph>();
                     brain.CorePage.Instructions.Add(new Instruction());
                     brain.name = newName;
+
+                if (!AssetDatabase.IsValidFolder("Assets/Brains"))
+                    AssetDatabase.CreateFolder("Assets", "Brains");
+
                 AssetDatabase.CreateAsset(brain, "Assets/Brains/" + brain.name + ".asset");
                 AssetDatabase.SaveAssets();
 
@@ -478,8 +483,7 @@ namespace Mona.SDK.Brains.UIEditors
                         if (!_globalRunner.PlayerBrainGraphs.Contains(brain))
                             _globalRunner.PlayerBrainGraphs.Add(brain);
 
-                        _attachedView.selectedIndex = _globalRunner.PlayerBrainGraphs.Count - 1;
-                        Refresh();
+                        Refresh(brain);
                     }
                     else
                     {
@@ -493,8 +497,7 @@ namespace Mona.SDK.Brains.UIEditors
                         if (!runner.BrainGraphs.Contains(brain))
                             runner.BrainGraphs.Add(brain);
 
-                        _attachedView.selectedIndex = runner.BrainGraphs.Count - 1;
-                        Refresh();
+                        Refresh(brain);
                     }
                 }
 
@@ -592,7 +595,7 @@ namespace Mona.SDK.Brains.UIEditors
             _listView.Rebuild();
         }
 
-        public void Refresh()
+        public void Refresh(MonaBrainGraph lastAdded = null)
         {
             ListSelectionChanged();
             ListSelectionChangedAttached();
@@ -621,6 +624,11 @@ namespace Mona.SDK.Brains.UIEditors
             
             _attachedView.itemsSource = items;
             _attachedView.Rebuild();
+
+            if(lastAdded != null && items.Contains(lastAdded))
+            {
+                _attachedView.SetSelection(items.IndexOf(lastAdded));
+            }
 
             _listView.itemsSource = nonAttached;
             _listView.Rebuild();

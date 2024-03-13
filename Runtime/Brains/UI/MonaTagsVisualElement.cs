@@ -56,15 +56,18 @@ namespace Mona.SDK.Brains.UIElements
 
         public void SetMonaTags(IMonaTags monaTags)
         {
+            _monaTagListView.itemsSource = null;
+            _monaTagListView.Rebuild();
+
             _monaTags = monaTags;
             
             _monaTagListView.itemsSource = _monaTags.AllTags;
-            _monaTags.AllTags.Sort((a, b) =>
+            /*_monaTags.AllTags.Sort((a, b) =>
             {
                 var p = a.IsEditable.CompareTo(b.IsEditable);
                 if (p == 0) return a.Tag.CompareTo(b.Tag);
                 else return p;
-            });
+            });*/
 
             _monaTagListView.Rebuild();
         }
