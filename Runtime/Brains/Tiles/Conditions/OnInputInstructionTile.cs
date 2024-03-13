@@ -104,8 +104,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (_bodyInput.GetButton(_inputType) == _inputState)
             {
-                if(_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnInputInstructionTile)} DO {_inputType} {_inputState} {Time.frameCount}");
+                //if(_brain.LoggingEnabled)
+                //    Debug.Log($"{nameof(OnInputInstructionTile)} DO {_inputType} {_inputState} {Time.frameCount}");
                 //if (_brain.LoggingEnabled)
                 //    Debug.Log($"{nameof(OnInputInstructionTile)}.{nameof(Do)} input active {_inputType} {_inputState}");
                 _bodyInput = default;

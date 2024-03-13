@@ -250,9 +250,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _startPosition = _brain.Body.GetPosition();
 
             _direction = GetDirectionVector(DirectionType);
-            if(_brain.LoggingEnabled)
-            Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType} {Time.frameCount}");
-
+            
             _distance = GetDistance();
 
             if (!string.IsNullOrEmpty(_valueValueName))
@@ -268,7 +266,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (_movingState == MovingStateType.Stopped)
             {
                 Progress = 0;
-                Debug.Log($"{nameof(MoveLocalInstructionTile)} DO IT {Name} {_progressName} {Progress}");
+                //Debug.Log($"{nameof(MoveLocalInstructionTile)} DO IT {Name} {_progressName} {Progress}");
                 AddFixedTickDelegate();
             }
 
@@ -489,7 +487,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.XNegative: return -1f;
                 case MoveDirectionType.YNegative: return -1f;
                 case MoveDirectionType.ZNegative: return -1f;
-                case MoveDirectionType.CameraAll: return Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
+                case MoveDirectionType.CameraAll: return Mathf.Approximately(InputMoveDirection.y, 0) && Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(Mathf.Abs(InputMoveDirection.y)+Mathf.Abs(InputMoveDirection.x));
                 case MoveDirectionType.CameraForward: return 1f;
                 case MoveDirectionType.CameraBackward: return 1f;
                 case MoveDirectionType.CameraRight: return 1f;

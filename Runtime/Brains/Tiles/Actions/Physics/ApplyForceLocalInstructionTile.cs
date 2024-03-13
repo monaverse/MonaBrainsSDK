@@ -139,7 +139,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         protected void HandleBodyInput(MonaInputEvent evt)
         {
             //Debug.Log($"{nameof(HandleBodyInput)} {evt.Input.MoveValue}");
-            if (_movingState != MovingStateType.Moving)
+            if (_movingState != MovingStateType.Moving || _duration == 0f)
                 _bodyInput = evt.Input;
         }
 
@@ -218,27 +218,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             if (!string.IsNullOrEmpty(_durationValueName))
                 _duration = _brain.Variables.GetFloat(_durationValueName);
 
-            if (_duration == 0f)
-            {
-                var body = _brain.Body;
-                if (ApplyForceToTarget())
-                    body = target;
-                body.SetDragType(_dragType);
-                body.SetDrag(_drag);
-                body.SetAngularDrag(_angularDrag);
-                body.SetFriction(_friction);
-                body.SetBounce(_bounce);
-                body.SetKinematic(false, true);
-
-                Pushed();
-                //if (_brain.LoggingEnabled)
-                   Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {InputMoveDirection} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
-
-                body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
-                body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
-                return Complete(InstructionTileResult.Success);
-            }
-
             if (_movingState == MovingStateType.Stopped)
             {
                 _time = 0;
@@ -258,6 +237,29 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
             Tick(evt.DeltaTime);
+
+            if (_duration == 0f)
+            {
+                var target = GetTarget();
+                var body = _brain.Body;
+                if (ApplyForceToTarget())
+                    body = target;
+                body.SetDragType(_dragType);
+                body.SetDrag(_drag);
+                body.SetAngularDrag(_angularDrag);
+                body.SetFriction(_friction);
+                body.SetBounce(_bounce);
+                body.SetKinematic(false, true);
+
+                Pushed();
+                //if (_brain.LoggingEnabled)
+                //Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {InputMoveDirection} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
+
+                body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
+                body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
+                StopPushing();
+            }
+
         }
 
         protected virtual void Tick(float deltaTime)
@@ -272,7 +274,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         private void PushOverTime(float deltaTime)
         {
-            if (_movingState == MovingStateType.Moving)
+            if (_movingState == MovingStateType.Moving && _duration > 0f)
             {
                 IMonaBody body = _brain.Body;
                 if (ApplyForceToTarget())
