@@ -255,7 +255,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private Action<MonaTriggerEvent> OnMonaTrigger;
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
         private Action<MonaBroadcastMessageEvent> OnBroadcastMessage;
-        private Action<MonaBodyFixedTickEvent> OnInputOnFixedTick;
+        private Action<MonaBodyHasInputEvent> OnMonaBodyHasInput;
 
         private bool _coreOnStarting;
         private bool _stateOnStarting;
@@ -439,8 +439,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
             EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
 
-            OnInputOnFixedTick = HandleInputOnFixedTick;
-            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _body), OnInputOnFixedTick);
+            OnMonaBodyHasInput = HandleHasInput;
+            EventBus.Register<MonaBodyHasInputEvent>(new EventHook(MonaCoreConstants.MONA_BODY_HAS_INPUT_EVENT, _body), OnMonaBodyHasInput);
         }
 
         private void AddHierarchyDelgates()
@@ -462,9 +462,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
 
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _body), OnInputOnFixedTick);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _body), OnMonaBodyHasInput);
 
-            OnInputOnFixedTick = null;
+            OnMonaBodyHasInput = null;
             OnBroadcastMessage = null;
         }
 
@@ -594,12 +594,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             }
         }
 
-        private void HandleInputOnFixedTick(MonaBodyFixedTickEvent evt)
+        private void HandleHasInput(MonaBodyHasInputEvent evt)
         {
             if (!_began) return;
 
-            if (!evt.HasInput) return;
-            //Debug.Log($"has input");
             ExecuteCorePageInstructions(InstructionEventTypes.Input);
             ExecuteStatePageInstructions(InstructionEventTypes.Input);
         }

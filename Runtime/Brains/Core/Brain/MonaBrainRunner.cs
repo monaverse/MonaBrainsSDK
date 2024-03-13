@@ -241,6 +241,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 {
                     OnMonaTick = HandleMonaTick;
                     EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
+                    //HandleMonaTick(MonaTickEvent);
                 }
             }
             else

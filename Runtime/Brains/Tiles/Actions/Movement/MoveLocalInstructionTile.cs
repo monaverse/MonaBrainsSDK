@@ -194,6 +194,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void AddFixedTickDelegate()
         {
+            //Debug.Log($"{nameof(AddFixedTickDelegate)}, fr: {Time.frameCount}", _brain.Body.Transform.gameObject);
+
             OnFixedTick = HandleFixedTick;
             EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
 
@@ -213,7 +215,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         protected void HandleBodyInput(MonaInputEvent evt)
         {
             //Debug.Log($"{nameof(HandleBodyInput)} {evt.Input.MoveValue}");
-            if(_movingState != MovingStateType.Moving)
+            if(_movingState != MovingStateType.Moving || InstantMovement)
                 _bodyInput = evt.Input;
         }
 
@@ -248,7 +250,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _startPosition = _brain.Body.GetPosition();
 
             _direction = GetDirectionVector(DirectionType);
-            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
+            if(_brain.LoggingEnabled)
+            Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType} {Time.frameCount}");
 
             _distance = GetDistance();
 
@@ -262,25 +265,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return Complete(InstructionTileResult.Success);
             }
 
-            if (InstantMovement)
-            {
-                float step = _mode == MoveModeType.SpeedOnly ?
-                    _distance * Time.smoothDeltaTime :
-                    _distance;
-
-                _brain.Body.AddPosition(_direction * step, true);
-                AddFixedTickDelegate();
-
-                _coolingDown = true;
-                _cooldown = 4;
-
-                return Complete(InstructionTileResult.Success);
-            }
-
             if (_movingState == MovingStateType.Stopped)
             {
                 Progress = 0;
-                //Debug.Log($"{nameof(MoveLocalInstructionTile)} DO IT {Name} {_progressName} {Progress}");
+                Debug.Log($"{nameof(MoveLocalInstructionTile)} DO IT {Name} {_progressName} {Progress}");
                 AddFixedTickDelegate();
             }
 
@@ -291,7 +279,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
             Tick(evt.DeltaTime);
-            
+
             if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant || _mode == MoveModeType.SpeedOnly)
             {
                 switch (_brain.PropertyType)
@@ -301,29 +289,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 }
             }
 
-            if (_coolingDown)
+            if (InstantMovement)
             {
-                if (_cooldown <= 0)
-                {
-                    _currentSpeed *= .999f;
-                    if (_currentSpeed < 0.01f)
-                        _currentSpeed = 0;
-                    if (_cooldown <= -4)
-                    {
-                        RemoveFixedTickDelegate();
-                        StopMoving();
-                        _coolingDown = false;
-                    }
-                }
-                _cooldown--;
+                float step = _mode == MoveModeType.SpeedOnly ? _distance * evt.DeltaTime : _distance;
+
+                //Debug.Log($"{_distance} {_direction} {Time.frameCount}", _brain.Body.Transform.gameObject);
+                _brain.Body.AddPosition(_direction * step, true);
+                StopMoving();
             }
+
         }
-                
+
         private void TickGroundedCreature(float deltaTime)
         {
             if (_controller == null) return;
-            _controller.SetWalk(GetSpeed());
-            _controller.SetMotionSpeed(GetMotionSpeed(DirectionType));
+            var motion = GetMotionSpeed(DirectionType);
+            var speed = GetSpeed();
+            _controller.SetWalk(speed);
+            _controller.SetMotionSpeed(motion);
         }
 
         private void StopGroundedCreature()
@@ -349,13 +332,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return;
             }
 
-            if (_mode != MoveModeType.Instant || _cooldown == 4)
-            {
-                _currentSpeed = Mathf.Abs(Vector3.Distance(_brain.Body.GetPosition(), _lastPosition) / deltaTime);
-                _lastPosition = _brain.Body.GetPosition();
-                if (_currentSpeed < 0.01f && _mode != MoveModeType.Instant)
-                    _currentSpeed = 0;
-            }
+            _currentSpeed = Mathf.Abs(Vector3.Distance(_brain.Body.GetPosition(), _lastPosition) / deltaTime);
+            _lastPosition = _brain.Body.GetPosition();
+            if (_currentSpeed < 0.01f)
+                _currentSpeed = 0;
 
             switch (_mode)
             {
