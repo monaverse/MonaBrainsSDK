@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32b3590db4d9e4d85b64842411b19f3c, type: 3}
+  m_Name: UnBindRotationAll
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 4011123188080050616
+  _id: UnBindRotationAll
+  _name: Unbind Rotations
+  _category: Rotation Bounds
+  references:
+    version: 2
+    RefIds:
+    - rid: 4011123188080050616
+      type: {class: UnBindRotationAllInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
