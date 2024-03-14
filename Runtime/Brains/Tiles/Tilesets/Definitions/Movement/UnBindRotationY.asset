@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 4011123188080050622
   _id: UnBindRotationY
-  _name: Unbind Yaw L/R
+  _name: Unbind Turn L/R
   _category: Rotation Bounds
   references:
     version: 2
@@ -23,6 +23,6 @@ MonoBehaviour:
     - rid: 4011123188080050622
       type: {class: UnBindRotationYInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: UnBindRotationY
+        _name: Unbind Turn L/R
+        _category: Rotation Bounds

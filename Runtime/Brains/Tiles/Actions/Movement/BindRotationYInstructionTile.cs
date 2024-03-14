@@ -44,6 +44,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override InstructionTileResult Do()
         {
+            if (!string.IsNullOrEmpty(_minName))
+                _min = _brain.Variables.GetFloat(_minName);
+
+            if (!string.IsNullOrEmpty(_maxName))
+                _max = _brain.Variables.GetFloat(_maxName);
+
             _brain.Body.RotationBounds.y.Bind(_min, _max);
             return Complete(InstructionTileResult.Success);
         }

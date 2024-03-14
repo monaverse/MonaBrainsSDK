@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 4011123188080050429
   _id: BindRotationY
-  _name: Bind Yaw L/R
+  _name: Bind Turn L/R
   _category: Rotation Bounds
   references:
     version: 2
@@ -23,9 +23,9 @@ MonoBehaviour:
     - rid: 4011123188080050429
       type: {class: BindRotationYInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: BindRotationY
+        _name: Bind Turn L/R
+        _category: Rotation Bounds
         _min: -45
         _minName: 
         _max: 45

@@ -12,24 +12,21 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class UnBindPositionAllInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class UnBindRadiusInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
     {
-        public const string ID = "UnBindPositionAll";
-        public const string NAME = "Unbind All";
+        public const string ID = "UnBindRadius";
+        public const string NAME = "Unbind Radius";
         public const string CATEGORY = "Position Bounds";
-        public override Type TileType => typeof(UnBindPositionAllInstructionTile);
+        public override Type TileType => typeof(UnBindRadiusInstructionTile);
 
         private IMonaBrain _brain;
 
-        public UnBindPositionAllInstructionTile() { }
+        public UnBindRadiusInstructionTile() { }
 
         public void Preload(IMonaBrain brain) => _brain = brain;
 
         public override InstructionTileResult Do()
         {
-            _brain.Body.PositionBounds.x.UnBind();
-            _brain.Body.PositionBounds.y.UnBind();
-            _brain.Body.PositionBounds.z.UnBind();
             _brain.Body.PositionBounds.radius.UnBind();
             return Complete(InstructionTileResult.Success);
         }
