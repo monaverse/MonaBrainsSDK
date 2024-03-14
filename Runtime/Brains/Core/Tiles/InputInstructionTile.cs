@@ -94,6 +94,7 @@ namespace Mona.SDK.Brains.Core.Tiles
             if (!_active)
             {
                 RemoveTickDelegate();
+                ClearInput();
                 return;
             }
 
@@ -101,6 +102,11 @@ namespace Mona.SDK.Brains.Core.Tiles
 
             if (_brain.LoggingEnabled)
                 Debug.Log($"{nameof(InputInstructionTile)}.{nameof(UpdateActive)} {_active}");
+        }
+
+        protected virtual void ClearInput()
+        {
+            
         }
 
         public void Pause()

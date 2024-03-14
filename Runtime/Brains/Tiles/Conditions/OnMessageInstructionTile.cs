@@ -10,7 +10,7 @@ using Mona.SDK.Brains.Core.Events;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnMessageInstructionTile : InstructionTile, IOnMessageInstructionTile, IConditionInstructionTile, IStartableInstructionTile, IPlayerTriggeredConditional
+    public class OnMessageInstructionTile : InstructionTile, IOnMessageInstructionTile, IConditionInstructionTile, IStartableInstructionTile, IPlayerTriggeredConditional, IActivateInstructionTile
     {
         public const string ID = "OnMessage";
         public const string NAME = "Has Message";
@@ -25,6 +25,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private IMonaBrain _brain;
         private MonaBroadcastMessageEvent _lastSuccessfulMessage;
+        private bool _active;
 
         public bool PlayerTriggered
         {
@@ -44,6 +45,24 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
+            UpdateActive();
+        }
+
+        public void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                UpdateActive();
+            }
+        }
+
+        private void UpdateActive()
+        {
+            if (!_active)
+            {
+                return;
+            }
         }
 
         private void SetSender(string message)

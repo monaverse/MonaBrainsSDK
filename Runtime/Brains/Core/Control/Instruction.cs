@@ -209,6 +209,16 @@ namespace Mona.SDK.Brains.Core.Control
             return false;
         }
 
+        public bool HasOnMessageTile(string message)
+        {
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                if (InstructionTiles[i] is IOnMessageInstructionTile && ((IOnMessageInstructionTile)InstructionTiles[i]).Message == message)
+                    return true;
+            }
+            return false;
+        }
+
         private List<IMonaBody> _waitForAuthBodies = new List<IMonaBody>();
         private Action<MonaStateAuthorityChangedEvent> OnStateAuthorityChanged;
         private bool HasTilesNeedingAuthority() => _needAuthInstructionTiles.Count > 0;

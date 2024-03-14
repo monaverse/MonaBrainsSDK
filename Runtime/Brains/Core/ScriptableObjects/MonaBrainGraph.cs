@@ -620,6 +620,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             for (var i = 0; i < StatePages.Count; i++)
             {
                 StatePages[i].SetActive(false);
+
+                for(var m = _messages.Count-1; m >= 0; m--)
+                {
+                    if (StatePages[i].HasOnMessageTile(_messages[m].Message))
+                        _messages.RemoveAt(m);
+                }
+
                 if (StatePages[i].Name == BrainState)
                 {
                     StatePages[i].SetActive(true);

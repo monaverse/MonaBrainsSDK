@@ -95,6 +95,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             SetLocalInput(input);
         }
 
+        protected override void ClearInput()
+        {
+            _bodyInput = default;
+        }
+
         public override MonaInput GetInput()
         {
             return _bodyInput;

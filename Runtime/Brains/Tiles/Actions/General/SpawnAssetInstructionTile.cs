@@ -207,7 +207,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override void Unload()
         {
-            Debug.Log($"{nameof(Unload)} spawn asset instruction tile unload");
+            if(_brain.LoggingEnabled) Debug.Log($"{nameof(Unload)} spawn asset instruction tile unload");
             base.Unload();
             for (var i = 0; i < _equipmentInstances.Count; i++)
             {

@@ -177,7 +177,7 @@ namespace Mona.SDK.Brains.Core.Brain
                         for(var i = 0;i < _activeKeyListeners.Count; i++)
                         {
                             var listener = _activeKeyListeners[i];
-                            Debug.Log($"Key {listener.Key} {listener.State}");
+                            //Debug.Log($"Key {listener.Key} {listener.State}");
                             if (listener.State != MonaInputState.None)
                                 Debug.Log($"Key {listener.Key} {listener.State}");
                         }

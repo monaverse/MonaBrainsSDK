@@ -53,6 +53,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
         }
 
+        protected override void ClearInput()
+        {
+            _bodyInput = default;
+        }
+
         protected override void HandleBodyInput(MonaInputEvent evt)
         {
             _bodyInput = evt.Input;
