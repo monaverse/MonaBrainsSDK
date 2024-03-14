@@ -375,13 +375,29 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private void BuildRoot()
         {
             if (!HasAnimationTiles()) return;
+
+            var found = false;
             if (_body.Transform.childCount == 1)
             {
-                _root = _body.Transform.GetChild(0);
+                var child = _body.Transform.GetChild(0);
+                if (Vector3.Distance(child.position, _body.GetPosition()) < Mathf.Epsilon)
+                {
+                    _root = child;
+                    found = true;
+                }
             }
-            else
+            else if (_body.Transform.Find("Root") != null)
             {
-                _root = _body.Transform.Find("Root");
+                var child = _body.Transform.Find("Root");
+                if (Vector3.Distance(child.position, _body.GetPosition()) < Mathf.Epsilon)
+                {
+                    _root = child;
+                    found = true;
+                }
+            }
+
+            if (!found)
+            {
                 if (_root == null)
                 {
                     _root = (new GameObject("Root")).transform;
