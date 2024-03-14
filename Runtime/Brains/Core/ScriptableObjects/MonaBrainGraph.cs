@@ -666,5 +666,23 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             for (var i = 0; i < _monaAssets.Count; i++)
                 EventBus.Trigger<MonaAssetProviderRemovedEvent>(new EventHook(MonaCoreConstants.MONA_ASSET_PROVIDER_REMOVED), new MonaAssetProviderRemovedEvent(_monaAssets[i]));
         }
+
+        public string ToJson()
+        {
+            return JsonUtility.ToJson(this);
+        }
+
+        public void FromJson(string json)
+        {
+            JsonUtility.FromJsonOverwrite(json, this);
+        }
+
+        public static MonaBrainGraph CreateFromJson(string json)
+        {
+            var brain = ScriptableObject.CreateInstance<MonaBrainGraph>();
+            JsonUtility.FromJsonOverwrite(json, brain);
+            return brain;
+        }
+
     }
 }

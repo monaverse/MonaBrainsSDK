@@ -12,6 +12,7 @@ using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Core.Assets.Interfaces;
 using Mona.SDK.Core;
 using Mona.SDK.Brains.Core;
+using System.IO;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -369,6 +370,82 @@ namespace Mona.SDK.Brains.UIElements
                 _brain.LegacyMonaPlatforms = changed.newValue;
             });
             _foldOut.Add(_toggleLegacyMonaPlatforms);
+
+            var container = new VisualElement();
+            SetBorder(container, 5, 1, Color.grey, 10f);
+
+            var labelImport = new Label("IMPORT/EXPORT JSON");
+            labelImport.style.unityFontStyleAndWeight = FontStyle.Bold;
+            labelImport.style.paddingBottom = 10;
+            container.Add(labelImport);
+
+            var importRow = new VisualElement();
+            importRow.style.flexDirection = FlexDirection.Row;
+            importRow.style.flexGrow = 1;
+
+            var importLabel = new Label();
+            importLabel.text = "Import From Json";
+            importLabel.style.width = 200;
+            importRow.Add(importLabel);
+
+            var jsonField = new ObjectField();
+            jsonField.objectType = typeof(TextAsset);
+            jsonField.style.flexGrow = 1;
+
+            var jsonImport = new Button();
+            jsonImport.text = "Import";
+            jsonImport.clicked += () =>
+            {
+                if (jsonField.value == null) return;
+                var text = (TextAsset)jsonField.value;
+                _brain.FromJson(text.text);
+                Refresh();
+            };
+
+            importRow.Add(jsonField);
+            importRow.Add(jsonImport);
+
+            container.Add(importRow);
+
+            var exportRow = new VisualElement();
+            exportRow.style.flexDirection = FlexDirection.Row;
+            exportRow.style.flexGrow = 1;
+
+            var exportLabel = new Label();
+            exportLabel.text = "Export To Json";
+            exportLabel.style.width = 200;
+            exportRow.Add(exportLabel);
+
+            var button = new Button();
+            button.text = "Export And Save";
+            button.style.flexGrow = 1;
+            button.clicked += () =>
+            {
+                Debug.Log($"BRAIN JSON {_brain.ToJson()}");
+
+                if (!AssetDatabase.IsValidFolder("Assets/Brains"))
+                    AssetDatabase.CreateFolder("Assets", "Brains");
+
+                if (!AssetDatabase.IsValidFolder("Assets/Brains/Json"))
+                    AssetDatabase.CreateFolder("Assets/Brains", "Json");
+
+                var file = _brain.Name;
+                if (string.IsNullOrEmpty(file))
+                    file = ((MonaBrainGraph)_brain).name;
+
+                var name = "/Brains/Json/" + file + ".json";
+
+                File.WriteAllText(Application.dataPath + name, _brain.ToJson());
+                AssetDatabase.Refresh();
+
+
+                Debug.Log($"BRAIN EXPORTED AS: {name}");
+            };
+
+            exportRow.Add(button);
+            container.Add(exportRow);
+            _foldOut.Add(container);
+
 #endif
 
             _rightColumn = new VisualElement();

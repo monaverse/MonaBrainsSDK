@@ -13,6 +13,7 @@ using Mona.SDK.Brains.Core.Brain.Structs;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Brains.Core.Control;
+using UnityEngine.Networking;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -61,6 +62,51 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             _brainGraphs = graphs;
             PreloadBrains();
+        }
+        
+        public void LoadBrainGraph(string url)
+        {
+            StartCoroutine(LoadBrainGraphCoroutine(new List<string>() { url }));
+        }
+
+        public void LoadBrainGraphs(List<string> urls)
+        {
+            StartCoroutine(LoadBrainGraphCoroutine(urls));
+        }
+
+        private IEnumerator LoadBrainGraphCoroutine(List<string> urls)
+        {
+            for (var i = 0; i < urls.Count; i++)
+            {
+                var url = urls[i];
+                var request = UnityWebRequest.Get(url);
+                string data;
+
+                yield return request.SendWebRequest();
+
+                switch (request.result)
+                {
+                    case UnityWebRequest.Result.ConnectionError:
+                    case UnityWebRequest.Result.ProtocolError:
+                    case UnityWebRequest.Result.DataProcessingError:
+                        Debug.LogError($"{nameof(MonaBrainRunner)}.{nameof(LoadBrainGraphCoroutine)} - Request error: {request.error}");
+                        data = null;
+                        break;
+                    case UnityWebRequest.Result.Success:
+                        data = request.downloadHandler.text;
+                        break;
+                    default:
+                        Debug.LogError($"{nameof(MonaBrainRunner)}.{nameof(LoadBrainGraphCoroutine)} - Request error: {request.error}");
+                        data = null;
+                        break;
+                }
+
+                if (data != null)
+                {
+                    AddBrainGraph(MonaBrainGraph.CreateFromJson(data));
+                }
+            }
+            StartBrains(force: true);
         }
 
         public void AddBrainGraph(MonaBrainGraph graph)
