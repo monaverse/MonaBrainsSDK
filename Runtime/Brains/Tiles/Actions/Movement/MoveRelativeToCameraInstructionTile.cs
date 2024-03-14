@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class MoveRelativeToCameraInstructionTile : MoveLocalInstructionTile
+    public class MoveRelativeToCameraInstructionTile : MoveLocalWithDistanceInstructionTile
     {
         public const string ID = "Move Relative To Camera";
         public const string NAME = "Move Relative To Camera";
@@ -17,5 +17,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         [SerializeField] public MoveCameraDirectionType _cameraDirection = MoveCameraDirectionType.UseInput;
         [BrainPropertyEnum(false)] public MoveCameraDirectionType CameraDirection { get => _cameraDirection; set => _cameraDirection = value; }
+
+        [BrainPropertyShow(nameof(CameraDirection), (int)MoveCameraDirectionType.UseInput)]
+        [BrainPropertyEnum(false)] public MovementPlaneType MovementPlane { get => _movementPlane; set => _movementPlane = value; }
     }
 }

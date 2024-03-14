@@ -62,9 +62,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
         private Action<MonaInputEvent> OnInput;
 
-        private MonaInput _bodyInput;
+        protected MonaInput _bodyInput;
 
-        private bool InstantRotation => _mode == MoveModeType.PerSecondMovement || _mode == MoveModeType.Instant;
+        private bool InstantRotation => _mode == MoveModeType.SpeedOnly || _mode == MoveModeType.Instant;
 
         private float _speed
         {
@@ -232,33 +232,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 }
             }
 
-            if (InstantRotation)
-            {
-                if (!string.IsNullOrEmpty(_angleValueName))
-                    _angle = _brain.Variables.GetFloat(_angleValueName);
-
-                StartRotation();
-
-                float step = _mode == MoveModeType.PerSecondMovement ?
-                    _angle * Time.smoothDeltaTime :
-                    _angle;
-
-                _direction = GetDirectionRotation(DirectionType, step, Time.smoothDeltaTime, 1f, true);
-
-                if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
-                {
-                    _direction = Quaternion.AngleAxis(_angle * Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
-                }
-
-                if (_onlyTurnWhenMoving && Mathf.Approximately(_bodyInput.MoveValue.y, 0f))
-                {
-                    _direction = Quaternion.identity;
-                }
-
-                _brain.Body.SetRotation(_direction, true);
-                return Complete(InstructionTileResult.Success);
-            }
-
             if (_movingState == MovingStateType.Stopped)
             {
                 Progress = 0;
@@ -291,6 +264,31 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 case MoveModeType.Time: MoveOverTime(deltaTime); break;
                 case MoveModeType.Speed: MoveAtSpeed(deltaTime); break;
+            }
+
+            if (InstantRotation)
+            {
+                if (!string.IsNullOrEmpty(_angleValueName))
+                    _angle = _brain.Variables.GetFloat(_angleValueName);
+
+                StartRotation();
+
+                float step = _mode == MoveModeType.SpeedOnly ? _angle * deltaTime : _angle;
+
+                _direction = GetDirectionRotation(DirectionType, step, deltaTime, 1f, true);
+
+                if (DirectionType == RotateDirectionType.InputLeftRight && _bodyInput.MoveValue.x != 0f)
+                {
+                    _direction = Quaternion.AngleAxis(_angle * Mathf.Sign(_bodyInput.MoveValue.x), Vector3.up);
+                }
+
+                if (_onlyTurnWhenMoving && Mathf.Approximately(_bodyInput.MoveValue.y, 0f))
+                {
+                    _direction = Quaternion.identity;
+                }
+
+                _brain.Body.SetRotation(_direction, true);
+                StopMoving();
             }
         }
 

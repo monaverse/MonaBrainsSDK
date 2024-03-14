@@ -4,7 +4,7 @@ using System;
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class MoveAlongZNegativeInstructionTile : MoveLocalInstructionTile
+    public class MoveAlongZNegativeInstructionTile : MoveLocalWithDistanceInstructionTile
     {
         public const string ID = "Move Along Z Negative";
         public const string NAME = "Move Along Z Negative";

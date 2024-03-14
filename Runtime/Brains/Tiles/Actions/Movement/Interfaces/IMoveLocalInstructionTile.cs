@@ -5,7 +5,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces
 {
     public interface IMoveLocalInstructionTile : IInstructionTileWithPreloadAndPageAndInstruction
     {
-        float Distance { get; set; }
+        //float Distance { get; set; }
         EasingType Easing { get; set; }
         MoveModeType Mode { get; set; }
         float Value { get; set; }

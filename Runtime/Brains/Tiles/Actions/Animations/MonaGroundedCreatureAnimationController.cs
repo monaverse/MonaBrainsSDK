@@ -95,6 +95,7 @@ namespace Mona.SDK.Brains.Core.Animation
                 }
                 var overrideController = new AnimatorOverrideController(controller);
                 _animator.runtimeAnimatorController = overrideController;
+                _animator.Rebind();
             }
             _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
         }
@@ -104,10 +105,26 @@ namespace Mona.SDK.Brains.Core.Animation
             SetupAnimationController(animator);
         }
 
-        public void SetWalk(float speed)
+        private void Update()
         {
             if (_brain.Body.IsAttachedToRemotePlayer()) return;
-            _animator.SetFloat(SPEED, speed);
+            _speed = Mathf.Lerp(_speed, _toSpeed, Time.deltaTime*10f);
+            _animator.SetFloat(SPEED, _speed);
+        }
+
+        private float _speed = 0f;
+        private float _toSpeed = 0f;
+        public void SetWalk(float speed)
+        {
+            if (speed > 0f)
+            {
+                _speed = speed;
+                _toSpeed = speed;
+            }
+            else
+            {
+                _toSpeed = 0f;
+            }
         }
 
         public void SetMotionSpeed(float speed)

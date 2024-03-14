@@ -14,6 +14,7 @@ namespace Mona.SDK.Brains.Core.Control
         bool HasAnimationTiles();
         bool HasRigidbodyTiles();
         bool HasUsePhysicsTileSetToTrue();
+        bool HasOnMessageTile(string message);
         void SetActive(bool active);
         void SetIsCore(bool core);
         void Preload(IMonaBrain brain);

@@ -63,6 +63,9 @@ namespace Mona.SDK.Brains.Core.Brain
         void Resume();
         void Unload();
 
+        string ToJson();
+        void FromJson(string json);
+
         IInstructionTileSet TileSet { get; set; }
         IMonaTags MonaTagSource { get; set; }
     }

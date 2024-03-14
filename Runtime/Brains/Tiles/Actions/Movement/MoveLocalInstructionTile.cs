@@ -29,18 +29,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public virtual MoveDirectionType DirectionType => MoveDirectionType.Forward;
 
-        [SerializeField] private float _distance = 1f;
-        [SerializeField] private string _distanceValueName = null;
-
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Meters")]
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Time, "Meters")]
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Instant, "Meters")]
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.PerSecondMovement, "Meters/Sec")]
-        [BrainProperty(true)] 
-        public float Distance { get => _distance; set => _distance = value; }
-
-        [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))]
-        public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
+        [SerializeField] protected float _distance = 1f;
+        [SerializeField] protected string _distanceValueName = null;
+        [SerializeField] protected string _coordinatesName;
+        [SerializeField] protected Vector3 _moveToCoordinates = Vector3.zero;
+        [SerializeField] protected MovementPlaneType _movementPlane = MovementPlaneType.NorthSouthEastWest;
 
         [SerializeField] protected MoveModeType _mode = MoveModeType.Time;
         [BrainProperty(false)] public MoveModeType Mode { get => _mode; set => _mode = value; }
@@ -53,7 +46,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Time, "Seconds")]
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Meters/Sec")]
         [BrainProperty(false)] public float Value { get => _value; set => _value = value; }
-        
 
         [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))]
         public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
@@ -62,8 +54,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Time)]
         [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
-
+        
         private Vector3 _direction;
+        private Vector3 _startPosition;
 
         protected IMonaBrain _brain;
         private IInstruction _instruction;
@@ -80,7 +73,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Action<MonaBodyEvent> OnBodyEvent;
         private Action<MonaInputEvent> OnInput;
 
-        private bool InstantMovement => _mode == MoveModeType.PerSecondMovement || _mode == MoveModeType.Instant;
+        private bool InstantMovement => _mode == MoveModeType.SpeedOnly || _mode == MoveModeType.Instant;
 
         private float _speed
         {
@@ -201,6 +194,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void AddFixedTickDelegate()
         {
+            //Debug.Log($"{nameof(AddFixedTickDelegate)}, fr: {Time.frameCount}", _brain.Body.Transform.gameObject);
+
             OnFixedTick = HandleFixedTick;
             EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
 
@@ -220,7 +215,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         protected void HandleBodyInput(MonaInputEvent evt)
         {
             //Debug.Log($"{nameof(HandleBodyInput)} {evt.Input.MoveValue}");
-            if(_movingState != MovingStateType.Moving)
+            if(_movingState != MovingStateType.Moving || InstantMovement)
                 _bodyInput = evt.Input;
         }
 
@@ -252,11 +247,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override InstructionTileResult Do()
         {
-            _direction = GetDirectionVector(DirectionType);
-            //Debug.Log($"{nameof(MoveLocalInstructionTile)}.Do {DirectionType}");
+            _startPosition = _brain.Body.GetPosition();
 
-            if (!string.IsNullOrEmpty(_distanceValueName))
-                _distance = _brain.Variables.GetFloat(_distanceValueName);
+            _direction = GetDirectionVector(DirectionType);
+            
+            _distance = GetDistance();
 
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetFloat(_valueValueName);
@@ -265,26 +260,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 _movingState = MovingStateType.Stopped;
                 StoppedMoving();
-                return Complete(InstructionTileResult.Success);
-            }
-
-            if (InstantMovement)
-            {
-                _direction = GetDirectionVector(DirectionType);
-
-                if (!string.IsNullOrEmpty(_distanceValueName))
-                    _distance = _brain.Variables.GetFloat(_distanceValueName);
-
-                float step = _mode == MoveModeType.PerSecondMovement ?
-                    _distance * Time.smoothDeltaTime :
-                    _distance;
-
-                _brain.Body.AddPosition(_direction * step, true);
-                AddFixedTickDelegate();
-
-                _coolingDown = true;
-                _cooldown = 4;
-
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -302,8 +277,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
             Tick(evt.DeltaTime);
-            
-            if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant || _mode == MoveModeType.PerSecondMovement)
+
+            if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant || _mode == MoveModeType.SpeedOnly)
             {
                 switch (_brain.PropertyType)
                 {
@@ -312,29 +287,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 }
             }
 
-            if (_coolingDown)
+            if (InstantMovement)
             {
-                if (_cooldown <= 0)
-                {
-                    _currentSpeed *= .999f;
-                    if (_currentSpeed < 0.01f)
-                        _currentSpeed = 0;
-                    if (_cooldown <= -4)
-                    {
-                        RemoveFixedTickDelegate();
-                        StopMoving();
-                        _coolingDown = false;
-                    }
-                }
-                _cooldown--;
+                float step = _mode == MoveModeType.SpeedOnly ? _distance * evt.DeltaTime : _distance;
+
+                //Debug.Log($"{_distance} {_direction} {Time.frameCount}", _brain.Body.Transform.gameObject);
+                _brain.Body.AddPosition(_direction * step, true);
+                StopMoving();
             }
+
         }
-                
+
         private void TickGroundedCreature(float deltaTime)
         {
             if (_controller == null) return;
-            _controller.SetWalk(GetSpeed());
-            _controller.SetMotionSpeed(GetMotionSpeed(DirectionType));
+            var motion = GetMotionSpeed(DirectionType);
+            var speed = GetSpeed();
+            _controller.SetWalk(speed);
+            _controller.SetMotionSpeed(motion);
         }
 
         private void StopGroundedCreature()
@@ -360,13 +330,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return;
             }
 
-            if (_mode != MoveModeType.Instant || _cooldown == 4)
-            {
-                _currentSpeed = Mathf.Abs(Vector3.Distance(_brain.Body.GetPosition(), _lastPosition) / deltaTime);
-                _lastPosition = _brain.Body.GetPosition();
-                if (_currentSpeed < 0.01f && _mode != MoveModeType.Instant)
-                    _currentSpeed = 0;
-            }
+            _currentSpeed = Mathf.Abs(Vector3.Distance(_brain.Body.GetPosition(), _lastPosition) / deltaTime);
+            _lastPosition = _brain.Body.GetPosition();
+            if (_currentSpeed < 0.01f)
+                _currentSpeed = 0;
 
             switch (_mode)
             {
@@ -403,9 +370,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         protected float GetDistance()
         {
-            if (!string.IsNullOrEmpty(_distanceValueName))
-                _distance = _brain.Variables.GetFloat(_distanceValueName);
-            return _distance;
+            float distance = _distance;
+
+            if (DirectionType == MoveDirectionType.GlobalCoordinates)
+            {
+                Vector3 endPosition = !string.IsNullOrEmpty(_coordinatesName) ?
+                _brain.Variables.GetVector3(_coordinatesName) :
+                _moveToCoordinates;
+
+                distance = Vector3.Distance(endPosition, _startPosition);
+            }
+            else if (!string.IsNullOrEmpty(_distanceValueName))
+            {
+                distance = _brain.Variables.GetFloat(_distanceValueName);
+            }
+                
+            return distance;
         }
 
         private void MoveOverTime(float deltaTime)
@@ -417,9 +397,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _direction = GetDirectionVector(DirectionType);
 
                 Progress = Mathf.Clamp01(Progress);
-
-                if (!string.IsNullOrEmpty(_distanceValueName))
-                    _distance = _brain.Variables.GetFloat(_distanceValueName);
 
                 float diff = Evaluate(Progress + progressDelta) - Evaluate(Progress);
                 _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
@@ -443,9 +420,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 var progressDelta = Mathf.Round((((_value * _speed) / _distance) * deltaTime) * 100000f) / 100000f;
 
                 _direction = GetDirectionVector(DirectionType);
-
-                if (!string.IsNullOrEmpty(_distanceValueName))
-                    _distance = _brain.Variables.GetFloat(_distanceValueName);
 
                 Progress = Mathf.Clamp01(Progress);
 
@@ -513,7 +487,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.XNegative: return -1f;
                 case MoveDirectionType.YNegative: return -1f;
                 case MoveDirectionType.ZNegative: return -1f;
-                case MoveDirectionType.CameraAll: return Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
+                case MoveDirectionType.CameraAll: return Mathf.Approximately(InputMoveDirection.y, 0) && Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(Mathf.Abs(InputMoveDirection.y)+Mathf.Abs(InputMoveDirection.x));
                 case MoveDirectionType.CameraForward: return 1f;
                 case MoveDirectionType.CameraBackward: return 1f;
                 case MoveDirectionType.CameraRight: return 1f;
@@ -549,7 +523,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.XNegative: return Vector3.right * -1f;
                 case MoveDirectionType.YNegative: return Vector3.up * -1f;
                 case MoveDirectionType.ZNegative: return Vector3.forward * -1f;
-                case MoveDirectionType.CameraAll: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward) * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.right) * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+                case MoveDirectionType.CameraAll: return CameraMovementVector();
                 case MoveDirectionType.CameraForward: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward);
                 case MoveDirectionType.CameraBackward: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward * -1f);
                 case MoveDirectionType.CameraRight: return FlattenVector(MonaGlobalBrainRunner.Instance.SceneCamera.transform.right);
@@ -563,9 +537,41 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MoveDirectionType.CameraTrueLeft: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.right * -1f;
                 case MoveDirectionType.CameraTrueUp: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.up;
                 case MoveDirectionType.CameraTrueDown: return MonaGlobalBrainRunner.Instance.SceneCamera.transform.up * -1f;
+                case MoveDirectionType.GlobalCoordinates: return MoveToDirection();
 
                 default: return Vector3.zero;
             }
+        }
+
+        private Vector3 CameraMovementVector()
+        {
+            Vector3 cameraRight = MonaGlobalBrainRunner.Instance.SceneCamera.transform.right;
+            Vector3 cameraUp = MonaGlobalBrainRunner.Instance.SceneCamera.transform.up;
+            Vector3 cameraForward = MonaGlobalBrainRunner.Instance.SceneCamera.transform.forward;
+
+            switch ((int)_movementPlane)
+            {
+                case 0:
+                    cameraForward.y = 0;
+                    cameraRight.y = 0;
+                    cameraForward.Normalize();
+                    cameraRight.Normalize();
+                    return cameraForward * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + cameraRight * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+                case 1:
+                    cameraRight.x = 0;
+                    cameraUp.x = 0;
+                    cameraRight.Normalize();
+                    cameraUp.Normalize();
+                    return cameraUp * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + cameraRight * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+                case 2:
+                    cameraRight.z = 0;
+                    cameraUp.z = 0;
+                    cameraRight.Normalize();
+                    cameraUp.Normalize();
+                    return cameraUp * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + cameraRight * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+            }
+
+            return Vector3.zero;
         }
 
         private Vector3 FlattenVector(Vector3 vector)
@@ -573,6 +579,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             vector.y = 0;
             vector.Normalize();
             return vector;
+        }
+
+        private Vector3 MoveToDirection()
+        {
+            Vector3 endPosition = !string.IsNullOrEmpty(_coordinatesName) ?
+                _brain.Variables.GetVector3(_coordinatesName) :
+                _moveToCoordinates;
+
+            return endPosition - _startPosition;
         }
     }
 }

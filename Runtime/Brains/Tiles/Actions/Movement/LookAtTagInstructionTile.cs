@@ -23,9 +23,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainProperty(false)] public bool LookStraightAhead { get => _lookStraightAhead; set => _lookStraightAhead = value; }
 
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Angles/Sec")]
-        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.PerSecondMovement, "Angles/Sec")]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.SpeedOnly, "Angles/Sec")]
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
-        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.PerSecondMovement)]
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.SpeedOnly)]
         [BrainProperty(false)] public float Angle { get => _angle; set => _angle = value; }
         [BrainPropertyValueName("Angle", typeof(IMonaVariablesFloatValue))] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
 

@@ -255,7 +255,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private Action<MonaTriggerEvent> OnMonaTrigger;
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
         private Action<MonaBroadcastMessageEvent> OnBroadcastMessage;
-        private Action<MonaBodyFixedTickEvent> OnInputOnFixedTick;
+        private Action<MonaBodyHasInputEvent> OnMonaBodyHasInput;
 
         private bool _coreOnStarting;
         private bool _stateOnStarting;
@@ -455,8 +455,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
             EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
 
-            OnInputOnFixedTick = HandleInputOnFixedTick;
-            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _body), OnInputOnFixedTick);
+            OnMonaBodyHasInput = HandleHasInput;
+            EventBus.Register<MonaBodyHasInputEvent>(new EventHook(MonaCoreConstants.MONA_BODY_HAS_INPUT_EVENT, _body), OnMonaBodyHasInput);
         }
 
         private void AddHierarchyDelgates()
@@ -478,9 +478,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
 
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _body), OnInputOnFixedTick);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _body), OnMonaBodyHasInput);
 
-            OnInputOnFixedTick = null;
+            OnMonaBodyHasInput = null;
             OnBroadcastMessage = null;
         }
 
@@ -544,8 +544,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleMonaBrainTick(MonaBrainTickEvent evt)
         {
-            //Debug.Log($"{nameof(HandleMonaBrainTick)} evt.Instruction {evt.Instruction.InstructionTiles[0]}");
-            _runner.WaitFrame(_index, ExecuteTickEvent, evt, typeof(MonaBrainTickEvent));
+            //if(LoggingEnabled) Debug.Log($"{nameof(HandleMonaBrainTick)} evt.Instruction {evt.Instruction.InstructionTiles[0]}");
+            _runner.WaitFrame(_index, ExecuteTickEvent, evt, typeof(MonaBrainTickEvent), LoggingEnabled);
         }
 
         private void ExecuteTickEvent(IInstructionEvent evt)
@@ -563,7 +563,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             if (evt.Type == MonaTriggerType.OnFieldOfViewChanged)
             {
-                _runner.WaitFrame(_index, ExecuteTriggerEvent, evt, typeof(MonaTriggerEvent));
+                _runner.WaitFrame(_index, ExecuteTriggerEvent, evt, typeof(MonaTriggerEvent), LoggingEnabled);
             }
             else
             {
@@ -596,7 +596,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if (!HasMessage(evt.Message))
                 _messages.Add(evt);
 
-            _runner.WaitFrame(_index, ExecuteMessage, evt, typeof(MonaBroadcastMessageEvent));
+            _runner.WaitFrame(_index, ExecuteMessage, evt, typeof(MonaBroadcastMessageEvent), LoggingEnabled);
         }
 
         private void ExecuteMessage(IInstructionEvent evt)
@@ -610,12 +610,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             }
         }
 
-        private void HandleInputOnFixedTick(MonaBodyFixedTickEvent evt)
+        private void HandleHasInput(MonaBodyHasInputEvent evt)
         {
             if (!_began) return;
 
-            if (!evt.HasInput) return;
-            //Debug.Log($"has input");
             ExecuteCorePageInstructions(InstructionEventTypes.Input);
             ExecuteStatePageInstructions(InstructionEventTypes.Input);
         }
@@ -638,6 +636,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             for (var i = 0; i < StatePages.Count; i++)
             {
                 StatePages[i].SetActive(false);
+
+                for(var m = _messages.Count-1; m >= 0; m--)
+                {
+                    if (StatePages[i].HasOnMessageTile(_messages[m].Message))
+                        _messages.RemoveAt(m);
+                }
+
                 if (StatePages[i].Name == BrainState)
                 {
                     StatePages[i].SetActive(true);
@@ -677,5 +682,23 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             for (var i = 0; i < _monaAssets.Count; i++)
                 EventBus.Trigger<MonaAssetProviderRemovedEvent>(new EventHook(MonaCoreConstants.MONA_ASSET_PROVIDER_REMOVED), new MonaAssetProviderRemovedEvent(_monaAssets[i]));
         }
+
+        public string ToJson()
+        {
+            return JsonUtility.ToJson(this);
+        }
+
+        public void FromJson(string json)
+        {
+            JsonUtility.FromJsonOverwrite(json, this);
+        }
+
+        public static MonaBrainGraph CreateFromJson(string json)
+        {
+            var brain = ScriptableObject.CreateInstance<MonaBrainGraph>();
+            JsonUtility.FromJsonOverwrite(json, brain);
+            return brain;
+        }
+
     }
 }

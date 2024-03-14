@@ -1,3 +1,16 @@
+# MonaBrainsSDK 0.5.0
+
+### Bug Fixes
+- Fixed Input lag
+- fixed Rigidbody movement behaving abnormally. Moved movement into fixedupdate context.
+- removed samples
+
+### Improvments
+- Move to Position Tile (allows objects to move over time to set global coordinates)
+- Added MovementPlaneType to Camera Relative movement tiles that allow for single plane based movement
+- Added Tiles to bound the extends of position of objects to a given range (eg. This ship can only move between -5, and 5 on the east/west axis)
+- More meaningful and concise labels on tiles and fields
+
 # MonaBrainsSDK 0.4.0
 
 ### Bug Fixes

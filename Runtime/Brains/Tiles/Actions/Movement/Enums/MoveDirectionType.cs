@@ -29,7 +29,8 @@
         CameraTrueRight = 30,
         CameraTrueLeft = 31,
         CameraTrueUp = 32,
-        CameraTrueDown = 33
+        CameraTrueDown = 33,
+        GlobalCoordinates = 40
     }
 
     public enum MoveCameraDirectionType

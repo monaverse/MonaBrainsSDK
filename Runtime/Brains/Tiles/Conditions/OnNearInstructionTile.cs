@@ -31,7 +31,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainProperty(true)] public float Distance { get => _distance; set => _distance = value; }
         [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValue { get => _distanceValueName; set => _distanceValueName = value; }
 
-        [SerializeField] private float _fieldOfView = 180f;
+        [SerializeField] private float _fieldOfView = 360f;
         [SerializeField] private string _fieldOfViewValueName;
         [BrainProperty(false)] public float FieldOfView { get => _fieldOfView; set => _fieldOfView = value; }
         [BrainPropertyValueName("FieldOfView", typeof(IMonaVariablesFloatValue))] public string FieldOfViewValueName { get => _fieldOfViewValueName; set => _fieldOfViewValueName = value; }
@@ -113,10 +113,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             _collider.SetRadius(_distance);
             var body = _collider.FindForwardMostBodyWithMonaTagInFieldOfView(_tag, _fieldOfView);
+            //Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} chck on near: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
             if (body != null)
             {
                 if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
+                    Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {_tag} {body} {_distance}", _brain.Body.ActiveTransform.gameObject);
                 _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
                 return Complete(InstructionTileResult.Success);
             }

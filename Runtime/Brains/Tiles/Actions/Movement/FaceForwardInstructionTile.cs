@@ -34,18 +34,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress, bool immediate)
         {
             var fwd = _brain.Body.GetVelocity();
-            fwd.Normalize();
-
+            
             if (fwd.magnitude < Mathf.Epsilon)
                 return Quaternion.identity;
             else
             {
+                fwd.Normalize();
+
                 if (_lookStraightAhead)
                     fwd.y = 0;
 
-                if (fwd.magnitude < Mathf.Epsilon)
+                if (fwd.magnitude < .2f)
                     return Quaternion.identity;
 
+                //Debug.Log($"{nameof(FaceForwardInstructionTile)} {moveType} {fwd} {_bodyInput.MoveValue}");
                 var rot = _brain.Body.GetRotation();
                 if (immediate)
                 {

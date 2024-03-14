@@ -19,6 +19,7 @@ namespace Mona.SDK.Brains.Core.Control
         bool HasAnimationTiles();
         bool HasRigidbodyTiles();
         bool HasUsePhysicsTileSetToTrue();
+        bool HasOnMessageTile(string message);
 
         List<IInstructionTile> InstructionTiles { get; }
         IInstructionTile CurrentTile { get; }
