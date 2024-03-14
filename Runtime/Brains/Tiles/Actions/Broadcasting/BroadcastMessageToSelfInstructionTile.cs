@@ -34,18 +34,26 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
         {
             if(_brain.LoggingEnabled)
                 Debug.Log($"{nameof(BroadcastMessageToSelfInstructionTile)} {_message}");
-            if (_brain.Body is IMonaBodyPart)
-            {
-                IMonaBody parent = _brain.Body.Parent;
-                if (parent != null)
-                    BroadcastMessage(_brain, _message, parent);
-            }
-            else
-            {
-                BroadcastMessage(_brain, _message, _brain.Body);
-            }
+
+            IMonaBody topBody = _brain.Body;
+            while (_brain.Body.Parent != null)
+                topBody = topBody.Parent;
+
+            BroadcastToChildren(topBody);
 
             return Complete(InstructionTileResult.Success);
         }
+
+        private void BroadcastToChildren(IMonaBody body)
+        {
+            if(_brain.LoggingEnabled)
+                Debug.Log($"{nameof(BroadcastToChildren)} {_message} {body.Transform.name}", body.Transform.gameObject);
+            BroadcastMessage(_brain, _message, body);
+            var children = body.Children();
+            for (var i = 0; i < children.Count; i++)
+                BroadcastToChildren(children[i]);
+        }
+
     }
+
 }
