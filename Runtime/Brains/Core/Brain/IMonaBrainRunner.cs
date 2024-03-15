@@ -18,8 +18,13 @@ namespace Mona.SDK.Brains.Core.Brain
         void WaitFrame(Action callback);
 
         List<MonaBrainGraph> BrainGraphs { get; }
+        List<string> BrainUrls { get; }
+
         void SetBrainGraphs(List<MonaBrainGraph> brainGraphs);
         void AddBrainGraph(MonaBrainGraph brainGraph);
+
+        void LoadBrainGraph(string url, Action<List<IMonaBrain>> callback = null);
+        void LoadBrainGraphs(List<string> urls, Action<List<IMonaBrain>> callback = null);
 
         List<IMonaBrain> BrainInstances { get; }
 

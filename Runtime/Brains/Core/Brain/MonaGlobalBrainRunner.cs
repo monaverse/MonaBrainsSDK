@@ -25,6 +25,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public MonaNetworkSettings _NetworkSettings = new MonaNetworkSettings();
 
+        public string DefaultIPFSGateway;
+
         public IMonaNetworkSettings NetworkSettings => _NetworkSettings;
 
         private List<IMonaBrain> _brains = new List<IMonaBrain>();

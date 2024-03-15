@@ -58,28 +58,36 @@ namespace Mona.SDK.Brains.Core.Brain
         private List<MonaBrainGraph> _brainGraphs = new List<MonaBrainGraph>();
         public List<MonaBrainGraph> BrainGraphs => _brainGraphs;
 
+        [SerializeField]
+        private List<string> _brainUrls = new List<string>();
+        public List<string> BrainUrls => _brainUrls;
+
         public void SetBrainGraphs(List<MonaBrainGraph> graphs)
         {
             _brainGraphs = graphs;
             PreloadBrains();
         }
         
-        public void LoadBrainGraph(string url)
+        public void LoadBrainGraph(string url, Action<List<IMonaBrain>> callback = null)
         {
-            StartCoroutine(LoadBrainGraphCoroutine(new List<string>() { url }));
+            StartCoroutine(LoadBrainGraphCoroutine(new List<string>() { url }, callback));
         }
 
-        public void LoadBrainGraphs(List<string> urls)
+        public void LoadBrainGraphs(List<string> urls, Action<List<IMonaBrain>> callback = null)
         {
-            StartCoroutine(LoadBrainGraphCoroutine(urls));
+            StartCoroutine(LoadBrainGraphCoroutine(urls, callback));
         }
 
-        private IEnumerator LoadBrainGraphCoroutine(List<string> urls)
+        private IEnumerator LoadBrainGraphCoroutine(List<string> urls, Action<List<IMonaBrain>> callback = null)
         {
+            List<IMonaBrain> brains = new List<IMonaBrain>();
+            var gateway = GameObject.FindObjectOfType<MonaGlobalBrainRunner>();
+            var prefix = gateway != null ? gateway.DefaultIPFSGateway : "";
+
             for (var i = 0; i < urls.Count; i++)
             {
                 var url = urls[i];
-                var request = UnityWebRequest.Get(url);
+                var request = UnityWebRequest.Get(url.IndexOf("http") == -1 ? (prefix+url) : url);
                 string data;
 
                 yield return request.SendWebRequest();
@@ -103,10 +111,18 @@ namespace Mona.SDK.Brains.Core.Brain
 
                 if (data != null)
                 {
-                    AddBrainGraph(MonaBrainGraph.CreateFromJson(data));
+                    var brain = MonaBrainGraph.CreateFromJson(data);
+                    brain.SourceUrl = url;
+                    brains.Add(brain);
+                    if(BrainGraphs.Find(x => x != null && x.SourceUrl == url) == null)
+                        AddBrainGraph(brain);
                 }
             }
-            StartBrains(force: true);
+
+            if (callback != null)
+                callback(brains);
+            else
+                StartBrains(force: true);
         }
 
         public void AddBrainGraph(MonaBrainGraph graph)
@@ -173,6 +189,13 @@ namespace Mona.SDK.Brains.Core.Brain
             CacheComponents();
             AddHotReloadDelegates();
             DetectRigidbody();
+            LoadUrl();
+        }
+
+        private void LoadUrl()
+        {
+            if(_brainUrls.Count > 0)
+                LoadBrainGraphs(_brainUrls);
         }
 
         private void DetectRigidbody()

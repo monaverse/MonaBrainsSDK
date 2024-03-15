@@ -13,6 +13,7 @@ namespace Mona.SDK.Brains.UIElements
         private VisualElement _instructionContainer;
 
         private EnumField _networkType;
+        private TextField _ipfsGateway;
         private ListView _brainsListView;
 
         public MonaGlobalBrainRunnerVisualElement()
@@ -29,6 +30,14 @@ namespace Mona.SDK.Brains.UIElements
                 }
             });
             _root.Add(_networkType);
+
+            _ipfsGateway = new TextField();
+            _ipfsGateway.label = "Default IPFS Gateway:";
+            _ipfsGateway.RegisterValueChangedCallback(evt =>
+            {
+                _globalRunner.DefaultIPFSGateway = (string)evt.newValue;
+            });
+            _root.Add(_ipfsGateway);
 
             _brainsListView = new ListView(null, 120, () => new MonaBrainReferenceVisualElement(_globalRunner), (elem, i) => ((MonaBrainReferenceVisualElement)elem).SetValue(i, _globalRunner.PlayerBrainGraphs[i]));
             _brainsListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
@@ -63,6 +72,8 @@ namespace Mona.SDK.Brains.UIElements
             
             _brainsListView.itemsSource = _globalRunner.PlayerBrainGraphs;
             _brainsListView.Rebuild();
+
+            _ipfsGateway.value = _globalRunner.DefaultIPFSGateway;
 
             _networkType.value = _globalRunner.NetworkSettings.NetworkType;
         }

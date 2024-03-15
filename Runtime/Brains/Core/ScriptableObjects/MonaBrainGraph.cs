@@ -46,6 +46,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private bool _legacyMonaPlatforms;
         public bool LegacyMonaPlatforms { get => _legacyMonaPlatforms; set => _legacyMonaPlatforms = value; }
 
+        [SerializeField]
+        private string _sourceUrl;
+        public string SourceUrl { get => _sourceUrl; set => _sourceUrl = value; }
+
         private GameObject _gameObject;
         public GameObject GameObject => _gameObject;
 
