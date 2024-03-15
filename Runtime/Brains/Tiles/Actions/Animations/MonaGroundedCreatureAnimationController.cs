@@ -107,7 +107,7 @@ namespace Mona.SDK.Brains.Core.Animation
 
         private void Update()
         {
-            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            if (_brain.Body.AttachType != MonaBodyAttachType.None) return;
             _speed = Mathf.Lerp(_speed, _toSpeed, Time.deltaTime*10f);
             _animator.SetFloat(SPEED, _speed);
         }

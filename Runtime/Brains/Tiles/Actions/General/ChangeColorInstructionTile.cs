@@ -124,23 +124,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 AddDelegates();
             }
 
-            if (_brain.LoggingEnabled)
-                Debug.Log($"{nameof(ChangeColorInstructionTile)}.{nameof(UpdateActive)} {_active}");
+            //if (_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(ChangeColorInstructionTile)}.{nameof(UpdateActive)} {_active}");
         }
 
 
         public override void Unload()
         {
             RemoveDelegates();
-            if (_brain.LoggingEnabled)
-                Debug.Log($"{nameof(ChangeColorInstructionTile)}.{nameof(Unload)}");
+            //if (_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(ChangeColorInstructionTile)}.{nameof(Unload)}");
         }
 
         public void Pause()
         {
             RemoveDelegates();
-            if (_brain.LoggingEnabled)
-                Debug.Log($"{nameof(ChangeColorInstructionTile)}.{nameof(Pause)}");
+            //if (_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(ChangeColorInstructionTile)}.{nameof(Pause)}");
         }
 
         public bool Resume()

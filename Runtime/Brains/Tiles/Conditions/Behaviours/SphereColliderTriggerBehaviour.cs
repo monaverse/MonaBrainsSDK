@@ -316,8 +316,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
                 if (!_bodiesIndex.ContainsKey(body))
                 {
-                    if(_brain.LoggingEnabled)
-                        Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {_collider.radius} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+                    //if(_brain.LoggingEnabled)
+                    //    Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {_collider.radius} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _bodiesIndex.Add(body, false);
                     _bodies.Add(body);
                     EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerEnter));
@@ -340,8 +340,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
                 if (_bodiesIndex.ContainsKey(body) && !_brain.Body.WithinRadius(body, _radius))
                 {
-                    if (_brain.LoggingEnabled)
-                        Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {_radius} {_collider.radius} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+                    //if (_brain.LoggingEnabled)
+                    //    Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {_radius} {_collider.radius} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _bodiesIndex.Remove(body);
                     _bodies.Remove(body);
                     EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerExit));

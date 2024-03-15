@@ -153,23 +153,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             AddInputDelegate();
 
-            if (_brain.LoggingEnabled)
-                Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(UpdateActive)} {_active}");
+            //if (_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(UpdateActive)} {_active}");
         }
 
 
         public override void Unload()
         {
             RemoveFixedTickDelegate();
-            if(_brain.LoggingEnabled)
-                Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Unload)}");
+            //if(_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Unload)}");
         }
 
         public void Pause()
         {
             RemoveFixedTickDelegate();
-            if(_brain.LoggingEnabled)
-                Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Pause)}");
+            //if(_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Pause)}");
         }
 
         public bool Resume()
