@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f89177242a59341799dc86376e850c42, type: 3}
+  m_Name: UnBindRadius
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 4011123188080050626
+  _id: UnBindRadius
+  _name: Unbind Radius
+  _category: Position Bounds
+  references:
+    version: 2
+    RefIds:
+    - rid: 4011123188080050626
+      type: {class: UnBindRadiusInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 

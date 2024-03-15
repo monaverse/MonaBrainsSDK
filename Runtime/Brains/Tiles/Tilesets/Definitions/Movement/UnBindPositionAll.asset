@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 4011123145099706857
   _id: UnBindPositionAll
-  _name: Unbind All
+  _name: Unbind Positions
   _category: Position Bounds
   references:
     version: 2
@@ -23,6 +23,6 @@ MonoBehaviour:
     - rid: 4011123145099706857
       type: {class: UnBindPositionAllInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: UnBindPositionAll
+        _name: Unbind All
+        _category: Position Bounds

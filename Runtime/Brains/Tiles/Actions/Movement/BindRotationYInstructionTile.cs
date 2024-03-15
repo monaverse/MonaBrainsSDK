@@ -12,16 +12,16 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class BindPositionZInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class BindRotationYInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
     {
-        public const string ID = "BindPositionZ";
-        public const string NAME = "Bind North / South";
-        public const string CATEGORY = "Position Bounds";
-        public override Type TileType => typeof(BindPositionZInstructionTile);
+        public const string ID = "BindRotationY";
+        public const string NAME = "Bind Yaw L / R";
+        public const string CATEGORY = "Rotation Bounds";
+        public override Type TileType => typeof(BindRotationYInstructionTile);
 
-        [SerializeField] private float _min = -10f;
+        [SerializeField] private float _min = -45f;
         [SerializeField] private string _minName;
-        [SerializeField] private float _max = 10f;
+        [SerializeField] private float _max = 45f;
         [SerializeField] private string _maxName;
 
         [BrainProperty(true)]
@@ -38,7 +38,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private IMonaBrain _brain;
 
-        public BindPositionZInstructionTile() { }
+        public BindRotationYInstructionTile() { }
 
         public void Preload(IMonaBrain brain) => _brain = brain;
 
@@ -50,7 +50,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (!string.IsNullOrEmpty(_maxName))
                 _max = _brain.Variables.GetFloat(_maxName);
 
-            _brain.Body.PositionBounds.z.Bind(_min, _max);
+            _brain.Body.RotationBounds.y.Bind(_min, _max);
             return Complete(InstructionTileResult.Success);
         }
     }
