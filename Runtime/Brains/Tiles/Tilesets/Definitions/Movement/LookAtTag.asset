@@ -28,10 +28,10 @@ MonoBehaviour:
         _category: Adv Rotation
         _angle: 90
         _angleValueName: 
-        _mode: 1
+        _mode: 0
         _value: 0.1
         _valueValueName: 
         _easing: 1
         _onlyTurnWhenMoving: 0
         _lookStraightAhead: 1
-        _tag: Default
+        _tag: Player

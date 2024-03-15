@@ -31,4 +31,4 @@ MonoBehaviour:
         _originPartType: 0
         _direction: {x: 0, y: 0, z: 0}
         _maxDistance: 0
-        _targetMonaTag: Default
+        _targetMonaTag: Player

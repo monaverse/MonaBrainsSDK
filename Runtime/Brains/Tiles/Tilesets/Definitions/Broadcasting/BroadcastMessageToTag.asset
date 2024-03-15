@@ -27,5 +27,5 @@ MonoBehaviour:
         _name: Message Tag
         _category: Messaging
         _message: 
-        _Tag: Default
+        _Tag: Player
         _appendPlayerId: 0

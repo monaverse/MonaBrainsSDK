@@ -26,6 +26,6 @@ MonoBehaviour:
         _id: OnSelectTag
         _name: On Tag Selected
         _category: Input
-        _monaTag: Default
+        _monaTag: Player
         _distance: 100
         _distanceValueName: 

@@ -26,7 +26,7 @@ MonoBehaviour:
         _id: Jump
         _name: Jump
         _category: In Progress
-        _force: 1
+        _force: 5
         _forceValueName: 
         _duration: 0
         _durationValueName: 
