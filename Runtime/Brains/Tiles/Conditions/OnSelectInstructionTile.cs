@@ -45,6 +45,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         protected override void ProcessLocalInput()
         {
+            if (BrainOnRemotePlayer()) return;
+
             var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, MonaInputType.Action, GetInputState());
 
             if (localInput.GetButton(MonaInputType.Action) == GetInputState())
@@ -82,8 +84,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             if (Physics.Raycast(ray.origin, ray.direction, out hit, _distance, targetRayLayer))
             {
-                //if (_brain.LoggingEnabled)
-                //    Debug.Log($"{nameof(OnSelectInstructionTile)} {hit.point} {hit.collider}");
+                if (_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(OnSelectInstructionTile)} {hit.point} {hit.collider}");
 
                 var body = hit.collider.GetComponentInParent<IMonaBody>();
                 if (_brain.LoggingEnabled && body != null)

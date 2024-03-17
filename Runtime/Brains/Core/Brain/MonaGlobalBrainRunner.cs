@@ -144,7 +144,6 @@ namespace Mona.SDK.Brains.Core.Brain
                 OnMonaBodyInstantiated = HandleMonaBodyInstantiated;
 
                 EventBus.Register<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), OnMonaBodyInstantiated);
-
                 EventBus.Register<MonaBrainSpawnedEvent>(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
                 EventBus.Register<MonaBrainDestroyedEvent>(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
                 EventBus.Register<MonaPlayerJoinedEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
@@ -165,6 +164,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void OnDestroy()
         {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), OnMonaBodyInstantiated);
             EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
             EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
             EventBus.Unregister(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
@@ -202,6 +202,24 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void HandleMonaPlayerJoined(MonaPlayerJoinedEvent evt)
         {
+            var allGlobalRunners = new List<MonaGlobalBrainRunner>(GameObject.FindObjectsByType<MonaGlobalBrainRunner>(FindObjectsSortMode.None));
+            allGlobalRunners.Remove(MonaGlobalBrainRunner.Instance);
+            
+            /* if there are multiple instances of mona global brain, make sure all the player graphs are added */
+            if(allGlobalRunners.Count > 0)
+            {
+                for (var i = 0; i < allGlobalRunners.Count; i++)
+                {
+                    var otherRunner = allGlobalRunners[i];
+                    for(var j = 0; j < otherRunner.PlayerBrainGraphs.Count; j++)
+                    {
+                        var brain = otherRunner.PlayerBrainGraphs[j];
+                        if (!MonaGlobalBrainRunner.Instance.PlayerBrainGraphs.Contains(brain))
+                            MonaGlobalBrainRunner.Instance.PlayerBrainGraphs.Add(brain);
+                    }
+                }
+            }
+
             if (evt.IsLocal)
             {
                 _playerBody = evt.PlayerBody;
@@ -212,13 +230,13 @@ namespace Mona.SDK.Brains.Core.Brain
                 {
                     _playerCamera = _playerCameraBody.Transform.GetComponent<Camera>();
                     Debug.Log($"{nameof(HandleMonaPlayerJoined)} {_playerCamera}", _playerCamera.gameObject);
-
-                    if (_playerCamera == null)
-                        _playerCamera = Camera.main;
-
-                    if (_playerCamera == null)
-                        _playerCamera = FindObjectOfType<Camera>();
                 }
+
+                if (_playerCamera == null)
+                    _playerCamera = Camera.main;
+
+                if (_playerCamera == null)
+                    _playerCamera = FindObjectOfType<Camera>();
 
                 AttachBrainsToPlayer(_playerBody);
 
@@ -248,10 +266,15 @@ namespace Mona.SDK.Brains.Core.Brain
 
             if (PlayerBrainGraphs.Count > 0)
             {
-                for(var i = 0;i < PlayerBrainGraphs.Count; i++)
+                Debug.Log($"ATTACHING {PlayerBrainGraphs.Count} BRAINS TO PLAYER");
+                for (var i = 0;i < PlayerBrainGraphs.Count; i++)
                     runner.AddBrainGraph(PlayerBrainGraphs[i]);
 
                 runner.StartBrains(force:true);
+            }
+            else
+            {
+                Debug.Log($"NO BRAINS TO ATTACH TO PLAYER");
             }
         }
 
