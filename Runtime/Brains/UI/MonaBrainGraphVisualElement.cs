@@ -76,6 +76,14 @@ namespace Mona.SDK.Brains.UIElements
         private Color _darkRed = Color.HSVToRGB(347f / 360f, .66f, .1f);
         private Color _lightRed = Color.HSVToRGB(347f / 360f, .66f, .3f);
 
+        private string[] _requiredTags = { "Space" };
+        private string[] _requiredLayers = { "LocalPlayer", "PhysicsGroupA"};
+        private bool _requiredTagsExist;
+        private bool _requiredLayersExist;
+        private SerializedObject _tagManager;
+        private SerializedProperty _tagsProp;
+        private SerializedProperty _layersProp;
+
         private Foldout CreateHeading(string text)
         {
             var foldOut = new Foldout();
@@ -766,6 +774,8 @@ namespace Mona.SDK.Brains.UIElements
         private void Refresh()
         {
 #if UNITY_EDITOR
+            AddRequiredTagsAndLayers();
+
             _toggleAllowLogging.value = _brain.LoggingEnabled;
             _toggleLegacyMonaPlatforms.value = _brain.LegacyMonaPlatforms;
 
@@ -892,6 +902,82 @@ namespace Mona.SDK.Brains.UIElements
             versions.Sort((a, b) => -a.Version.CompareTo(b.Version));
 #endif
             return versions;
+        }
+
+        private void AddRequiredTagsAndLayers()
+        {
+            if (_requiredTagsExist && _requiredLayersExist)
+                return;
+
+            if (_tagManager == null)
+                _tagManager = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
+
+            if (!_requiredTagsExist)
+                AddRequiredTags();
+
+            if (!_requiredLayersExist)
+                AddRequiredLayers();
+        }
+
+        private void AddRequiredTags()
+        {
+            _tagsProp = _tagManager.FindProperty("tags");
+
+            for (int i = 0; i < _requiredTags.Length; i++)
+                AddTag(_requiredTags[i]);
+
+            _requiredTagsExist = true;
+        }
+
+        private void AddTag(string tagName)
+        {
+            if (IsSerializedPropertyPresent(tagName, _tagsProp))
+                return;
+
+            int index = _tagsProp.arraySize;
+            _tagsProp.InsertArrayElementAtIndex(index);
+            SerializedProperty sp = _tagsProp.GetArrayElementAtIndex(index);
+            sp.stringValue = tagName;
+            _tagManager.ApplyModifiedProperties();
+        }
+
+        private void AddRequiredLayers()
+        {
+            _layersProp = _tagManager.FindProperty("layers");
+
+            for (int i = 0; i < _requiredLayers.Length; i++)
+                AddLayer(_requiredLayers[i]);
+
+            _requiredLayersExist = true;
+        }
+
+        private void AddLayer(string layerName)
+        {
+            if (IsSerializedPropertyPresent(layerName, _layersProp))
+                return;
+
+            for (int i = 8; i < _layersProp.arraySize; i++)
+            {
+                SerializedProperty sp = _layersProp.GetArrayElementAtIndex(i);
+                if (string.IsNullOrEmpty(sp.stringValue))
+                {
+                    sp.stringValue = layerName;
+                    _tagManager.ApplyModifiedProperties();
+                    break;
+                }
+            }
+        }
+
+        private bool IsSerializedPropertyPresent(string elementName, SerializedProperty properties)
+        {
+            for (int i = 0; i < properties.arraySize; i++)
+            {
+                SerializedProperty sp = properties.GetArrayElementAtIndex(i);
+                if (sp.stringValue.Equals(elementName))
+                    return true;
+            }
+
+            return false;
         }
     }
 }
