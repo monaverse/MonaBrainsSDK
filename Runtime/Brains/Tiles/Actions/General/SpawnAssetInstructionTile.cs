@@ -50,20 +50,27 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(Location), (int)LocationType.OtherWithTagPart)]
         public string Part { get => _part; set => _part = value; }
 
-        [SerializeField]
-        private Vector3 _offset = Vector3.zero;
+        [SerializeField] private Vector3 _offset = Vector3.zero;
+        [SerializeField] private string _offsetName;
         [BrainProperty(false)]
         public Vector3 Offset { get => _offset; set => _offset = value; }
+        [BrainPropertyValueName("Offset", typeof(IMonaVariablesVector3Value))]
+        public string OffsetName { get => _offsetName; set => _offsetName = value; }
 
-        [SerializeField]
-        private Vector3 _eulerAngles = Vector3.zero;
+        [SerializeField] private Vector3 _eulerAngles = Vector3.zero;
+        [SerializeField] private string _eulerAnglesName;
+
         [BrainProperty(false)]
         public Vector3 Rotation { get => _eulerAngles; set => _eulerAngles = value; }
+        [BrainPropertyValueName("Rotation", typeof(IMonaVariablesVector3Value))]
+        public string EulerAnglesName { get => _eulerAnglesName; set => _eulerAnglesName = value; }
 
-        [SerializeField]
-        private Vector3 _scale = Vector3.one;
+        [SerializeField] private Vector3 _scale = Vector3.one;
+        [SerializeField] private string _scaleName;
         [BrainProperty(false)]
         public Vector3 Scale { get => _scale; set => _scale = value; }
+        [BrainPropertyValueName("Scale", typeof(IMonaVariablesVector3Value))]
+        public string ScaleName { get => _scaleName; set => _scaleName = value; }
 
         private IMonaBrain _brain;
         private IMonaBodyAssetItem _item;
@@ -181,7 +188,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     _pool.RemoveAt(0);
                     poolItem.SetScale(_scale, true);
 
-                    var offset = _offset;
+                    var offset = !string.IsNullOrEmpty(_offsetName) ?
+                        _brain.Variables.GetVector3(_offsetName) : _offset;
+                    var eulerAngles = !string.IsNullOrEmpty(_eulerAnglesName) ?
+                        _brain.Variables.GetVector3(_eulerAnglesName) : _eulerAngles;
+                    var scale = !string.IsNullOrEmpty(_scaleName) ?
+                        _brain.Variables.GetVector3(_scaleName) : _scale;
 
                     if (body.ActiveTransform != null)
                         offset = body.ActiveTransform.TransformDirection(_offset);
@@ -193,7 +205,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         poolItem.ActiveRigidbody.WakeUp();
 
                     poolItem.TeleportPosition(body.GetPosition() + offset, true);
-                    poolItem.TeleportRotation(body.GetRotation() * Quaternion.Euler(_eulerAngles), true);
+                    poolItem.TeleportRotation(body.GetRotation() * Quaternion.Euler(eulerAngles), true);
+                    poolItem.TeleportScale(scale, true);
                     if(poolItem.Transform.GetComponent<IMonaBrainRunner>() != null)
                         poolItem.Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
                     poolItem.SetVisible(true);
