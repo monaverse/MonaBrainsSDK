@@ -107,14 +107,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             for (var i = 0; i < _poolCount; i++)
             {
                 var body = (IMonaBody)GameObject.Instantiate(_item.Value);
-                body.Transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
-                ((MonaBodyBase)body).PrefabId = _monaAsset;
-                ((MonaBodyBase)body).MakeUnique(_brain.Player.PlayerId, true);
-                _equipmentInstances.Add(body);
-                _pool.Add(body);
-                body.OnDisabled += HandleBodyDisabled;
-                body.SetActive(false);
-                EventBus.Trigger<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), new MonaBodyInstantiatedEvent(body));
+
+                var bodies = body.Transform.GetComponentsInChildren<IMonaBody>();
+                for(var j = 0;j < bodies.Length; j++)
+                {
+                    var child = bodies[j];
+                    if (child == body)
+                    {
+                        child.Transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
+                        _equipmentInstances.Add(child);
+                        _pool.Add(child);
+                        child.OnDisabled += HandleBodyDisabled;
+                        child.SetActive(false);
+                    }
+
+                    ((MonaBodyBase)child).PrefabId = _monaAsset;
+                    ((MonaBodyBase)child).MakeUnique(_brain.Player.PlayerId, true);
+                    EventBus.Trigger<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), new MonaBodyInstantiatedEvent(child));
+                }
             }
         }
 
@@ -207,8 +217,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     poolItem.TeleportPosition(body.GetPosition() + offset, true);
                     poolItem.TeleportRotation(body.GetRotation() * Quaternion.Euler(eulerAngles), true);
                     poolItem.TeleportScale(scale, true);
-                    if(poolItem.Transform.GetComponent<IMonaBrainRunner>() != null)
-                        poolItem.Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
+
+                    var childBrains = poolItem.Transform.GetComponentsInChildren<IMonaBrainRunner>();
+                    for(var i = 0;i < childBrains.Length; i++)
+                        childBrains[i].CacheTransforms();
+
                     poolItem.SetVisible(true);
                     Debug.Log($"{nameof(SpawnAssetInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, poolItem);
