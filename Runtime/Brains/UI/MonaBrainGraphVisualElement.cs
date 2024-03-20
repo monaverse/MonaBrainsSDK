@@ -80,9 +80,11 @@ namespace Mona.SDK.Brains.UIElements
         private string[] _requiredLayers = { "LocalPlayer", "PhysicsGroupA"};
         private bool _requiredTagsExist;
         private bool _requiredLayersExist;
+#if UNITY_EDITOR
         private SerializedObject _tagManager;
         private SerializedProperty _tagsProp;
         private SerializedProperty _layersProp;
+#endif
 
         private Foldout CreateHeading(string text)
         {
@@ -904,6 +906,7 @@ namespace Mona.SDK.Brains.UIElements
             return versions;
         }
 
+#if UNITY_EDITOR
         private void AddRequiredTagsAndLayers()
         {
             if (_requiredTagsExist && _requiredLayersExist)
@@ -979,5 +982,6 @@ namespace Mona.SDK.Brains.UIElements
 
             return false;
         }
+#endif
     }
 }
