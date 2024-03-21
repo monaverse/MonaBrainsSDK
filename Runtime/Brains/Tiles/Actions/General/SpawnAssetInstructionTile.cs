@@ -30,10 +30,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaBodyAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
 
-        [SerializeField]
-        private float _poolCount = 5;
+        [SerializeField] private float _poolCount = 5;
+        [SerializeField] private string _poolCountName;
+
         [BrainProperty(true)]
         public float PoolCount { get => _poolCount; set => _poolCount = value; }
+        [BrainPropertyValueName("PoolCount", typeof(IMonaVariablesFloatValue))]
+        public string PoolCountName { get => _poolCountName; set => _poolCountName = value; }
 
         [SerializeField] private LocationType _location;
         [BrainPropertyEnum(false)] public LocationType Location { get => _location; set => _location = value; }
@@ -104,7 +107,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (_equipmentInstances.Count > 0)
                 return;
 
-            for (var i = 0; i < _poolCount; i++)
+            int poolCount = !string.IsNullOrEmpty(_poolCountName) ?
+                (int)Mathf.Ceil(_brain.Variables.GetFloat(_poolCountName)) : (int)Mathf.Ceil(_poolCount);
+
+            for (var i = 0; i < poolCount; i++)
             {
                 var body = (IMonaBody)GameObject.Instantiate(_item.Value);
 
