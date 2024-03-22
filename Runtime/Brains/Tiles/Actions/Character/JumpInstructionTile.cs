@@ -1,5 +1,6 @@
 using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Actions.Physics.Enums;
 using Mona.SDK.Core;
@@ -21,9 +22,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private IMonaAnimationController _controller;
         private Action<MonaBodyFixedTickEvent> OnJumpTick;
 
-        public override void Preload(IMonaBrain brainInstance)
+        public override void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
-            base.Preload(brainInstance);
+            base.Preload(brainInstance, page, instruction);
             _controller = _brain.Root.GetComponent<IMonaAnimationController>();
         }
 

@@ -2,9 +2,9 @@
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Core.Input;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Mona.SDK.Brains.Core.Control
 {
@@ -23,7 +23,8 @@ namespace Mona.SDK.Brains.Core.Control
 
         List<IInstructionTile> InstructionTiles { get; }
         IInstructionTile CurrentTile { get; }
-        
+        MonaInput InstructionInput { get; set; }
+
         void Preload(IMonaBrain brain, IMonaBrainPage page);
         void Execute(InstructionEventTypes eventType, IInstructionEvent evt);
         void AddTile(IInstructionTile tile, int i, IMonaBrainPage page);

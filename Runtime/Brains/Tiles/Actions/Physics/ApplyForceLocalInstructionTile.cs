@@ -15,6 +15,7 @@ using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Brains.Core.State.Structs;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Input;
+using Mona.SDK.Brains.Core.Control;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
@@ -67,7 +68,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private bool _active;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
-        private Action<MonaInputEvent> OnInput;
+
+        private bool _listenToInput;
+        private IInstruction _instruction;
 
         private float _speed
         {
@@ -81,9 +84,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         
         public ApplyForceLocalInstructionTile() { }
         
-        public virtual void Preload(IMonaBrain brainInstance)
+        public virtual void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
+            _instruction = instruction;
 
             if (!_brain.Body.HasCollider())
                 _brain.Body.AddCollider();
@@ -131,22 +135,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             if (DirectionType == PushDirectionType.UseInput || DirectionType == PushDirectionType.InputForwardBack)
             {
-                OnInput = HandleBodyInput;
-                EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+                _listenToInput = true;
             }
-        }
-
-        protected void HandleBodyInput(MonaInputEvent evt)
-        {
-            //Debug.Log($"{nameof(HandleBodyInput)} {evt.Input.MoveValue}");
-            if (_movingState != MovingStateType.Moving || _duration == 0f)
-                _bodyInput = evt.Input;
         }
 
         private void RemoveFixedTickDelegate()
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
-            EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
         public override void Unload()
@@ -207,6 +202,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public override InstructionTileResult Do()
         {
+            UpdateInput();
+
             var target = GetTarget();
 
             _direction = GetDirectionVector(DirectionType, target);
@@ -236,6 +233,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
+            UpdateInput();
+
             Tick(evt.DeltaTime);
 
             if (_duration == 0f)
@@ -260,6 +259,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 StopPushing();
             }
 
+        }
+
+        private void UpdateInput()
+        {
+            if (!_listenToInput) return;
+            if(_movingState != MovingStateType.Moving || _duration == 0f)
+                _bodyInput = _instruction.InstructionInput;
+            Debug.Log($"{nameof(UpdateInput)} {_bodyInput.MoveValue}");
         }
 
         protected virtual void Tick(float deltaTime)

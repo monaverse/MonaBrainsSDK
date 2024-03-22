@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Input.Enums;
 using Mona.SDK.Core.Input;
+using Mona.SDK.Brains.Core.Brain;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -53,43 +54,150 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
         }
 
-        private Vector2 _lastInput;
+        private bool _xDown = false;
+        private bool _yDown = false;
+        private int _axis = 0;
+
         protected override void HandleBodyInput(MonaInputEvent evt)
         {
             //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {evt.Input.GetButton(_inputType)}");
             _bodyInput = evt.Input;
             var input = _bodyInput.MoveValue;
+            
+            var xDown = Mathf.Abs(input.x) > MonaBrainInput.DEAD_ZONE;
+            var yDown = Mathf.Abs(input.y) > MonaBrainInput.DEAD_ZONE;
+
             switch (_moveDirection)
             {
                 case MonaInputMoveType.FourWay:
-                    if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
+
+                    if (Mathf.Abs(input.x) == Mathf.Abs(input.y))
                     {
+                        if (xDown && !_xDown)
+                            _axis = 1;
+                        else if (yDown && !_yDown)
+                            _axis = 2;
+                    }
+                    else if (Mathf.Abs(input.x) > Mathf.Abs(input.y) && xDown)
+                        _axis = 1;
+                    else if (Mathf.Abs(input.y) > Mathf.Abs(input.x) && yDown)
+                        _axis = 2;
+                    else
+                        _axis = 0;
+
+                    if (_axis == 1)
                         input.y = 0;
-                    }
-                    else if (Mathf.Abs(input.y) > Mathf.Abs(input.x))
-                    {
+                    else if (_axis == 2)
                         input.x = 0;
-                    }
-                    else if (Mathf.Abs(input.y) != 0 && Mathf.Abs(input.y) == Mathf.Abs(input.x))
-                    {
-                        if(input.y != _lastInput.y)
-                        {
-                            input.x = 0;
-                        }
-                        else if(input.x != _lastInput.x)
-                        {
-                            input.y = 0;
-                        }
-                    }
+                    else
+                        input.x = input.y = 0;
+
+                    _xDown = xDown;
+                    _yDown = yDown;
+
                     break;
 
+                case MonaInputMoveType.EightWay:
+
+                    if (Mathf.Abs(input.x) == Mathf.Abs(input.y))
+                    {
+                        if (xDown && !_xDown)
+                            _axis = 3;
+                        else if (yDown && !_yDown)
+                            _axis = 4;
+                    }
+                    else if (Mathf.Abs(input.x) > Mathf.Abs(input.y) && xDown)
+                        _axis = 1;
+                    else if (Mathf.Abs(input.y) > Mathf.Abs(input.x) && yDown)
+                        _axis = 2;
+                    else
+                        _axis = 0;
+
+                    if (_axis == 1)
+                        input.y = 0;
+                    else if (_axis == 2)
+                        input.x = 0;
+                    else if (_axis == 3)
+                        input.y = Mathf.Abs(input.x) * Mathf.Sign(input.y);
+                    else if (_axis == 4)
+                        input.x = Mathf.Abs(input.y) * Mathf.Sign(input.x);
+                    else
+                        input.x = input.y = 0;
+
+                    if(input.magnitude > 1f)
+                        input.Normalize();
+
+                    _xDown = xDown;
+                    _yDown = yDown;
+
+                    break;
+                case MonaInputMoveType.Horizontal:
+                    input.y = 0;
+                    break;
+                case MonaInputMoveType.Vertical:
+                    input.x = 0;
+                    break;
+                case MonaInputMoveType.Left:
+                    input.y = 0;
+                    if (input.x > 0) input.x = 0;
+                    break;
+                case MonaInputMoveType.Right:
+                    input.y = 0;
+                    if (input.x < 0) input.x = 0;
+                    break;
+                case MonaInputMoveType.Up:
+                    input.x = 0;
+                    if (input.y < 0) input.y = 0;
+                    break;
+                case MonaInputMoveType.Down:
+                    input.x = 0;
+                    if (input.y > 0) input.y = 0;
+                    break;
+                case MonaInputMoveType.UpLeft:
+                    input = LockDiagonal(input);
+                    if (input.x > 0 || input.y < 0) input.x = input.y = 0;
+                    break;
+                case MonaInputMoveType.UpRight:
+                    input = LockDiagonal(input);
+                    if (input.x < 0 || input.y < 0) input.x = input.y = 0;
+                    break;
+                case MonaInputMoveType.DownLeft:
+                    input = LockDiagonal(input);
+                    if (input.x > 0 || input.y > 0) input.x = input.y = 0;
+                    break;
+                case MonaInputMoveType.DownRight:
+                    input = LockDiagonal(input);
+                    if (input.x < 0 || input.y > 0) input.x = input.y = 0;
+                    break;
                 default:
                     //do nothing;
                     break;
             }
+
             _bodyInput.MoveValue = input;
+            _instruction.InstructionInput = _bodyInput;
         }
-        
+
+        private Vector2 LockDiagonal(Vector2 input)
+        {
+            var xDown = Mathf.Abs(input.x) > MonaBrainInput.DEAD_ZONE;
+            var yDown = Mathf.Abs(input.y) > MonaBrainInput.DEAD_ZONE;
+
+            if (!xDown || !yDown)
+                input.x = input.y = 0;
+            else
+            {
+                var sum = Mathf.Abs(input.x) + Mathf.Abs(input.y);
+                input.x = sum * Mathf.Sign(input.x);
+                input.y = sum * Mathf.Sign(input.y);
+            }
+
+            if (input.magnitude > 1f)
+                input.Normalize();
+
+            return input;
+        }
+
         public override void ReprocessInput(MonaInput input)
         {
             SetLocalInput(input);

@@ -7,6 +7,7 @@ using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Input.Enums;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Brains.Core.Control;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -29,9 +30,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         
         protected override MonaInputState GetInputState() => MonaInputState.Pressed;
 
-        public override void Preload(IMonaBrain brainInstance)
+        public override void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
-            base.Preload(brainInstance);
+            base.Preload(brainInstance, page, instruction);
             AddTargetCollider();
         }
 

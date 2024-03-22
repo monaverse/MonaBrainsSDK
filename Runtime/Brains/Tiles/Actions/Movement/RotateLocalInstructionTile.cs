@@ -60,7 +60,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private bool _active;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
-        private Action<MonaInputEvent> OnInput;
+
+        private bool _listenToInput;
 
         protected MonaInput _bodyInput;
 
@@ -185,16 +186,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (DirectionType == RotateDirectionType.InputLeftRight)
             {
-                OnInput = HandleBodyInput;
-                EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+                _listenToInput = true;
             }
-        }
-
-        protected void HandleBodyInput(MonaInputEvent evt)
-        {
-            //Debug.Log($"{nameof(HandleBodyInput)} {evt.Input.MoveValue}");
-            if (_movingState != MovingStateType.Moving)
-                _bodyInput = evt.Input;
         }
 
         private void RemoveFixedTickDelegate()
@@ -216,6 +209,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetFloat(_valueValueName);
 
+            UpdateInput();
 
             //Debug.Log($"move input {_bodyInput.MoveValue}");
             if (DirectionType == RotateDirectionType.InputLeftRight)
@@ -254,6 +248,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void FixedTick(float deltaTime)
         {
+            UpdateInput();
+
             if (!_brain.Body.HasControl())
             {
                 LostControl();
@@ -290,6 +286,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _brain.Body.SetRotation(_direction, true);
                 StopMoving();
             }
+        }
+
+        private void UpdateInput()
+        {
+            if (!_listenToInput) return;
+            if (_movingState != MovingStateType.Moving)
+                _bodyInput = _instruction.InstructionInput;
+            Debug.Log($"{nameof(UpdateInput)} {_bodyInput.MoveValue}");
         }
 
         private void LostControl()

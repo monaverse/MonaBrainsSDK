@@ -2,7 +2,6 @@
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
-using Mona.SDK.Brains.Tiles.Conditions;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
@@ -25,6 +24,9 @@ namespace Mona.SDK.Brains.Core.Control
         public event Action<IInstruction> OnReset = delegate { };
         public event Action<int> OnRefresh = delegate { };
         public event Action OnDeselect = delegate { };
+
+        private MonaInput _instructionInput;
+        public MonaInput InstructionInput { get => _instructionInput; set => _instructionInput = value; }
 
         [SerializeReference]
         private List<IInstructionTile> _instructionTiles = new List<IInstructionTile>();

@@ -1,5 +1,6 @@
 ﻿using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Brain.Interfaces;
+using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
@@ -12,7 +13,7 @@ using UnityEngine;
 namespace Mona.SDK.Brains.Core.Tiles
 {
     [Serializable]
-    public abstract class InputInstructionTile : InstructionTile, IInputInstructionTile, IInstructionTileWithPreload, IOnInteractInstructionTile, IConditionInstructionTile,
+    public abstract class InputInstructionTile : InstructionTile, IInputInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction, IOnInteractInstructionTile, IConditionInstructionTile,
         IStartableInstructionTile, IActivateInstructionTile, IPauseableInstructionTile
     {
         protected abstract MonaInputState GetInputState();
@@ -25,6 +26,7 @@ namespace Mona.SDK.Brains.Core.Tiles
         protected MonaInputState _currentLocalInputState;
 
         protected IMonaBrain _brain;
+        protected IInstruction _instruction;
         public IMonaBrain Brain => _brain;
 
         protected IMonaBrainInput _brainInput;
@@ -36,9 +38,10 @@ namespace Mona.SDK.Brains.Core.Tiles
 
         public bool PlayerTriggered => true;
 
-        public virtual void Preload(IMonaBrain brainInstance)
+        public virtual void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
+            _instruction = instruction;
 
             ConfigureInput();
 

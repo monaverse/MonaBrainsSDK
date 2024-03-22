@@ -65,13 +65,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Vector3 _start;
         private Vector3 _end;
         private bool _active;
+        private bool _listenToInput;
         private MonaInput _bodyInput;
         private IMonaAnimationController _controller;
 
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
         private Action<MonaBodyEvent> OnBodyEvent;
-        private Action<MonaInputEvent> OnInput;
 
         private bool InstantMovement => _mode == MoveModeType.SpeedOnly || _mode == MoveModeType.Instant;
 
@@ -207,23 +207,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         { 
             if(DirectionType == MoveDirectionType.UseInput || DirectionType == MoveDirectionType.InputForwardBack || DirectionType == MoveDirectionType.CameraAll)
             {
-                OnInput = HandleBodyInput;
-                EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+                _listenToInput = true;
             }
-        }
-
-        protected void HandleBodyInput(MonaInputEvent evt)
-        {
-            //Debug.Log($"{nameof(HandleBodyInput)} {evt.Input.MoveValue}");
-            if(_movingState != MovingStateType.Moving || InstantMovement)
-                _bodyInput = evt.Input;
         }
 
         private void RemoveFixedTickDelegate()
         {
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
             EventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_EVENT, _brain.Body), OnBodyEvent);
-            //EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
         private void HandleBodyEvent(MonaBodyEvent evt)
@@ -247,6 +238,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override InstructionTileResult Do()
         {
+            UpdateInput();
+
             _startPosition = _brain.Body.GetPosition();
 
             _direction = GetDirectionVector(DirectionType);
@@ -276,6 +269,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
+            UpdateInput();
+
             Tick(evt.DeltaTime);
 
             if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant || _mode == MoveModeType.SpeedOnly)
@@ -296,6 +291,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 StopMoving();
             }
 
+        }
+
+        private void UpdateInput()
+        {
+            if (!_listenToInput) return;
+            if (_movingState != MovingStateType.Moving || InstantMovement)
+                _bodyInput = _instruction.InstructionInput;
+            Debug.Log($"{nameof(UpdateInput)} {_bodyInput.MoveValue}");
         }
 
         private void TickGroundedCreature(float deltaTime)
