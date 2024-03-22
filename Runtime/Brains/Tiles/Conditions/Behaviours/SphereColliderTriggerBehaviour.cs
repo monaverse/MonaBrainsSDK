@@ -88,6 +88,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         public void SetActive(bool active)
         {
             _collider.enabled = active;
+            if(!active)
+            {
+                _bodies.Clear();
+                _bodiesIndex.Clear();
+            }
         }
 
         public void SetRadius(float radius)
