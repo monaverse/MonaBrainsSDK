@@ -590,5 +590,25 @@ namespace Mona.SDK.Brains.Core.Brain
                 Destroy(variableBehaviours[i]);
             }
         }
+
+        public void SendMessageToTags(string message)
+        {
+            for (var i = 0; i < _brainInstances.Count; i++)
+            {
+                var tags = _brainInstances[i].MonaTags;
+                for (var j = 0; j < tags.Count; j++)
+                {
+                    var bodies = MonaBody.FindByTag(tags[j]);
+                    for (var b = 0; b < bodies.Count; b++)
+                        EventBus.Trigger(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, bodies[b]), new MonaBroadcastMessageEvent(message, null, Time.frameCount));
+                }
+            }
+        }
+
+        public void SendMessageToBody(string message)
+        {
+            EventBus.Trigger(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), new MonaBroadcastMessageEvent(message, null, Time.frameCount));
+        }
+
     }
 }
