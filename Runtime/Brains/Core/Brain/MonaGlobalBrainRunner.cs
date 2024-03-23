@@ -15,6 +15,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Mona.SDK.Brains.EasyUI;
+using Mona.SDK.Brains.Core.Utils.Interfaces;
+using Mona.SDK.Brains.Core.Utils;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -41,6 +43,9 @@ namespace Mona.SDK.Brains.Core.Brain
         private Action<MonaPlayerJoinedEvent> OnMonaPlayerJoined;
 
         private bool _playerJoined;
+
+        private IMonaBrainBlockchain _blockchain;
+        public IMonaBrainBlockchain Blockchain => _blockchain;
 
         private IMonaBody _playerBody;
         private IMonaBody _playerCameraBody;
@@ -138,6 +143,8 @@ namespace Mona.SDK.Brains.Core.Brain
             {
                 Instance = this;
 
+                FindBlockchainAPI();
+
                 OnBrainSpawned = HandleBrainSpawned;
                 OnBrainDestroyed = HandleBrainDestroyed;
                 OnMonaPlayerJoined = HandleMonaPlayerJoined;
@@ -150,6 +157,11 @@ namespace Mona.SDK.Brains.Core.Brain
 
                 EventBus.Trigger<MonaRegisterNetworkSettingsEvent>(new EventHook(MonaCoreConstants.REGISTER_NETWORK_SETTINGS_EVENT), new MonaRegisterNetworkSettingsEvent(NetworkSettings));
             }
+        }
+
+        private void FindBlockchainAPI()
+        {
+            _blockchain = GameObject.FindObjectOfType<MonaBrainBlockchain>();
         }
 
         private void Start()

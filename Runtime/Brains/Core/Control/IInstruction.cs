@@ -2,6 +2,7 @@
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Core.Input;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,8 @@ namespace Mona.SDK.Brains.Core.Control
         List<IInstructionTile> InstructionTiles { get; }
         IInstructionTile CurrentTile { get; }
         MonaInput InstructionInput { get; set; }
+
+        List<Token> Tokens { get; set; }
 
         void Preload(IMonaBrain brain, IMonaBrainPage page);
         void Execute(InstructionEventTypes eventType, IInstructionEvent evt);

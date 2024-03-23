@@ -2,6 +2,7 @@
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
+using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
@@ -35,6 +36,10 @@ namespace Mona.SDK.Brains.Core.Control
         [SerializeField]
         private InstructionTileResult _result = InstructionTileResult.Success;
         public InstructionTileResult Result { get => _result; set => _result = value; }
+
+        [SerializeField]
+        private List<Token> _tokens = new List<Token>();
+        public List<Token> Tokens { get => _tokens; set => _tokens = value; }
 
         public bool IsRunning() => _result == InstructionTileResult.Running;
 
