@@ -64,6 +64,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             new MonaTagItem(MonaBrainConstants.TAG_ENEMY, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_FRIENDLY, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_COLLECTIBLE, false, false),
+            new MonaTagItem(MonaBrainConstants.TAG_GAMECONTROLLER, false, false),
         };
 
         private IMonaTagItem _default = new MonaTagItem("Default", false, false);
