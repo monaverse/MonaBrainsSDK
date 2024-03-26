@@ -16,16 +16,16 @@ MonoBehaviour:
     rid: 1609534979567518225
   _id: ChangeTexture
   _name: Change Texture
-  _category: Visuals
+  _category: Audio / Visual
   references:
     version: 2
     RefIds:
     - rid: 1609534979567518225
       type: {class: ChangeTextureInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Visuals, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: ChangeTexture
+        _name: Change Texture
+        _category: Audio / Visual
         _monaAsset: 
         _textureSlot: _mainTex
         _sharedMaterial: 0

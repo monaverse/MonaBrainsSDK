@@ -42,6 +42,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 default:
                     _brain.Variables.Set(_targetValue, _brain.Body.GetPosition()); break;
             }
+
             return Complete(InstructionTileResult.Success);
         }
     }
