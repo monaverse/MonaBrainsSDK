@@ -215,9 +215,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     var scale = _scale;
                     if (HasVector3Values(_scaleName))
                         scale = GetVector3Value(_brain, _scaleName);
-
-                    if (body.ActiveTransform != null)
-                        offset = body.ActiveTransform.TransformDirection(_offset);
  
                     poolItem.SetActive(true);
                     poolItem.SetVisible(false);
