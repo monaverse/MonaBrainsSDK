@@ -66,5 +66,59 @@ namespace Mona.SDK.Brains.Core.Tiles
         public abstract InstructionTileResult Do();
 
         public virtual void Unload() { }
+
+        protected bool HasVector3Values(string[] values)
+        {
+            for (var i = 0; i < values.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(values[i]))
+                    return true;
+            }
+            return false;
+        }
+
+        protected Vector3 GetVector3Value(IMonaBrain brain, string[] values)
+        {
+            var vector3 = new Vector3();
+            if (!string.IsNullOrEmpty(values[0]))
+                vector3 = brain.Variables.GetVector3(values[0]);
+
+            if (!string.IsNullOrEmpty(values[1]))
+                vector3.x = brain.Variables.GetFloat(values[1]);
+
+            if (!string.IsNullOrEmpty(values[2]))
+                vector3.y = brain.Variables.GetFloat(values[2]);
+
+            if (!string.IsNullOrEmpty(values[3]))
+                vector3.z = brain.Variables.GetFloat(values[3]);
+
+            return vector3;
+        }
+
+        protected bool HasVector2Values(string[] values)
+        {
+            for (var i = 0; i < values.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(values[i]))
+                    return true;
+            }
+            return false;
+        }
+
+        protected Vector3 GetVector2Value(IMonaBrain brain, string[] values)
+        {
+            var vector3 = new Vector3();
+            if (!string.IsNullOrEmpty(values[0]))
+                vector3 = brain.Variables.GetVector3(values[0]);
+
+            if (!string.IsNullOrEmpty(values[1]))
+                vector3.x = brain.Variables.GetFloat(values[1]);
+
+            if (!string.IsNullOrEmpty(values[2]))
+                vector3.y = brain.Variables.GetFloat(values[2]);
+
+            return vector3;
+        }
+
     }
 }

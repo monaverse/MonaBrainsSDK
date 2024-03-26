@@ -17,9 +17,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public override Type TileType => typeof(TeleportToScaleInstructionTile);
 
         [SerializeField] private Vector3 _value;
-        [SerializeField] private string _valueValueName;
+        [SerializeField] private string[] _valueValueName;
         [BrainProperty(true)] public Vector3 Value { get => _value; set => _value = value; }
-        [BrainPropertyValueName("Value", typeof(IMonaVariablesVector3Value))] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
+        [BrainPropertyValueName("Value", typeof(IMonaVariablesVector3Value))] public string[] ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
         private IMonaBrain _brain;
 
@@ -32,8 +32,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public override InstructionTileResult Do()
         {
-            if (!string.IsNullOrEmpty(_valueValueName))
-                _value = _brain.Variables.GetVector3(_valueValueName);
+            if (HasVector3Values(_valueValueName))
+                _value = GetVector3Value(_brain, _valueValueName);
 
             //Debug.Log($"{nameof(TeleportToPositionInstructionTile)} {_value} {_valueValueName}");
             if (_brain != null)

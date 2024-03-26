@@ -31,7 +31,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         [SerializeField] protected float _distance = 1f;
         [SerializeField] protected string _distanceValueName = null;
-        [SerializeField] protected string _coordinatesName;
+        [SerializeField] protected string[] _coordinatesName;
         [SerializeField] protected Vector3 _moveToCoordinates = Vector3.zero;
         [SerializeField] protected MovementPlaneType _movementPlane = MovementPlaneType.NorthSouthEastWest;
 
@@ -377,9 +377,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (DirectionType == MoveDirectionType.GlobalCoordinates)
             {
-                Vector3 endPosition = !string.IsNullOrEmpty(_coordinatesName) ?
-                _brain.Variables.GetVector3(_coordinatesName) :
-                _moveToCoordinates;
+                Vector3 endPosition = _moveToCoordinates;
+                if (HasVector3Values(_coordinatesName))
+                    endPosition = GetVector3Value(_brain, _coordinatesName);
 
                 distance = Vector3.Distance(endPosition, _startPosition);
             }
@@ -586,9 +586,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private Vector3 MoveToDirection()
         {
-            Vector3 endPosition = !string.IsNullOrEmpty(_coordinatesName) ?
-                _brain.Variables.GetVector3(_coordinatesName) :
-                _moveToCoordinates;
+            Vector3 endPosition = _moveToCoordinates;
+
+            if (HasVector3Values(_coordinatesName))
+                endPosition = GetVector3Value(_brain, _coordinatesName);
 
             return endPosition - _startPosition;
         }

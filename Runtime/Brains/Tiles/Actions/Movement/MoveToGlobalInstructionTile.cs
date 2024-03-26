@@ -21,6 +21,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public Vector3 Coordinates { get => _moveToCoordinates; set => _moveToCoordinates = value; }
 
         [BrainPropertyValueName("Coordinates", typeof(IMonaVariablesVector3Value))]
-        public string CoordinatesName { get => _coordinatesName; set => _coordinatesName = value; }
+        public string[] CoordinatesName { get => _coordinatesName; set => _coordinatesName = value; }
     }
 }

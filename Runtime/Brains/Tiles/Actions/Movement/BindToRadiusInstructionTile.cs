@@ -21,14 +21,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         [SerializeField] private float _radius = 5f;
         [SerializeField] private string _radiusName;
-        [BrainProperty(true)]
-        public float Radius { get => _radius; set => _radius = value; }
+        [BrainProperty(true)] public float Radius { get => _radius; set => _radius = value; }
         [BrainPropertyValueName("Radius", typeof(IMonaVariablesFloatValue))] public string RaiusName { get => _radiusName; set => _radiusName = value; }
 
         [SerializeField] private Vector3 _origin;
-        [SerializeField] private string _originName;
+        [SerializeField] private string[] _originName = new string[4];
         [BrainProperty(true)] public Vector3 Origin { get => _origin; set => _origin = value; }
-        [BrainPropertyValueName("Origin", typeof(IMonaVariablesVector3Value))] public string OriginName { get => _radiusName; set => _radiusName = value; }
+        [BrainPropertyValueName("Origin", typeof(IMonaVariablesVector3Value))] public string[] OriginName { get => _originName; set => _originName = value; }
 
         private IMonaBrain _brain;
 
@@ -41,8 +40,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (!string.IsNullOrEmpty(_radiusName))
                 _radius = _brain.Variables.GetFloat(_radiusName);
 
-            if (!string.IsNullOrEmpty(_originName))
-                _origin = _brain.Variables.GetVector3(_originName);
+            if (HasVector3Values(_originName))
+                _origin = GetVector3Value(_brain, _originName);
 
             _brain.Body.PositionBounds.radius.Bind(_radius, _origin);
             return Complete(InstructionTileResult.Success);

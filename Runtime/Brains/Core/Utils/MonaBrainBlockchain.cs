@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using UnityEngine;
 
@@ -7,6 +8,18 @@ namespace Mona.SDK.Brains.Core.Utils
 {
     public class MonaBrainBlockchain : MonoBehaviour, IMonaBrainBlockchain
     {
+        protected string _walletAddress;
+
+        public void SetWalletAddress(string address) => _walletAddress = address;
+
+        protected List<string> _contracts = new List<string>();
+        public List<string> Contracts { get => _contracts; }
+
+        public virtual void RegisterContract(string address)
+        {
+            if (!_contracts.Contains(address))
+                _contracts.Add(address);
+        }
 
         public virtual List<Token> OwnsTokens(string collectionAddress)
         {

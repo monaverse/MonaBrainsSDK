@@ -54,26 +54,26 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public string Part { get => _part; set => _part = value; }
 
         [SerializeField] private Vector3 _offset = Vector3.zero;
-        [SerializeField] private string _offsetName;
+        [SerializeField] private string[] _offsetName = new string[4];
         [BrainProperty(false)]
         public Vector3 Offset { get => _offset; set => _offset = value; }
         [BrainPropertyValueName("Offset", typeof(IMonaVariablesVector3Value))]
-        public string OffsetName { get => _offsetName; set => _offsetName = value; }
+        public string[] OffsetName { get => _offsetName; set => _offsetName = value; }
 
         [SerializeField] private Vector3 _eulerAngles = Vector3.zero;
-        [SerializeField] private string _eulerAnglesName;
+        [SerializeField] private string[] _eulerAnglesName = new string[4];
 
         [BrainProperty(false)]
         public Vector3 Rotation { get => _eulerAngles; set => _eulerAngles = value; }
         [BrainPropertyValueName("Rotation", typeof(IMonaVariablesVector3Value))]
-        public string EulerAnglesName { get => _eulerAnglesName; set => _eulerAnglesName = value; }
+        public string[] EulerAnglesName { get => _eulerAnglesName; set => _eulerAnglesName = value; }
 
         [SerializeField] private Vector3 _scale = Vector3.one;
-        [SerializeField] private string _scaleName;
+        [SerializeField] private string[] _scaleName = new string[4];
         [BrainProperty(false)]
         public Vector3 Scale { get => _scale; set => _scale = value; }
         [BrainPropertyValueName("Scale", typeof(IMonaVariablesVector3Value))]
-        public string ScaleName { get => _scaleName; set => _scaleName = value; }
+        public string[] ScaleName { get => _scaleName; set => _scaleName = value; }
 
         private IMonaBrain _brain;
         private IMonaBodyAssetItem _item;
@@ -204,12 +204,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     _pool.RemoveAt(0);
                     poolItem.SetScale(_scale, true);
 
-                    var offset = !string.IsNullOrEmpty(_offsetName) ?
-                        _brain.Variables.GetVector3(_offsetName) : _offset;
-                    var eulerAngles = !string.IsNullOrEmpty(_eulerAnglesName) ?
-                        _brain.Variables.GetVector3(_eulerAnglesName) : _eulerAngles;
-                    var scale = !string.IsNullOrEmpty(_scaleName) ?
-                        _brain.Variables.GetVector3(_scaleName) : _scale;
+                    var offset = _offset;
+                    if (HasVector3Values(_offsetName))
+                        offset = GetVector3Value(_brain, _offsetName);
+
+                    var eulerAngles = _eulerAngles;
+                    if (HasVector3Values(_eulerAnglesName))
+                        eulerAngles = GetVector3Value(_brain, _eulerAnglesName);
+
+                    var scale = _scale;
+                    if (HasVector3Values(_scaleName))
+                        scale = GetVector3Value(_brain, _scaleName);
 
                     if (body.ActiveTransform != null)
                         offset = body.ActiveTransform.TransformDirection(_offset);

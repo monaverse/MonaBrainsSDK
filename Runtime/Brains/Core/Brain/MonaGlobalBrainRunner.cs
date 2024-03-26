@@ -27,6 +27,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public MonaNetworkSettings _NetworkSettings = new MonaNetworkSettings();
 
+        public string MockWalletAddress;
+
         public string DefaultIPFSGateway;
 
         public IMonaNetworkSettings NetworkSettings => _NetworkSettings;
@@ -162,6 +164,10 @@ namespace Mona.SDK.Brains.Core.Brain
         private void FindBlockchainAPI()
         {
             _blockchain = GameObject.FindObjectOfType<MonaBrainBlockchain>();
+#if UNITY_EDITOR
+            if(_blockchain != null)
+                _blockchain.SetWalletAddress(MockWalletAddress);
+#endif
         }
 
         private void Start()

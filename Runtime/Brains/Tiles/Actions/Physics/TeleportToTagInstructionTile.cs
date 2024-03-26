@@ -20,10 +20,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainPropertyMonaTag(true)] public string MonaTag { get => _tag; set => _tag = value; }
 
         [SerializeField] private Vector3 _offset = Vector3.zero;
-        [SerializeField] private string _offsetName;
+        [SerializeField] private string[] _offsetName = new string[4];
         [BrainProperty(false)] public Vector3 Offset { get => _offset; set => _offset = value; }
         [BrainPropertyValueName("Offset", typeof(IMonaVariablesVector3Value))]
-        public string OffsetName { get => _offsetName; set => _offsetName = value; }
+        public string[] OffsetName { get => _offsetName; set => _offsetName = value; }
 
         private IMonaBrain _brain;
 
@@ -44,8 +44,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             if (target == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.ERROR_MISSING_TARGET);
 
-            Vector3 offset = !string.IsNullOrEmpty(_offsetName) ?
-                        _brain.Variables.GetVector3(_offsetName) : _offset;
+            Vector3 offset = _offset;
+            if (HasVector3Values(_offsetName))
+                offset = GetVector3Value(_brain, _offsetName);
 
             _brain.Body.TeleportPosition(target.GetPosition() + offset, true);
             return Complete(InstructionTileResult.Success);

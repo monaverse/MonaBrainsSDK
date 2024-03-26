@@ -12,6 +12,7 @@ using Mona.SDK.Brains.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Control;
 using UnityEditor;
+using Mona.SDK.Core.State.Structs;
 
 #if UNITY_EDITOR
 using UnityEditor.UIElements;
@@ -136,7 +137,7 @@ namespace Mona.SDK.Brains.UIElements
 
         public void Select(bool expand)
         {
-            if(expand && _valuesExtended.childCount > 0)
+            if (expand && _valuesExtended.childCount > 0)
                 Extend(true);
             SetBorder(2, Color.white);
         }
@@ -159,10 +160,10 @@ namespace Mona.SDK.Brains.UIElements
         }
 
         private void Extend(bool extend)
-        {            
+        {
             _extended = extend;
             _valuesExtended.style.display = _extended ? DisplayStyle.Flex : DisplayStyle.None;
-            if(extend)
+            if (extend)
                 _labelMore.style.backgroundImage = new StyleBackground(_collapseIcon);
             else
                 _labelMore.style.backgroundImage = new StyleBackground(_expandIcon);
@@ -256,7 +257,7 @@ namespace Mona.SDK.Brains.UIElements
                                 if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
                                     buttonDictionary[pair.Key].style.display = DisplayStyle.None;
                             }
-                        
+
                             var field = fieldDictionary[pair.Key];
                             var prop = (new List<PropertyInfo>(field.GetType().GetProperties())).Find(x => x.Name == "labelElement");
                             if (prop != null)
@@ -299,7 +300,7 @@ namespace Mona.SDK.Brains.UIElements
                             }
 
                         }
-                    }                    
+                    }
                 }
             };
 
@@ -308,7 +309,7 @@ namespace Mona.SDK.Brains.UIElements
                 var property = properties[i];
                 var attribute = (BrainProperty)property.GetCustomAttribute(typeof(BrainProperty), true);
                 if (attribute == null) continue;
-                
+
                 var show = attribute.ShowOnTile;
                 container = show ? _propertyValues : _valuesExtended;
                 count++;
@@ -583,79 +584,306 @@ namespace Mona.SDK.Brains.UIElements
 
             if (targetProperty != null)
             {
-                var value = (string)targetProperty.GetValue(_tile);
-                var isValue = (BrainPropertyValueName)targetProperty.GetCustomAttribute(typeof(BrainPropertyValueName), true);
-                var values = _brain.DefaultVariables.VariableList.FindAll(x => isValue.Type.IsAssignableFrom(_brain.DefaultVariables.GetVariable(x.Name).GetType())).ConvertAll<string>(x => x.Name);   
-                var target = new DropdownField(values, 0);
+                var btn = CreateTargetPropertyButton(targetProperty, property, fieldContainer, field);
+                return btn;
+            }
+            return null;
+        }
 
-                target.style.width = 80;
-                target.style.flexDirection = FlexDirection.Column;
-                target.style.display = string.IsNullOrEmpty(value) ? DisplayStyle.None : DisplayStyle.Flex;
-                target.labelElement.style.color = _textColor;
-                target.label = property.Name;
+        private Button CreateTargetPropertyButton(PropertyInfo targetProperty, PropertyInfo property, VisualElement fieldContainer, VisualElement field)
+        {
+            var isValue = (BrainPropertyValueName)targetProperty.GetCustomAttribute(typeof(BrainPropertyValueName), true);
 
-                var defaultValue = (string)targetProperty.GetValue(_tile);
-                var defaultVariable = values.Find(x => string.Compare(x, defaultValue, true) == 0);
-                if (defaultVariable != null)
-                {
-                    target.value = defaultVariable;
-                    targetProperty.SetValue(_tile, target.value);
-                }
+            var btn = CreateBindButton();
+            var fields = new List<DropdownField>();
+            var isVector3 = isValue.Type.IsAssignableFrom(typeof(IMonaVariablesVector3Value));
+            var isVector2 = isValue.Type.IsAssignableFrom(typeof(IMonaVariablesVector2Value));
+            var hasDefaultValue = false;
 
-                target.RegisterValueChangedCallback((evt) =>
-                {
-                    target.value = (string)evt.newValue;
-                    targetProperty.SetValue(_tile, target.value);
-                    Changed();
-                });
-                fieldContainer.Add(target);
+            if (isVector3 || isVector2)
+            {
+                var xyzContainer = new VisualElement();
 
-                field.style.width = 80;
-                field.style.display = !string.IsNullOrEmpty(value) ? DisplayStyle.None : DisplayStyle.Flex;
+                if (isVector3)
+                    fields.Add(CreateDropdownField($"{property.Name}", targetProperty, xyzContainer, 0));
+                else
+                    fields.Add(CreateDropdownField($"{property.Name}", targetProperty, xyzContainer, 0));
 
-                var btn = new Button();
-                btn.style.width = 20;
-                btn.style.height = 20;
-                btn.style.color = Color.black;
-                btn.style.backgroundColor = !string.IsNullOrEmpty(value) ? _darkRed : Color.gray;
-                btn.style.color = !string.IsNullOrEmpty(value) ? Color.white : Color.black;
-                btn.text = "*";
+                xyzContainer.style.flexDirection = FlexDirection.Column;
+
+                var xyzSubContainer = new VisualElement();
+                xyzSubContainer.style.flexGrow = 1;
+                xyzSubContainer.style.flexDirection = FlexDirection.Row;
+                xyzContainer.Add(xyzSubContainer);
+
+                fields.Add(CreateDropdownField($"X", targetProperty, xyzSubContainer, 1));
+                fields.Add(CreateDropdownField($"Y", targetProperty, xyzSubContainer, 2));
+
+                if (isVector3)
+                    fields.Add(CreateDropdownField($"Z", targetProperty, xyzSubContainer, 3));
+
+                fieldContainer.Add(xyzContainer);
+                
+                var selectedValues = (string[])targetProperty.GetValue(_tile);
+                var hasBound = false;
+
                 btn.clicked += () =>
                 {
-                    values = _brain.DefaultVariables.VariableList.FindAll(x => isValue.Type.IsAssignableFrom(_brain.DefaultVariables.GetVariable(x.Name).GetType())).ConvertAll<string>(x => x.Name);
-                    target.choices = values;
-                    var value2 = (string)targetProperty.GetValue(_tile);
-                    Debug.Log($"Btn Clicked {targetProperty.Name} {value2}");
-                    if (!string.IsNullOrEmpty(value2) || values.Count == 0)
+                    List<string> values = new List<string>();
+                    var selectedValues = (string[])targetProperty.GetValue(_tile);
+                    
+                    for (var i = 0; i < selectedValues.Length; i++)
                     {
-                        targetProperty.SetValue(_tile, null);
+                        if (i == 0)
+                            values = GetVariableList(isValue.Type);
+                        else
+                            values = GetVariableList(typeof(IMonaVariablesFloatValue));
+
+                        values.Insert(0, "_");
+
+                        fields[i].choices = values;
+
+                        var selectedValue = selectedValues[i];
+
+                        if (string.IsNullOrEmpty(selectedValue))
+                        {
+                            var targetPropertyValue = (string[])targetProperty.GetValue(_tile);
+
+                            if (i == 0)
+                            {
+                                var defaultVariable = values.Find(x => string.Compare(x, property.Name, true) == 0);
+                                if (defaultVariable != null)
+                                    fields[i].value = defaultVariable;
+                                else if (values.Count > 0)
+                                    fields[i].value = values[0];
+                            }
+
+                            if(fields[i].value == "_")
+                                targetPropertyValue[i] = null;
+                            else
+                                targetPropertyValue[i] = fields[i].value;
+                            targetProperty.SetValue(_tile, targetPropertyValue);
+                        }
+                        else
+                        {
+                            hasBound = true;
+                        }
+                    }
+
+                    if (values.Count == 0 || hasBound)
+                    {
+                        hasBound = false;
+
+                        if (isVector3)
+                            targetProperty.SetValue(_tile, new string[4]);
+                        else
+                            targetProperty.SetValue(_tile, new string[3]);
+
                         field.style.display = DisplayStyle.Flex;
-                        target.style.display = DisplayStyle.None;
+
+                        xyzContainer.style.display = DisplayStyle.None;
+
                         btn.style.backgroundColor = Color.gray;
                         btn.style.color = Color.black;
                     }
                     else
                     {
+                        xyzContainer.style.display = DisplayStyle.Flex;
+
+                        field.style.display = DisplayStyle.None;
+
+                        btn.style.backgroundColor = _darkRed;
+                        btn.style.color = Color.white;
+
+                        hasBound = true;
+                    }
+                };
+
+                for(var i = 0;i < selectedValues.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(selectedValues[i]))
+                        hasDefaultValue = true;
+                }
+
+                if (hasDefaultValue)
+                    xyzContainer.style.display = DisplayStyle.Flex;
+                else
+                    xyzContainer.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                var target = CreateDropdownField(property.Name, targetProperty, fieldContainer);
+                var selectedValue = (string)targetProperty.GetValue(_tile);
+
+                btn.clicked += () =>
+                {
+                    var values = GetVariableList(isValue.Type);
+                    var selectedValue = (string)targetProperty.GetValue(_tile);
+
+                    target.choices = values;
+                    target.style.display = DisplayStyle.None;
+                    
+                    if (string.IsNullOrEmpty(selectedValue))
+                    {
+                        var targetPropertyValue = (string)targetProperty.GetValue(_tile);
+
                         var defaultVariable = values.Find(x => string.Compare(x, property.Name, true) == 0);
                         if (defaultVariable != null)
-                        {
-                            targetProperty.SetValue(_tile, defaultVariable);
                             target.value = defaultVariable;
-                        }
-                        else if(values.Count > 0)
-                        {
-                            targetProperty.SetValue(_tile, values[0]);
-                        }
-                        field.style.display = DisplayStyle.None;
+                        else if (values.Count > 1)
+                            target.value = values[1];
+
+                        targetPropertyValue = target.value;
+                        targetProperty.SetValue(_tile, targetPropertyValue);
+                    }
+                    
+                    if (values.Count == 0 || !string.IsNullOrEmpty(selectedValue))
+                    {
+                        targetProperty.SetValue(_tile, null);
+                        field.style.display = DisplayStyle.Flex;
+
+                        target.style.display = DisplayStyle.None;
+
+                        btn.style.backgroundColor = Color.gray;
+                        btn.style.color = Color.black;
+                    }
+                    else
+                    {
                         target.style.display = DisplayStyle.Flex;
+
+                        field.style.display = DisplayStyle.None;
                         btn.style.backgroundColor = _darkRed;
                         btn.style.color = Color.white;
                     }
                 };
-                fieldContainer.Add(btn);
-                return btn;
+
+                if (!string.IsNullOrEmpty(selectedValue))
+                    hasDefaultValue = true;
+
+                if (hasDefaultValue)
+                    target.style.display = DisplayStyle.Flex;
             }
-            return null;
+
+            field.style.width = 80;
+            field.style.display = hasDefaultValue ? DisplayStyle.None : DisplayStyle.Flex;
+            fieldContainer.Add(btn);
+
+            return btn;
+        }
+
+        private DropdownField CreateDropdownField(string name, PropertyInfo targetProperty, VisualElement fieldContainer)
+        {
+            var value = targetProperty.GetValue(_tile);
+            var isValue = (BrainPropertyValueName)targetProperty.GetCustomAttribute(typeof(BrainPropertyValueName), true);
+            var type = isValue.Type;
+
+            var values = GetVariableList(isValue.Type);
+            var defaultValue = "";
+
+            var defaultVariable = values.Find(x => string.Compare(x, (string)value, true) == 0);
+            var target = new DropdownField(values, 0);
+
+            if(defaultVariable != null)
+            {
+                target.value = defaultVariable;
+                targetProperty.SetValue(_tile, target.value);
+            }
+
+            target.RegisterValueChangedCallback((evt) =>
+            {
+                if (evt.newValue == "_")
+                    target.value = null;
+                else
+                    target.value = (string)evt.newValue;
+                targetProperty.SetValue(_tile, target.value);
+                Changed();
+            });
+
+            target.style.width = 80;
+            target.style.flexDirection = FlexDirection.Column;
+            target.style.display = string.IsNullOrEmpty(defaultValue) ? DisplayStyle.None : DisplayStyle.Flex;
+            target.labelElement.style.color = _textColor;
+            target.label = name;
+
+            fieldContainer.Add(target);
+
+            return target;
+        }
+
+        private DropdownField CreateDropdownField(string name, PropertyInfo targetProperty, VisualElement fieldContainer, int index)
+        {
+            var value = (string[])targetProperty.GetValue(_tile);
+            var isValue = (BrainPropertyValueName)targetProperty.GetCustomAttribute(typeof(BrainPropertyValueName), true);
+            var type = isValue.Type;
+
+            var values = GetVariableList(typeof(IMonaVariablesFloatValue));
+
+            if (index == 0)
+                values = GetVariableList(isValue.Type);
+
+            values.Insert(0, "_");
+
+            if (value.Length == 0)
+                value = new string[4];
+
+            var defaultVariable = values.Find(x => string.Compare(x, value[index], true) == 0);
+            var target = new DropdownField(values, 0);
+
+            if (defaultVariable != null)
+            {
+                target.value = defaultVariable;
+                var currentValue = (string[])targetProperty.GetValue(_tile);
+                currentValue[index] = target.value;
+                targetProperty.SetValue(_tile, currentValue);
+            }
+
+            target.RegisterValueChangedCallback((evt) =>
+            {
+                if (evt.newValue == "_")
+                    target.value = null;
+                else
+                    target.value = (string)evt.newValue;
+                var currentValue = (string[])targetProperty.GetValue(_tile);
+                currentValue[index] = target.value;
+                targetProperty.SetValue(_tile, currentValue);
+                Changed();
+            });
+
+            if (index == 0)
+            {
+                target.style.flexGrow = 1;
+                target.label = name;
+                target.style.flexDirection = FlexDirection.Column;
+            }
+            else
+            {
+                target.style.width = 60;
+                var label = new Label();
+                label.text = name;
+                label.style.color = _textColor;
+                fieldContainer.Add(label);
+            }
+
+            target.labelElement.style.color = _textColor;
+
+            fieldContainer.Add(target);
+
+            return target;
+        }
+
+        private List<string> GetVariableList(Type type)
+        {
+            return _brain.DefaultVariables.VariableList.FindAll(x => type.IsAssignableFrom(_brain.DefaultVariables.GetVariable(x.Name).GetType())).ConvertAll<string>(x => x.Name);
+        }
+
+        private Button CreateBindButton()
+        {
+            var btn = new Button();
+            btn.style.width = 20;
+            btn.style.height = 20;
+            btn.style.color = Color.black;
+            btn.text = "*";
+            return btn;
         }
 
         private void CopyToTile(IInstructionTileDefinition def)
