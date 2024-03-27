@@ -110,9 +110,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (bodies != null && _collider.FindClosestInRangeWithMonaTag(_tag) == null)
             {
                 FilterBodiesOnInstruction(bodies);
-                if (_bodies.Count > 0)
+                if (bodies.Count > 0)
                 {
-                    var body = _bodies[0];
+                    var body = bodies[0];
                     //if(_brain.LoggingEnabled)
                     //    Debug.Log($"{nameof(OnFarInstructionTile)}.{nameof(Do)} {_distance} found: {body}");
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);

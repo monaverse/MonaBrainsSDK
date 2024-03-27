@@ -129,6 +129,8 @@ namespace Mona.SDK.Brains.Core.Tiles
         protected List<IMonaBody> _bodies = new List<IMonaBody>();
         protected void FilterBodiesOnInstruction(List<ForwardBodyStruct> bodies)
         {
+            _bodies = _instruction.InstructionBodies;
+
             if (_firstTile)
             {
                 _bodies.Clear();
@@ -149,12 +151,12 @@ namespace Mona.SDK.Brains.Core.Tiles
                         }
                     }
                     if (!found)
-                        bodies.RemoveAt(i);
+                        _bodies.RemoveAt(i);
                 }
             }
 
             //Debug.Log($"{nameof(FilterBodiesOnInstruction)} index {_instruction.InstructionTiles.IndexOf(this)} {_bodies.Count}");
-            _instruction.InstructionBodies = _bodies;
+            //_instruction.InstructionBodies = _bodies;
         }
 
         protected void FilterBodiesOnInstruction(List<IMonaBody> bodies)

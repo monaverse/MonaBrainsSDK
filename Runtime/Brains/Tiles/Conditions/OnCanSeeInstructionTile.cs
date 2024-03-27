@@ -117,11 +117,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             {
                 FilterBodiesOnInstruction(bodies);
 
-                Debug.Log($"{nameof(OnCanSeeInstructionTile)} can see {_bodies.Count}");
+                //Debug.Log($"{nameof(OnCanSeeInstructionTile)} can see {_bodies.Count}");
 
-                if (_bodies.Count > 0)
+                if (bodies.Count > 0)
                 {
-                    var body = _bodies[0];
+                    var body = bodies[0].body;
 
                     //if(_brain.LoggingEnabled) 
                     //    Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {body} {_distance}", _brain.Body.Transform.gameObject);
