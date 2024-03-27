@@ -29,7 +29,15 @@ To add this sdk to your Unity project, follow these steps:
 
 8. If you are not already using the latest 'Unity Input System' you will be asked to enable it which will restart your Unity editor.
 
-9. Once set up is complete, you should see a menu item at the top of Unity called 'Mona' with the option to launch the brains editor.
+9. Make sure you have a MonaTags scriptable object in your 'Library' 
+![Screenshot 2024-03-27 at 1 20 04 PM](https://github.com/monaverse/MonaBrainsSDK/assets/541988/9e81d422-ef31-4d61-a8fe-642e1ebaa733)
 
-10. Check back frequently for updated releases as this project is in active development and changing regularly.
+
+if you don't, then create one by right clicking on your Brains folder, then selecting: Create -> Mona Brains -> Utils -> Mona Tags from the context menu.
+![Screenshot 2024-03-27 at 1 16 09 PM](https://github.com/monaverse/MonaBrainsSDK/assets/541988/1cf2af63-e0bd-448f-b629-d3ed3b34beff)
+
+
+10. Once set up is complete, you should see a menu item at the top of Unity called 'Mona' with the option to launch the brains editor.
+
+11. Check back frequently for updated releases as this project is in active development and changing regularly.
 
