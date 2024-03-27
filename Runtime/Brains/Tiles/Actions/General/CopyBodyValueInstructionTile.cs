@@ -34,11 +34,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             switch(_source)
             {
                 case MonaBodyValueType.StartPosition:
-                    _brain.Variables.Set(_targetValue, _brain.Body.InitialLocalPosition); break;
+                    _brain.Variables.Set(_targetValue, _brain.Body.InitialPosition); break;
                 case MonaBodyValueType.Rotation:
                     _brain.Variables.Set(_targetValue, _brain.Body.GetRotation().eulerAngles); break;
                 case MonaBodyValueType.StartRotation:
-                    _brain.Variables.Set(_targetValue, _brain.Body.InitialLocalRotation.eulerAngles); break;
+                    _brain.Variables.Set(_targetValue, _brain.Body.InitialRotation.eulerAngles); break;
                 case MonaBodyValueType.Scale:
                     _brain.Variables.Set(_targetValue, _brain.Body.GetScale()); break;
                 case MonaBodyValueType.StartScale:
