@@ -216,6 +216,8 @@ namespace Mona.SDK.Brains.UIElements
 
         private void BuildValueEditor()
         {
+            //TODO REFACTOR
+
             _propertyValues.Clear();
             _valuesExtended.Clear();
             var container = _values;
@@ -223,6 +225,9 @@ namespace Mona.SDK.Brains.UIElements
             var count = 0;
 
             var fieldDictionary = new Dictionary<string, VisualElement>();
+            var targetFieldDictionary = new Dictionary<string, VisualElement>();
+            var targetFieldVisible = new Dictionary<string, bool>();
+
             var buttonDictionary = new Dictionary<string, Button>();
             var showAttributes = new Dictionary<string, List<BrainPropertyShow>>();
             for (var i = 0; i < properties.Count; i++)
@@ -254,6 +259,10 @@ namespace Mona.SDK.Brains.UIElements
                             if (pair.Value.FindAll(x => x is BrainPropertyShowLabel).Count < pair.Value.Count)
                             {
                                 fieldDictionary[pair.Key].style.display = DisplayStyle.None;
+
+                                if (targetFieldVisible.ContainsKey(pair.Key))
+                                    targetFieldDictionary[pair.Key].style.display = DisplayStyle.None;
+
                                 if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
                                     buttonDictionary[pair.Key].style.display = DisplayStyle.None;
                             }
@@ -284,7 +293,22 @@ namespace Mona.SDK.Brains.UIElements
                             }
                             if (pair.Value.FindAll(x => x is BrainPropertyShowLabel).Count == pair.Value.Count)
                             {
-                                fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                if (targetFieldVisible.ContainsKey(pair.Key))
+                                {
+                                    if (targetFieldVisible[pair.Key])
+                                    {
+                                        fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                        targetFieldDictionary[pair.Key].style.display = DisplayStyle.None;
+                                    }
+                                    else
+                                    {
+                                        fieldDictionary[pair.Key].style.display = DisplayStyle.None;
+                                        targetFieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                    }
+                                }
+                                else
+                                    fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+
                                 if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
                                     buttonDictionary[pair.Key].style.display = DisplayStyle.Flex;
                             }
@@ -294,7 +318,22 @@ namespace Mona.SDK.Brains.UIElements
                             var otherProperty = _tile.GetType().GetProperty(pair.Value[i].Name);
                             if (((int)otherProperty.GetValue(_tile)) == pair.Value[i].Value)
                             {
-                                fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                if (targetFieldVisible.ContainsKey(pair.Key))
+                                {
+                                    if (targetFieldVisible[pair.Key])
+                                    {
+                                        fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                        targetFieldDictionary[pair.Key].style.display = DisplayStyle.None;
+                                    }
+                                    else
+                                    {
+                                        fieldDictionary[pair.Key].style.display = DisplayStyle.None;
+                                        targetFieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                    }
+                                }
+                                else
+                                    fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+
                                 if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
                                     buttonDictionary[pair.Key].style.display = DisplayStyle.Flex;
                             }
@@ -409,7 +448,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property, targetFieldDictionary, targetFieldVisible));
                 }
                 else if (property.PropertyType == typeof(float))
                 {
@@ -428,7 +467,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property, targetFieldDictionary, targetFieldVisible));
                 }
                 else if (property.PropertyType == typeof(int))
                 {
@@ -448,7 +487,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property, targetFieldDictionary, targetFieldVisible));
                 }
                 else if (property.PropertyType == typeof(bool))
                 {
@@ -468,7 +507,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property, targetFieldDictionary, targetFieldVisible));
                 }
                 else if (property.PropertyType == typeof(Vector2))
                 {
@@ -489,7 +528,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property, targetFieldDictionary, targetFieldVisible));
                 }
                 else if (property.PropertyType == typeof(Vector3))
                 {
@@ -519,7 +558,7 @@ namespace Mona.SDK.Brains.UIElements
                         return x;
                     });
 
-                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property, targetFieldDictionary, targetFieldVisible));
                 }
                 else if (property.PropertyType.IsEnum)
                 {
@@ -540,7 +579,7 @@ namespace Mona.SDK.Brains.UIElements
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
-                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property));
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property, targetFieldDictionary, targetFieldVisible));
                 }
 #if UNITY_EDITOR
                 else if (property.PropertyType == typeof(Color))
@@ -568,7 +607,7 @@ namespace Mona.SDK.Brains.UIElements
         }
 
         private Color _darkRed = Color.HSVToRGB(347f / 360f, .66f, .1f);
-        private Button AddTargetFieldIfExists(VisualElement fieldContainer, VisualElement field, List<PropertyInfo> properties, PropertyInfo property)
+        private Button AddTargetFieldIfExists(VisualElement fieldContainer, VisualElement field, List<PropertyInfo> properties, PropertyInfo property, Dictionary<string, VisualElement> targetFieldDictionary, Dictionary<string, bool> targetFieldVisible)
         {
             var targetProperty = properties.Find(x =>
             {
@@ -584,13 +623,13 @@ namespace Mona.SDK.Brains.UIElements
 
             if (targetProperty != null)
             {
-                var btn = CreateTargetPropertyButton(targetProperty, property, fieldContainer, field);
+                var btn = CreateTargetPropertyButton(targetProperty, property, fieldContainer, field, targetFieldDictionary, targetFieldVisible);
                 return btn;
             }
             return null;
         }
 
-        private Button CreateTargetPropertyButton(PropertyInfo targetProperty, PropertyInfo property, VisualElement fieldContainer, VisualElement field)
+        private Button CreateTargetPropertyButton(PropertyInfo targetProperty, PropertyInfo property, VisualElement fieldContainer, VisualElement field, Dictionary<string, VisualElement> targetFieldDictionary, Dictionary<string, bool> targetFieldVisible)
         {
             var isValue = (BrainPropertyValueName)targetProperty.GetCustomAttribute(typeof(BrainPropertyValueName), true);
 
@@ -603,6 +642,7 @@ namespace Mona.SDK.Brains.UIElements
             if (isVector3 || isVector2)
             {
                 var xyzContainer = new VisualElement();
+                targetFieldDictionary[isValue.PropertyName] = xyzContainer;
 
                 if (isVector3)
                     fields.Add(CreateDropdownField($"{property.Name}", targetProperty, xyzContainer, 0));
@@ -682,6 +722,7 @@ namespace Mona.SDK.Brains.UIElements
                         field.style.display = DisplayStyle.Flex;
 
                         xyzContainer.style.display = DisplayStyle.None;
+                        targetFieldVisible[isValue.PropertyName] = true;
 
                         btn.style.backgroundColor = Color.gray;
                         btn.style.color = Color.black;
@@ -689,6 +730,7 @@ namespace Mona.SDK.Brains.UIElements
                     else
                     {
                         xyzContainer.style.display = DisplayStyle.Flex;
+                        targetFieldVisible[isValue.PropertyName] = false;
 
                         field.style.display = DisplayStyle.None;
 
@@ -706,13 +748,21 @@ namespace Mona.SDK.Brains.UIElements
                 }
 
                 if (hasDefaultValue)
+                {
                     xyzContainer.style.display = DisplayStyle.Flex;
+                    targetFieldVisible[isValue.PropertyName] = false;
+                }
                 else
+                {
                     xyzContainer.style.display = DisplayStyle.None;
+                    targetFieldVisible[isValue.PropertyName] = true;
+                }
             }
             else
             {
                 var target = CreateDropdownField(property.Name, targetProperty, fieldContainer);
+                targetFieldDictionary[isValue.PropertyName] = target;
+
                 var selectedValue = (string)targetProperty.GetValue(_tile);
 
                 btn.clicked += () =>
@@ -743,6 +793,7 @@ namespace Mona.SDK.Brains.UIElements
                         field.style.display = DisplayStyle.Flex;
 
                         target.style.display = DisplayStyle.None;
+                        targetFieldVisible[isValue.PropertyName] = true;
 
                         btn.style.backgroundColor = Color.gray;
                         btn.style.color = Color.black;
@@ -750,6 +801,7 @@ namespace Mona.SDK.Brains.UIElements
                     else
                     {
                         target.style.display = DisplayStyle.Flex;
+                        targetFieldVisible[isValue.PropertyName] = false;
 
                         field.style.display = DisplayStyle.None;
                         btn.style.backgroundColor = _darkRed;
@@ -761,7 +813,14 @@ namespace Mona.SDK.Brains.UIElements
                     hasDefaultValue = true;
 
                 if (hasDefaultValue)
+                {
                     target.style.display = DisplayStyle.Flex;
+                    targetFieldVisible[isValue.PropertyName] = false;
+                }
+                else
+                {
+                    targetFieldVisible[isValue.PropertyName] = true;
+                }
             }
 
             field.style.width = 80;
