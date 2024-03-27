@@ -50,10 +50,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
                 {
                     case MonaBodyValueType.Position:
                         _end[i] = bodies[i].GetPosition(); break;
+                    case MonaBodyValueType.StartPosition:
+                        _end[i] = bodies[i].InitialPosition; break;
                     case MonaBodyValueType.Rotation:
                         _end[i] = bodies[i].GetRotation().eulerAngles / 360f; break;
+                    case MonaBodyValueType.StartRotation:
+                        _end[i] = bodies[i].InitialRotation.eulerAngles / 360f; break;
                     case MonaBodyValueType.Scale:
                         _end[i] = bodies[i].GetScale(); break;
+                    case MonaBodyValueType.StartScale:
+                        _end[i] = bodies[i].InitialScale; break;
                     case MonaBodyValueType.Velocity:
                         _end[i] = bodies[i].GetVelocity(); break;
                 }
