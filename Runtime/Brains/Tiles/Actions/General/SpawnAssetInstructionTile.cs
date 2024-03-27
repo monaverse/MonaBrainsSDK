@@ -222,9 +222,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     if (poolItem.ActiveRigidbody != null)
                         poolItem.ActiveRigidbody.WakeUp();
 
-                    poolItem.TeleportPosition(body.GetPosition() + offset, true);
-                    poolItem.TeleportRotation(body.GetRotation() * Quaternion.Euler(eulerAngles), true);
-                    poolItem.TeleportScale(scale, true);
+                    Vector3 position = body.GetPosition() + offset;
+                    Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
+                    poolItem.SetSpawnTransforms(position, rotation, scale, true);
 
                     var childBrains = poolItem.Transform.GetComponentsInChildren<IMonaBrainRunner>();
                     for(var i = 0;i < childBrains.Length; i++)
