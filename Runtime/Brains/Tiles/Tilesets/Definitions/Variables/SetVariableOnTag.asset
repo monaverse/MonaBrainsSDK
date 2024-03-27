@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7896da1febd0a4a5293430f73d6c4ae4, type: 3}
+  m_Name: SetVariableOnTag
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 4011123487002066968
+  _id: SetVariableOnTag
+  _name: Set Value On Tag
+  _category: Variables
+  references:
+    version: 2
+    RefIds:
+    - rid: 4011123487002066968
+      type: {class: SetVariableOnTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: SetVariableOnTag
+        _name: Set Value On Tag
+        _category: Variables
+        _myVariable: 
+        _tag: Default
+        _tagVariable: 

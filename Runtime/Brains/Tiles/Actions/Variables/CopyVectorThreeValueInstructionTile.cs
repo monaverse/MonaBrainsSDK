@@ -4,7 +4,6 @@ using Mona.SDK.Brains.Core;
 using UnityEngine;
 using System;
 using Mona.SDK.Brains.Core.Brain;
-using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 using Mona.SDK.Core.State.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
@@ -18,13 +17,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override Type TileType => typeof(CopyVectorThreeValueInstructionTile);
         
         [SerializeField] string _vector;
-        [BrainPropertyValue(typeof(IMonaVariablesVector3Value), true)] public string Vector { get => _vector; set => _vector = value; }
+        [BrainPropertyValue(typeof(IMonaVariablesVector3Value), true)]
+        public string Vector { get => _vector; set => _vector = value; }
 
         [SerializeField] private VectorThreeAxis _axis = VectorThreeAxis.Y;
-        [BrainPropertyEnum(true)] public VectorThreeAxis Axis { get => _axis; set => _axis = value; }
+        [BrainPropertyEnum(true)]
+        public VectorThreeAxis Axis { get => _axis; set => _axis = value; }
 
         [SerializeField] private string _targetNumber;
-        [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string TargetNumber { get => _targetNumber; set => _targetNumber = value; }
+        [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)]
+        public string TargetNumber { get => _targetNumber; set => _targetNumber = value; }
 
         private IMonaBrain _brain;
 
