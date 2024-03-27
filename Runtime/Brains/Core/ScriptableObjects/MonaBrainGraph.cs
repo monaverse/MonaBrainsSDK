@@ -590,8 +590,17 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             if (evt.Name == MonaBrainConstants.RESULT_STATE) return;
             if (evt.Name.StartsWith("__")) return;
-            ExecuteCorePageInstructions(InstructionEventTypes.Value);
-            ExecuteStatePageInstructions(InstructionEventTypes.Value);
+
+            var nevt = new MonaBrainValueChangedEvent(evt.Name, evt.Value);
+            _runner.WaitFrame(_index, ExecuteValueEvent, nevt, typeof(MonaBrainValueChangedEvent), LoggingEnabled);
+        }
+
+        private void ExecuteValueEvent(IInstructionEvent evt)
+        {
+            if (!_began) return;
+
+            ExecuteCorePageInstructions(InstructionEventTypes.Value, evt);
+            ExecuteStatePageInstructions(InstructionEventTypes.Value, evt);
         }
 
         private void HandleBroadcastMessage(MonaBroadcastMessageEvent evt)
