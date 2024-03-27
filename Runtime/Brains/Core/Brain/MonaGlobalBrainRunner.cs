@@ -173,11 +173,23 @@ namespace Mona.SDK.Brains.Core.Brain
         private void Start()
         {
             SetupEasyUIGlobalRunner();
+            CacheCamera();
 
 #if UNITY_EDITOR && !OLYMPIA
             IMonaNetworkSpawner mockSpawner = null;
             EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT), new NetworkSpawnerStartedEvent(mockSpawner));
 #endif
+        }
+
+        private void CacheCamera()
+        {
+
+            if (_playerCamera == null)
+                _playerCamera = Camera.main;
+
+            if (_playerCamera == null)
+                _playerCamera = FindObjectOfType<Camera>();
+
         }
 
         private void OnDestroy()

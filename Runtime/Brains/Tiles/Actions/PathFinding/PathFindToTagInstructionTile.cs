@@ -42,7 +42,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
                 //Debug.Log($"{nameof(PathFindToPositionInstructionTile)} {_value} {_valueValueName}");
                 if (_brain != null && closest != null)
                 {
-                    _agent.SetDestination(closest.GetPosition());
+                    if(_agent.isOnNavMesh)
+                        _agent.SetDestination(closest.GetPosition());
                     return Complete(InstructionTileResult.Success);
                 }
             }
