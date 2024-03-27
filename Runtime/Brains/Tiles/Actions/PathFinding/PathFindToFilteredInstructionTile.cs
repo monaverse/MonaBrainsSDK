@@ -14,15 +14,12 @@ using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
 namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
 {
     [Serializable]
-    public class PathFindToTagInstructionTile : PathFindInstructionTile
+    public class PathFindToFilteredInstructionTile : PathFindInstructionTile
     {
-        public new const string ID = "PathFindToTagInstructionTile";
-        public new const string NAME = "Path Find To Tag";
+        public new const string ID = "PathFindToFilteredInstructionTile";
+        public new const string NAME = "Path Find To Filtered";
         public new const string CATEGORY = "Path Finding";
-        public override Type TileType => typeof(PathFindToTagInstructionTile);
-
-        [SerializeField] private string _tag;
-        [BrainPropertyMonaTag(true)] public string Tag { get => _tag; set => _tag = value; }
+        public override Type TileType => typeof(PathFindToFilteredInstructionTile);
 
         [SerializeField] private ChooseTagType _chooseTagType;
         [BrainPropertyEnum(true)] public ChooseTagType ChooseTag { get => _chooseTagType; set => _chooseTagType = value; }
@@ -30,39 +27,37 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
         [SerializeField] private bool _followWhileMoving;
         [BrainProperty(false)] public bool FollowWhileMoving { get => _followWhileMoving; set => _followWhileMoving = value; }
 
-        public PathFindToTagInstructionTile() { }
+        public PathFindToFilteredInstructionTile() { }
 
         private int _lastIndex = -1;
 
         public override InstructionTileResult Do()
         {
+            _bodies = _instruction.InstructionBodies;
+
             if (_movingState == MovingStateType.Stopped || _followWhileMoving)
             {
-                var bodies = MonaBody.FindByTag(_tag);
-
-                Debug.Log($"{nameof(PathFindToTagInstructionTile)} bodies {bodies.Count}");
-
                 var pos = Vector3.zero;
-                if (bodies.Count > 0)
+                if (_bodies.Count > 0)
                 {
-                    IMonaBody closest = bodies[0];
+                    IMonaBody closest = _bodies[0];
 
-                    for (var i = 1; i < bodies.Count; i++)
+                    for (var i = 1; i < _bodies.Count; i++)
                     {
                         var distanceClosest = Vector3.Distance(_brain.Body.GetPosition(), closest.GetPosition());
-                        var distanceBody = Vector3.Distance(_brain.Body.GetPosition(), bodies[i].GetPosition());
+                        var distanceBody = Vector3.Distance(_brain.Body.GetPosition(), _bodies[i].GetPosition());
                         switch (_chooseTagType)
                         {
                             case ChooseTagType.Closest:
                                 if (distanceBody < distanceClosest)
-                                    closest = bodies[i];
+                                    closest = _bodies[i];
                                 break;
                             case ChooseTagType.Furthest:
                                 if (distanceBody > distanceClosest)
-                                    closest = bodies[i];
+                                    closest = _bodies[i];
                                 break;
                         }
-                        pos += bodies[i].GetPosition();
+                        pos += _bodies[i].GetPosition();
                     }
 
                     if (_brain != null && closest != null)
@@ -70,15 +65,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
                         /*if (_chooseTagType == ChooseTagType.Next)
                         {
                             _lastIndex++;
-                            if (_lastIndex >= bodies.Count)
+                            if (_lastIndex >= _bodies.Count)
                                 _lastIndex = 0;
-                            MoveTo(bodies[_lastIndex].GetPosition());
+                            MoveTo(_bodies[_lastIndex].GetPosition());
                         }
-                        else
-                        */
+                        else*/
                         if (_chooseTagType == ChooseTagType.Average)
                         {
-                            MoveTo(pos / bodies.Count);
+                            MoveTo(pos / _bodies.Count);
                         }
                         else
                         {
@@ -98,10 +92,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
 
         private void MoveTo(Vector3 pos)
         {
-            Debug.Log($"{nameof(PathFindToTagInstructionTile)} bodies: {_instruction.InstructionBodies.Count} pos: {pos}");
+            //Debug.Log($"{nameof(PathFindToTagInstructionTile)} bodies: {_instruction.InstructionBodies.Count} pos: {pos}");
             SetAgentSettings();
-            _agent.isStopped = false;
-            _agent.SetDestination(pos);
+            if (_agent.isOnNavMesh)
+            {
+                _agent.isStopped = false;
+                _agent.SetDestination(pos);
+            }
             _movingState = MovingStateType.Moving;
             AddFixedTickDelegate();
         }

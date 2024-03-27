@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Conditions.Interfaces
 {
-    public interface IOnFarInstructionTile : IInstructionTileWithPreload
+    public interface IOnFarInstructionTile : IInstructionTileWithPreloadAndPageAndInstruction
     {
         string MonaTag { get; set; }
         float Distance { get; set; }

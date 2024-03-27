@@ -78,12 +78,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             targetRayLayer = ~targetRayLayer;
 
             RaycastHit hit;
-            Debug.Log($"{nameof(Raycast)} {ray.origin} {ray.direction}");
-            if (Physics.Raycast(ray.origin, ray.direction, out hit, _distance, targetRayLayer))
+            //Debug.Log($"{nameof(Raycast)} {ray.origin} {ray.direction}");
+            if (Physics.Raycast(ray.origin, ray.direction, out hit, _distance, targetRayLayer, QueryTriggerInteraction.Ignore))
             {
                 var body = hit.collider.GetComponentInParent<IMonaBody>();
                 if (_brain.LoggingEnabled && body != null)
-                    Debug.Log($"{nameof(OnSelectTagInstructionTile)} selected body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+                    Debug.Log($"{nameof(OnSelectTagInstructionTile)} selected body {body.ActiveTransform.name} {_monaTag} {body.HasMonaTag(_monaTag)}", body.ActiveTransform.gameObject);
 
                 if (body != null && body.HasMonaTag(_monaTag))
                 {

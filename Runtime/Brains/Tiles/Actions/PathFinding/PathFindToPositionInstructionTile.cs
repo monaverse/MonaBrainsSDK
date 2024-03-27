@@ -7,6 +7,7 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Core.State.Structs;
 using UnityEngine.AI;
 using Unity.VisualScripting;
+using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
 {
@@ -33,10 +34,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
             //Debug.Log($"{nameof(PathFindToPositionInstructionTile)} {_value} {_valueValueName}");
             if (_brain != null)
             {
-                _agent.SetDestination(_value);
+                MoveTo(_value);
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+        }
+
+        private void MoveTo(Vector3 pos)
+        {
+            Debug.Log($"{nameof(PathFindToPositionInstructionTile)} {pos}");
+            SetAgentSettings();
+            _agent.isStopped = false;
+            _agent.SetDestination(pos);
+            _movingState = MovingStateType.Moving;
+            AddFixedTickDelegate();
         }
     }
 }

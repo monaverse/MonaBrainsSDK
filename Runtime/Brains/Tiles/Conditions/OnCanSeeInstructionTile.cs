@@ -5,17 +5,19 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions.Behaviours;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
+using Mona.SDK.Core.Body;
 using Mona.SDK.Core.State.Structs;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static Mona.SDK.Brains.Tiles.Conditions.Behaviours.SphereColliderTriggerBehaviour;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnCanSeeInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile, 
+    public class OnCanSeeInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile,
         IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IActivateInstructionTile,
-        IPauseableInstructionTile, IRigidbodyInstructionTile
+        IPauseableInstructionTile, IRigidbodyInstructionTile, ITickAfterInstructionTile
     {
         public const string ID = "OnCanSee";
         public const string NAME = "Can See";
@@ -45,9 +47,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public OnCanSeeInstructionTile() { }
 
-        public void Preload(IMonaBrain brainInstance, IMonaBrainPage page)
+        public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
+            _instruction = instruction;
+
+            _firstTile = _instruction.InstructionTiles.IndexOf(this) == 0;
+
             if (_collider == null)
             {
                 _collider = _brain.GameObject.AddComponent<SphereColliderTriggerBehaviour>();
@@ -105,15 +111,27 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _fieldOfView = _brain.Variables.GetFloat(_fieldOfViewValueName);
 
             _collider.SetRadius(_distance);
-            var body = _collider.FindForwardMostBodyWithMonaTagInFieldOfView(_tag, _fieldOfView);
-            if (body != null)
+            var bodies = _collider.FindForwardMostBodyWithMonaTagInFieldOfView(_tag, _fieldOfView);
+
+            if (bodies != null)
             {
-                //if(_brain.LoggingEnabled) 
-                //    Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {body} {_distance}", _brain.Body.Transform.gameObject);
-                _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
-                return Complete(InstructionTileResult.Success);
+                FilterBodiesOnInstruction(bodies);
+
+                Debug.Log($"{nameof(OnCanSeeInstructionTile)} can see {_bodies.Count}");
+
+                if (_bodies.Count > 0)
+                {
+                    var body = _bodies[0];
+
+                    //if(_brain.LoggingEnabled) 
+                    //    Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} found: {body} {_distance}", _brain.Body.Transform.gameObject);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
+                    return Complete(InstructionTileResult.Success);
+                }
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
         }
+
+
     }
 }

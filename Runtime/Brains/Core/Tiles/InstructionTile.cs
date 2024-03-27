@@ -1,6 +1,10 @@
 ﻿using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Brains.Tiles.Conditions.Structs;
+using Mona.SDK.Core.Body;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mona.SDK.Brains.Core.Tiles
@@ -118,6 +122,69 @@ namespace Mona.SDK.Brains.Core.Tiles
                 vector3.y = brain.Variables.GetFloat(values[2]);
 
             return vector3;
+        }
+
+        protected IInstruction _instruction;
+        protected bool _firstTile;
+        protected List<IMonaBody> _bodies = new List<IMonaBody>();
+        protected void FilterBodiesOnInstruction(List<ForwardBodyStruct> bodies)
+        {
+            if (_firstTile)
+            {
+                _bodies.Clear();
+                for (var i = 0; i < bodies.Count; i++)
+                    _bodies.Add(bodies[i].body);
+            }
+            else
+            {
+                for (var i = _bodies.Count - 1; i >= 0; i--)
+                {
+                    var found = false;
+                    for (var j = 0; j < bodies.Count; j++)
+                    {
+                        if (bodies[j].body == _bodies[i])
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        bodies.RemoveAt(i);
+                }
+            }
+
+            //Debug.Log($"{nameof(FilterBodiesOnInstruction)} index {_instruction.InstructionTiles.IndexOf(this)} {_bodies.Count}");
+            _instruction.InstructionBodies = _bodies;
+        }
+
+        protected void FilterBodiesOnInstruction(List<IMonaBody> bodies)
+        {
+            if (_firstTile)
+            {
+                _bodies.Clear();
+                for (var i = 0; i < bodies.Count; i++)
+                    _bodies.Add(bodies[i]);
+            }
+            else
+            {
+                for (var i = _bodies.Count - 1; i >= 0; i--)
+                {
+                    var found = false;
+                    for (var j = 0; j < bodies.Count; j++)
+                    {
+                        if (bodies[j] == _bodies[i])
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                        bodies.RemoveAt(i);
+                }
+            }
+
+            //Debug.Log($"{nameof(FilterBodiesOnInstruction)} index {_instruction.InstructionTiles.IndexOf(this)} {_bodies.Count}");
+            _instruction.InstructionBodies = _bodies;
         }
 
     }

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45f2c810d624d4bd0b273259c754acd6, type: 3}
+  m_Name: PathFindToFiltered
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 1609535017938845876
+  _id: PathFindToFilteredInstructionTile
+  _name: Path Find To Filtered
+  _category: Path Finding
+  references:
+    version: 2
+    RefIds:
+    - rid: 1609535017938845876
+      type: {class: PathFindToFilteredInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.PathFinding, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
+        _baseOffset: 1
+        _speed: 3.5
+        _angularSpeed: 120
+        _acceleration: 8
+        _stoppingDistance: 0
+        _autoBraking: 1
+        _avoidRadius: 0.5
+        _height: 2
+        _chooseTagType: 0
+        _followWhileMoving: 0

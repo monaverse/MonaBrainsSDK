@@ -29,6 +29,9 @@ namespace Mona.SDK.Brains.Core.Control
         private MonaInput _instructionInput;
         public MonaInput InstructionInput { get => _instructionInput; set => _instructionInput = value; }
 
+        private List<IMonaBody> _instructionBodies = new List<IMonaBody>();
+        public List<IMonaBody> InstructionBodies { get => _instructionBodies; set => _instructionBodies = value; }
+
         [SerializeReference]
         private List<IInstructionTile> _instructionTiles = new List<IInstructionTile>();
         public List<IInstructionTile> InstructionTiles => _instructionTiles;

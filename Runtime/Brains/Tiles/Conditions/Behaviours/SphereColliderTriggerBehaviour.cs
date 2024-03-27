@@ -3,6 +3,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Brains.Tiles.Conditions.Structs;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Events;
@@ -17,12 +18,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 {
     public class SphereColliderTriggerBehaviour : MonoBehaviour, IDisposable
     {
-        private struct ForwardBodyStruct
-        {
-            public float dot;
-            public IMonaBody body;
-        }
-
         private SphereCollider _collider;
         private IMonaBrain _brain;
         private IMonaBrainPage _page;
@@ -219,20 +214,20 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private int SortDot(ForwardBodyStruct a, ForwardBodyStruct b) => -a.dot.CompareTo(b.dot);
 
-        public IMonaBody FindForwardMostBodyWithMonaTagInFieldOfView(string tag, float fieldOfView = 45f)
+        public List<ForwardBodyStruct> FindForwardMostBodyWithMonaTagInFieldOfView(string tag, float fieldOfView = 45f)
         {
             var bodies = FindBodiesWithMonaTagInFieldOfView(tag, fieldOfView);
             if (bodies.Count == 0) return null;
             bodies.Sort(SortDot);
-            return bodies[0].body;
+            return bodies;
         }
 
-        public IMonaBody FindForwardMostBodyWithMonaTagOutsideFieldOfView(string tag, float fieldOfView = 45f)
+        public List<ForwardBodyStruct> FindForwardMostBodyWithMonaTagOutsideFieldOfView(string tag, float fieldOfView = 45f)
         {
             var bodies = FindBodiesWithMonaTagOutsideFieldOfView(tag, fieldOfView);
             if (bodies.Count == 0) return null;
             bodies.Sort(SortDot);
-            return bodies[0].body;
+            return bodies;
         }
 
         public IMonaBody FindClosestInRangeWithMonaTag(string tag)
@@ -264,27 +259,37 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             return closest;
         }
 
-        public IMonaBody FindClosestOutOfRangeWithMonaTag(string tag)
+        public List<IMonaBody> FindClosestOutOfRangeWithMonaTag(string tag)
         {
             var bodies = MonaBody.FindByTag(tag);
+            //Debug.Log($"{nameof(FindClosestOutOfRangeWithMonaTag)} prefilter: {bodies.Count}");
             IMonaBody closest = null;
             float closestDistance = Mathf.Infinity;
             for(var i = bodies.Count-1;i >= 0;i--)
             {
                 var pos = bodies[i].GetPosition();
                 var d = Vector3.Distance(pos, _brain.Body.GetPosition());
-                if (bodies[i] == _brain.Body) continue;
-                if (bodies[i].GetActive())
+                if (bodies[i] == _brain.Body)
                 {
-                    if (d < closestDistance && !_brain.Body.WithinRadius(bodies[i], _radius))
+                    bodies.RemoveAt(i);
+                }
+                else if (bodies[i].GetActive())
+                {
+                    if(_brain.Body.WithinRadius(bodies[i], _radius))
+                    {
+                        bodies.RemoveAt(i);
+                    }
+                    else if (d < closestDistance)
                     {
                         closest = bodies[i];
                         closestDistance = d;
                     }
                 }
             }
+            bodies.Remove(closest);
+            bodies.Insert(0, closest);
             //Debug.Log($"{nameof(FindClosestOutOfRangeWithMonaTag)} {_bodies.Count}");
-            return closest;
+            return bodies;
         }
 
         private void IncludeIfInsideTrigger(IMonaBody body)

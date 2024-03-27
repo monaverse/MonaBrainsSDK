@@ -7,18 +7,24 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Core.State.Structs;
 using UnityEngine.AI;
 using Unity.VisualScripting;
+using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
+using Mona.SDK.Core.Events;
+using Mona.SDK.Core;
+using Mona.SDK.Core.Body.Enums;
+using Mona.SDK.Brains.Core.Animation;
+using Mona.SDK.Brains.Core.Control;
 
 namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
 {
     [Serializable]
-    public class PathFindInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class PathFindInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction, IActivateInstructionTile, IPauseableInstructionTile
     {
         public const string ID = "PathFindInstructionTile";
         public const string NAME = "Path Find To Position";
         public const string CATEGORY = "Path Finding";
         public override Type TileType => typeof(PathFindInstructionTile);
 
-        [SerializeField] private float _baseOffset = 1f;
+        [SerializeField] private float _baseOffset = 0f;
         [SerializeField] private float _speed = 3.5f;
         [SerializeField] private float _angularSpeed = 120f;
         [SerializeField] private float _acceleration = 8f;
@@ -40,17 +46,238 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
 
         protected IMonaBrain _brain;
         protected NavMeshAgent _agent;
+        protected bool _active;
+        protected IMonaAnimationController _controller;
+
+        protected MovingStateType _movingState = MovingStateType.Stopped;
+
+        private Action<MonaBodyFixedTickEvent> OnFixedTick;
+        private Action<MonaBodyEvent> OnBodyEvent;
 
         public PathFindInstructionTile() { }
 
-        public void Preload(IMonaBrain brainInstance)
+        public override void SetThenCallback(IInstructionTileCallback thenCallback)
+        {
+            if (_thenCallback == null)
+            {
+                _thenCallback = new InstructionTileCallback();
+                _thenCallback.Action = () =>
+                {
+                    RemoveFixedTickDelegate();
+                    if (thenCallback != null) return thenCallback.Action.Invoke();
+                    return InstructionTileResult.Success;
+                };
+            }
+        }
+
+        public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
+            _instruction = instruction;
 
             _agent = _brain.Body.ActiveTransform.GetComponent<NavMeshAgent>();
             if (_agent == null)
                 _agent = _brain.Body.ActiveTransform.AddComponent<NavMeshAgent>();
 
+            SetAgentSettings();
+
+            if (_brain.Root != null)
+                _controller = _brain.Root.GetComponent<IMonaAnimationController>();
+        }
+
+        public void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                if (_brain != null)
+                    UpdateActive();
+            }
+        }
+
+        private void UpdateActive()
+        {
+            if (!_active)
+            {
+                if (_movingState == MovingStateType.Moving)
+                    LostControl();
+                return;
+            }
+
+            if (_movingState == MovingStateType.Moving)
+            {
+                AddFixedTickDelegate();
+            }
+
+            //if (_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(UpdateActive)} {_active}");
+        }
+
+
+        public override void Unload()
+        {
+            RemoveFixedTickDelegate();
+            //if(_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Unload)}");
+        }
+
+        public void Pause()
+        {
+            RemoveFixedTickDelegate();
+            _agent.isStopped = true;
+            //if(_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Pause)}");
+        }
+
+        public bool Resume()
+        {
+            UpdateActive();
+            if (_movingState == MovingStateType.Moving)
+                _agent.isStopped = false;
+            return _movingState == MovingStateType.Moving;
+        }
+
+        private void LostControl()
+        {
+            Debug.Log($"{nameof(PathFindInstructionTile)} {nameof(LostControl)}");
+            _movingState = MovingStateType.Stopped;
+            StoppedMoving();
+            Complete(InstructionTileResult.LostAuthority, true);
+        }
+
+        private void StopMoving()
+        {
+            //Debug.Log($"INPUT stopmoving: {Name} {_progressName} {Progress}");
+            _agent.isStopped = true;
+
+            _timeMoving = 0;
+            _movingState = MovingStateType.Stopped;
+            StoppedMoving();
+            Complete(InstructionTileResult.Success, true);
+        }
+
+        protected virtual void StoppedMoving()
+        {
+            switch (_brain.PropertyType)
+            {
+                case MonaBrainPropertyType.GroundedCreature: StopGroundedCreature(); break;
+                default: StopDefault(); break;
+            }
+        }
+
+        private void StopDefault()
+        {
+
+        }
+
+        protected void AddFixedTickDelegate()
+        {
+            RemoveFixedTickDelegate();
+            //Debug.Log($"{nameof(AddFixedTickDelegate)}, fr: {Time.frameCount}", _brain.Body.Transform.gameObject);
+
+            OnFixedTick = HandleFixedTick;
+            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+
+            OnBodyEvent = HandleBodyEvent;
+            EventBus.Register<MonaBodyEvent>(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), OnBodyEvent);
+        }
+
+        protected void RemoveFixedTickDelegate()
+        {
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            EventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_EVENT, _brain.Body), OnBodyEvent);
+        }
+
+        private void HandleBodyEvent(MonaBodyEvent evt)
+        {
+            if (evt.Type == MonaBodyEventType.OnStop)
+                LostControl();
+        }
+
+        public InstructionTileResult Continue()
+        {
+            _movingState = MovingStateType.Moving;
+            AddFixedTickDelegate();
+            return Do();
+        }
+
+        private void HandleFixedTick(MonaBodyFixedTickEvent evt)
+        {
+            Tick(evt.DeltaTime);
+
+            if (_movingState == MovingStateType.Moving)
+            {
+                switch (_brain.PropertyType)
+                {
+                    case MonaBrainPropertyType.GroundedCreature: TickGroundedCreature(evt.DeltaTime); break;
+                    default: TickDefault(evt.DeltaTime); break;
+                }
+            }
+        }
+
+        private float _timeMoving;
+        private float _currentSpeed;
+        private Vector3 _lastPosition;
+        protected virtual void Tick(float deltaTime)
+        {
+            if (!_brain.Body.HasControl())
+            {
+                LostControl();
+                return;
+            }
+
+            _currentSpeed = Mathf.Abs(Vector3.Distance(_brain.Body.GetPosition(), _lastPosition) / deltaTime);
+            _lastPosition = _brain.Body.GetPosition();
+            if (_currentSpeed < 0.01f)
+                _currentSpeed = 0;
+
+            //Debug.Log($"remaining: {_agent.remainingDistance} {_agent.pathStatus} pending: {_agent.pathPending} stopped: {_agent.isStopped}");
+
+            if (!_agent.pathPending)
+            {
+                if (_agent.remainingDistance <= _agent.stoppingDistance)
+                {
+                    if (!_agent.hasPath || _agent.velocity.sqrMagnitude == 0f)
+                    {
+                        StopMoving();
+                    }
+                }
+            }
+        }
+
+        protected float GetSpeed()
+        {
+            return _currentSpeed;
+        }
+
+        private void TickGroundedCreature(float deltaTime)
+        {
+            if (_controller == null) return;
+            var motion = 1f;
+            var speed = GetSpeed();
+            _controller.SetWalk(speed);
+            _controller.SetMotionSpeed(motion);
+        }
+
+        private void StopGroundedCreature()
+        {
+            if (_controller == null) return;
+            _controller.SetWalk(0);
+        }
+
+        private void TickDefault(float deltaTime)
+        {
+
+        }
+
+
+        public override InstructionTileResult Do()
+        {
+            return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+        }
+
+        protected void SetAgentSettings()
+        {
             _agent.baseOffset = _baseOffset;
             _agent.speed = _speed;
             _agent.angularSpeed = _angularSpeed;
@@ -59,11 +286,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
             _agent.autoBraking = _autoBraking;
             _agent.radius = _avoidRadius;
             _agent.height = _height;
-        }
 
-        public override InstructionTileResult Do()
-        {
-            return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
     }
 }
