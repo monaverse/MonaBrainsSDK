@@ -48,6 +48,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
             if (_brain != null)
             {
+                //Debug.Log($"{nameof(SetNumberToInstructionTile)} {_amount} = {_brain.Variables.GetFloat(_numberName)}", _brain.Body.Transform.gameObject);
                 if (Evaluate(_brain.Variables))
                 {
                     //if(_brain.LoggingEnabled)

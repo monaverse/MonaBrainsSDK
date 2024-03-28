@@ -475,8 +475,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void AddHierarchyDelgates()
         {
-            if (_bodyParent != null && _body is IMonaBodyPart)
-                EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
+            //if (_bodyParent != null && _body is IMonaBodyPart)
+              //  EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
         }
 
 
@@ -500,8 +500,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void RemoveHierarchyDelegates()
         {
-            if (_bodyParent != null && _body is IMonaBodyPart)
-                EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
+            //if (_bodyParent != null && _body is IMonaBodyPart)
+            //    EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
         }
 
         private void PreloadPages()
@@ -616,20 +616,25 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private void HandleBroadcastMessage(MonaBroadcastMessageEvent evt)
         {
             //Debug.Log($"{nameof(HandleBroadcastMessage)} '{evt.Message}' received by ({Name}) on frame {Time.frameCount}");
-            if (!HasMessage(evt.Message))
-                _messages.Add(evt);
-
+            
             _runner.WaitFrame(_index, ExecuteMessage, evt, typeof(MonaBroadcastMessageEvent), LoggingEnabled);
         }
 
         private void ExecuteMessage(IInstructionEvent evt)
         {
+            var mevt = (MonaBroadcastMessageEvent)evt;
+            var message = mevt.Message;
+            if (!HasMessage(message))
+                _messages.Add(mevt);
+
             ExecuteCorePageInstructions(InstructionEventTypes.Message);
             ExecuteStatePageInstructions(InstructionEventTypes.Message);
 
-            if(HasMessage(((MonaBroadcastMessageEvent)evt).Message))
+            //Debug.Log($"{nameof(ExecuteMessage)} message: {message} count: {_messages.Count}", _body.Transform.gameObject);
+            if (HasMessage(message))
             {
-                _messages.Remove(((MonaBroadcastMessageEvent)evt));
+                //Debug.Log($"{nameof(ExecuteMessage)} remove message: {message}");
+                _messages.Remove(mevt);
             }
         }
 

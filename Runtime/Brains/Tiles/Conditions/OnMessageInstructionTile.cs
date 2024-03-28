@@ -85,6 +85,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (_brain != null && _brain.HasMessage(_message))
             {
+                Debug.Log($"{nameof(OnMessageInstructionTile)} {_message}", _brain.Body.Transform.gameObject);
                 SetSender(_message);
                 CacheLastSuccessfulMessage();
                 return Complete(InstructionTileResult.Success);
