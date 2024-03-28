@@ -472,6 +472,7 @@ namespace Mona.SDK.Brains.UIElements
             searchContainer.Add(searchLabel);
 
             _search = new TextField();
+            _search.RegisterCallback<KeyDownEvent>(evt => evt.StopPropagation());
             _search.RegisterValueChangedCallback((evt) =>
             {
                 if (!string.IsNullOrEmpty(evt.newValue))

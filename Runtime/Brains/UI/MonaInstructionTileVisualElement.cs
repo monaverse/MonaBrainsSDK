@@ -463,6 +463,10 @@ namespace Mona.SDK.Brains.UIElements
                         Changed();
                         CheckVisibleChange();
                     });
+                    field.RegisterCallback<KeyDownEvent>(evt =>
+                    {
+                        evt.StopPropagation();
+                    });
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
 
