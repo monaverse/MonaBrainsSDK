@@ -13,6 +13,7 @@ using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Control;
 using UnityEditor;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core.Assets.Interfaces;
 
 #if UNITY_EDITOR
 using UnityEditor.UIElements;
@@ -364,7 +365,16 @@ namespace Mona.SDK.Brains.UIElements
 
                 if (isAsset != null)
                 {
-                    var values = _brain.GetAllMonaAssets().FindAll(x => isAsset.Type.IsAssignableFrom(x.GetType())).ConvertAll<string>(x => x.PrefabId);
+                    List<string> values;
+                    if(isAsset.UseProviders)
+                        values = _brain.GetAllMonaAssetProviders().FindAll(x => {
+                            if (x.AllAssets.Count > 0)
+                                return isAsset.Type.IsAssignableFrom(x.GetMonaAssetByIndex(0).GetType());
+                            return false;
+                        }).ConvertAll<string>(x => x.Name);
+                    else
+                        values = _brain.GetAllMonaAssets().FindAll(x => isAsset.Type.IsAssignableFrom(x.GetType())).ConvertAll<string>(x => x.PrefabId);
+
                     var field = new DropdownField(values, 0);
                     field.style.width = 100;
                     field.style.flexDirection = FlexDirection.Column;
@@ -374,7 +384,15 @@ namespace Mona.SDK.Brains.UIElements
                     field.value = (string)property.GetValue(_tile);
                     field.RegisterCallback<FocusInEvent>((evt) =>
                     {
-                        values = _brain.GetAllMonaAssets().FindAll(x => isAsset.Type.IsAssignableFrom(x.GetType())).ConvertAll<string>(x => x.PrefabId);
+                        if (isAsset.UseProviders)
+                            values = _brain.GetAllMonaAssetProviders().FindAll(x => {
+                                    if (x.AllAssets.Count > 0)
+                                        return isAsset.Type.IsAssignableFrom(x.GetMonaAssetByIndex(0).GetType());
+                                    return false;
+                            }).ConvertAll<string>(x => x.Name);
+                        else
+                            values = _brain.GetAllMonaAssets().FindAll(x => isAsset.Type.IsAssignableFrom(x.GetType())).ConvertAll<string>(x => x.PrefabId);
+
                         field.choices = values;
                     });
                     field.RegisterValueChangedCallback((evt) =>

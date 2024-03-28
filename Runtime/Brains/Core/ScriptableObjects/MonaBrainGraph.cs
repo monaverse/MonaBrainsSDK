@@ -115,6 +115,16 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             return null;
         }
 
+        public List<IMonaAssetProvider> GetAllMonaAssetProviders()
+        {
+            return _monaAssets;
+        }
+
+        public IMonaAssetProvider GetMonaAssetProvider(string id)
+        {
+            return _monaAssets.Find(x => x.Name == id);
+        }
+
         public bool HasAnimationTiles()
         {
             if (_corePage.HasAnimationTiles()) return true;

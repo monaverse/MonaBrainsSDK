@@ -45,6 +45,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         IMonaAssetItem GetMonaAsset(string id);
         List<IMonaAssetItem> GetAllMonaAssets();
+        List<IMonaAssetProvider> GetAllMonaAssetProviders();
+        IMonaAssetProvider GetMonaAssetProvider(string id);
 
         Transform Root { get; }
 

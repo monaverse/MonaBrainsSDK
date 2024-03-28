@@ -20,24 +20,30 @@ using Mona.SDK.Brains.Core.Animation;
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
-    public class SpawnAssetInstructionTile : SpawnInstructionTile
+    public class SpawnNextAssetInstructionTile : SpawnInstructionTile
     {
-        public new const string ID = "SpawnAsset";
+        public new const string ID = "SpawnNextAsset";
         public new const string NAME = "Spawn Asset";
         public new const string CATEGORY = "General";
-        public override Type TileType => typeof(SpawnAssetInstructionTile);
+        public override Type TileType => typeof(SpawnNextAssetInstructionTile);
 
         [SerializeField] private string _monaAsset = null;
-        [BrainPropertyMonaAsset(typeof(IMonaBodyAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
+        [BrainPropertyMonaAsset(typeof(IMonaBodyAssetItem), useProviders:true)] public string MonaAssetProvider { get => _monaAsset; set => _monaAsset = value; }
+
+        [SerializeField] private bool _shuffled;
+        [BrainProperty(true)] public bool Shuffled { get => _shuffled; set => _shuffled = value; }
 
         protected override List<IMonaBodyAssetItem> GetPreloadAssets()
         {
-            return new List<IMonaBodyAssetItem>() { (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset) };
+            return _brain.GetMonaAssetProvider(_monaAsset).AllAssets.ConvertAll<IMonaBodyAssetItem>(x => (IMonaBodyAssetItem)x);
         }
 
         protected override IMonaBodyAssetItem GetAsset()
         {
-            return (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset);
+            Debug.Log($"{nameof(GetAsset)} spawn next asset instruction tile");
+            var provider = _brain.GetMonaAssetProvider(_monaAsset);
+            return (IMonaBodyAssetItem)provider.TakeTopCardOffDeck(_shuffled);
         }
+
     }
 }
