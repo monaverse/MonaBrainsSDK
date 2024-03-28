@@ -35,31 +35,26 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
             IMonaBody topBody = _brain.Body;
-            while (_brain.Body.Parent != null)
+            while (topBody.Parent != null)
                 topBody = topBody.Parent;
-
-            var children = topBody.Children();
 
             var myValue = _brain.Variables.GetVariable(_myVariable);
 
-            for (int i = 0; i < children.Count; i++)
-            {
-                if (children[i].ActiveTransform == null)
-                    continue;
-
-                var runner = children[i].ActiveTransform.GetComponent<MonaBrainRunner>();
-
-                if (runner == null)
-                    continue;
-
-                SetValueOnBrains(myValue, runner);
-            }
+            SetValueOnBrains(myValue, topBody);
 
             return Complete(InstructionTileResult.Success);
         }
 
-        private void SetValueOnBrains(IMonaVariablesValue myValue, MonaBrainRunner runner)
+        private void SetValueOnBrains(IMonaVariablesValue myValue, IMonaBody body)
         {
+            if (body.ActiveTransform == null)
+                return;
+
+            var runner = body.ActiveTransform.GetComponent<MonaBrainRunner>();
+
+            if (runner == null)
+                return;
+
             for (int i = 0; i < runner.BrainInstances.Count; i++)
             {
                 var brainVariables = runner.BrainInstances[i].Variables;
@@ -92,7 +87,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 {
                     brainVariables.Set(_targetVariable, ((IMonaVariablesVector3Value)myValue).Value);
                 }
-            }  
+            }
+
+            var children = body.Children();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                SetValueOnBrains(myValue, children[i]);
+            }
         }
     }
 }

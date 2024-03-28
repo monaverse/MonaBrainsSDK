@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 4011123504645145057
   _id: SetVariableOnSelf
-  _name: Set Variable On Self
+  _name: Set Value On Self
   _category: Variables
   references:
     version: 2
@@ -24,9 +24,8 @@ MonoBehaviour:
       type: {class: SetVariableOnSelfInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: SetVariableOnSelf
+        _name: Set Value On Self
+        _category: Variables
         _myVariable: 
-        _tag: 
         _targetVariable: 
