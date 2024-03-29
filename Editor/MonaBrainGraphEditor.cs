@@ -83,7 +83,9 @@ namespace Mona.SDK.Brains.UIEditors
 
         private void HandleCallback(SerializedObject so)
         {
-            so.ApplyModifiedProperties();
+            if (so != null)
+                so.ApplyModifiedProperties();
+
             if (target != null)
             {
                 EditorUtility.SetDirty(target);
@@ -94,7 +96,9 @@ namespace Mona.SDK.Brains.UIEditors
 
         private void SetDirtyCallback()
         {
-            serializedObject.ApplyModifiedProperties();
+            if (serializedObject != null)
+                serializedObject.ApplyModifiedProperties();
+
             if (target != null)
             {
                 EditorUtility.SetDirty(target);
