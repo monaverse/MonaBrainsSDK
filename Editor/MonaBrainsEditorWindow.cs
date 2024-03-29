@@ -145,6 +145,11 @@ namespace Mona.SDK.Brains.UIEditors
 
             _brainName = new TextField();
             SetBorder(_brainName, 3, 1, Color.white, 2);
+            _brainName.RegisterCallback<KeyDownEvent>(evt =>
+            {
+                if (evt.keyCode == KeyCode.Return)
+                    OnSubmit?.Invoke(GetName());
+            });
             _container.Add(_brainName);
 
             _button = new Button();
