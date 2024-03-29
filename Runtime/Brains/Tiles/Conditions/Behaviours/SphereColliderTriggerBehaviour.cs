@@ -129,6 +129,26 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 FindBodiesWithMonaTagOutsideFieldOfView(_monaTag, _fieldOfView);
         }
 
+        private Color _color = Color.red;
+        private void OnDrawGizmosSelected()
+        {
+            var pos = _brain.Body.GetPosition();
+            var left = Quaternion.AngleAxis(-_fieldOfView, Vector3.up) * _brain.Body.ActiveTransform.forward;
+            var right = Quaternion.AngleAxis(_fieldOfView, Vector3.up) * _brain.Body.ActiveTransform.forward;
+
+            if (_bodies.Count > 0)
+                _color = Color.red;
+            else
+                _color = Color.green;
+
+            Gizmos.color = _color;
+            Gizmos.DrawLine(pos, pos + left * _radius);
+            Gizmos.DrawLine(pos, pos + right * _radius);
+            Gizmos.DrawSphere(pos + left * _radius, .1f);
+            Gizmos.DrawSphere(pos + right * _radius, .1f);
+
+        }
+
         private List<ForwardBodyStruct> FindBodiesWithMonaTagInFieldOfView(string tag, float fieldOfView = 45f)
         {
             _fieldOfView = fieldOfView;
@@ -334,6 +354,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     return true;
                 }
             }
+            Debug.Log($"{nameof(AddBody)} {_bodies.Count}");
             return false;
         }
 

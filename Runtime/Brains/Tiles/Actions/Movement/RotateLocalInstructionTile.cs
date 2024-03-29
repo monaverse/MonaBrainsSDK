@@ -127,7 +127,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void UpdateActive()
         {
-            if (!_active) return;
+            if (!_active)
+            {
+                if (_movingState == MovingStateType.Moving)
+                    LostControl();
+                return;
+            }
 
             if (_movingState == MovingStateType.Moving)
             {

@@ -46,7 +46,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
                     var body = bodies[i];
                     var surface = body.ActiveTransform.GetComponent<NavMeshSurface>();
                     if (surface == null)
+                    {
                         surface = body.ActiveTransform.AddComponent<NavMeshSurface>();
+                        surface.collectObjects = CollectObjects.Children;
+                    }
                     surface.BuildNavMesh();
                     _surfaces.Add(surface);
                 }

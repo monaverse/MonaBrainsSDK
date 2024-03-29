@@ -650,12 +650,15 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             if (!_began) return;
 
-            SetActiveStatePage(value);
+            if (_activeStatePage == null || value != _activeStatePage.Name)
+            {
+                SetActiveStatePage(value);
 
-            OnStateChanged?.Invoke(value, this);
-            _variables.Set(MonaBrainConstants.ON_STARTING, true, false);
-            ExecuteStatePageInstructions(InstructionEventTypes.State);
-            _variables.Set(MonaBrainConstants.ON_STARTING, false, false);
+                OnStateChanged?.Invoke(value, this);
+                _variables.Set(MonaBrainConstants.ON_STARTING, true, false);
+                ExecuteStatePageInstructions(InstructionEventTypes.State);
+                _variables.Set(MonaBrainConstants.ON_STARTING, false, false);
+            }
         }
 
         private void SetActiveStatePage(string value)
