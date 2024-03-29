@@ -39,6 +39,7 @@ namespace Mona.SDK.Brains.Core.State
         public int GetVariableIndexByName(string name) => _variables.GetVariableIndexByName(name);
         public Vector2 GetVector2(string variableName) => _variables.GetVector2(variableName);
         public Vector3 GetVector3(string variableName) => _variables.GetVector3(variableName);
+        public string GetValueAsString(string variableName) => _variables.GetValueAsString(variableName);
         public void Set(string variableName, int value, bool isNetworked) => _variables.Set(variableName, value, isNetworked);
         public void Set(string variableName, bool value, bool isNetworked) => _variables.Set(variableName, value, isNetworked);
         public void Set(string variableName, string value, bool isNetworked) => _variables.Set(variableName, value, isNetworked);

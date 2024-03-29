@@ -1,5 +1,6 @@
 namespace Mona.SDK.Brains.Tiles.Actions.Variables.Enums
 {
+    [System.Serializable]
     public enum ValueChangeType
     {
         Set = 0,
