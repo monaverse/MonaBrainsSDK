@@ -43,13 +43,13 @@ namespace Mona.SDK.Brains.Core.Animation
         {
         }
 
-        public void SetBrain(IMonaBrain brain)
+        public void SetBrain(IMonaBrain brain, Animator animator = null)
         {
-            Debug.Log($"{nameof(MonaGroundedCreatureAnimationController)}.{nameof(SetBrain)}");
+            Debug.Log($"{nameof(MonaGroundedCreatureAnimationController)}.{nameof(SetBrain)} {_brain == null}");
             if (_brain == null)
             {
-                SetupAnimationController();
                 _brain = brain;
+                SetupAnimationController(animator);
 
                 OnRemoteAnimation = HandleRemoteAnimationTriggered;
                 EventBus.Register<MonaBodyAnimationTriggeredEvent>(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), OnRemoteAnimation);
@@ -79,21 +79,23 @@ namespace Mona.SDK.Brains.Core.Animation
             }
             else
             {
-                if (_animator != null)
+                if (_animator != null && _animator != animator)
                     Destroy(_animator);
                 _animator = animator;
                 _brain.Body.SetAnimator(_animator);
             }
 
-            if (_animator.runtimeAnimatorController == null)
+            var controller = (RuntimeAnimatorController)GameObject.Instantiate(Resources.Load("MonaPlayer/MonaGroundedHumanoidAnimationController", typeof(RuntimeAnimatorController)));
+            controller.name = "MonaGroundedHumanoidAnimationController";
+            if (_animator.runtimeAnimatorController == null || _animator.runtimeAnimatorController.name.IndexOf("MonaDefaultAnimationController") > -1)
             {
-                var controller = (RuntimeAnimatorController)GameObject.Instantiate(Resources.Load("MonaPlayer/MonaGroundedHumanoidAnimationController", typeof(RuntimeAnimatorController)));
                 if (controller == null)
                 {
                     Debug.LogError($"{nameof(MonaGroundedCreatureAnimationController)} Cannot find Resource MonaGroundedHumanoidAnimationController, please make sure to import the MonaBodySDK Starter Sample");
                     return;
                 }
                 var overrideController = new AnimatorOverrideController(controller);
+                overrideController.name = "MonaGroundedHumanoidAnimationController";
                 _animator.runtimeAnimatorController = overrideController;
                 _animator.Rebind();
             }
@@ -108,7 +110,7 @@ namespace Mona.SDK.Brains.Core.Animation
         private void Update()
         {
             //if (_brain.Body.AttachType != MonaBodyAttachType.None) return;
-            if (_brain.Body.NetworkBody != null) return;
+            if (_brain.Body.NetworkBody != null || _animator == null) return;
             _speed = Mathf.Lerp(_speed, _toSpeed, Time.deltaTime*10f);
             _animator.SetFloat(SPEED, _speed);
         }

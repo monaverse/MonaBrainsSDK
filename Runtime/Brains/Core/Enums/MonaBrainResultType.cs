@@ -7,6 +7,7 @@
         OnInputMoveDirection = 2,
         OnInputMouseDirection = 3,
         OnHitTarget = 4,
+        OnHitTargetPosition = 8,
         OnHitPoint = 5,
         OnHitNormal = 6,
         DirectionToTarget=7

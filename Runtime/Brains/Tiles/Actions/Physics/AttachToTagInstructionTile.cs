@@ -54,18 +54,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             if (_brain.MonaTagSource.GetTag(_tag).IsPlayerTag)
             {
-                return _brain.Player.PlayerBody;
-            }
-            else
-            {
-                var bodies = MonaBody.FindByTag(_tag.ToString());
-                if (bodies != null && bodies.Count > 0)
+                if (_brain.Player.PlayerBody != null)
                 {
-                    var body = bodies[0];
-                    return body;
+                    return _brain.Player.PlayerBody;
                 }
-                return null;
             }
+                        
+            var bodies = MonaBody.FindByTag(_tag.ToString());
+            if (bodies != null && bodies.Count > 0)
+            {
+                var body = bodies[0];
+                return body;
+            }
+            return null;            
         }
 
         public override InstructionTileResult Do()

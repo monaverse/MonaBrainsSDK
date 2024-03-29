@@ -19,6 +19,7 @@ using Mona.SDK.Brains.Core.Animation;
 using VRM;
 using UniHumanoid;
 using Mona.SDK.Brains.Core.Utils;
+using Mona.SDK.Brains.Core.Events;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Character
 {
@@ -50,20 +51,42 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         private Animator _avatarInstance;
         private List<Transform> _wearableTransforms;
 
+        private Action<MonaBodyAnimationControllerChangedEvent> OnAnimationControllerChanged;
+
         public ChangeAvatarInstructionTile() { }
 
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
-            SetupWearable();
+
+            OnAnimationControllerChanged = HandleAnimationControllerChanged;
+            EventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+
+            SetupAnimation();
         }
 
-        private void SetupWearable()
+        private void HandleAnimationControllerChanged(MonaBodyAnimationControllerChangedEvent evt)
         {
-            _root = _brain.Root;
-            _monaAnimationController = _root.GetComponent<IMonaAnimationController>();
-            _monaAnimationController.SetBrain(_brain);
+            SetupAnimation();
+        }
 
+        private void SetupAnimation()
+        {
+            if (_brain.Root != null)
+                _monaAnimationController = _brain.Root.GetComponent<IMonaAnimationController>();
+            else
+            {
+                var children = _brain.Body.Children();
+                for (var i = 0; i < children.Count; i++)
+                {
+                    var root = children[i].Transform.Find("Root");
+                    if (root != null)
+                    {
+                        _monaAnimationController = _brain.Root.GetComponent<IMonaAnimationController>();
+                        if (_monaAnimationController != null) break;
+                    }
+                }
+            }
             _avatarAsset = (IMonaAvatarAssetItem)_brain.GetMonaAsset(_monaAsset);
         }
 
@@ -128,13 +151,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             var parts = new List<IMonaBodyPart>(_avatarInstance.transform.GetComponentsInChildren<IMonaBodyPart>());
             var transforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
 
-            var boneMappings = _brain.Body.Animator.GetComponent<VRMHumanoidDescription>();
+            var boneMappings = _avatarInstance.GetComponent<VRMHumanoidDescription>();
             if (boneMappings != null)
             {
-                var avatarTransforms = new List<Transform>(_brain.Body.Animator.transform.GetComponentsInChildren<Transform>());
+                var avatarTransforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
 
                 AvatarDescription description = boneMappings.GetDescription(out bool isCreated);
-                var avatar = description.ToHumanDescription(_brain.Body.Animator.transform);
+                var avatar = description.ToHumanDescription(_avatarInstance.transform);
 
                 for (var i = 0; i < avatar.human.Length; i++)
                 {
@@ -178,6 +201,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             _avatarInstance.transform.localPosition = _offset;
             _avatarInstance.transform.localRotation = Quaternion.Euler(_eulerAngles);
 
+            var body = _brain.Body;
+            while (body != null)
+            {
+                EventBus.Trigger<MonaBodyAnimationControllerChangeEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, body), new MonaBodyAnimationControllerChangeEvent(_avatarInstance));
+                body = body.Parent;
+            }
+
             var playerId = _brain.Player.GetPlayerIdByBody(_brain.Body);
             if(playerId > -1)
                 EventBus.Trigger<MonaPlayerChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_CHANGE_AVATAR_EVENT), new MonaPlayerChangeAvatarEvent(playerId, _avatarInstance));
@@ -186,6 +216,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public override void Unload()
         {
             base.Unload();
+
+            EventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+
             if (_wearableTransforms != null)
             {
                 for (var i = 0; i < _wearableTransforms.Count; i++)

@@ -69,7 +69,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private MonaInput _bodyInput;
         private IMonaAnimationController _controller;
 
-
+        private Action<MonaBodyAnimationControllerChangedEvent> OnAnimationControllerChanged;
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
         private Action<MonaBodyEvent> OnBodyEvent;
 
@@ -121,10 +121,36 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             _brain.Variables.Set(_progressName, 0f);
 
-            if(_brain.Root != null)
-                _controller = _brain.Root.GetComponent<IMonaAnimationController>();
-
             UpdateActive();
+
+            OnAnimationControllerChanged = HandleAnimationControllerChanged;
+            EventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+
+            SetupAnimation();
+        }
+
+        private void HandleAnimationControllerChanged(MonaBodyAnimationControllerChangedEvent evt)
+        {
+            SetupAnimation();
+        }
+
+        private void SetupAnimation()
+        {
+            if (_brain.Root != null)
+                _controller = _brain.Root.GetComponent<IMonaAnimationController>();
+            else
+            {
+                var children = _brain.Body.Children();
+                for (var i = 0; i < children.Count; i++)
+                {
+                    var root = children[i].Transform.Find("Root");
+                    if (root != null)
+                    {
+                        _controller = _brain.Root.GetComponent<IMonaAnimationController>();
+                        if (_controller != null) break;
+                    }
+                }
+            }
         }
 
         public void SetActive(bool active)
@@ -161,6 +187,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override void Unload()
         {
             RemoveFixedTickDelegate();
+
+            EventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+
             //if(_brain.LoggingEnabled)
             //    Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Unload)}");
         }

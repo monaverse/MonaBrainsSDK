@@ -17,7 +17,7 @@ namespace Mona.SDK.Brains.Core.Animation
         bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed, bool isNetworked);
         bool HasEnded(IMonaAnimationAssetItem clipItem);
         bool HasPlayedAnimation(IMonaAnimationAssetItem clipItem);
-        void SetBrain(IMonaBrain brain);
+        void SetBrain(IMonaBrain brain, Animator animator = null);
         void RegisterAnimatorCallback(IMonaAnimationAssetItem clipItem);
         void SetAnimator(Animator animator);
 
@@ -41,6 +41,13 @@ namespace Mona.SDK.Brains.Core.Animation
         private const string END_STATE = "__End";
         private const string CLIP_STATE = "__Clip";
 
+        private const string SPEED = "Speed";
+        private const string JUMP = "Jump";
+        private const string GROUNDED = "Grounded";
+        private const string FREE_FALL = "Freefall";
+        private const string MOTION_SPEED = "MotionSpeed";
+        private const string EMOTE = "Emote";
+
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
 
         private Dictionary<string, IMonaAnimationAssetItem> _animationAssets = new Dictionary<string, IMonaAnimationAssetItem>();
@@ -51,12 +58,12 @@ namespace Mona.SDK.Brains.Core.Animation
         {
         }
 
-        public void SetBrain(IMonaBrain brain)
+        public void SetBrain(IMonaBrain brain, Animator animator = null)
         {
             if (_brain == null)
             {
                 _brain = brain;
-                SetupAnimationController();
+                SetupAnimationController(animator);
                 OnMonaValueChanged = HandleMonaValueChanged;
                 EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, brain.Body), OnMonaValueChanged);
                 _brain.Body.SetAnimator(_animator);
@@ -76,6 +83,7 @@ namespace Mona.SDK.Brains.Core.Animation
                 EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
         }
 
+
         private void SetupAnimationController(Animator animator = null)
         {
             if (animator == null)
@@ -90,7 +98,7 @@ namespace Mona.SDK.Brains.Core.Animation
             }
             else
             {
-                if (_animator != null)
+                if (_animator != null && _animator != animator)
                 {
                     Destroy(_animator);
                 }
@@ -101,12 +109,14 @@ namespace Mona.SDK.Brains.Core.Animation
             if (_animator.runtimeAnimatorController == null)
             {
                 var controller = (RuntimeAnimatorController)GameObject.Instantiate(Resources.Load("MonaDefaultAnimationController", typeof(RuntimeAnimatorController)));
+                controller.name = "MonaDefaultAnimationController";
                 if (controller == null)
                 {
                     Debug.LogError($"{nameof(MonaDefaultAnimationController)} Cannot find Resource MonaDefaultAnimationController, please make sure to import the MonaBodySDK Starter Sample");
                     return;
                 }
                 var overrideController = new AnimatorOverrideController(controller);
+                overrideController.name = "MonaDefaultAnimationController";
                 _animator.runtimeAnimatorController = overrideController;
                 _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
             }
@@ -126,25 +136,49 @@ namespace Mona.SDK.Brains.Core.Animation
             SetupAnimationController(animator);
         }
 
+        private void Update()
+        {
+            //if (_brain.Body.AttachType != MonaBodyAttachType.None) return;
+            if (_brain.Body.NetworkBody != null) return;
+            _speed = Mathf.Lerp(_speed, _toSpeed, Time.deltaTime * 10f);
+            _animator.SetFloat(SPEED, _speed);
+        }
+
+        private float _speed = 0f;
+        private float _toSpeed = 0f;
         public void SetWalk(float speed)
         {
-
+            if (speed > 0f)
+            {
+                _speed = speed;
+                _toSpeed = speed;
+            }
+            else
+            {
+                _toSpeed = 0f;
+            }
         }
 
         public void SetMotionSpeed(float speed)
         {
-
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            _animator.SetFloat(MOTION_SPEED, speed);
         }
 
         public void Jump()
         {
-
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            _animator.SetBool(GROUNDED, false);
+            _animator.SetBool(JUMP, true);
         }
 
         public void Landed()
         {
-
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            _animator.SetBool(JUMP, false);
+            _animator.SetBool(GROUNDED, true);
         }
+
 
         public void SetTPose(bool value)
         {

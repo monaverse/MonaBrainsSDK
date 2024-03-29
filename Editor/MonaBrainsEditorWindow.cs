@@ -573,11 +573,13 @@ namespace Mona.SDK.Brains.UIEditors
                 _body = _target.GetComponent<IMonaBody>();
                 _globalRunner = _target.GetComponent<MonaGlobalBrainRunner>();
                 _runner = _target.GetComponent<IMonaBrainRunner>();
-                if (_runner != null)
-                    _selectedHeader.text = $"{_runner.BrainGraphs.Count} brains attached.";
-                else
-                    _selectedHeader.text = $"no brains attached.";
-
+                if (_selectedHeader != null)
+                {
+                    if (_runner != null)
+                        _selectedHeader.text = $"{_runner.BrainGraphs.Count} brains attached.";
+                    else
+                        _selectedHeader.text = $"no brains attached.";
+                }
                 _header.text = $"{_target.name}";
                 _brainEditor.style.visibility = Visibility.Visible;
 

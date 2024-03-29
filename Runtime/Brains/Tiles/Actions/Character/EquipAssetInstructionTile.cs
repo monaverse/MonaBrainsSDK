@@ -16,6 +16,7 @@ using Mona.SDK.Core.Assets.Interfaces;
 using System.Collections;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Animation;
+using Mona.SDK.Brains.Core.Events;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Character
 {
@@ -51,25 +52,46 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public Vector3 Scale { get => _scale; set => _scale = value; }
 
         private IMonaBrain _brain;
-        private Transform _root;
         private IMonaAnimationController _monaAnimationController;
         private IMonaBodyAssetItem _item;
         private IMonaBody _equipmentInstance;
+
+        private Action<MonaBodyAnimationControllerChangedEvent> OnAnimationControllerChanged;
 
         public EquipAssetInstructionTile() { }
 
         public void Preload(IMonaBrain brainInstance) 
         {
             _brain = brainInstance;
-            SetupWearable();
+
+            OnAnimationControllerChanged = HandleAnimationControllerChanged;
+            EventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+
+            SetupAnimation();
         }
 
-        private void SetupWearable()
+        private void HandleAnimationControllerChanged(MonaBodyAnimationControllerChangedEvent evt)
         {
-            _root = _brain.Root;
-            _monaAnimationController = _root.GetComponent<IMonaAnimationController>();
-            _monaAnimationController.SetBrain(_brain);
+            SetupAnimation();
+        }
 
+        private void SetupAnimation()
+        {
+            if (_brain.Root != null)
+                _monaAnimationController = _brain.Root.GetComponent<IMonaAnimationController>();
+            else
+            {
+                var children = _brain.Body.Children();
+                for (var i = 0; i < children.Count; i++)
+                {
+                    var root = children[i].Transform.Find("Root");
+                    if (root != null)
+                    {
+                        _monaAnimationController = _brain.Root.GetComponent<IMonaAnimationController>();
+                        if (_monaAnimationController != null) break;
+                    }
+                }
+            }
             _item = (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset);
         }
 
@@ -106,7 +128,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public override void Unload()
         {
             base.Unload();
-            if(_equipmentInstance != null && _equipmentInstance.Transform != null && _equipmentInstance.Transform.gameObject != null)
+            EventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+
+            if (_equipmentInstance != null && _equipmentInstance.Transform != null && _equipmentInstance.Transform.gameObject != null)
                 GameObject.Destroy(_equipmentInstance.Transform.gameObject);
             _equipmentInstance = null;
         }

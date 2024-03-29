@@ -106,7 +106,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public IMonaAssetItem GetMonaAsset(string id)
         {
-            for(var i = 0;i < _monaAssets.Count; i++)
+            for (var i = 0; i < _monaAssets.Count; i++)
             {
                 var item = _monaAssets[i].GetMonaAsset(id);
                 if (item != null)
@@ -128,7 +128,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         public bool HasAnimationTiles()
         {
             if (_corePage.HasAnimationTiles()) return true;
-            for(var i = 0;i < _statePages.Count; i++)
+            for (var i = 0; i < _statePages.Count; i++)
             {
                 if (_statePages[i].HasAnimationTiles()) return true;
             }
@@ -173,16 +173,16 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public bool HasPlayerTag()
         {
-            if(_monaTagSource == null)
+            if (_monaTagSource == null)
             {
-                if(_body != null)
+                if (_body != null)
                     Debug.Log($"Please Attach Mona Tags to this brain. ", _body.Transform.gameObject);
                 else
                     Debug.Log($"Please Attach Mona Tags to this brain. {this.Name}");
                 return false;
             }
 
-            for(var i = 0;i < _body.MonaTags.Count; i++)
+            for (var i = 0; i < _body.MonaTags.Count; i++)
             {
                 var tag = _body.MonaTags[i];
                 var monaTag = _monaTagSource.GetTag(tag);
@@ -226,8 +226,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         [SerializeField]
         private InstructionTileSet _tileSet;
-        public IInstructionTileSet TileSet { 
-            get => _tileSet; 
+        public IInstructionTileSet TileSet {
+            get => _tileSet;
             set {
                 if (_tileSet != (InstructionTileSet)value)
                 {
@@ -270,6 +270,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
         private Action<MonaBroadcastMessageEvent> OnBroadcastMessage;
         private Action<MonaBodyHasInputEvent> OnMonaBodyHasInput;
+        private Action<MonaBodyAnimationControllerChangeEvent> OnAnimationControllerChange;
 
         private bool _coreOnStarting;
         private bool _stateOnStarting;
@@ -307,7 +308,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             AddMonaAssetsToNetwork();
             CacheReservedBrainVariables();
             BuildRoot();
-            SetupAnimation();
+            SetupAnimation(null);
             PreloadPages();
             AddEventDelegates();
             AddHierarchyDelgates();
@@ -316,7 +317,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private void CacheReservedBrainVariables()
         {
             var speed = _variables.GetVariable(MonaBrainConstants.SPEED_FACTOR, typeof(MonaVariablesFloat));
-                ((IMonaVariablesFloatValue)speed).Value = 1f;
+            ((IMonaVariablesFloatValue)speed).Value = 1f;
 
             _variables.GetVariable(MonaBrainConstants.RESULT_SENDER, typeof(MonaVariablesBrain));
             _variables.GetVariable(MonaBrainConstants.RESULT_TARGET, typeof(MonaVariablesBody));
@@ -331,7 +332,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             _variables.GetVariable(MonaBrainConstants.RESULT_STATE, typeof(MonaVariablesString));
             _variables.GetVariable(MonaBrainConstants.ON_STARTING, typeof(MonaVariablesBool));
 
-            if(HasAnimationTiles())
+            if (HasAnimationTiles())
             {
                 _variables.GetVariable(MonaBrainConstants.TRIGGER, typeof(MonaVariablesString));
                 _variables.GetVariable(MonaBrainConstants.TRIGGER_1, typeof(MonaVariablesString));
@@ -362,7 +363,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 _variables.SetGameObject(_gameObject, this);
             }
 
-            if(HasRigidbodyTiles())
+            if (HasRigidbodyTiles())
             {
                 if (_body.ActiveRigidbody == null)
                 {
@@ -373,7 +374,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                         _body.AddRigidbody();
                 }
 
-                if (((_body.ActiveRigidbody != null &&!_body.ActiveRigidbody.isKinematic) || HasUsePhysicsTileSetToTrue()) && !_body.HasCollider())
+                if (((_body.ActiveRigidbody != null && !_body.ActiveRigidbody.isKinematic) || HasUsePhysicsTileSetToTrue()) && !_body.HasCollider())
                     _body.AddCollider();
             }
 
@@ -430,24 +431,54 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             }
         }
 
-        private void SetupAnimation()
+        private void HandleAnimationControllerChange(MonaBodyAnimationControllerChangeEvent evt)
+        {
+            Debug.Log($"{nameof(HandleAnimationControllerChange)}", _body.ActiveTransform.gameObject);
+            SetupAnimation(evt.Animator);
+        }
+
+        private void SetupAnimation(Animator animator)
         {
             if (!HasAnimationTiles()) return;
             switch (PropertyType)
             {
-                case MonaBrainPropertyType.GroundedCreature:
-                    var monaAnimationController = _root.GetComponent<MonaGroundedCreatureAnimationController>();
-                    if (monaAnimationController == null)
-                        monaAnimationController = _root.AddComponent<MonaGroundedCreatureAnimationController>();
-                    monaAnimationController.SetBrain(this);
-                    break;
                 default:
-                    var monaAnimationControllerDefault = _root.GetComponent<MonaDefaultAnimationController>();
-                    if (monaAnimationControllerDefault == null)
-                        monaAnimationControllerDefault = _root.AddComponent<MonaDefaultAnimationController>();
-                    monaAnimationControllerDefault.SetBrain(this);
+                    var parts = new List<IMonaBodyPart>(_root.GetComponentsInChildren<IMonaBodyPart>(true));
+                    if (parts.Find(x => x.HasMonaTag(HumanBodyBones.Hips.ToString())) != null)
+                    {
+                        Debug.Log($"{nameof(SetupAnimation)} add human controller", _body.ActiveTransform.gameObject);
+
+                        var monaAnimationControllerDefault = _root.GetComponent<MonaDefaultAnimationController>();
+                        if (monaAnimationControllerDefault != null)
+                        {
+                            DestroyImmediate(monaAnimationControllerDefault);
+                        }
+
+                        var monaAnimationController = _root.GetComponent<MonaGroundedCreatureAnimationController>();
+                        if (monaAnimationController == null)
+                            monaAnimationController = _root.AddComponent<MonaGroundedCreatureAnimationController>();
+                        monaAnimationController.SetBrain(this, animator);
+                    }
+                    else
+                    {
+                        Debug.Log($"{nameof(SetupAnimation)} add default controller", _body.ActiveTransform.gameObject);
+
+                        var monaAnimationController = _root.GetComponent<MonaGroundedCreatureAnimationController>();
+                        if (monaAnimationController != null)
+                        { 
+                            DestroyImmediate(monaAnimationController);
+                        }
+
+                        var monaAnimationControllerDefault = _root.GetComponent<MonaDefaultAnimationController>();
+                        if (monaAnimationControllerDefault == null)
+                            monaAnimationControllerDefault = _root.AddComponent<MonaDefaultAnimationController>();
+                        monaAnimationControllerDefault.SetBrain(this, animator);
+                    }
                     break;
             }
+
+            EventBus.Trigger(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _body), new MonaBodyAnimationControllerChangedEvent());
+
         }
 
         private void AddEventDelegates()
@@ -471,6 +502,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             OnMonaBodyHasInput = HandleHasInput;
             EventBus.Register<MonaBodyHasInputEvent>(new EventHook(MonaCoreConstants.MONA_BODY_HAS_INPUT_EVENT, _body), OnMonaBodyHasInput);
+
+            OnAnimationControllerChange = HandleAnimationControllerChange;
+            EventBus.Register<MonaBodyAnimationControllerChangeEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, _body), OnAnimationControllerChange);
+
         }
 
         private void AddHierarchyDelgates()

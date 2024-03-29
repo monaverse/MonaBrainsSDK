@@ -42,6 +42,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     _brain.Variables.Set(_targetValue, (Vector2)_brain.Variables.GetVector2(MonaBrainConstants.RESULT_MOUSE_DIRECTION)); break;
                 case MonaBrainResultType.OnHitTarget:
                     _brain.Variables.Set(_targetValue, _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET)); break;
+                case MonaBrainResultType.OnHitTargetPosition:
+                    var target = _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
+                    if(target != null)
+                        _brain.Variables.Set(_targetValue, target.GetPosition()); break;
                 case MonaBrainResultType.OnHitPoint:
                     _brain.Variables.Set(_targetValue, (Vector3)_brain.Variables.GetVector3(MonaBrainConstants.RESULT_HIT_POINT)); break;
                 case MonaBrainResultType.OnHitNormal:

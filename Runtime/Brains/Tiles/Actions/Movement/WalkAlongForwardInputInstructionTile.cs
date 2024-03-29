@@ -24,7 +24,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             base.Preload(brainInstance, page, instruction);
-            _controller = _brain.Root.GetComponent<IMonaAnimationController>();
+            //_controller = _brain.Root.GetComponent<IMonaAnimationController>();
         }
 
         protected override void Tick(float deltaTime)
