@@ -320,7 +320,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         }
 
-        private Vector3 GetDirectionVector(PushDirectionType moveType, IMonaBody body)
+        protected virtual Vector3 GetDirectionVector(PushDirectionType moveType, IMonaBody body)
         {
             switch (moveType)
             {

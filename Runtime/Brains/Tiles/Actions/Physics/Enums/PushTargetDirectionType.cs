@@ -13,6 +13,7 @@
         Pull=8,
         Away=9,
         Toward=10,
-        InputForwardBack = 11
+        InputForwardBack = 11,
+        Custom=12
     }
 }

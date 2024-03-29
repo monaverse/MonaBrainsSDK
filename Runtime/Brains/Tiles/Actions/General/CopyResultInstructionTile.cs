@@ -46,6 +46,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     _brain.Variables.Set(_targetValue, (Vector3)_brain.Variables.GetVector3(MonaBrainConstants.RESULT_HIT_POINT)); break;
                 case MonaBrainResultType.OnHitNormal:
                     _brain.Variables.Set(_targetValue, (Vector3)_brain.Variables.GetVector3(MonaBrainConstants.RESULT_HIT_NORMAL)); break;
+                case MonaBrainResultType.DirectionToTarget:
+                    _brain.Variables.Set(_targetValue, (Vector3)_brain.Variables.GetVector3(MonaBrainConstants.RESULT_DIRECTION_TO_TARGET)); break;
                 default: break;
             }
             return Complete(InstructionTileResult.Success);

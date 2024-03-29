@@ -12,7 +12,8 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class BoolValueInstructionTile : InstructionTile, IInstructionTileWithPreload, IBoolValueInstructionTile, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile, IOnStartInstructionTile
+    public class BoolValueInstructionTile : InstructionTile, IInstructionTileWithPreload, IBoolValueInstructionTile, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile, IOnStartInstructionTile,
+        ITickAfterInstructionTile
     {
         public const string ID = "BoolValue";
         public const string NAME = "Bool Value Is";

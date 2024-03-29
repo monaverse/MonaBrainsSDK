@@ -8,6 +8,7 @@
         StartRotation = 6,
         Scale = 8,
         StartScale = 10,
-        Velocity = 12
+        Velocity = 12,
+        Forward = 14
     }
 }

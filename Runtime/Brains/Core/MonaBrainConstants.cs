@@ -13,6 +13,7 @@
         public const string RESULT_HIT_POINT = "__HitPoint";
         public const string RESULT_HIT_NORMAL = "__HitNormal";
         public const string RESULT_STATE = "__State";
+        public const string RESULT_DIRECTION_TO_TARGET = "__DirectionToTarget";
 
         public const string ON_STARTING = "__OnStarting";
 

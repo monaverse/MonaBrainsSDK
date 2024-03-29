@@ -45,6 +45,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     _brain.Variables.Set(_targetValue, _brain.Body.InitialScale); break;
                 case MonaBodyValueType.Velocity:
                     _brain.Variables.Set(_targetValue, _brain.Body.GetVelocity()); break;
+                case MonaBodyValueType.Forward:
+                    _brain.Variables.Set(_targetValue, _brain.Body.ActiveTransform.forward); break;
                 default:
                     _brain.Variables.Set(_targetValue, _brain.Body.GetPosition()); break;
             }

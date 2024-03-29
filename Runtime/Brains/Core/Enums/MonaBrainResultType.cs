@@ -9,5 +9,6 @@
         OnHitTarget = 4,
         OnHitPoint = 5,
         OnHitNormal = 6,
+        DirectionToTarget=7
     }
 }

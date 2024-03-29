@@ -35,7 +35,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             var fwd = _brain.Body.GetVelocity();
             
-            if (fwd.magnitude < Mathf.Epsilon)
+            if (fwd.magnitude < .1f)
                 return Quaternion.identity;
             else
             {
