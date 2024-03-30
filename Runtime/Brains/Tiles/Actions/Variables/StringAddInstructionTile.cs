@@ -52,6 +52,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         protected override bool Evaluate(IMonaBrainVariables state)
         {
+            if (!string.IsNullOrEmpty(_indexName))
+                _index = _brain.Variables.GetFloat(_indexName);
+
             var variable = state.GetVariable(_stringName);
 
             if (variable == null)

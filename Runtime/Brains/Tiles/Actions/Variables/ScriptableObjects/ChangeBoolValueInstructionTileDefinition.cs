@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Variables.ScriptableObjects
 {
-    [CreateAssetMenu(menuName = "Mona Brains/Tiles/General/ChangeBoolValue", fileName = "ChangeBoolValue")]
+    [CreateAssetMenu(menuName = "Mona Brains/Tiles/Booleans/ChangeBoolValue", fileName = "ChangeBoolValue")]
     public class ChangeBoolValueInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition
     {
         [SerializeReference] protected IInstructionTile _tile = new ChangeBoolValueInstructionTile();
