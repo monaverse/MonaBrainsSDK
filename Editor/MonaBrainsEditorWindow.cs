@@ -537,6 +537,9 @@ namespace Mona.SDK.Brains.UIEditors
         {
             UpdateSelectedObject();
 
+            if (_listView == null)
+                return;
+
             if (_listView.selectedItem != null)
             {
                 _brain = (MonaBrainGraph)_listView.selectedItem;
@@ -552,6 +555,9 @@ namespace Mona.SDK.Brains.UIEditors
         private void ListSelectionChangedAttached()
         {
             UpdateSelectedObject();
+
+            if (_attachedView == null)
+                return;
 
             if (_attachedView.selectedItem != null)
             {
