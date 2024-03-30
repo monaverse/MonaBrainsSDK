@@ -35,8 +35,12 @@ namespace Mona.SDK.Brains.UIElements
                     _page.Instructions[i].Deselect();
                 var list = new List<IInstruction>();
                 foreach (var e in items)
+                {
                     list.Add((IInstruction)e);
+                    ((Instruction)e).Select();
+                }
                 OnSelectedInstructionsChanged(list);
+
             };
             _instructionListView.bindItem += (elem, i) =>
             {

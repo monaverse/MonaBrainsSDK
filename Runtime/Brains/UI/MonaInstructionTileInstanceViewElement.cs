@@ -15,7 +15,8 @@ namespace Mona.SDK.Brains.UIElements
             _tile.OnExecute += HandleExecute;
             SetBorderRadius(3);
             SetBackground(Color.grey);
-            Add(new Label(_tile.Name));
+            var m = _tile.Muted ? "Muted: " : "";
+            Add(new Label(m + " " + _tile.Name));
         }
 
         private void HandleExecute(InstructionTileResult result, string reason, IInstructionTile tile)

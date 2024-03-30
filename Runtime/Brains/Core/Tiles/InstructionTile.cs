@@ -12,7 +12,8 @@ namespace Mona.SDK.Brains.Core.Tiles
     [Serializable]
     public abstract class InstructionTile : IInstructionTile
     {
-        public event Action<InstructionTileResult, string, IInstructionTile> OnExecute;
+        public event Action<InstructionTileResult, string, IInstructionTile> OnExecute = delegate { };
+        public event Action OnMuteChanged = delegate { };
 
         [HideInInspector][SerializeField] private string _id;
         public string Id { get => _id; set => _id = value; }
@@ -22,6 +23,17 @@ namespace Mona.SDK.Brains.Core.Tiles
 
         [HideInInspector][SerializeField] private string _category;
         public string Category { get => _category; set => _category = value; }
+
+        [HideInInspector] [SerializeField] private bool _muted;
+        public bool Muted {
+            get {
+               return _muted;
+            }
+            set {
+                _muted = value;
+                OnMuteChanged?.Invoke();
+            }
+        }
 
         public abstract Type TileType { get; }
 

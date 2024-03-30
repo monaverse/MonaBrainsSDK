@@ -25,6 +25,7 @@ namespace Mona.SDK.Brains.Core.Control
         public event Action<IInstruction> OnReset = delegate { };
         public event Action<int> OnRefresh = delegate { };
         public event Action OnDeselect = delegate { };
+        public event Action OnSelect = delegate { };
 
         private MonaInput _instructionInput;
         public MonaInput InstructionInput { get => _instructionInput; set => _instructionInput = value; }
@@ -54,6 +55,9 @@ namespace Mona.SDK.Brains.Core.Control
         private string _progressTile;
         private IInstructionTile _tileWaitingForAuthorization;
 
+        [SerializeField] private bool _muted;
+        public bool Muted { get => _muted; set => _muted = value; }
+
         private bool _hasMessageEventWaitingForAuthorization;
         private List<MonaBroadcastMessageEvent> _messageEventsWaitingForAuthorization = new List<MonaBroadcastMessageEvent>();
 
@@ -75,6 +79,11 @@ namespace Mona.SDK.Brains.Core.Control
         public void Deselect()
         {
             OnDeselect?.Invoke();
+        }
+
+        public void Select()
+        {
+            OnSelect?.Invoke();
         }
 
         public void Preload(IMonaBrain brain, IMonaBrainPage page)
@@ -298,6 +307,7 @@ namespace Mona.SDK.Brains.Core.Control
             //Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction received event {eventType}", _brain.Body.ActiveTransform.gameObject);
             if (_unloaded) return;
             if (_paused) return;
+            if (_muted) return;
 
             if (_result == InstructionTileResult.WaitingForAuthority)
             {
@@ -339,6 +349,7 @@ namespace Mona.SDK.Brains.Core.Control
         {
             if (_unloaded) return InstructionTileResult.Failure;
             if (_paused) return InstructionTileResult.Failure;
+            if (_muted) return InstructionTileResult.Failure;
 
             var tile = InstructionTiles[0];
             //if (tile is IConditionInstructionTile)
@@ -461,9 +472,11 @@ namespace Mona.SDK.Brains.Core.Control
 
         private InstructionTileResult ExecuteTile(IInstructionTile tile)
         {
+            if (tile.Muted) return InstructionTileResult.Success;
             //Debug.Log($"{nameof(ExecuteTile)} instruction #{_page.Instructions.IndexOf(this)}, tile #{InstructionTiles.IndexOf(tile)} {tile.Name} current result {_result}", _brain.Body.Transform.gameObject);
             if (_brain.Body.HasControl())
                 _brain.Variables.Set(_progressTile, (float)InstructionTiles.IndexOf(tile));
+
             return tile.Do();
         }
 
@@ -579,6 +592,8 @@ namespace Mona.SDK.Brains.Core.Control
         {
             if (_unloaded) return;
             if (_paused) return;
+            if (_muted) return;
+
             if (tile == null)
             {
                 _result = InstructionTileResult.Success;
@@ -701,6 +716,19 @@ namespace Mona.SDK.Brains.Core.Control
             {
                 InstructionTiles.RemoveAt(i);
                 Changed(Mathf.Min(i, InstructionTiles.Count-1));
+            }
+        }
+
+        public void ToggleMute()
+        {
+            _muted = !_muted;
+        }
+
+        public void ToggleMuteTile(int i)
+        {
+            if (i >= 0 && i < InstructionTiles.Count)
+            {
+                InstructionTiles[i].Muted = !InstructionTiles[i].Muted;
             }
         }
 

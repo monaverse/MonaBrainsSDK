@@ -15,6 +15,7 @@ namespace Mona.SDK.Brains.Core.Control
         event Action<IInstruction> OnReset;
         event Action<int> OnRefresh;
         event Action OnDeselect;
+        event Action OnSelect;
 
         bool IsRunning();
         bool HasEndTile(IMonaBrainPage page);
@@ -27,8 +28,12 @@ namespace Mona.SDK.Brains.Core.Control
         IInstructionTile CurrentTile { get; }
         MonaInput InstructionInput { get; set; }
         List<IMonaBody> InstructionBodies { get; set; }
+        bool Muted { get; set; }
 
         List<Token> Tokens { get; set; }
+
+        void ToggleMuteTile(int i);
+        void ToggleMute();
 
         void Preload(IMonaBrain brain, IMonaBrainPage page);
         void Execute(InstructionEventTypes eventType, IInstructionEvent evt);
@@ -38,6 +43,7 @@ namespace Mona.SDK.Brains.Core.Control
         void MoveTileRight(int i);
         void MoveTileLeft(int i);
         bool HasConditional();
+        void Select();
         void Deselect();
         void Unload();
         void Pause();

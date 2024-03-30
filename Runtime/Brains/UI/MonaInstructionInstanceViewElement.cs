@@ -28,7 +28,8 @@ namespace Mona.SDK.Brains.UIElements
             SetBackgroundColor(new Color(.1f, .1f, .1f));
             SetBorder(Color.black);
 
-            Add(new Label($"{idx}:"));
+            var m = _instruction.Muted ? "Muted:" : "";
+            Add(new Label($"{m} {idx}:"));
             for (var i = 0; i < _instruction.InstructionTiles.Count; i++)
             {
                 var elemIdx = i;

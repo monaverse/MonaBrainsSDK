@@ -28,6 +28,7 @@ namespace Mona.SDK.Brains.UIElements
         private ToolbarButton _btnDelete;
         private ToolbarButton _btnMoveLeft;
         private ToolbarButton _btnMoveRight;
+        private ToolbarButton _btnMute;
 #endif
 
         private int _scrollToIndex;
@@ -59,9 +60,11 @@ namespace Mona.SDK.Brains.UIElements
             _toolBar = new VisualElement();
             _toolBar.style.flexDirection = FlexDirection.Column;
             _toolBar.style.paddingLeft = _toolBar.style.paddingLeft = 3;
+
             Add(_toolBar);
             _btnDelete = new ToolbarButton();
             _btnDelete.style.flexGrow = 1;
+            _btnDelete.style.height = 15;
             _btnDelete.style.borderBottomWidth = 1;
             _btnDelete.style.marginBottom = 1;
             _btnDelete.text = "delete";
@@ -77,6 +80,7 @@ namespace Mona.SDK.Brains.UIElements
 
             _btnMoveLeft = new ToolbarButton();
             _btnMoveLeft.style.flexGrow = 1;
+            _btnMoveLeft.style.height = 15;
             _btnMoveLeft.style.borderBottomWidth = 1;
             _btnMoveLeft.style.marginBottom = 1;
             _btnMoveLeft.text = "left";
@@ -94,6 +98,7 @@ namespace Mona.SDK.Brains.UIElements
             _toolBar.Add(_btnMoveLeft);
 
             _btnMoveRight = new ToolbarButton();
+            _btnMoveRight.style.height = 15;
             _btnMoveRight.style.flexGrow = 1;
             _btnMoveRight.style.borderBottomWidth = 1;
             _btnMoveRight.style.marginBottom = 1;
@@ -117,6 +122,29 @@ namespace Mona.SDK.Brains.UIElements
             _replaceTileMenu.style.color = Color.black;
             _replaceTileMenu.style.backgroundColor = Color.white;
             _toolBar.Add(_replaceTileMenu);
+
+            _btnMute = new ToolbarButton();
+            _btnMute.style.height = 15;
+            _btnMute.style.flexGrow = 1;
+            _btnMute.style.borderBottomWidth = 1;
+            _btnMute.style.marginBottom = 1;
+            _btnMute.text = "M";
+            _btnMute.style.color = Color.black;
+            _btnMute.style.backgroundColor = Color.white;
+            StyleButton(_btnMute);
+            _btnMute.clicked += () =>
+            {
+                if (_selectedTile > -1)
+                {
+                    _instruction.ToggleMuteTile(_selectedTile);
+                }
+                else
+                {
+                    _instruction.ToggleMute();
+                }
+                RefreshMenu();      
+            };
+            _toolBar.Add(_btnMute);
 #endif
         }
 
@@ -182,13 +210,16 @@ namespace Mona.SDK.Brains.UIElements
             }).ExecuteLater(100);
         }
 
-        private void ShowMenu(int i)
+        public void ShowMenu(int i)
         {
             _selectedTile = i;
             RefreshMenu();
 #if UNITY_EDITOR
+
             if (_toolBar.parent == null)
                 Add(_toolBar);
+
+            if (_selectedTile == -1) return;
 
             if (_instruction.HasEndTile(_page))
                 _btnMoveRight.SetEnabled(i != _instruction.InstructionTiles.Count - 2);
@@ -218,13 +249,20 @@ namespace Mona.SDK.Brains.UIElements
 
         }
 
-        private void HideMenu()
+        private void HideMenu(bool force = false)
         {
-            _selectedTile = -1;
+            //if (_selectedTile > -1 && !force)
+            {
+                _selectedTile = -1;
+                RefreshMenu();
+            }
+            //else
+            {
 #if UNITY_EDITOR
-            if (_toolBar.parent != null)
-                Remove(_toolBar);
+                //if (_toolBar.parent != null)
+                //    Remove(_toolBar);
 #endif
+            }
         }
 
         public void SetInstruction(IMonaBrain brain, IMonaBrainPage page, IInstruction instruction)
@@ -242,9 +280,12 @@ namespace Mona.SDK.Brains.UIElements
             _instruction.OnDeselect -= HandleDeselect;
             _instruction.OnDeselect += HandleDeselect;
 
+            _instruction.OnSelect -= HandleSelect;
+            _instruction.OnSelect += HandleSelect;
+
             RefreshInstructionTiles(0);
             RefreshMenu();
-            HideMenu();
+            HideMenu(true);
             AddKeyListeners();
         }
 
@@ -296,9 +337,16 @@ namespace Mona.SDK.Brains.UIElements
         private void HandleDeselect()
         {
             Debug.Log($"Deselect");
+
             HideMenu();
+            
             for (var i = 0; i < _instruction.InstructionTiles.Count; i++)
                 GetTileVisualElement(i).Deselect();
+        }
+
+        private void HandleSelect()
+        {
+            ShowMenu(_selectedTile);
         }
 
         private MonaInstructionTileVisualElement GetTileVisualElement(int i)
@@ -347,23 +395,47 @@ namespace Mona.SDK.Brains.UIElements
                 return;
             }
 #if UNITY_EDITOR
-            _replaceTileMenu.menu.ClearItems();
-            _replaceTileMenu.menu.AppendAction("REPLACE TILE", null, DropdownMenuAction.Status.Disabled);
-            for (var i = 0; i < _brain.TileSet.ConditionTiles.Count; i++)
+
+            if (_selectedTile > -1)
             {
-                var def = _brain.TileSet.ConditionTiles[i];
-                if (def == null) continue;
-                CopyToTile(def);
-                if(AllowTile(def.Tile))
-                    _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => _instruction.ReplaceTile(_selectedTile, def.Tile));
+                _btnMute.text = _instruction.InstructionTiles[_selectedTile].Muted ? "unmute" : "mute";
+                _btnMute.style.backgroundColor = _instruction.InstructionTiles[_selectedTile].Muted ? new Color(.4f, .4f, .4f) : Color.black;
+                _btnMute.style.color = _instruction.InstructionTiles[_selectedTile].Muted ? Color.white : Color.white;
+
+                _btnDelete.style.display = DisplayStyle.Flex;
+                _btnMoveLeft.style.display = DisplayStyle.Flex;
+                _btnMoveRight.style.display = DisplayStyle.Flex;
+                _replaceTileMenu.style.display = DisplayStyle.Flex;
+
+                _replaceTileMenu.menu.ClearItems();
+                _replaceTileMenu.menu.AppendAction("REPLACE TILE", null, DropdownMenuAction.Status.Disabled);
+                for (var i = 0; i < _brain.TileSet.ConditionTiles.Count; i++)
+                {
+                    var def = _brain.TileSet.ConditionTiles[i];
+                    if (def == null) continue;
+                    CopyToTile(def);
+                    if (AllowTile(def.Tile))
+                        _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => _instruction.ReplaceTile(_selectedTile, def.Tile));
+                }
+                for (var i = 0; i < _brain.TileSet.ActionTiles.Count; i++)
+                {
+                    var def = _brain.TileSet.ActionTiles[i];
+                    if (def == null) continue;
+                    CopyToTile(def);
+                    if (AllowTile(def.Tile))
+                        _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => _instruction.ReplaceTile(_selectedTile, def.Tile));
+                }
             }
-            for (var i = 0; i < _brain.TileSet.ActionTiles.Count; i++)
+            else
             {
-                var def = _brain.TileSet.ActionTiles[i];
-                if (def == null) continue;
-                CopyToTile(def);
-                if (AllowTile(def.Tile))
-                    _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => _instruction.ReplaceTile(_selectedTile, def.Tile));
+                _btnDelete.style.display = DisplayStyle.None;
+                _btnMoveLeft.style.display = DisplayStyle.None;
+                _btnMoveRight.style.display = DisplayStyle.None;
+                _replaceTileMenu.style.display = DisplayStyle.None;
+
+                _btnMute.text = _instruction.Muted ? "u\nn\nm\nu\nt\ne" : "m\nu\nt\ne";
+                _btnMute.style.backgroundColor = _instruction.Muted ? new Color(.4f, .4f, .4f) : Color.black;
+                _btnMute.style.color = _instruction.Muted ? Color.white : Color.white;
             }
 #endif
         }

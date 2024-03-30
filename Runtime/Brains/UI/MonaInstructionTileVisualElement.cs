@@ -177,6 +177,9 @@ namespace Mona.SDK.Brains.UIElements
             _tile = tile;
             _index = tileIndex;
 
+            _tile.OnMuteChanged -= HandleMuted;
+            _tile.OnMuteChanged += HandleMuted;
+
             if (_click != null)
                 this.RemoveManipulator(_click);
             if (_clickLabel != null)
@@ -208,6 +211,11 @@ namespace Mona.SDK.Brains.UIElements
             {
                 _labelType.style.paddingLeft = 0;
             }
+        }
+
+        private void HandleMuted()
+        {
+            SetStyle(_tile);
         }
 
         private void Changed()
@@ -990,7 +998,7 @@ namespace Mona.SDK.Brains.UIElements
 
             if (tile is IActionInstructionTile)
             {
-                _labelType.text = "ACTION";
+                _labelType.text = "ACTION" + (_tile.Muted ? " - [Muted]" : "");
                 style.backgroundColor = _brightPink;
                 if (tile is IActionStateEndInstructionTile && !_page.IsCore)
                     style.borderBottomRightRadius = style.borderTopRightRadius = 30;
@@ -1000,9 +1008,9 @@ namespace Mona.SDK.Brains.UIElements
             else if (tile is IConditionInstructionTile)
             {
                 if (tile is IInputInstructionTile)
-                    _labelType.text = "INPUT";
+                    _labelType.text = "INPUT" + (_tile.Muted ? " - [Muted]" : "");
                 else
-                    _labelType.text = "IF";
+                    _labelType.text = "IF" + (_tile.Muted ? " - [Muted]" : "");
                 style.backgroundColor = _lightRed;
                 if (tile is IStartableInstructionTile && _index == 0)
                     style.borderBottomLeftRadius = style.borderTopLeftRadius = 30;

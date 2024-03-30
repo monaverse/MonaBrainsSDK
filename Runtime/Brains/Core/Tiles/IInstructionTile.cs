@@ -9,10 +9,12 @@ namespace Mona.SDK.Brains.Core.Tiles
     public interface IInstructionTile : IGraphElementData
     {
         event Action<InstructionTileResult, string, IInstructionTile> OnExecute;
+        event Action OnMuteChanged;
 
         string Id { get; set; }
         string Name { get; set; }
         string Category { get; set; }
+        bool Muted { get; set; }
         Type TileType { get; }
         InstructionTileResult LastResult { get; set; }
         IInstructionTile NextExecutionTile { get; set; }
