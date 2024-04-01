@@ -396,7 +396,7 @@ namespace Mona.SDK.Brains.UIElements
             }
 #if UNITY_EDITOR
 
-            if (_selectedTile > -1)
+            if (_selectedTile > -1 && _instruction.InstructionTiles.Count > 0)
             {
                 _btnMute.text = _instruction.InstructionTiles[_selectedTile].Muted ? "unmute" : "mute";
                 _btnMute.style.backgroundColor = _instruction.InstructionTiles[_selectedTile].Muted ? new Color(.4f, .4f, .4f) : Color.black;
