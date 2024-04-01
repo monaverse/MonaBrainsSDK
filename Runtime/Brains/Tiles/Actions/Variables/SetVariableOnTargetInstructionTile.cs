@@ -40,11 +40,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
             IMonaBody targetBody = GetTarget();
 
-            if (targetBody == null || targetBody.ActiveTransform == null)
+            if (targetBody == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.ERROR_MISSING_TARGET);
 
             var myValue = _brain.Variables.GetVariable(_myVariable);
-            var targetRunner = targetBody.ActiveTransform.GetComponent<MonaBrainRunner>();
+            var targetRunner = targetBody.Transform.GetComponent<MonaBrainRunner>();
 
             if (targetRunner == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.ERROR_MISSING_TARGET);
