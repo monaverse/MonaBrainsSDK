@@ -6,6 +6,7 @@
 
         public const string RESULT_SENDER = "__Sender";
         public const string RESULT_TARGET = "__Target";
+        public const string RESULT_LAST_SPAWNED = "__LastSpawned";
 
         public const string RESULT_MOVE_DIRECTION = "__MoveDirection";
         public const string RESULT_MOUSE_DIRECTION = "__MouseDirection";

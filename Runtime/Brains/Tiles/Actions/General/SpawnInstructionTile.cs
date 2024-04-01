@@ -252,6 +252,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     poolItem.SetVisible(true);
                     Debug.Log($"{nameof(SpawnInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, poolItem);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SPAWNED, poolItem);
                 }
             }
 

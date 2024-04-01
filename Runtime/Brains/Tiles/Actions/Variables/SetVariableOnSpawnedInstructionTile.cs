@@ -11,15 +11,12 @@ using Mona.SDK.Core.Body;
 namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
     [Serializable]
-    public class SetVariableOnTargetInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class SetVariableOnSpawnedInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
     {
-        public const string ID = "SetVariableOnTarget";
-        public const string NAME = "Set Variable On Target";
+        public const string ID = "SetVariableOnSpawned";
+        public const string NAME = "Set Variable On Spawned";
         public const string CATEGORY = "Variables";
-        public override Type TileType => typeof(SetVariableOnTargetInstructionTile);
-
-        [SerializeField] private MonaBrainTargetResultType _source = MonaBrainTargetResultType.OnConditionTarget;
-        [SerializeField] private string _target;
+        public override Type TileType => typeof(SetVariableOnSpawnedInstructionTile);
 
         [SerializeField] private string _myVariable;
         [BrainPropertyValue(typeof(IMonaVariablesValue))] public string MyVariable { get => _myVariable; set => _myVariable = value; }
@@ -34,7 +31,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         private IMonaBrain _brain;
 
-        public SetVariableOnTargetInstructionTile() { }
+        public SetVariableOnSpawnedInstructionTile() { }
 
         public void Preload(IMonaBrain brain) => _brain = brain;
 
@@ -43,19 +40,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             if (_brain == null || string.IsNullOrEmpty(_myVariable))
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-            IMonaBody targetBody = GetTarget();
+            IMonaBody targetBody = _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
 
             if (targetBody == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.ERROR_MISSING_TARGET);
 
             if (!string.IsNullOrEmpty(_includeAttachedName))
                 _includeAttached = _brain.Variables.GetBool(_includeAttachedName);
-
-            if (_includeAttached)
-            {
-                while (targetBody.Parent != null)
-                    targetBody = targetBody.Parent;
-            }
 
             var myValue = _brain.Variables.GetVariable(_myVariable);
 
@@ -114,37 +105,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
             for (int i = 0; i < children.Count; i++)
                 SetValueOnBrains(myValue, children[i]);
-        }
-
-        private IMonaBody GetTarget()
-        {
-            var body = GetSource();
-            if (!string.IsNullOrEmpty(_target))
-            {
-                var variable = _brain.Variables.GetVariable(_target);
-                if (variable is IMonaVariablesBrainValue)
-                    body = ((IMonaVariablesBrainValue)variable).Value.Body;
-                else if (variable is IMonaVariablesBodyValue)
-                    body = ((IMonaVariablesBodyValue)variable).Value;
-            }
-            return body;
-        }
-
-        private IMonaBody GetSource()
-        {
-            switch (_source)
-            {
-                case MonaBrainTargetResultType.OnConditionTarget:
-                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
-                case MonaBrainTargetResultType.OnMessageSender:
-                    var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
-                    if (brain != null)
-                        return brain.Body;
-                    break;
-                case MonaBrainTargetResultType.OnHitTarget:
-                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
-            }
-            return null;
-        }
+        }        
     }
 }

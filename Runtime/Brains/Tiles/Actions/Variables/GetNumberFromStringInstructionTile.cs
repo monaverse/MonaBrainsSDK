@@ -27,7 +27,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyValue(typeof(IMonaVariablesStringValue), true)] public string StringName { get => _stringName; set => _stringName = value; }
 
         [SerializeField] private string _numberToSet;
-        [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string NumberTOSet { get => _numberToSet; set => _numberToSet = value; }
+        [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string NumberToSet { get => _numberToSet; set => _numberToSet = value; }
 
         [SerializeField] private NumberGetType _numbersToGet = NumberGetType.AllCombined;
         [BrainProperty(false)] public NumberGetType NumbersToGet { get => _numbersToGet; set => _numbersToGet = value; }
@@ -35,9 +35,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [SerializeField]
         public enum NumberGetType
         {
-            AllCombined,
-            FirstNumberSet,
-            AddNumberSets
+            AllCombined = 0,
+            FirstNumberSet = 10,
+            AddNumberSets = 20
         }
 
         protected IMonaBrain _brain;

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a46369c7cfcb479d8ca5c065dc51ce5, type: 3}
+  m_Name: SetVariableOnSpawned
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 5149697986650964948
+  _id: SetVariableOnSpawned
+  _name: Set Value On Spawned
+  _category: Variables
+  references:
+    version: 2
+    RefIds:
+    - rid: 5149697986650964948
+      type: {class: SetVariableOnSpawnedInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables,
+        asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: SetVariableOnSpawned
+        _name: Set Value On Spawned
+        _category: Variables
+        _muted: 0
+        _myVariable: 
+        _targetVariable: 
