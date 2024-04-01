@@ -850,15 +850,17 @@ namespace Mona.SDK.Brains.UIElements
                 _statePageHeading.style.display = DisplayStyle.Flex;
                 _activePageContainer.style.display = DisplayStyle.Flex;
 
-                _activePageName.value = _brain.StatePages[_selectedTab].Name;
-                _statePageHeading.text = $"\"{_brain.StatePages[_selectedTab].Name}\" Page Properties";
-                _statePageInstructions.text = $"\"{_brain.StatePages[_selectedTab].Name}\" Page Instructions";
-                _activeStatePage.SetPage(_brain, _brain.StatePages[_selectedTab]);
-                _activeStatePage.visible = true;
+                if (_brain.StatePages.Count > 0)
+                {
+                    _activePageName.value = _brain.StatePages[_selectedTab].Name;
+                    _statePageHeading.text = $"\"{_brain.StatePages[_selectedTab].Name}\" Page Properties";
+                    _statePageInstructions.text = $"\"{_brain.StatePages[_selectedTab].Name}\" Page Instructions";
+                    _activeStatePage.SetPage(_brain, _brain.StatePages[_selectedTab]);
+                    _activeStatePage.visible = true;
 
-                _btnMoveLeft.SetEnabled(_selectedTab > 0);
-                _btnMoveRight.SetEnabled(_selectedTab < _brain.StatePages.Count - 1);
-
+                    _btnMoveLeft.SetEnabled(_selectedTab > 0);
+                    _btnMoveRight.SetEnabled(_selectedTab < _brain.StatePages.Count - 1);
+                }
             }
 
         }
