@@ -66,11 +66,64 @@
         public const string TAG_DEFAULT = "Default";
         public const string TAG_PLAYER = "Player";
         public const string TAG_REMOTE_PLAYER = "RemotePlayer";
-        public const string TAG_CAMERA = "Camera";
-        public const string TAG_ENEMY = "Enemy";
-        public const string TAG_FRIENDLY = "Friendly";
-        public const string TAG_COLLECTIBLE = "Collectible";
+        public const string TAG_TEAM_A = "TeamA";
+        public const string TAG_TEAM_B = "TeamB";
+        public const string TAG_TEAM_C = "TeamC";
+        public const string TAG_TEAM_D = "TeamD";
         public const string TAG_GAMECONTROLLER = "GameController";
+        public const string TAG_CAMERA = "Camera";
+        public const string TAG_FRIENDLY = "Friendly";
+        public const string TAG_NEUTRAL = "Neutral";
+        public const string TAG_ENEMY = "Enemy";
+        public const string TAG_MINION = "Minion";
+        public const string TAG_BOSS = "Boss";
+        public const string TAG_CARNIVORE = "Carnivore";
+        public const string TAG_HERBIVORE = "Herbivore";
+        public const string TAG_OMNIVORE = "Omnivore";
+        public const string TAG_VEGITATION = "Vegitation";
+        public const string TAG_CORPSE = "Corpse";
+        public const string TAG_VEHICLE = "Vehicle";
+
+        public const string TAG_WEAPON = "Weapon";
+        public const string TAG_DOOR = "Door";
+        public const string TAG_WINDOW = "Window";
+        public const string TAG_LOCK = "Lock";
+        public const string TAG_STAIRS = "Stairs";
+        public const string TAG_TABLE = "Table";
+        public const string TAG_CHAIR = "Chair";
+        public const string TAG_PICTURE = "Picture";
+
+        public const string TAG_SPAWNER = "Spawner";
+        public const string TAG_SPAWNED_OBJECT = "SpawnedObject";
+        public const string TAG_COLLECTIBLE = "Collectible";
+        public const string TAG_KEYITEM = "KeyItem";
+        public const string TAG_COIN = "Coin";
+        public const string TAG_KEY = "Key";
+        public const string TAG_HEART = "Heart";
+        public const string TAG_POWERUP = "PowerUp";
+        public const string TAG_TREASURE = "Treasure";
+        public const string TAG_INVENTORYITEM = "InventoryItem";
+        public const string TAG_FOOD = "Food";
+        public const string TAG_BALL = "Ball";
+        public const string TAG_FLAG = "Flag";
+
+        public const string TAG_TRIGGER_VOLUME = "TriggerVolume";
+        public const string TAG_GROUND = "Ground";
+        public const string TAG_WATER = "Water";
+        public const string TAG_HAZARD = "Hazard";
+        public const string TAG_LAVA = "Lava";
+        public const string TAG_FIRE = "Fire";
+        public const string TAG_ICE = "Ice";
+        public const string TAG_WIND = "Wind";
+        public const string TAG_POISON = "Poison";
+        public const string TAG_SPIKES = "Spikes";
+        public const string TAG_TRAP = "Trap";
+        public const string TAG_DEATHPLANE = "DeathPlane";
+
+        public const string TAG_START = "Start";
+        public const string TAG_GOAL = "Goal";
+        public const string TAG_CHECKPOINT = "Checkpoint";
+        public const string TAG_WAYPOINT = "Waypoint";
 
         public static readonly int AVATAR_MAXIMUM_FILESIZE_MB = 16;
     }
