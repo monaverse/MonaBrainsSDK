@@ -852,6 +852,9 @@ namespace Mona.SDK.Brains.UIElements
 
                 if (_brain.StatePages.Count > 0)
                 {
+                    if (_selectedTab >= _brain.StatePages.Count)
+                        _selectedTab = _brain.StatePages.Count - 1;
+
                     _activePageName.value = _brain.StatePages[_selectedTab].Name;
                     _statePageHeading.text = $"\"{_brain.StatePages[_selectedTab].Name}\" Page Properties";
                     _statePageInstructions.text = $"\"{_brain.StatePages[_selectedTab].Name}\" Page Instructions";
@@ -871,9 +874,10 @@ namespace Mona.SDK.Brains.UIElements
             _monaTagListView.Rebuild();
 
             _brain = brain;
-
+            
             _name.value = _brain.Name;
             _property.value = (MonaBrainPropertyType)_brain.PropertyType;
+            _selectedTab = 0;
 
             var versions = GetTileSets();
             _tileSetField.choices = versions.ConvertAll<string>(x => x.Version);
