@@ -237,15 +237,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 {
                     brainVariables.Set(_targetVariable, ((IMonaVariablesFloatValue)myValue).Value);
                 }
-                else if (tagrgetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesBoolValue)
+                else if (tagrgetValue is IMonaVariablesBoolValue && myValue is IMonaVariablesBoolValue)
                 {
                     brainVariables.Set(_targetVariable, ((IMonaVariablesBoolValue)myValue).Value);
                 }
-                else if (tagrgetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesVector2Value)
+                else if (tagrgetValue is IMonaVariablesVector2Value && myValue is IMonaVariablesVector2Value)
                 {
                     brainVariables.Set(_targetVariable, ((IMonaVariablesVector2Value)myValue).Value);
                 }
-                else if (tagrgetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesVector3Value)
+                else if (tagrgetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
                 {
                     brainVariables.Set(_targetVariable, ((IMonaVariablesVector3Value)myValue).Value);
                 }
