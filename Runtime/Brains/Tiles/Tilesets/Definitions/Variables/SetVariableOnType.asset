@@ -29,7 +29,7 @@ MonoBehaviour:
         _category: Variables
         _muted: 0
         _target: 0
-        _targetTag: 
+        _targetTag: Player
         _myVariable: 
         _targetVariable: 
         _includeAttached: 1

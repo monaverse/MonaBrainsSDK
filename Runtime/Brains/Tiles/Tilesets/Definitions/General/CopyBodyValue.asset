@@ -16,15 +16,21 @@ MonoBehaviour:
     rid: 8514828729091621463
   _id: CopyBodyValue
   _name: Copy Body Value
-  _category: Vectors
+  _category: Variables
   references:
     version: 2
     RefIds:
     - rid: 8514828729091621463
-      type: {class: CopyBodyValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: CopyBodyValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: CopyBodyValue
         _name: Copy Body Value
-        _category: Vectors
+        _category: Variables
+        _muted: 0
         _source: 0
+        _axis: 1
+        _targetType: 0
         _targetValue: 
+        _targetNumber: 
+        _targetString: 
