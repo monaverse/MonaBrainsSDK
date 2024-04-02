@@ -163,8 +163,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 if (children[i] == null)
                     continue;
 
-                ModifyValueOnBrains(myValue, body);
-                ModifyOnChildren(myValue, body);
+                ModifyValueOnBrains(myValue, children[i]);
+                ModifyOnChildren(myValue, children[i]);
             }
         }
 
@@ -179,7 +179,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
                 if (ModifyAllAttached)
                     ModifyOnWholeEntity(myValue, spawned[i]);
-                else;
+                else
                     ModifyValueOnBrains(myValue, spawned[i]);
             }
         }
@@ -209,7 +209,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         private void ModifyValueOnBrains(IMonaVariablesValue myValue, IMonaBody body)
         {
-            if (body.ActiveTransform == null)
+            if (body.ActiveTransform == null || (body == _brain.Body && _targetVariable == _myVariable))
                 return;
 
             var runner = GetCachedRunner(body);
