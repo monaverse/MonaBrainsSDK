@@ -706,14 +706,14 @@ namespace Mona.SDK.Brains.UIElements
         {
             _selectedInstructions = instructions;
             _selectedTileIndex = -1;
-            Debug.Log($"selected instructions {instructions.Count}");
+            //Debug.Log($"selected instructions {instructions.Count}");
         }
 
         private void HandleTileIndexClicked(IInstruction instruction, int i)
         {
             _selectedInstructions = new List<IInstruction>() { instruction };
             _selectedTileIndex = i;
-            Debug.Log($"Clicked tile {i}");
+            //Debug.Log($"Clicked tile {i}");
         }
 
         private void CopyToTile(IInstructionTileDefinition def)

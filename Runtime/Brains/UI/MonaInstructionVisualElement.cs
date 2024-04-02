@@ -202,7 +202,7 @@ namespace Mona.SDK.Brains.UIElements
             OnTileIndexClicked(_instruction, c);
             ShowMenu(c);
             GetTileVisualElement(c).Select(expand);
-            Debug.Log($"Select");
+            //Debug.Log($"Select");
             _scrollView.schedule.Execute(() =>
             {
                 if (_scrollView.contentContainer.childCount > c)
@@ -336,7 +336,7 @@ namespace Mona.SDK.Brains.UIElements
 
         private void HandleDeselect()
         {
-            Debug.Log($"Deselect");
+            //Debug.Log($"Deselect");
 
             HideMenu();
             
