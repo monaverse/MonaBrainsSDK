@@ -31,7 +31,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override InstructionTileResult Do()
         {
             _brain.Body.SetActive(false);
-            Debug.Log($"{nameof(DisableInstructionTile)} state: {_brain.Body.Transform.name}", _brain.Body.Transform.gameObject);
+            //Debug.Log($"{nameof(DisableInstructionTile)} state: {_brain.Body.Transform.name}", _brain.Body.Transform.gameObject);
             return Complete(InstructionTileResult.Success);
         }
     }

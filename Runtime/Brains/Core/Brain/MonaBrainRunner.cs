@@ -544,7 +544,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void RestartBrains()
         {
-            Debug.Log($"Resetart Brains");
+            //Debug.Log($"Resetart Brains");
             _began = false;
             ResetTransforms();
             UnloadBrains();

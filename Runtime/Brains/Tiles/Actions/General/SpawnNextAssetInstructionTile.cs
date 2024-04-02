@@ -40,7 +40,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         protected override IMonaBodyAssetItem GetAsset()
         {
-            Debug.Log($"{nameof(GetAsset)} spawn next asset instruction tile");
+            //Debug.Log($"{nameof(GetAsset)} spawn next asset instruction tile");
             var provider = _brain.GetMonaAssetProvider(_monaAsset);
             return (IMonaBodyAssetItem)provider.TakeTopCardOffDeck(_shuffled);
         }

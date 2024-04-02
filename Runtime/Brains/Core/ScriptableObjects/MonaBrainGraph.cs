@@ -462,7 +462,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                     }
                     else
                     {
-                        Debug.Log($"{nameof(SetupAnimation)} add default controller", _body.ActiveTransform.gameObject);
+                        //Debug.Log($"{nameof(SetupAnimation)} add default controller", _body.ActiveTransform.gameObject);
 
                         var monaAnimationController = _root.GetComponent<MonaGroundedCreatureAnimationController>();
                         if (monaAnimationController != null)

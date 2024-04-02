@@ -471,7 +471,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void LostControl()
         {
-            Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(LostControl)}");
+            //Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(LostControl)}");
             _movingState = MovingStateType.Stopped;
             StoppedMoving();
             Complete(InstructionTileResult.LostAuthority, true);

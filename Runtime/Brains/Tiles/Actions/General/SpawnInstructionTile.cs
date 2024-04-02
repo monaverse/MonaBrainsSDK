@@ -105,7 +105,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void SetupSpawnable()
         {
-            Debug.Log($"{nameof(SetupSpawnable)} spawn asset instruction tile");
+            //Debug.Log($"{nameof(SetupSpawnable)} spawn asset instruction tile");
             var items = GetPreloadAssets();
             for (var i = 0; i < items.Count; i++)
             {
@@ -250,7 +250,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         childBrains[i].CacheTransforms();
 
                     poolItem.SetVisible(true);
-                    Debug.Log($"{nameof(SpawnInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
+                    //Debug.Log($"{nameof(SpawnInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, poolItem);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SPAWNED, poolItem);
                 }
@@ -261,7 +261,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override void Unload()
         {
-            if(_brain.LoggingEnabled) Debug.Log($"{nameof(Unload)} spawn asset instruction tile unload");
+            if(_brain.LoggingEnabled) //Debug.Log($"{nameof(Unload)} spawn asset instruction tile unload");
             base.Unload();
             for (var i = 0; i < _equipmentInstances.Count; i++)
             {
