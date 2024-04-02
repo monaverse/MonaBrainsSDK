@@ -20,8 +20,47 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private MonaBodyValueType _source = MonaBodyValueType.Position;
         [BrainPropertyEnum(true)] public MonaBodyValueType Source { get => _source; set => _source = value; }
 
+        [SerializeField] private VectorThreeAxis _axis = VectorThreeAxis.Y;
+        [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.Number)]
+        [BrainPropertyShow(nameof(CopyType), (int)StringCopyType.SingleAxis)]
+        [BrainPropertyEnum(true)]
+        public VectorThreeAxis Axis { get => _axis; set => _axis = value; }
+
+        [SerializeField] private TargetVariableType _targetType;
+        [BrainPropertyEnum(false)]
+        [SerializeField] public TargetVariableType TargetType { get => _targetType; set => _targetType = value; }
+
         [SerializeField] string _targetValue;
+        [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.Vector3)]
         [BrainPropertyValue(typeof(IMonaVariablesVector3Value), true)] public string TargetValue { get => _targetValue; set => _targetValue = value; }
+
+        [SerializeField] private string _targetNumber;
+        [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.Number)]
+        [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string TargetNumber { get => _targetNumber; set => _targetNumber = value; }
+
+        [SerializeField] private string _targetString;
+        [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.String)]
+        [BrainPropertyValue(typeof(IMonaVariablesStringValue), true)] public string TargetString { get => _targetString; set => _targetString = value; }
+
+        private StringCopyType _copyType;
+        [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.String)]
+        [BrainPropertyEnum(false)]
+        public StringCopyType CopyType { get => _copyType; set => _copyType = value; }
+
+        [Serializable]
+        public enum TargetVariableType
+        {
+            Vector3 = 0,
+            Number = 10,
+            String = 20
+        }
+
+        [Serializable]
+        public enum StringCopyType
+        {
+            Vector3 = 0,
+            SingleAxis = 10
+        }
 
         private IMonaBrain _brain;
 
@@ -34,24 +73,79 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             switch(_source)
             {
                 case MonaBodyValueType.StartPosition:
-                    _brain.Variables.Set(_targetValue, _brain.Body.InitialPosition); break;
+                    SetVariable(_brain.Body.InitialPosition); break;
                 case MonaBodyValueType.Rotation:
-                    _brain.Variables.Set(_targetValue, _brain.Body.GetRotation().eulerAngles); break;
+                    SetVariable(_brain.Body.GetRotation().eulerAngles); break;
                 case MonaBodyValueType.StartRotation:
-                    _brain.Variables.Set(_targetValue, _brain.Body.InitialRotation.eulerAngles); break;
+                    SetVariable(_brain.Body.InitialRotation.eulerAngles); break;
                 case MonaBodyValueType.Scale:
-                    _brain.Variables.Set(_targetValue, _brain.Body.GetScale()); break;
+                    SetVariable(_brain.Body.GetScale()); break;
                 case MonaBodyValueType.StartScale:
-                    _brain.Variables.Set(_targetValue, _brain.Body.InitialScale); break;
+                    SetVariable(_brain.Body.InitialScale); break;
                 case MonaBodyValueType.Velocity:
-                    _brain.Variables.Set(_targetValue, _brain.Body.GetVelocity()); break;
+                    SetVelocity(); break;
                 case MonaBodyValueType.Forward:
-                    _brain.Variables.Set(_targetValue, _brain.Body.ActiveTransform.forward); break;
+                    SetVariable(_brain.Body.ActiveTransform.forward); break;
                 default:
-                    _brain.Variables.Set(_targetValue, _brain.Body.GetPosition()); break;
+                    SetVariable(_brain.Body.GetPosition()); break;
             }
 
             return Complete(InstructionTileResult.Success);
+        }
+        
+
+        private void SetVariable(Vector3 result)
+        {
+            switch (_targetType)
+            {
+                case TargetVariableType.Vector3:
+                    _brain.Variables.Set(_targetValue, result);
+                    break;
+                case TargetVariableType.Number:
+                    _brain.Variables.Set(_targetNumber, GetAxisValue(result));
+                    break;
+                case TargetVariableType.String:
+                    if (_copyType == StringCopyType.Vector3)
+                        _brain.Variables.Set(_targetString, result.ToString());
+                    else
+                        _brain.Variables.Set(_targetString, GetAxisValue(result).ToString());
+                    break;
+            }
+        }
+
+        private float GetAxisValue(Vector3 result)
+        {
+            switch (_axis)
+            {
+                case VectorThreeAxis.X:
+                    return result.x;
+                case VectorThreeAxis.Y:
+                    return result.y;
+                default:
+                    return result.z;
+            }
+        }
+
+        private void SetVelocity()
+        {
+            Vector3 velocity = _brain.Body.GetVelocity();
+            float velocityMagnitude = velocity.magnitude;
+
+            switch (_targetType)
+            {
+                case TargetVariableType.Vector3:
+                    SetVariable(velocity);
+                    break;
+                case TargetVariableType.Number:
+                    _brain.Variables.Set(_targetNumber, velocityMagnitude);
+                    break;
+                case TargetVariableType.String:
+                    if (_copyType == StringCopyType.Vector3)
+                        _brain.Variables.Set(_targetString, velocity.ToString());
+                    else
+                        _brain.Variables.Set(_targetString, velocityMagnitude.ToString());
+                    break;
+            }
         }
     }
 }
