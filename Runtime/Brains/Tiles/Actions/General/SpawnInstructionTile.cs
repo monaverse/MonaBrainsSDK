@@ -50,6 +50,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(Location), (int)LocationType.OtherWithTagPart)]
         public string Part { get => _part; set => _part = value; }
 
+        [SerializeField] private bool _spawnAsChild;
+        [SerializeField] private string _spawnAsChildName;
+        [BrainProperty(false)] public bool SpawnAsChild { get => _spawnAsChild; set => _spawnAsChild = value; }
+        [BrainPropertyValueName("SpawnAsChild", typeof(IMonaVariablesBoolValue))] public string SpawnAsChildName { get => _spawnAsChildName; set => _spawnAsChildName = value; }
+
         [SerializeField] private Vector3 _offset = Vector3.zero;
         [SerializeField] private string[] _offsetName = new string[4];
         [BrainProperty(false)]
@@ -73,6 +78,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public string[] ScaleName { get => _scaleName; set => _scaleName = value; }
 
         protected IMonaBrain _brain;
+        private Transform _defaultParent;
         private IMonaBodyAssetItem _item;
         private List<IMonaBody> _equipmentInstances = new List<IMonaBody>();
         private Dictionary<string, List<IMonaBody>> _pool = new Dictionary<string, List<IMonaBody>>();
@@ -90,6 +96,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public void Preload(IMonaBrain brainInstance) 
         {
             _brain = brainInstance;
+            _defaultParent = GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform;
             SetupSpawnable();
         }
 
@@ -134,7 +141,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 var child = bodies[j];
                 if (child == body)
                 {
-                    child.Transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
+                    child.Transform.SetParent(_defaultParent);
                     _equipmentInstances.Add(child);
 
                     if (!_pool.ContainsKey(prefabId))
@@ -155,6 +162,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             if (!_pool[((MonaBodyBase)body).PrefabId].Contains(body))
                 _pool[((MonaBodyBase)body).PrefabId].Add(body);
+
+            if (_brain.SpawnedBodies.Contains(body))
+                _brain.SpawnedBodies.Remove(body);
         }
 
         public IMonaBody GetBodyToControl()
@@ -212,6 +222,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             var body = GetBody();
             if (body != null)
             {
+                if (!string.IsNullOrEmpty(_spawnAsChildName))
+                    _spawnAsChild = _brain.Variables.GetBool(_spawnAsChildName);
+
                 if (_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
@@ -243,20 +256,39 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
                     Vector3 position = body.GetPosition() + offset;
                     Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
-                    poolItem.SetSpawnTransforms(position, rotation, scale, true);
+
+                    poolItem.Transform.SetParent(_spawnAsChild ? _brain.Body.Transform : _defaultParent);
+                    poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
 
                     var childBrains = poolItem.Transform.GetComponentsInChildren<IMonaBrainRunner>();
                     for(var i = 0;i < childBrains.Length; i++)
                         childBrains[i].CacheTransforms();
 
                     poolItem.SetVisible(true);
+
                     //Debug.Log($"{nameof(SpawnInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
+
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, poolItem);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SPAWNED, poolItem);
+                    _brain.SpawnedBodies.Add(poolItem);
+                    SetSpawnerReferenceOnSpawned(poolItem);
                 }
             }
 
             return Complete(InstructionTileResult.Success);
+        }
+
+        private void SetSpawnerReferenceOnSpawned(IMonaBody spawned)
+        {
+            spawned.Spawner = _brain.Body;
+
+            var children = spawned.Children();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i] != null)
+                    SetSpawnerReferenceOnSpawned(children[i]);
+            }
         }
 
         public override void Unload()
@@ -271,6 +303,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 if(instance.Transform != null && instance.Transform.gameObject != null)
                     GameObject.Destroy(instance.Transform.gameObject);
             }
+            _brain.SpawnedBodies.Clear();
             _equipmentInstances.Clear();
             _pool.Clear();
         }

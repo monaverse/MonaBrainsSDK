@@ -594,7 +594,7 @@ namespace Mona.SDK.Brains.UIEditors
 
         private void BindItemAttached(VisualElement elem, int i)
         {
-            Debug.Log($"{nameof(BindItemAttached)} {i}");
+            //Debug.Log($"{nameof(BindItemAttached)} {i}");
             ((BrainItemVisualElement)elem).SetValue((MonaBrainGraph)_attachedView.itemsSource[i], _target, _runner, _globalRunner);
         }
 

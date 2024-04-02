@@ -60,7 +60,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private IMonaBody _body;
         private IMonaBody _bodyParent;
+        private List<IMonaBody> _spawnedBodies =  new List<IMonaBody>();
         public IMonaBody Body => _body;
+        public List<IMonaBody> SpawnedBodies { get => _spawnedBodies; set => _spawnedBodies = value; }
 
         private IMonaBrainVariables _variables;
         public IMonaBrainVariables Variables => _variables;

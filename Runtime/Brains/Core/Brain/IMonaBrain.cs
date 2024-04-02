@@ -33,6 +33,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         IMonaBrainVariables Variables { get; }
         IMonaBody Body { get; }
+        List<IMonaBody> SpawnedBodies { get; }
         GameObject GameObject { get; }
 
         IMonaBrainPage CorePage { get; }
