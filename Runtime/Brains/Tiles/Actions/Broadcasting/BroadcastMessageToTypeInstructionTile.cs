@@ -159,7 +159,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                 case MonaBrainBroadcastType.OnHitTarget:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
                 case MonaBrainBroadcastType.MySpawner:
-                    return _brain.Variables.GetBody(MonaBrainConstants.TAG_SPAWNER);
+                    return _brain.Body.Spawner;
                 case MonaBrainBroadcastType.LastSpawnedByMe:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
             }
