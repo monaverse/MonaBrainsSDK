@@ -25,12 +25,15 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         private List<IMonaBody> _bodies = new List<IMonaBody>();
         private List<IMonaBody> _bodiesThatLeft = new List<IMonaBody>();
         private List<IMonaBody> _bodiesThatEntered = new List<IMonaBody>();
+        private List<IMonaBody> _bodiesWithin = new List<IMonaBody>();
         
         private Action<MonaTickEvent> OnTileTick;
         private Action<MonaBodySpawnedEvent> OnBodySpawned;
         private Action<MonaBodyDespawnedEvent> OnBodyDespawned;
 
         private bool _localPlayerOnly;
+
+        public List<IMonaBody> BodiesWithin => _bodiesWithin;
 
         private void Awake()
         {
@@ -187,6 +190,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     _bodies.Add(body);
                     if(!_bodiesThatEntered.Contains(body))
                         _bodiesThatEntered.Add(body);
+                    if (!_bodiesWithin.Contains(body))
+                        _bodiesWithin.Add(body);
                     EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerEnter));
                     return true;
                 }
@@ -213,6 +218,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     _bodies.Remove(body);
                     if(!_bodiesThatLeft.Contains(body))
                         _bodiesThatLeft.Add(body);
+                    if (_bodiesWithin.Contains(body))
+                        _bodiesWithin.Remove(body);
                     EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerExit));
                     return true;
                 }

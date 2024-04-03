@@ -40,6 +40,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         private IMonaBrainPage _page;
         private string _monaTag;
         private List<TagCollision> _bodiesThatHit = new List<TagCollision>();
+        private List<IMonaBody> _bodiesThatStayed = new List<IMonaBody>();
+        private List<IMonaBody> _bodiesThatLeft = new List<IMonaBody>();
         private Action<MonaLateTickEvent> OnLateTick;
 
         public string MonaTag => _monaTag;
@@ -113,6 +115,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         break;
                     }
                 }
+
+                if (!_bodiesThatStayed.Contains(body))
+                    _bodiesThatStayed.Add(body);
+
                 if (!found)
                 {
                     if (_brain.Body.ActiveRigidbody != null)
@@ -144,6 +150,23 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             }
         }
 
+        private void OnCollisionExit(Collision collision)
+        {
+            if (_collider == null || !_collider.enabled) return;
+            var body = collision.collider.GetComponentInParent<IMonaBody>();
+
+            if (body != null && body.HasMonaTag(_monaTag))
+            {
+                if (!_bodiesThatLeft.Contains(body))
+                    _bodiesThatLeft.Add(body);
+
+                if (_bodiesThatStayed.Contains(body))
+                    _bodiesThatStayed.Remove(body);
+
+                EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnCollisionExit));
+            }
+        }
+
         private void HandleLateTick(MonaLateTickEvent evt)
         {
            if (_brain.Body.ActiveRigidbody != null)
@@ -161,11 +184,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             }
         }
 
-        private void OnCollisionExit(Collision other)
-        {
-        }
-
         public List<TagCollision> BodiesThatHit => _bodiesThatHit;
+        public List<IMonaBody> BodiesThatStayed => _bodiesThatStayed;
+        public List<IMonaBody> BodiesThatLeft => _bodiesThatLeft;
+
         
     }
 }

@@ -9,22 +9,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 067d639f224748c40a34f353a2a76289, type: 3}
-  m_Name: OnHit
+  m_Script: {fileID: 11500000, guid: 18693736457d9463d99c80606fd416bb, type: 3}
+  m_Name: OnWithin
   m_EditorClassIdentifier: 
   _tile:
-    rid: 6317540344539382271
-  _id: OnHit
-  _name: On Touch
+    rid: 5149698014105305295
+  _id: OnWithin
+  _name: While Within
   _category: Proximity
   references:
     version: 2
     RefIds:
-    - rid: 6317540344539382271
-      type: {class: OnHitInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
+    - rid: 5149698014105305295
+      type: {class: OnWithinInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: OnHit
-        _name: On Touch
+        _id: OnWithin
+        _name: While Within
         _category: Proximity
         _muted: 0
-        _tag: Player
+        _tag: TriggerVolume

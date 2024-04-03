@@ -327,7 +327,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (!_listenToInput) return;
             if (_movingState != MovingStateType.Moving || InstantMovement)
                 _bodyInput = _instruction.InstructionInput;
-            Debug.Log($"{nameof(UpdateInput)} {_bodyInput.MoveValue}");
+            //Debug.Log($"{nameof(UpdateInput)} {_bodyInput.MoveValue}");
         }
 
         private void TickGroundedCreature(float deltaTime)
