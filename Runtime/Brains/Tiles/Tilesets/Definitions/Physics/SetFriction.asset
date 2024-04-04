@@ -9,24 +9,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72fa4ec98af3c43329b9b443530c6875, type: 3}
-  m_Name: UseGravity
+  m_Script: {fileID: 11500000, guid: 09e38f2b03eb94b0895ee3546211ee9d, type: 3}
+  m_Name: SetFriction
   m_EditorClassIdentifier: 
   _tile:
-    rid: 5149698014105305666
-  _id: UseGravity
-  _name: Pulled By Gravity
+    rid: 5149698037773500612
+  _id: SetFriction
+  _name: Set Friction
   _category: Physics
   references:
     version: 2
     RefIds:
-    - rid: 5149698014105305666
-      type: {class: UseGravitysInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+    - rid: 5149698037773500612
+      type: {class: SetFrictionInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: UseGravity
-        _name: Pulled By Gravity
-        _category: Physics
+        _id: 
+        _name: 
+        _category: 
         _muted: 0
-        _value: 1
+        _value: 0.5
         _valueValueName: 

@@ -16,16 +16,18 @@ MonoBehaviour:
     rid: 1609535046713081857
   _id: ApplyForceVector3
   _name: Apply Force Vector3
-  _category: Physics
+  _category: Forces
   references:
     version: 2
     RefIds:
     - rid: 1609535046713081857
-      type: {class: ApplyForceVector3InstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: ApplyForceVector3InstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: ApplyForceForward
-        _name: Apply Force Forward
-        _category: Physics
+        _id: ApplyForceVector3
+        _name: Apply Force Vector3
+        _category: Forces
+        _muted: 0
         _force: 1
         _forceValueName: 
         _duration: 0
@@ -36,4 +38,5 @@ MonoBehaviour:
         _angularDrag: 0.2
         _friction: 0.5
         _bounce: 0.2
-        _direction: {x: 0, y: 0, z: 0}
+        _directionValue: {x: 0, y: 0, z: 0}
+        _directionName: []

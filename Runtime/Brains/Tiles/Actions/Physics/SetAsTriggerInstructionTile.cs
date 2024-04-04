@@ -9,13 +9,13 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
     [Serializable]
-    public class UseGravitysInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload,
+    public class SetAsTriggerInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload,
         IRigidbodyInstructionTile
     {
-        public const string ID = "UseGravity";
-        public const string NAME = "Use Gravity";
+        public const string ID = "SetAsTrigger";
+        public const string NAME = "Is Trigger Volume";
         public const string CATEGORY = "Physics";
-        public override Type TileType => typeof(UseGravitysInstructionTile);
+        public override Type TileType => typeof(SetAsTriggerInstructionTile);
 
         [SerializeField] private bool _value;
         [SerializeField] private string _valueValueName;
@@ -23,26 +23,31 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainPropertyValueName("Value", typeof(IMonaVariablesBoolValue))] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
         private IMonaBrain _brain;
+        private Collider _collider;
 
-        public UseGravitysInstructionTile() { }
+        public SetAsTriggerInstructionTile() { }
 
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
+
+            if (_collider != null)
+                return;
+
+            if(!_brain.Body.HasCollider())
+                _brain.Body.AddCollider();
         }
 
         public override InstructionTileResult Do()
         {
+            if (_brain == null)
+                return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetBool(_valueValueName);
 
-            if (_brain != null)
-            {
-                _brain.Body.SetUseGravity(_value);
-                return Complete(InstructionTileResult.Success);
-            }
-            return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+            _brain.Body.SetTriggerVolumeState(_value);
+            return Complete(InstructionTileResult.Success);
         }
-
     }
 }

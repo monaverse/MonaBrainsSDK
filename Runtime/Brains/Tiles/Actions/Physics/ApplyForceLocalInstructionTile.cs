@@ -40,22 +40,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainPropertyValueName("Duration", typeof(IMonaVariablesFloatValue))] public string DurationValueName { get => _durationValueName; set => _durationValueName = value; }
 
         [SerializeField] private float _maxSpeed = .2f;
+        [SerializeField] private string _maxSpeedName;
         [BrainProperty(false)] public float MaxSpeed { get => _maxSpeed; set => _maxSpeed = value; }
+        [BrainPropertyValueName("MaxSpeed", typeof(IMonaVariablesFloatValue))] public string MaxSpeedName { get => _maxSpeedName; set => _maxSpeedName = value; }
 
-        [SerializeField] private DragType _dragType = DragType.Quadratic;
-        [BrainPropertyEnum(false)] public DragType DragType { get => _dragType; set => _dragType = value; }
+        //[SerializeField] private DragType _dragType = DragType.Quadratic;
+        //[BrainPropertyEnum(false)] public DragType DragType { get => _dragType; set => _dragType = value; }
 
-        [SerializeField] private float _drag = .2f;
-        [BrainProperty(false)] public float Drag { get => _drag; set => _drag = value; }
+        //[SerializeField] private float _drag = .2f;
+        //[BrainProperty(false)] public float Drag { get => _drag; set => _drag = value; }
 
-        [SerializeField] private float _angularDrag = .2f;
-        [BrainProperty(false)] public float AngularDrag { get => _angularDrag; set => _angularDrag = value; }
+        //[SerializeField] private float _angularDrag = .2f;
+        //[BrainProperty(false)] public float AngularDrag { get => _angularDrag; set => _angularDrag = value; }
 
-        [SerializeField] [Range(0, 1)] private float _friction = .5f;
-        [BrainProperty(false)] public float Friction { get => _friction; set => _friction = value; }
+        //[SerializeField] [Range(0, 1)] private float _friction = .5f;
+        //[BrainProperty(false)] public float Friction { get => _friction; set => _friction = value; }
 
-        [SerializeField] [Range(0, 1)] private float _bounce = .2f;
-        [BrainProperty(false)] public float Bounce { get => _bounce; set => _bounce = value; }
+        //[SerializeField] [Range(0, 1)] private float _bounce = .2f;
+        //[BrainProperty(false)] public float Bounce { get => _bounce; set => _bounce = value; }
 
         private Vector3 _direction;
 
@@ -215,6 +217,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             if (!string.IsNullOrEmpty(_durationValueName))
                 _duration = _brain.Variables.GetFloat(_durationValueName);
 
+            if (!string.IsNullOrEmpty(_maxSpeedName))
+                _maxSpeed = _brain.Variables.GetFloat(_maxSpeedName);
+
             if (_movingState == MovingStateType.Stopped)
             {
                 _time = 0;
@@ -243,11 +248,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 var body = _brain.Body;
                 if (ApplyForceToTarget())
                     body = target;
-                body.SetDragType(_dragType);
-                body.SetDrag(_drag);
-                body.SetAngularDrag(_angularDrag);
-                body.SetFriction(_friction);
-                body.SetBounce(_bounce);
+                //body.SetDragType(_dragType);
+                //body.SetDrag(_drag);
+                //body.SetAngularDrag(_angularDrag);
+                //body.SetFriction(_friction);
+                //body.SetBounce(_bounce);
                 body.SetKinematic(false, true);
 
                 Pushed();
@@ -286,11 +291,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 IMonaBody body = _brain.Body;
                 if (ApplyForceToTarget())
                     body = GetTarget();
-                body.SetDragType(_dragType);
-                body.SetDrag(_drag);
-                body.SetAngularDrag(_angularDrag);
-                body.SetFriction(_friction);
-                body.SetBounce(_bounce);
+                //body.SetDragType(_dragType);
+                //body.SetDrag(_drag);
+                //body.SetAngularDrag(_angularDrag);
+                //body.SetFriction(_friction);
+                //body.SetBounce(_bounce);
                 body.SetKinematic(false, true);
 
                 //if (_brain.LoggingEnabled)

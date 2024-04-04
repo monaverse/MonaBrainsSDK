@@ -21,11 +21,13 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 6317540366131921112
-      type: {class: AddToNumberInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: AddToNumberInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: AddToNumber
         _name: Number Add +
         _category: Numbers
+        _muted: 0
         _numberName: 
-        _amount: 0
+        _amount: 1
         _amountValueName: 

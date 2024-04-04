@@ -35,7 +35,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private GameObject _gameObject;
         private bool _active;
 
-        private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnCollisionEnter };
+        private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnCollisionExit };
         public List<MonaTriggerType> TriggerTypes => _triggerTypes;
 
         public OnStoppedTouchingInstructionTile() { }

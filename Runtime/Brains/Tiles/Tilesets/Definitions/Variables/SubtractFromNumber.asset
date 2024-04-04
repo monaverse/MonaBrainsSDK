@@ -21,11 +21,13 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 6317540366131921120
-      type: {class: SubtractFromNumberInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: SubtractFromNumberInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: SubtractFromNumber
         _name: Number Subtract -
         _category: Numbers
+        _muted: 0
         _numberName: 
-        _amount: 0
+        _amount: 1
         _amountValueName: 

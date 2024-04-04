@@ -16,16 +16,18 @@ MonoBehaviour:
     rid: 3250164677034377626
   _id: ApplyForceBackward
   _name: "Apply Force \u2199 Backward"
-  _category: Physics
+  _category: Forces
   references:
     version: 2
     RefIds:
     - rid: 3250164677034377626
-      type: {class: ApplyForceBackwardInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: ApplyForceBackwardInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ApplyForceBackward
         _name: "Apply Force \u2199 Backward"
-        _category: Physics
+        _category: Forces
+        _muted: 0
         _force: 5
         _forceValueName: 
         _duration: 0

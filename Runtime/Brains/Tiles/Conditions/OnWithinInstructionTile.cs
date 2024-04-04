@@ -33,7 +33,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private GameObject _gameObject;
         private bool _active;
 
-        private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnTriggerEnter };
+        private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnTriggerStay };
         public List<MonaTriggerType> TriggerTypes => _triggerTypes;
 
         public OnWithinInstructionTile() { }

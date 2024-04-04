@@ -21,11 +21,13 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 6317540366131921116
-      type: {class: MultiplyNumberInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: MultiplyNumberInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: MultiplyNumber
         _name: "Number Multiply \xD7"
         _category: Numbers
+        _muted: 0
         _numberName: 
-        _amount: 0
+        _amount: 2
         _amountValueName: 

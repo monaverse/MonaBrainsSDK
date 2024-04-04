@@ -16,16 +16,18 @@ MonoBehaviour:
     rid: 3250164677034377628
   _id: ApplyForceForward
   _name: "Apply Force \u2197 Forward"
-  _category: Physics
+  _category: Forces
   references:
     version: 2
     RefIds:
     - rid: 3250164677034377628
-      type: {class: ApplyForceForwardInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: ApplyForceForwardInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ApplyForceForward
         _name: "Apply Force \u2197 Forward"
-        _category: Physics
+        _category: Forces
+        _muted: 0
         _force: 5
         _forceValueName: 
         _duration: 0
