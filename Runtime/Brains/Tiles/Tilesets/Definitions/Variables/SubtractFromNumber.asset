@@ -28,6 +28,10 @@ MonoBehaviour:
         _name: Number Subtract -
         _category: Numbers
         _muted: 0
+        _setResultTo: 0
         _numberName: 
         _amount: 1
         _amountValueName: 
+        _by: 1
+        _byValueName: 
+        _storeResultOn: 

@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 4011123547575157216
   _id: GetStringLength
   _name: Get String Length
-  _category: Strings
+  _category: Numbers
   references:
     version: 2
     RefIds:
@@ -24,9 +24,9 @@ MonoBehaviour:
       type: {class: GetStringLengthToInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: GetStringLength
+        _name: Get String Length
+        _category: Numbers
         _muted: 0
         _stringName: 
         _numberToSet: 

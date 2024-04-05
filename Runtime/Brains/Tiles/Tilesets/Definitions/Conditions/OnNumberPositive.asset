@@ -9,25 +9,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 70b0c0cd9030d4024b2a3c64d24c544a, type: 3}
-  m_Name: GetStringNumbers
+  m_Script: {fileID: 11500000, guid: 20353a522209d4f0eae79ebfc46b3455, type: 3}
+  m_Name: OnNumberPositive
   m_EditorClassIdentifier: 
   _tile:
-    rid: 4011123547575157303
-  _id: GetStringNumbers
-  _name: Get String Numbers
+    rid: 5149698037773501297
+  _id: OnNumberPositive
+  _name: Number Is Positive
   _category: Numbers
   references:
     version: 2
     RefIds:
-    - rid: 4011123547575157303
-      type: {class: GetNumberFromStringInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables,
+    - rid: 5149698037773501297
+      type: {class: OnNumberPositiveInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: GetStringNumbers
-        _name: Get String Numbers
+        _id: OnNumberPositive
+        _name: Number Is Positive
         _category: Numbers
         _muted: 0
-        _stringName: 
-        _numberToSet: 
-        _numbersToGet: 0
+        _valueName: 

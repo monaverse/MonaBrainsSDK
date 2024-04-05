@@ -28,6 +28,10 @@ MonoBehaviour:
         _name: "Number Multiply \xD7"
         _category: Numbers
         _muted: 0
+        _setResultTo: 0
         _numberName: 
         _amount: 2
         _amountValueName: 
+        _by: 2
+        _byValueName: 
+        _storeResultOn: 
