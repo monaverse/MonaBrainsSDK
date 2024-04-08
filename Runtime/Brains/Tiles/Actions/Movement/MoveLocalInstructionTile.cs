@@ -249,7 +249,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private void HandleBodyEvent(MonaBodyEvent evt)
         {
             if (evt.Type == MonaBodyEventType.OnStop)
-                LostControl();
+                ManualStop();
         }
 
         public InstructionTileResult Continue()
@@ -431,7 +431,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 Progress = Mathf.Clamp01(Progress);
 
                 float diff = Evaluate(Progress + progressDelta) - Evaluate(Progress);
-                _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
 
                 if (Progress >= 1f)
                 {
@@ -439,7 +438,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     //_brain.Body.Add(_end, !_usePhysics, true);
                     StopMoving();
                 }
-                else {
+                else
+                {
+                    _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
                     Progress += progressDelta;
                 }
             }
@@ -456,7 +457,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 Progress = Mathf.Clamp01(Progress);
 
                 float diff = Evaluate(Mathf.Clamp01(Progress + progressDelta)) - Evaluate(Progress);
-                _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
 
                 if (Progress >= 1f)
                 {
@@ -464,6 +464,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 }
                 else
                 {
+                    _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
                     Progress += progressDelta;
                 }
             }
@@ -475,6 +476,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _movingState = MovingStateType.Stopped;
             StoppedMoving();
             Complete(InstructionTileResult.LostAuthority, true);
+        }
+
+        private void ManualStop()
+        {
+            //Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(LostControl)}");
+            _movingState = MovingStateType.Stopped;
+            StoppedMoving();
+            Complete(InstructionTileResult.Success, true);
         }
 
         private void StopMoving()

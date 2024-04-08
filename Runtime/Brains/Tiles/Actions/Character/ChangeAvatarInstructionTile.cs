@@ -198,9 +198,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 }
             }
 
-            _avatarInstance.transform.localPosition = _offset;
-            _avatarInstance.transform.localRotation = Quaternion.Euler(_eulerAngles);
-
             var body = _brain.Body;
             while (body != null)
             {
@@ -208,9 +205,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 body = body.Parent;
             }
 
+            _avatarInstance.transform.localPosition = _offset;
+            _avatarInstance.transform.localRotation = Quaternion.Euler(_eulerAngles);
+
+            Debug.Log($"{_avatarInstance} {_offset} {_avatarInstance.transform.position} brain body {_brain.Body.Transform.position}");
+
             var playerId = _brain.Player.GetPlayerIdByBody(_brain.Body);
             if(playerId > -1)
                 EventBus.Trigger<MonaPlayerChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_CHANGE_AVATAR_EVENT), new MonaPlayerChangeAvatarEvent(playerId, _avatarInstance));
+
+            Debug.Log($"{_avatarInstance} {_offset} {_avatarInstance.transform.position} brain body1 {_brain.Body.Transform.position}");
+
         }
 
         public override void Unload()

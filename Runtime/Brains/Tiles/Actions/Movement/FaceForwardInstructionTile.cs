@@ -30,12 +30,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _startRotation = _brain.Body.GetRotation();
         }
 
+        private Vector3 _lastPosition;
         private Quaternion _look;
         protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress, bool immediate)
         {
             var fwd = _brain.Body.GetVelocity();
-            
-            if (fwd.magnitude < .1f)
+            var last = _lastPosition;
+            _lastPosition = _brain.Body.GetPosition();
+
+            if (fwd.magnitude < .1f || Vector3.Distance(last, _brain.Body.GetPosition()) < .01f)
                 return Quaternion.identity;
             else
             {
@@ -62,7 +65,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     _brain.Body.SetRotation(Quaternion.Inverse(rot));
                     return Quaternion.RotateTowards(rot, _look, angle);
                 }
-            }            
+            }
         }
     }
 }

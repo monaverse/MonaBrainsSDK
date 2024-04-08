@@ -9,7 +9,7 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
     [Serializable]
-    public class TeleportToRotationInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class TeleportToRotationInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload, ITickAfterInstructionTile
     {
         public const string ID = "TeleportToRotationInstructionTile";
         public const string NAME = "Teleport To Rotation";
