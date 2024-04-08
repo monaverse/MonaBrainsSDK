@@ -146,7 +146,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     var root = children[i].Transform.Find("Root");
                     if (root != null)
                     {
-                        _controller = _brain.Root.GetComponent<IMonaAnimationController>();
+                        _controller = root.GetComponent<IMonaAnimationController>();
                         if (_controller != null) break;
                     }
                 }
@@ -272,6 +272,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _startPosition = _brain.Body.GetPosition();
 
             _direction = GetDirectionVector(DirectionType);
+
+            _brain.Variables.SetInternal(MonaBrainConstants.LAST_MOVE_DIRECTION, _direction);
             
             _distance = GetDistance();
 
@@ -304,11 +306,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (_movingState == MovingStateType.Moving || _mode == MoveModeType.Instant || _mode == MoveModeType.SpeedOnly)
             {
-                switch (_brain.PropertyType)
+                if (_controller != null)
                 {
-                    case MonaBrainPropertyType.GroundedCreature: TickGroundedCreature(evt.DeltaTime); break;
-                    default: TickDefault(evt.DeltaTime); break;
+                    switch (_controller.PropertyType)
+                    {
+                        case MonaBrainPropertyType.GroundedCreature: TickGroundedCreature(evt.DeltaTime); break;
+                        default: TickDefault(evt.DeltaTime); break;
+                    }
                 }
+                else
+                    TickDefault(evt.DeltaTime);
             }
 
             if (InstantMovement)
