@@ -10,6 +10,7 @@
         OnHitTargetPosition = 8,
         OnHitPoint = 5,
         OnHitNormal = 6,
-        DirectionToTarget=7
+        DirectionToTarget=7,
+        LastMoveDirection=9,
     }
 }

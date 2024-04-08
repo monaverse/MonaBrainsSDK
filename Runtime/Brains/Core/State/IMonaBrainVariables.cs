@@ -11,8 +11,10 @@ namespace Mona.SDK.Brains.Core.State
         void SetGameObject(GameObject gameObject, IMonaBrain brain);
 
         void Set(string variableName, IMonaBrain value);
+        void SetInternal(string variableName, Vector3 value);
 
         IMonaBrain GetBrain(string variableName);
+        Vector3 GetInternalVector3(string variableName);
 
         void SetNetworkVariables(INetworkMonaVariables state);
 

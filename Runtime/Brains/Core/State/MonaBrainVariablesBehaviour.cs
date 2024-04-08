@@ -48,5 +48,7 @@ namespace Mona.SDK.Brains.Core.State
         public void Set(string variableName, IMonaBrain value) => _variables.Set(variableName, value);
         public void Set(string variableName, Vector2 value, bool isNetworked) => _variables.Set(variableName, value, isNetworked);
         public void Set(string variableName, Vector3 value, bool isNetworked) => _variables.Set(variableName, value, isNetworked);
+        public void SetInternal(string variableName, Vector3 value) => _variables.SetInternal(variableName, value);
+        public Vector3 GetInternalVector3(string variableName) => _variables.GetInternalVector3(variableName);
     }
 }

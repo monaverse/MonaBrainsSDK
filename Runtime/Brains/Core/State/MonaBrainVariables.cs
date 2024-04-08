@@ -8,6 +8,7 @@ using System;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Core.State
 {
@@ -15,6 +16,8 @@ namespace Mona.SDK.Brains.Core.State
     public class MonaBrainVariables : MonaVariables, IMonaBrainVariables
     {
         private IMonaBrain _brain;
+
+        private Dictionary<string, Vector3> _internalVariables = new Dictionary<string, Vector3>();
 
         public MonaBrainVariables(GameObject gameObject = null, IMonaBrain brain = null) : base(gameObject)
         {
@@ -36,6 +39,18 @@ namespace Mona.SDK.Brains.Core.State
                 propValue.Value = value;
                 FireValueEvent(name, prop);
             }
+        }
+
+        public void SetInternal(string name, Vector3 value)
+        {
+            _internalVariables[name] = value;
+        }
+
+        public Vector3 GetInternalVector3(string name)
+        {
+            if (_internalVariables.ContainsKey(name))
+                return _internalVariables[name];
+            return default;
         }
 
         public IMonaBrain GetBrain(string name)

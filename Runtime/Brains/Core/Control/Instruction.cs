@@ -49,6 +49,7 @@ namespace Mona.SDK.Brains.Core.Control
 
         private List<IInstructionTile> _needAuthInstructionTiles = new List<IInstructionTile>();
 
+        private bool _hasInputTile;
         private int _firstActionIndex = -1;
         private bool _unloaded;
         private bool _paused;
@@ -118,6 +119,9 @@ namespace Mona.SDK.Brains.Core.Control
                     ((IInstructionTileWithPreloadAndPage)tile).Preload(_brain, _page);
                 else if (tile is IInstructionTileWithPreloadAndPageAndInstruction)
                     ((IInstructionTileWithPreloadAndPageAndInstruction)tile).Preload(_brain, _page, this);
+
+                if (tile is IInputInstructionTile)
+                    _hasInputTile = true;
 
                 if (tile is IActionInstructionTile)
                 {
@@ -343,6 +347,20 @@ namespace Mona.SDK.Brains.Core.Control
                 //if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
                 EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
             }
+
+            ClearInputs();
+        }
+
+        private void ClearInputs()
+        {
+            if (_hasInputTile)
+            {
+                for (var i = 0; i < _instructionTiles.Count; i++)
+                {
+                    if (_instructionTiles[i] is IInputInstructionTile)
+                        ((IInputInstructionTile)_instructionTiles[i]).ClearInput();
+                }
+            }
         }
 
         private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, IInstructionEvent evt = null)
@@ -380,7 +398,7 @@ namespace Mona.SDK.Brains.Core.Control
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Input:
-                        if (tile is IInputInstructionTile)
+                        if (_hasInputTile)
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Trigger:

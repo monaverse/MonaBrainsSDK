@@ -16,6 +16,8 @@
         public const string RESULT_STATE = "__State";
         public const string RESULT_DIRECTION_TO_TARGET = "__DirectionToTarget";
 
+        public const string LAST_MOVE_DIRECTION = "__LastMoveDirection";
+
         public const string ON_STARTING = "__OnStarting";
 
         public const string TRIGGER = "__TriggerAnimation";
