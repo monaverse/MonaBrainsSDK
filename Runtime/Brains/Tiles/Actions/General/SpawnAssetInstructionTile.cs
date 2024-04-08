@@ -30,6 +30,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaBodyAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
 
+        [SerializeField] private string _monaAssetName = null;
+        [BrainPropertyValueName(nameof(MonaAsset), typeof(IMonaVariablesStringValue))] public string MonaAssetName { get => _monaAssetName; set => _monaAssetName = value; }
+
         protected override List<IMonaBodyAssetItem> GetPreloadAssets()
         {
             return new List<IMonaBodyAssetItem>() { (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset) };
@@ -37,6 +40,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         protected override IMonaBodyAssetItem GetAsset()
         {
+            if (!string.IsNullOrEmpty(_monaAssetName))
+                _monaAsset = _brain.Variables.GetString(_monaAssetName);
+
             return (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset);
         }
     }

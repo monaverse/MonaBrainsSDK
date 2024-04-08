@@ -30,6 +30,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaBodyAssetItem), useProviders:true)] public string MonaAssetProvider { get => _monaAsset; set => _monaAsset = value; }
 
+        [SerializeField] private string _monaAssetProviderName = null;
+        [BrainPropertyValueName(nameof(MonaAssetProvider), typeof(IMonaVariablesStringValue))] public string MonaAssetProviderName { get => _monaAssetProviderName; set => _monaAssetProviderName = value; }
+
         [SerializeField] private bool _shuffled;
         [BrainProperty(true)] public bool Shuffled { get => _shuffled; set => _shuffled = value; }
 
@@ -40,6 +43,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         protected override IMonaBodyAssetItem GetAsset()
         {
+            if (!string.IsNullOrEmpty(_monaAssetProviderName))
+                _monaAsset = _brain.Variables.GetString(_monaAssetProviderName);
+
             //Debug.Log($"{nameof(GetAsset)} spawn next asset instruction tile");
             var provider = _brain.GetMonaAssetProvider(_monaAsset);
             return (IMonaBodyAssetItem)provider.TakeTopCardOffDeck(_shuffled);

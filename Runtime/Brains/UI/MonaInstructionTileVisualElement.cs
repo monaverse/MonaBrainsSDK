@@ -412,6 +412,8 @@ namespace Mona.SDK.Brains.UIElements
                     });
                     fieldContainer.Add(field);
                     fieldDictionary.Add(property.Name, field);
+
+                    buttonDictionary.Add(property.Name, AddTargetFieldIfExists(fieldContainer, field, properties, property, targetFieldDictionary, targetFieldVisible));
                 }
                 else if (isValue != null)
                 {
