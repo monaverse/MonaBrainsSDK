@@ -95,7 +95,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                         return _by;
                     case ValueChangeType.Exponent:
                         return _by;
+                    case ValueChangeType.Logarithm:
+                        return _by;
                     case ValueChangeType.Modulo:
+                        return _by;
+                    case ValueChangeType.Arctangent2:
                         return _by;
                 }
 
