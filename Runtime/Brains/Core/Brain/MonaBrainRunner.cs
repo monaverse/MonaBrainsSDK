@@ -292,7 +292,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
             if (gameObject.activeInHierarchy)
             {
-                if (evt is MonaTriggerEvent)
+                if (evt is MonaTriggerEvent || evt is MonaBroadcastMessageEvent)
                 {
                     _waitQueue.Add(new WaitFrameQueueItem(index, callback, evt, type, Time.frameCount));
                     _waitFrameRequested = true;
