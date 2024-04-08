@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 5149698148799873040
   _id: ModifyVector3
   _name: Modify Vector3
-  _category: Vectors
+  _category: Vector3
   references:
     version: 2
     RefIds:
@@ -24,11 +24,12 @@ MonoBehaviour:
       type: {class: Vector3ModifyInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: ModifyVector3
+        _name: Modify Vector3
+        _category: Vector3
         _muted: 0
         _setResultTo: 0
+        _operation: 0
         _vector3Name: 
         _amount: {x: 0, y: 0, z: 0}
         _amountValueName: []
