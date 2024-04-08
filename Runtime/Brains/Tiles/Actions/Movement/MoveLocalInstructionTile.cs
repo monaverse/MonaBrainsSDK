@@ -553,7 +553,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             }
         }
 
-        private Vector3 GetDirectionVector(MoveDirectionType moveType)
+        protected virtual Vector3 GetDirectionVector(MoveDirectionType moveType)
         {
             switch (moveType)
             {

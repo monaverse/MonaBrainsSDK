@@ -30,7 +30,8 @@
         CameraTrueLeft = 31,
         CameraTrueUp = 32,
         CameraTrueDown = 33,
-        GlobalCoordinates = 40
+        GlobalCoordinates = 40,
+        Custom=50,
     }
 
     public enum MoveCameraDirectionType

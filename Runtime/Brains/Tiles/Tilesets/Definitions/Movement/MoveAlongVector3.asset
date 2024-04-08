@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce3d0da7f055e43619419b45a38e1e49, type: 3}
+  m_Name: MoveAlongVector3
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 5012747377071882404
+  _id: Move Along Vector3
+  _name: Move Along Vector3
+  _category: Global Movement
+  references:
+    version: 2
+    RefIds:
+    - rid: 5012747377071882404
+      type: {class: MoveAlongVector3InstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: Move Along Vector3
+        _name: Move Along Vector3
+        _category: Global Movement
+        _muted: 0
+        _distance: 1
+        _distanceValueName: 
+        _coordinatesName: []
+        _moveToCoordinates: {x: 0, y: 0, z: 0}
+        _movementPlane: 0
+        _mode: 1
+        _value: 1
+        _valueValueName: 
+        _easing: 1
+        _directionValue: {x: 0, y: 0, z: 0}
+        _directionName: []
