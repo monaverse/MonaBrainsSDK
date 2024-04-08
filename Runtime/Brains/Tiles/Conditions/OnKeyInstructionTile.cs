@@ -53,7 +53,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
         }
 
-        protected override void ClearInput()
+        public override void ClearInput()
         {
             _bodyInput = default;
         }

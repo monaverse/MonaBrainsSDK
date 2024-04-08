@@ -203,7 +203,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             SetLocalInput(input);
         }
 
-        protected override void ClearInput()
+        public override void ClearInput()
         {
             _bodyInput = default;
         }

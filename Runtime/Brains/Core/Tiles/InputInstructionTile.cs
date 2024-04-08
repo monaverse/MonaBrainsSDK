@@ -107,7 +107,7 @@ namespace Mona.SDK.Brains.Core.Tiles
                 Debug.Log($"{nameof(InputInstructionTile)}.{nameof(UpdateActive)} {_active}");
         }
 
-        protected virtual void ClearInput()
+        public virtual void ClearInput()
         {
             
         }

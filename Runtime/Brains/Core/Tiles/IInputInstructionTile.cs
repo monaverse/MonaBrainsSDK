@@ -15,6 +15,7 @@ namespace Mona.SDK.Brains.Core.Tiles
     public interface IInputInstructionTile : IPlayerTriggeredConditional
     {
         void ReprocessInput(MonaInput input);
+        void ClearInput();
         MonaInput GetInput();
         IMonaBrain Brain { get; }
     }
