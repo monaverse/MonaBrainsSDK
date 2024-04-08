@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9192c646dd23f48dd936517990cf1550, type: 3}
+  m_Name: NumberSetMinMax
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 5149698037773500854
+  _id: SetMinMax
+  _name: Set Min / Max
+  _category: Numbers
+  references:
+    version: 2
+    RefIds:
+    - rid: 5149698037773500854
+      type: {class: NumberSetMinMaxInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables,
+        asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: SetMinMax
+        _name: Set Min / Max
+        _category: Numbers
+        _muted: 0
+        _valuesToSet: 0
+        _changeType: 0
+        _minMaxType: 10
+        _numberName: 
+        _minValue: 0
+        _minValueName: 
+        _maxValue: 10
+        _maxValueName: 

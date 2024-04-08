@@ -12,22 +12,84 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
     [Serializable]
-    public class SetNumberToInstructionTile : InstructionTile, ISetNumberToInstructionTile, IActionInstructionTile
+    public class SetNumberToInstructionTile : InstructionTile, ISetNumberToInstructionTile, IActionInstructionTile,
+        IStoreVariableInstructionTile
+
     {
         public const string ID = "SetNumberTo";
         public const string NAME = "SetNumberTo";
         public const string CATEGORY = "Variables";
         public override Type TileType => typeof(SetNumberToInstructionTile);
 
+        [SerializeField] private VariableTargetToStoreResult _setResultTo = VariableTargetToStoreResult.SameVariable;
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Add)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Subtract)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Multiply)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Divide)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Exponent)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SquareRoot)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Modulo)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.RoundUp)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.RoundDown)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.RoundClosest)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SetPositive)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SetNegative)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SetToMax)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SetToMin)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SetToDefault)]
+        [BrainPropertyEnum(false)] public VariableTargetToStoreResult SetResultTo
+        {
+            get => GetOperator() == ValueChangeType.Set ? VariableTargetToStoreResult.SameVariable : _setResultTo;
+            set => _setResultTo = value;
+        }
+
         [SerializeField] private string _numberName;
         [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string NumberName { get => _numberName; set => _numberName = value; }
 
-        [SerializeField] private float _amount;
+        [SerializeField] private float _amount = 1;
         [SerializeField] private string _amountValueName;
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Set)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Add)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Subtract)]
         [BrainProperty(true)] public float Amount { get => _amount; set => _amount = value; }
         [BrainPropertyValueName("Amount", typeof(IMonaVariablesFloatValue))] public string AmountValueName { get => _amountValueName; set => _amountValueName = value; }
 
+        [SerializeField] private float _by = 2;
+        [SerializeField] private string _byValueName;
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Multiply)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Divide)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Exponent)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Modulo)]
+        [BrainProperty(true)] public float By { get => _by; set => _by = value; }
+        [BrainPropertyValueName("By", typeof(IMonaVariablesFloatValue))] public string ByValueName { get => _byValueName; set => _byValueName = value; }
+
+        [SerializeField] private string _storeResultOn;
+        [BrainPropertyShow(nameof(SetResultTo), (int)VariableTargetToStoreResult.OtherVariable)]
+        [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string StoreResultOn { get => _storeResultOn; set => _storeResultOn = value; }
+
         private IMonaBrain _brain;
+
+        public ValueChangeType OperatorToUse => GetOperator();
+
+        private float AmountToUse
+        {
+            get
+            {
+                switch (GetOperator())
+                {
+                    case ValueChangeType.Multiply:
+                        return _by;
+                    case ValueChangeType.Divide:
+                        return _by;
+                    case ValueChangeType.Exponent:
+                        return _by;
+                    case ValueChangeType.Modulo:
+                        return _by;
+                }
+
+                return _amount;
+            }
+        }
 
         public SetNumberToInstructionTile() { }
 
@@ -46,16 +108,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             if (!string.IsNullOrEmpty(_amountValueName))
                 _amount = _brain.Variables.GetFloat(_amountValueName);
 
-            if (_brain != null)
+            if (!string.IsNullOrEmpty(_byValueName))
+                _by = _brain.Variables.GetFloat(_byValueName);
+
+            if (_brain == null || string.IsNullOrEmpty(_numberName) || (SetResultTo == VariableTargetToStoreResult.OtherVariable && string.IsNullOrEmpty(_storeResultOn)))
+                return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            if (Evaluate(_brain.Variables))
             {
-                //Debug.Log($"{nameof(SetNumberToInstructionTile)} {_amount} = {_brain.Variables.GetFloat(_numberName)}", _brain.Body.Transform.gameObject);
-                if (Evaluate(_brain.Variables))
-                {
-                    //if(_brain.LoggingEnabled)
-                    //    Debug.Log($"{nameof(SetNumberToInstructionTile)} {_operator} {_amount} = {_brain.Variables.GetFloat(_valueName)}");
-                    return Complete(InstructionTileResult.Success);
-                }
+                //if(_brain.LoggingEnabled)
+                //    Debug.Log($"{nameof(SetNumberToInstructionTile)} {_operator} {_amount} = {_brain.Variables.GetFloat(_valueName)}");
+                return Complete(InstructionTileResult.Success);
             }
+
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
@@ -64,16 +129,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             var variable = state.GetVariable(_numberName);
             if (variable == null)
             {
-                state.Set(_numberName, _amount);
+                state.Set(_numberName, AmountToUse);
                 return true;
             }
 
+            string nameOfVariableToSet = SetResultTo == VariableTargetToStoreResult.SameVariable ?
+                _numberName : _storeResultOn;
+
             if (variable is IMonaVariablesFloatValue)
-                ChangeFloatValue(state, _numberName, ((IMonaVariablesFloatValue)variable).Value, GetOperator(), _amount);
+                ChangeFloatValue(state, nameOfVariableToSet, ((IMonaVariablesFloatValue)variable).Value, GetOperator(), AmountToUse);
             else if(variable is IMonaVariablesVector2Value)
-                ChangeVector2Value(state, _numberName, ((IMonaVariablesVector2Value)variable).Value, GetOperator(), _amount);
+                ChangeVector2Value(state, nameOfVariableToSet, ((IMonaVariablesVector2Value)variable).Value, GetOperator(), AmountToUse);
             else if (variable is IMonaVariablesVector3Value)
-                ChangeVector3Value(state, _numberName, ((IMonaVariablesVector3Value)variable).Value, GetOperator(), _amount);
+                ChangeVector3Value(state, nameOfVariableToSet, ((IMonaVariablesVector3Value)variable).Value, GetOperator(), AmountToUse);
             return true;
         }
 
@@ -87,12 +155,49 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 case ValueChangeType.Subtract: 
                     state.Set(name, value - amount); 
                     break;
-                case ValueChangeType.Divide: 
+                case ValueChangeType.Divide:
                     if (amount != 0) 
                         state.Set(name, value / amount); 
                     break;
                 case ValueChangeType.Multiply: 
                     state.Set(name, value * amount); 
+                    break;
+                case ValueChangeType.Exponent:
+                    state.Set(name, Mathf.Pow(value, amount));
+                    break;
+                case ValueChangeType.SquareRoot:
+                    if (value >= 0)
+                        state.Set(name, Mathf.Sqrt(value));
+                    break;
+                case ValueChangeType.Modulo:
+                    state.Set(name, value % amount);
+                    break;
+                case ValueChangeType.RoundUp:
+                    state.Set(name, Mathf.Ceil(value));
+                    break;
+                case ValueChangeType.RoundDown:
+                    state.Set(name, Mathf.Floor(value));
+                    break;
+                case ValueChangeType.RoundClosest:
+                    state.Set(name, Mathf.Round(value));
+                    break;
+                case ValueChangeType.SetPositive:
+                    state.Set(name, value < 0 ? value * -1f : value);
+                    break;
+                case ValueChangeType.SetNegative:
+                    state.Set(name, value > 0 ? value * -1f : value);
+                    break;
+                case ValueChangeType.SetToMax:
+                    float max = ((IMonaVariablesFloatValue)state.GetVariable(_numberName)).Max;
+                    state.Set(name, max);
+                    break;
+                case ValueChangeType.SetToMin:
+                    float min = ((IMonaVariablesFloatValue)state.GetVariable(_numberName)).Min;
+                    state.Set(name, min);
+                    break;
+                case ValueChangeType.SetToDefault:
+                    float defaultValue = ((IMonaVariablesFloatValue)state.GetVariable(_numberName)).DefaultValue;
+                    state.Set(name, defaultValue);
                     break;
                 default: 
                     state.Set(name, amount); 

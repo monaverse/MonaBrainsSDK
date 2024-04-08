@@ -15,17 +15,19 @@ MonoBehaviour:
   _tile:
     rid: 6317540366131921126
   _id: ChangeBoolValue
-  _name: Change Bool Value
+  _name: Set Bool Value
   _category: Booleans
   references:
     version: 2
     RefIds:
     - rid: 6317540366131921126
-      type: {class: ChangeBoolValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: ChangeBoolValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ChangeBoolValue
-        _name: Change Bool Value
+        _name: Set Bool Value
         _category: Booleans
+        _muted: 0
         _valueName: 
         _value: 0
         _valueValueName: 

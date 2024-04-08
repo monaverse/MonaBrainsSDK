@@ -15,17 +15,19 @@ MonoBehaviour:
   _tile:
     rid: 4011123480075174677
   _id: CopyVectorThreeValue
-  _name: Copy Vector3 Value
+  _name: Get Vector3 Axis
   _category: Numbers
   references:
     version: 2
     RefIds:
     - rid: 4011123480075174677
-      type: {class: CopyVectorThreeValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: CopyVectorThreeValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: CopyVectorThreeValue
+        _name: Get Vector3 Axis
+        _category: Numbers
+        _muted: 0
         _vector: 
         _axis: 1
         _targetNumber: 

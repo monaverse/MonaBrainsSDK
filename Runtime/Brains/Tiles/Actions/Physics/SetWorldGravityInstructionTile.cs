@@ -51,7 +51,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public override InstructionTileResult Do()
         {
             if (_brain == null)
-                return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE); ;
+                return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
             if (!string.IsNullOrEmpty(_strengthName))
                 _strength = _brain.Variables.GetFloat(_strengthName);
