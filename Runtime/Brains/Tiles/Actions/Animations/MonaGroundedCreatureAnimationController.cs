@@ -1,4 +1,5 @@
 using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Assets;
 using Mona.SDK.Core.Assets.Interfaces;
@@ -42,6 +43,8 @@ namespace Mona.SDK.Brains.Core.Animation
         public void Awake()
         {
         }
+
+        public MonaBrainPropertyType PropertyType => _brain.PropertyType;
 
         public void SetBrain(IMonaBrain brain, Animator animator = null)
         {

@@ -480,7 +480,12 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                     break;
             }
 
-            EventBus.Trigger(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _body), new MonaBodyAnimationControllerChangedEvent());
+            var parent = _body;
+            while(parent != null)
+            {
+                EventBus.Trigger(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, parent), new MonaBodyAnimationControllerChangedEvent());
+                parent = parent.Parent;
+            }
 
         }
 
