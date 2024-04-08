@@ -27,16 +27,26 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Multiply)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Divide)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Exponent)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Logarithm)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SquareRoot)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Modulo)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Sine)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Cosine)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Tangent)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Arcsine)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Arccosine)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Arctangent)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Arctangent2)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.RoundClosest)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.RoundUp)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.RoundDown)]
-        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.RoundClosest)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SetPositive)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SetNegative)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SetToSign)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SetToMax)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SetToMin)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.SetToDefault)]
+        
         [BrainPropertyEnum(false)] public VariableTargetToStoreResult SetResultTo
         {
             get => GetOperator() == ValueChangeType.Set ? VariableTargetToStoreResult.SameVariable : _setResultTo;
@@ -59,7 +69,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Multiply)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Divide)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Exponent)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Logarithm)]
         [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Modulo)]
+        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Arctangent2)]
         [BrainProperty(true)] public float By { get => _by; set => _by = value; }
         [BrainPropertyValueName("By", typeof(IMonaVariablesFloatValue))] public string ByValueName { get => _byValueName; set => _byValueName = value; }
 
@@ -83,7 +95,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                         return _by;
                     case ValueChangeType.Exponent:
                         return _by;
+                    case ValueChangeType.Logarithm:
+                        return _by;
                     case ValueChangeType.Modulo:
+                        return _by;
+                    case ValueChangeType.Arctangent2:
                         return _by;
                 }
 
@@ -149,10 +165,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         {
             switch (op)
             {
-                case ValueChangeType.Add: 
-                    state.Set(name, value + amount); 
+                case ValueChangeType.Add:
+                    state.Set(name, value + amount);
                     break;
-                case ValueChangeType.Subtract: 
+                case ValueChangeType.Subtract:
                     state.Set(name, value - amount); 
                     break;
                 case ValueChangeType.Divide:
@@ -165,12 +181,36 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 case ValueChangeType.Exponent:
                     state.Set(name, Mathf.Pow(value, amount));
                     break;
+                case ValueChangeType.Logarithm:
+                    state.Set(name, Mathf.Log(value, amount));
+                    break;
                 case ValueChangeType.SquareRoot:
                     if (value >= 0)
                         state.Set(name, Mathf.Sqrt(value));
                     break;
                 case ValueChangeType.Modulo:
                     state.Set(name, value % amount);
+                    break;
+                case ValueChangeType.Sine:
+                    state.Set(name, Mathf.Sin(value));
+                    break;
+                case ValueChangeType.Cosine:
+                    state.Set(name, Mathf.Cos(value));
+                    break;
+                case ValueChangeType.Tangent:
+                    state.Set(name, Mathf.Tan(value));
+                    break;
+                case ValueChangeType.Arcsine:
+                    state.Set(name, Mathf.Asin(value));
+                    break;
+                case ValueChangeType.Arccosine:
+                    state.Set(name, Mathf.Acos(value));
+                    break;
+                case ValueChangeType.Arctangent:
+                    state.Set(name, Mathf.Atan(value));
+                    break;
+                case ValueChangeType.Arctangent2:
+                    state.Set(name, Mathf.Atan2(value, amount));
                     break;
                 case ValueChangeType.RoundUp:
                     state.Set(name, Mathf.Ceil(value));
@@ -186,6 +226,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     break;
                 case ValueChangeType.SetNegative:
                     state.Set(name, value > 0 ? value * -1f : value);
+                    break;
+                case ValueChangeType.SetToSign:
+                    state.Set(name, Mathf.Sign(value));
                     break;
                 case ValueChangeType.SetToMax:
                     float max = ((IMonaVariablesFloatValue)state.GetVariable(_numberName)).Max;
@@ -245,7 +288,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                         state.Set(name, value / amount); 
                     break;
                 case ValueChangeType.Multiply:
-                    state.Set(name, value * amount); break;
+                    state.Set(name, value * amount);
                     break;
                 default: 
                     state.Set(name, vectorAmount); 
