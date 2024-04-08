@@ -53,6 +53,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8000dafb909674a1a9252817d55195e1, type: 2}
   - {fileID: 11400000, guid: 8449858bf597d46518cf72625efaeb39, type: 2}
   - {fileID: 11400000, guid: 51103135148d74c73b08dbb35e083a77, type: 2}
+  - {fileID: 11400000, guid: 96c3edf8b93ac4861a2145a506983ae6, type: 2}
   - {fileID: 11400000, guid: a92c06fd7e92f496186512277a832d0d, type: 2}
   _actionTiles:
   - {fileID: 11400000, guid: 514b0a9dc1f567f40b3727e4bf539b42, type: 2}

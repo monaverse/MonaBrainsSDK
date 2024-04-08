@@ -9,28 +9,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0970b22ae73e43d9b33d6c469d33239, type: 3}
-  m_Name: Vector3Modify
+  m_Script: {fileID: 11500000, guid: 28e3557e314614e5189652b161e99325, type: 3}
+  m_Name: OnVector3Equals
   m_EditorClassIdentifier: 
   _tile:
-    rid: 5149698148799873040
-  _id: ModifyVector3
-  _name: Modify Vector3
+    rid: 5149698148799873121
+  _id: OnVector3Equals
+  _name: Vector3 = Equals
   _category: Vectors
   references:
     version: 2
     RefIds:
-    - rid: 5149698148799873040
-      type: {class: Vector3ModifyInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables,
+    - rid: 5149698148799873121
+      type: {class: OnVector3EqualsInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: ModifyVector3
-        _name: Modify Vector3
-        _category: Vectors
+        _id: 
+        _name: 
+        _category: 
         _muted: 0
-        _setResultTo: 0
-        _operation: 0
-        _vector3Name: 
+        _valueName: 
         _amount: {x: 0, y: 0, z: 0}
         _amountValueName: []
-        _storeResultOn: 
