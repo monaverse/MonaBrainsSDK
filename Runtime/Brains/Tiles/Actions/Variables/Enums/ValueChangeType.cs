@@ -29,4 +29,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables.Enums
         SetToMin = 100,
         SetToDefault = 110
     }
+
+    [System.Serializable]
+    public enum VectorChangeType
+    {
+        Set = 0,
+        Add = 1,
+        Subtract = 2,
+        Multiply = 3,
+        Divide = 4,
+        Normalize = 10,
+        Reflect = 20,
+        Invert = 30
+    }
 }
