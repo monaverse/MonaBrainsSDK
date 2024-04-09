@@ -155,6 +155,21 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private Action<MonaBrainReloadEvent> OnHotReload;
 
+        private List<string> _tags = new List<string>();
+        public List<string> MonaTags
+        {
+            get
+            {
+                _tags.Clear();
+                for (var i = 0; i < _brainGraphs.Count; i++)
+                {
+                    if(_brainGraphs[i] != null)
+                        _tags.AddRange(_brainGraphs[i].MonaTags);
+                }
+                return _tags;
+            }
+        }
+
         public bool HasMonaTag(string tag) {
             for(var i = 0;i < _brainInstances.Count;i++)
             {
