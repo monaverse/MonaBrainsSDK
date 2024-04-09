@@ -106,7 +106,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        public void ExecuteInstructions(InstructionEventTypes eventType, IInstructionEvent evt = null)
+        public void ExecuteInstructions(InstructionEventTypes eventType, InstructionEvent evt = default)
         {
             for (var i = 0; i < Instructions.Count;i++)
             {

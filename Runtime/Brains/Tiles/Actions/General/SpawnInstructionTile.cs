@@ -133,7 +133,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         protected void Spawn(string prefabId, MonaBody monaBody)
         {
-            var body = (IMonaBody)GameObject.Instantiate(monaBody);
+            var body = (IMonaBody)GameObject.Instantiate(monaBody, Vector3.up*10000f, Quaternion.identity);
 
             var bodies = body.Transform.GetComponentsInChildren<IMonaBody>();
             for (var j = 0; j < bodies.Length; j++)

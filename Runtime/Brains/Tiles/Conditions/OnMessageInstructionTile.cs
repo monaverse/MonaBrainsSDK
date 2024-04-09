@@ -24,7 +24,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public string Message { get => _message; set => _message = value; }
 
         private IMonaBrain _brain;
-        private MonaBroadcastMessageEvent _lastSuccessfulMessage;
+        private InstructionEvent _lastSuccessfulMessage;
         private bool _active;
 
         public bool PlayerTriggered
@@ -71,7 +71,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             _brain.Variables.Set(MonaBrainConstants.RESULT_SENDER, msg.Sender);
         }
 
-        public MonaBroadcastMessageEvent GetLastSuccessfulMessage()
+        public InstructionEvent GetLastSuccessfulMessage()
         {
             return _lastSuccessfulMessage;
         }

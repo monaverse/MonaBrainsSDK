@@ -60,7 +60,7 @@ namespace Mona.SDK.Brains.Core.Control
         public bool Muted { get => _muted; set => _muted = value; }
 
         private bool _hasMessageEventWaitingForAuthorization;
-        private List<MonaBroadcastMessageEvent> _messageEventsWaitingForAuthorization = new List<MonaBroadcastMessageEvent>();
+        private List<InstructionEvent> _messageEventsWaitingForAuthorization = new List<InstructionEvent>();
 
         public IInstructionTile CurrentTile {
             get
@@ -209,11 +209,11 @@ namespace Mona.SDK.Brains.Core.Control
             return false;
         }
 
-        private bool HasValidTriggerType(MonaTriggerEvent evt)
+        private bool HasValidTriggerType(InstructionEvent evt)
         {
             for(var i = 0;i < InstructionTiles.Count; i++)
             {
-                if (InstructionTiles[i] is ITriggerInstructionTile && ((ITriggerInstructionTile)InstructionTiles[i]).TriggerTypes.Contains(evt.Type))
+                if (InstructionTiles[i] is ITriggerInstructionTile && ((ITriggerInstructionTile)InstructionTiles[i]).TriggerTypes.Contains(evt.TriggerType))
                     return true;
             }
             return false;
@@ -285,7 +285,7 @@ namespace Mona.SDK.Brains.Core.Control
             if(_waitForAuthBodies.Count == 0)
             {
                 //Debug.Log($"{nameof(Instruction)}.{nameof(HandleStateAuthorityChanged)} i now have necessary authority, send a tick");
-                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain.Body), new MonaBrainTickEvent(InstructionEventTypes.Authority));
+                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain.Body), new InstructionEvent(InstructionEventTypes.Authority));
             }
             else
             {
@@ -306,7 +306,7 @@ namespace Mona.SDK.Brains.Core.Control
             tile.SetThenCallback(callback);
         }
 
-        public void Execute(InstructionEventTypes eventType, IInstructionEvent evt = null)
+        public void Execute(InstructionEventTypes eventType, InstructionEvent evt = default)
         {
             //Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction received event {eventType}", _brain.Body.ActiveTransform.gameObject);
             if (_unloaded) return;
@@ -345,7 +345,7 @@ namespace Mona.SDK.Brains.Core.Control
             else if (result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
             {
                 //if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
-                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
+                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new InstructionEvent(InstructionEventTypes.Tick, this));
             }
 
             ClearInputs();
@@ -363,7 +363,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, IInstructionEvent evt = null)
+        private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, InstructionEvent evt = default)
         {
             if (_unloaded) return InstructionTileResult.Failure;
             if (_paused) return InstructionTileResult.Failure;
@@ -402,11 +402,11 @@ namespace Mona.SDK.Brains.Core.Control
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Trigger:
-                        if (HasValidTriggerType((MonaTriggerEvent)evt))
+                        if (HasValidTriggerType(evt))
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Tick:
-                        if (_brain.Body.HasControl() && (tile is IActionInstructionTile || tile is ITickAfterInstructionTile) && (evt == null || ((MonaBrainTickEvent)evt).Instruction == this))
+                        if (_brain.Body.HasControl() && (tile is IActionInstructionTile || tile is ITickAfterInstructionTile) && (evt.Instruction == this))
                         {
                             //_result = InstructionTileResult.Running;
                             //Debug.Log($"execute tick");
@@ -483,7 +483,7 @@ namespace Mona.SDK.Brains.Core.Control
                 for (var i = 0; i < _messageEventsWaitingForAuthorization.Count; i++)
                 {
                     Debug.Log($"{nameof(Instruction)} rebroadcast message {_messageEventsWaitingForAuthorization[i].Message}", _brain.Body.Transform.gameObject);
-                    EventBus.Trigger<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _brain), _messageEventsWaitingForAuthorization[i]);
+                    EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _brain), _messageEventsWaitingForAuthorization[i]);
                 }
             }
         }
@@ -619,7 +619,7 @@ namespace Mona.SDK.Brains.Core.Control
                 if (!HasConditional() || HasTickAfter())
                 {
                     //if(HasTickAfter()) Debug.Log($"TICK IT success {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
-                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
+                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new InstructionEvent(InstructionEventTypes.Tick, this));
                 }
             }
             else
@@ -634,7 +634,7 @@ namespace Mona.SDK.Brains.Core.Control
                 else if (_result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
                 {
                     //if (HasTickAfter() && _brain.LoggingEnabled) Debug.Log($"TICK IT failure {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
-                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick, this));
+                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new InstructionEvent(InstructionEventTypes.Tick, this));
                 }
             }
         }

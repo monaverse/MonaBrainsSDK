@@ -178,8 +178,8 @@ namespace Mona.SDK.Brains.Core.Brain
                         {
                             var listener = _activeKeyListeners[i];
                             //Debug.Log($"Key {listener.Key} {listener.State}");
-                            if (listener.State != MonaInputState.None)
-                                Debug.Log($"Key {listener.Key} {listener.State}");
+                           // if (listener.State != MonaInputState.None)
+                             //   Debug.Log($"Key {listener.Key} {listener.State}");
                         }
                     }
                     else

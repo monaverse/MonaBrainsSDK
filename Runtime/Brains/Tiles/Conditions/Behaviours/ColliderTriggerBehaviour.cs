@@ -33,6 +33,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private bool _localPlayerOnly;
 
+        public string MonaTag => _monaTag;
+        public IMonaBrain Brain => _brain;
+
         public List<IMonaBody> BodiesWithin => _bodiesWithin;
 
         private void Awake()
@@ -184,15 +187,15 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
                 if (!_bodiesIndex.ContainsKey(body))
                 {
-                    if(_brain.LoggingEnabled)
-                        Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+                    //if(_brain.LoggingEnabled)
+                    //    Debug.Log($"{nameof(ColliderTriggerBehaviour)}.{nameof(AddBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _bodiesIndex.Add(body, true);
                     _bodies.Add(body);
                     if(!_bodiesThatEntered.Contains(body))
                         _bodiesThatEntered.Add(body);
                     if (!_bodiesWithin.Contains(body))
                         _bodiesWithin.Add(body);
-                    EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerEnter));
+                    EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnTriggerEnter));
                     return true;
                 }
             }
@@ -212,15 +215,15 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
                 if (_bodiesIndex.ContainsKey(body))// && !_brain.Body.WithinRadius(body, _radius, includeTriggers: true))
                 {
-                    if (_brain.LoggingEnabled)
-                        Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
+                    //if (_brain.LoggingEnabled)
+                    //    Debug.Log($"{nameof(ColliderTriggerBehaviour)}.{nameof(RemoveBody)} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _bodiesIndex.Remove(body);
                     _bodies.Remove(body);
                     if(!_bodiesThatLeft.Contains(body))
                         _bodiesThatLeft.Add(body);
                     if (_bodiesWithin.Contains(body))
                         _bodiesWithin.Remove(body);
-                    EventBus.Trigger<MonaTriggerEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new MonaTriggerEvent(MonaTriggerType.OnTriggerExit));
+                    EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnTriggerExit));
                     return true;
                 }
             }

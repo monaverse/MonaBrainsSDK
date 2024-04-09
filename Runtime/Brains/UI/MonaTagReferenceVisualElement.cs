@@ -11,7 +11,7 @@ namespace Mona.SDK.Brains.UIElements
 
         public MonaTagReferenceVisualElement(IMonaBrain graph)
         {
-            if (graph == null) return;
+            if (graph == null || graph.MonaTagSource == null) return;
             _monaTagField = new DropdownField(graph.MonaTagSource.Tags, 0);
             _monaTagField.RegisterValueChangedCallback((evt) =>
             {

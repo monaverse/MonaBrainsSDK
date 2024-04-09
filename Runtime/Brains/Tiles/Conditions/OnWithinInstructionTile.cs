@@ -33,7 +33,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private GameObject _gameObject;
         private bool _active;
 
-        private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnTriggerStay };
+        private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnTriggerEnter, MonaTriggerType.OnTriggerStay };
         public List<MonaTriggerType> TriggerTypes => _triggerTypes;
 
         public OnWithinInstructionTile() { }
@@ -43,11 +43,26 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             _brain = brainInstance;
             if (_collider == null)
             {
-                _collider = _brain.GameObject.AddComponent<ColliderTriggerBehaviour>();
-                _collider.SetBrain(_brain);
-                _collider.SetPage(page);
-                _collider.SetMonaTag(_tag);
-                _collider.SetLocalPlayerOnly(PlayerTriggered);
+                var colliders = _brain.GameObject.GetComponents<ColliderTriggerBehaviour>();
+                var found = false;
+                for (var i = 0; i < colliders.Length; i++)
+                {
+                    if (colliders[i].MonaTag == _tag && colliders[i].Brain == _brain)
+                    {
+                        _collider = colliders[i];
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    _collider = _brain.GameObject.AddComponent<ColliderTriggerBehaviour>();
+                    _collider.SetBrain(_brain);
+                    _collider.SetPage(page);
+                    _collider.SetMonaTag(_tag);
+                    _collider.SetLocalPlayerOnly(PlayerTriggered);
+                }
                 UpdateActive();
             }
 
@@ -77,8 +92,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private void UpdateActive()
         {
-            if (_brain != null && _brain.LoggingEnabled)
-                Debug.Log($"{nameof(OnWithinInstructionTile)}.{nameof(UpdateActive)} {_active}");
+            //if (_brain != null && _brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(OnWithinInstructionTile)}.{nameof(UpdateActive)} {_active}");
             if (_collider != null)
                 _collider.SetActive(_active);
         }
@@ -89,13 +104,15 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             {
                 _collider.Dispose();
                 GameObject.Destroy(_collider);
+                _collider = null;
             }
         }
 
         public override InstructionTileResult Do()
         {
             if (_collider == null) return InstructionTileResult.Failure;
-            //Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(Do)} found: {_tag} {_collider.BodiesThatEntered.Count}", _brain.Body.ActiveTransform.gameObject);
+            //if (_brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(OnWithinInstructionTile)}.{nameof(Do)} found: {_tag} {_collider.BodiesWithin.Count}", _brain.Body.ActiveTransform.gameObject);
             var bodies = _collider.BodiesWithin;
             if (bodies.Count > 0)
             {

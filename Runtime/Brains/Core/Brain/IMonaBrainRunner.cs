@@ -14,7 +14,7 @@ namespace Mona.SDK.Brains.Core.Brain
         bool RequiresAnimator { get; }
         bool LegacyMonaPlatforms { get; }
 
-        void WaitFrame(int brainIndex, Action<IInstructionEvent> callback, IInstructionEvent evt, Type type, bool debug);
+        void WaitFrame(int brainIndex, Action<InstructionEvent> callback, InstructionEvent evt, bool debug);
         void WaitFrame(Action callback);
 
         List<MonaBrainGraph> BrainGraphs { get; }

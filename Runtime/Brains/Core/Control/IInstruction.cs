@@ -36,7 +36,7 @@ namespace Mona.SDK.Brains.Core.Control
         void ToggleMute();
 
         void Preload(IMonaBrain brain, IMonaBrainPage page);
-        void Execute(InstructionEventTypes eventType, IInstructionEvent evt);
+        void Execute(InstructionEventTypes eventType, InstructionEvent evt);
         void AddTile(IInstructionTile tile, int i, IMonaBrainPage page);
         void ReplaceTile(int i, IInstructionTile tile);
         void DeleteTile(int i);

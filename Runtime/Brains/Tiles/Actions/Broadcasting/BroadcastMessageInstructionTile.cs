@@ -24,13 +24,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
         protected void BroadcastMessage(IMonaBrain sender, string message, IMonaBody target)
         {
             //Debug.Log($"{nameof(BroadcastMessage)} '{message}' to ({target.Name}) from ({sender.Name}) on frame {Time.frameCount}");
-            EventBus.Trigger<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, target), new MonaBroadcastMessageEvent(message, sender, Time.frameCount));
+            EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, target), new InstructionEvent(message, sender, Time.frameCount));
         }
 
         protected void BroadcastMessage(IMonaBrain sender, string message, IMonaBrain target)
         {
             //Debug.Log($"{nameof(BroadcastMessage)} '{message}' to ({target.Name}) from ({sender.Name}) on frame {Time.frameCount}");
-            EventBus.Trigger<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, target), new MonaBroadcastMessageEvent(message, sender, Time.frameCount));
+            EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, target), new InstructionEvent(message, sender, Time.frameCount));
         }
 
         public override InstructionTileResult Do()

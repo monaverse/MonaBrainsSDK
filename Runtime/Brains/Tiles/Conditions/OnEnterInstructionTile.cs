@@ -41,13 +41,29 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page)
         {
             _brain = brainInstance;
+            
             if (_collider == null)
             {
-                _collider = _brain.GameObject.AddComponent<ColliderTriggerBehaviour>();
-                _collider.SetBrain(_brain);
-                _collider.SetPage(page);
-                _collider.SetMonaTag(_tag);
-                _collider.SetLocalPlayerOnly(PlayerTriggered);
+                var colliders = _brain.GameObject.GetComponents<ColliderTriggerBehaviour>();
+                var found = false;
+                for (var i = 0; i < colliders.Length; i++)
+                {
+                    if (colliders[i].MonaTag == _tag && colliders[i].Brain == _brain)
+                    {
+                        _collider = colliders[i];
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    _collider = _brain.GameObject.AddComponent<ColliderTriggerBehaviour>();
+                    _collider.SetBrain(_brain);
+                    _collider.SetPage(page);
+                    _collider.SetMonaTag(_tag);
+                    _collider.SetLocalPlayerOnly(PlayerTriggered);
+                }
                 UpdateActive();
             }
 
@@ -89,6 +105,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             {
                 _collider.Dispose();
                 GameObject.Destroy(_collider);
+                _collider = null;
             }
         }
 

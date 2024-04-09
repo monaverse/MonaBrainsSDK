@@ -172,7 +172,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return;
             }
 
-            if (_movingState == MovingStateType.Moving)
+            if (InstantMovement || _movingState == MovingStateType.Moving)
             {
                 AddFixedTickDelegate();
             }
@@ -214,7 +214,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _thenCallback = new InstructionTileCallback();
                 _thenCallback.Action = () =>
                 {
-                    RemoveFixedTickDelegate();
+                    if(!InstantMovement) RemoveFixedTickDelegate();
                     if (thenCallback != null) return thenCallback.Action.Invoke();
                     return InstructionTileResult.Success;
                 };
@@ -291,7 +291,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 Progress = 0;
                 //Debug.Log($"{nameof(MoveLocalInstructionTile)} DO IT {Name} {_progressName} {Progress}");
-                AddFixedTickDelegate();
+                if(!InstantMovement)
+                    AddFixedTickDelegate();
             }
 
             _movingState = MovingStateType.Moving;
@@ -300,6 +301,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
+            if (InstantMovement && _movingState == MovingStateType.Stopped) return;
+
             UpdateInput();
 
             Tick(evt.DeltaTime);
