@@ -325,8 +325,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 float step = _mode == MoveModeType.SpeedOnly ? _distance * evt.DeltaTime : _distance;
 
-                //Debug.Log($"{_distance} {_direction} {Time.frameCount}", _brain.Body.Transform.gameObject);
-                _brain.Body.AddPosition(_direction * step, true);
+                //Debug.Log($"{_brain.Body.Transform.gameObject} {_distance} {_direction} step: {step} {Time.frameCount}", _brain.Body.Transform.gameObject);
+                _brain.Body.AddPosition(_direction.normalized * step, true);
                 StopMoving();
             }
 
