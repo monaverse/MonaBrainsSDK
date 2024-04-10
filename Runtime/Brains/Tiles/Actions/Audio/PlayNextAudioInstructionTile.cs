@@ -9,28 +9,35 @@ using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Core;
 using Mona.SDK.Brains.Core.Control;
+using Mona.SDK.Core.State.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Audio
 {
     [Serializable]
-    public class PlayAudioInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction,
+    public class PlayNextAudioInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction,
         IPauseableInstructionTile, IActivateInstructionTile, ITickAfterInstructionTile
     {
-        public const string ID = "PlayAudio";
-        public const string NAME = "Play Audio";
+        public const string ID = "PlayNextAudio";
+        public const string NAME = "Play Next Audio";
         public const string CATEGORY = "Audio";
-        public override Type TileType => typeof(PlayAudioInstructionTile);
+        public override Type TileType => typeof(PlayNextAudioInstructionTile);
 
-        public PlayAudioInstructionTile() { }
+        public PlayNextAudioInstructionTile() { }
 
         [SerializeField] private string _monaAsset = null;
-        [BrainPropertyMonaAsset(typeof(IMonaAudioAssetItem))] public string AudioClip { get => _monaAsset; set => _monaAsset = value; }
+        [BrainPropertyMonaAsset(typeof(IMonaAudioAssetItem), useProviders: true)] public string MonaAssetProvider { get => _monaAsset; set => _monaAsset = value; }
+
+        [SerializeField] private string _monaAssetProviderName = null;
+        [BrainPropertyValueName(nameof(MonaAssetProvider), typeof(IMonaVariablesStringValue))] public string MonaAssetProviderName { get => _monaAssetProviderName; set => _monaAssetProviderName = value; }
 
         [SerializeField] private float _volume = 1f;
         [BrainProperty(true)] public float Volume { get => _volume; set => _volume = value; }
 
         [SerializeField] private bool _wait = true;
         [BrainProperty(false)] public bool Wait { get => _wait; set => _wait = value; }
+
+        [SerializeField] private bool _shuffled;
+        [BrainProperty(false)] public bool Shuffled { get => _shuffled; set => _shuffled = value; }
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
         private Action<MonaBodyAnimationTriggeredEvent> OnAnimationTriggered;
@@ -64,7 +71,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
 
         private void SetupClip()
         {
-            _clip = (IMonaAudioAssetItem)_brain.GetMonaAsset(_monaAsset);
+            if (!string.IsNullOrEmpty(_monaAssetProviderName))
+                _monaAsset = _brain.Variables.GetString(_monaAssetProviderName);
+
+            //Debug.Log($"{nameof(GetAsset)} spawn next asset instruction tile");
+            var provider = _brain.GetMonaAssetProvider(_monaAsset);
+            _clip = (IMonaAudioAssetItem)provider.TakeTopCardOffDeck(_shuffled);
             _audioSource.clip = _clip.Value;
         }
 
@@ -194,7 +206,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
                     if (_canInterrupt || !_audioSource.isPlaying)
                     {
                         if (_brain.LoggingEnabled)
-                            Debug.Log($"{nameof(PlayAudioInstructionTile)} play audio {_clip.Value}");
+                            Debug.Log($"{nameof(PlayNextAudioInstructionTile)} play audio {_clip.Value}");
                         SetupClip();
                         _audioSource.volume = _volume;
                         _audioSource.Play();
@@ -203,7 +215,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
                         if (_wait)
                             return Complete(InstructionTileResult.Running);
                         else
+                        {
+                            _isPlaying = false;
                             return Complete(InstructionTileResult.Success);
+                        }
                     }
                 }
                 catch(Exception e)
@@ -212,7 +227,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
                 }
                 return Complete(InstructionTileResult.Success);
             }
-            return Complete(InstructionTileResult.Running);
+            return Complete(InstructionTileResult.Success);
         }
     }
 }

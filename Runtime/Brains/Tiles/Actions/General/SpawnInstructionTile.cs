@@ -20,7 +20,7 @@ using Mona.SDK.Brains.Core.Animation;
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
-    public class SpawnInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile, IAnimationInstructionTile
+    public class SpawnInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile
     {
         public const string ID = "Spawn";
         public const string NAME = "Spawn Asset";
@@ -254,7 +254,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     if (poolItem.ActiveRigidbody != null)
                         poolItem.ActiveRigidbody.WakeUp();
 
-                    Vector3 position = body.GetPosition() + offset;
+                    Vector3 position = body.GetPosition() + body.GetRotation()*offset;
                     Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
 
                     poolItem.Transform.SetParent(_spawnAsChild ? _brain.Body.Transform : _defaultParent);

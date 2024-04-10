@@ -82,7 +82,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     var root = children[i].Transform.Find("Root");
                     if (root != null)
                     {
-                        _monaAnimationController = _brain.Root.GetComponent<IMonaAnimationController>();
+                        _monaAnimationController = root.GetComponent<IMonaAnimationController>();
                         if (_monaAnimationController != null) break;
                     }
                 }

@@ -103,6 +103,13 @@ namespace Mona.SDK.Brains.Core.Animation
                 _animator.runtimeAnimatorController = overrideController;
                 _animator.Rebind();
             }
+            else if(_animator.runtimeAnimatorController != null)
+            {
+                var overrideController = new AnimatorOverrideController(controller);
+                overrideController.name = "MonaGroundedHumanoidAnimationController";
+                _animator.runtimeAnimatorController = overrideController;
+                _animator.Rebind();
+            }
             _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
         }
 
