@@ -30,6 +30,8 @@ namespace Mona.SDK.Brains.Core.Animation
         void SetMotionSpeed(float speed);
         void Jump();
         void Landed();
+        void Idle();
+        void IdleOff();
 
     }
 
@@ -41,9 +43,11 @@ namespace Mona.SDK.Brains.Core.Animation
         private AnimatorOverrideController _controller;
 
         private const string START_STATE = "__Start";
+        private const string WALK_STATE = "Walk";
         private const string END_STATE = "__End";
         private const string CLIP_STATE = "__Clip";
 
+        private const string IDLE = "Idle";
         private const string SPEED = "Speed";
         private const string JUMP = "Jump";
         private const string GROUNDED = "Grounded";
@@ -127,8 +131,8 @@ namespace Mona.SDK.Brains.Core.Animation
             }
             else if(_override)
             {
-                //var overrideController = new AnimatorOverrideController(_animator.runtimeAnimatorController);
-                //_animator.runtimeAnimatorController = overrideController;
+                var overrideController = new AnimatorOverrideController(_animator.runtimeAnimatorController);
+                _animator.runtimeAnimatorController = overrideController;
             }
 
             if(_animator.runtimeAnimatorController is AnimatorOverrideController)
@@ -184,6 +188,17 @@ namespace Mona.SDK.Brains.Core.Animation
             _animator.SetBool(GROUNDED, true);
         }
 
+        public void Idle()
+        {
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            _animator.SetBool(IDLE, true);
+        }
+
+        public void IdleOff()
+        {
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            _animator.SetBool(IDLE, false);
+        }
 
         public void SetTPose(bool value)
         {
@@ -202,7 +217,7 @@ namespace Mona.SDK.Brains.Core.Animation
             if (canInterrupt)
             {
                 var current = _animator.GetCurrentAnimatorStateInfo(0);
-                if (_controller[CLIP_STATE].name == clipItem.Value.name && (!HasEnded(clipItem) || current.IsName(START_STATE))) return false;
+                if (_controller[CLIP_STATE].name == clipItem.Value.name && !current.IsName(WALK_STATE) && (!HasEnded(clipItem) || current.IsName(START_STATE))) return false;
                 //Debug.Log($"Trigger {clipItem.Value.name}");
                 _controller[CLIP_STATE] = clipItem.Value;
                 _animator.SetTrigger(MonaBrainConstants.TRIGGER);

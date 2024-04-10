@@ -171,16 +171,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
         private void HandleDefaultFixedTick()
         {
             if (_isPlaying)
-            {        
-                if(_monaAnimationController.HasPlayedAnimation(_clip))
+            {
+                if (_monaAnimationController.HasPlayedAnimation(_clip))
                 {
                     _hasPlayed = true;
                 }
+
                 if (_monaAnimationController.HasEnded(_clip) && _hasPlayed)
                 {
-                    //Debug.Log($"animation finished {_clip.Value}");
+                    Debug.Log($"animation finished {_clip.Value}");
                     _isPlaying = false;
                     _monaAnimationController.SetLayerWeight(_clip.Layer, 0f);
+                    _monaAnimationController.Idle();
                     Complete(InstructionTileResult.Success, true);
                 }
             }
@@ -210,11 +212,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
                     {
                         _isPlaying = true;
                         _hasPlayed = false;
+                        _monaAnimationController.IdleOff();
                         return Complete(InstructionTileResult.Running);
                     }
                     else
                     {
                         _isPlaying = false;
+                        _monaAnimationController.Idle();
                         return Complete(InstructionTileResult.Success);
                     }
                 }

@@ -67,6 +67,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             var xDown = Mathf.Abs(input.x) > MonaBrainInput.DEAD_ZONE;
             var yDown = Mathf.Abs(input.y) > MonaBrainInput.DEAD_ZONE;
 
+            bool shouldClear = false;
+
             switch (_moveDirection)
             {
                 case MonaInputMoveType.FourWay:
@@ -133,49 +135,76 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaInputMoveType.Horizontal:
                     input.y = 0;
+                    if (Mathf.Approximately(input.x, 0f))
+                        shouldClear = true;
                     break;
                 case MonaInputMoveType.Vertical:
                     input.x = 0;
+                    if (Mathf.Approximately(input.y, 0f))
+                        shouldClear = true;
                     break;
                 case MonaInputMoveType.Left:
                     input.y = 0;
                     if (input.x > 0) input.x = 0;
+                    if (Mathf.Approximately(input.x, 0f))
+                        shouldClear = true;
                     break;
                 case MonaInputMoveType.Right:
                     input.y = 0;
                     if (input.x < 0) input.x = 0;
+                    if (Mathf.Approximately(input.x, 0f))
+                        shouldClear = true;
                     break;
                 case MonaInputMoveType.Up:
                     input.x = 0;
                     if (input.y < 0) input.y = 0;
+                    if (Mathf.Approximately(input.y, 0f))
+                        shouldClear = true;
                     break;
                 case MonaInputMoveType.Down:
                     input.x = 0;
                     if (input.y > 0) input.y = 0;
+                    if (Mathf.Approximately(input.y, 0f))
+                        shouldClear = true;
                     break;
                 case MonaInputMoveType.UpLeft:
                     input = LockDiagonal(input);
                     if (input.x > 0 || input.y < 0) input.x = input.y = 0;
+                    if (Mathf.Approximately(input.x, 0f) && Mathf.Approximately(input.y, 0f))
+                        shouldClear = true;
                     break;
                 case MonaInputMoveType.UpRight:
                     input = LockDiagonal(input);
                     if (input.x < 0 || input.y < 0) input.x = input.y = 0;
+                    if (Mathf.Approximately(input.x, 0f) && Mathf.Approximately(input.y, 0f))
+                        shouldClear = true;
                     break;
                 case MonaInputMoveType.DownLeft:
                     input = LockDiagonal(input);
                     if (input.x > 0 || input.y > 0) input.x = input.y = 0;
+                    if (Mathf.Approximately(input.x, 0f) && Mathf.Approximately(input.y, 0f))
+                        shouldClear = true;
                     break;
                 case MonaInputMoveType.DownRight:
                     input = LockDiagonal(input);
                     if (input.x < 0 || input.y > 0) input.x = input.y = 0;
+                    if (Mathf.Approximately(input.x, 0f) && Mathf.Approximately(input.y, 0f))
+                        shouldClear = true;
                     break;
                 default:
                     //do nothing;
                     break;
             }
 
-            _bodyInput.MoveValue = input;
-            _instruction.InstructionInput = _bodyInput;
+            if (shouldClear)
+            {
+                ClearInput();
+            }
+            else
+            {
+                _bodyInput.MoveValue = input;
+                _instruction.InstructionInput = _bodyInput;
+            }
         }
 
         private Vector2 LockDiagonal(Vector2 input)

@@ -25,6 +25,7 @@ namespace Mona.SDK.Brains.Core.Animation
         private const string END_STATE = "Idle Walk Run Blend";
         private const string CLIP_STATE = "__Clip";
 
+        private const string IDLE = "Idle";
         private const string SPEED = "Speed";
         private const string JUMP = "Jump";
         private const string GROUNDED = "Grounded";
@@ -151,6 +152,18 @@ namespace Mona.SDK.Brains.Core.Animation
             if (_brain.Body.IsAttachedToRemotePlayer()) return;
             _animator.SetBool(JUMP, false);
             _animator.SetBool(GROUNDED, true);
+        }
+
+        public void Idle()
+        {
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            _animator.SetBool(IDLE, true);
+        }
+
+        public void IdleOff()
+        {
+            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            _animator.SetBool(IDLE, false);
         }
 
         public void SetLayerWeight(int layer, float layerWeight)

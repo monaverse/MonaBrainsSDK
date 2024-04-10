@@ -54,6 +54,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Time)]
         [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
+
+        [SerializeField] private bool _useStartDirection = false;
+        [BrainProperty(false)] public bool UseStartDirection { get => _useStartDirection; set => _useStartDirection = value; }
         
         private Vector3 _direction;
         private Vector3 _startPosition;
@@ -436,7 +439,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 var progressDelta = Mathf.Round((deltaTime / _value) * 100000f) / 100000f;
 
-                _direction = GetDirectionVector(DirectionType);
+                if(!_useStartDirection)
+                    _direction = GetDirectionVector(DirectionType);
 
                 Progress = Mathf.Clamp01(Progress);
 
@@ -462,7 +466,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 var progressDelta = Mathf.Round((((_value * _speed) / _distance) * deltaTime) * 100000f) / 100000f;
 
-                _direction = GetDirectionVector(DirectionType);
+                if (!_useStartDirection)
+                    _direction = GetDirectionVector(DirectionType);
 
                 Progress = Mathf.Clamp01(Progress);
 
@@ -508,7 +513,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         protected virtual void StoppedMoving()
         {
-            switch (_brain.PropertyType)
+            if (_controller == null) return;
+            switch (_controller.PropertyType)
             {
                 case MonaBrainPropertyType.GroundedCreature: StopGroundedCreature(); break;
                 default: StopDefault(); break;
