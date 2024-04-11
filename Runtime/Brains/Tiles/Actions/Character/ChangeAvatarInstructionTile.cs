@@ -199,6 +199,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             }
 
             var body = _brain.Body;
+
+            var parent = body;
+            while (parent != null)
+            {
+                parent.CacheRenderers();
+                parent = parent.Parent;
+            }
+
             while (body != null)
             {
                 EventBus.Trigger<MonaBodyAnimationControllerChangeEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, body), new MonaBodyAnimationControllerChangeEvent(_avatarInstance));
