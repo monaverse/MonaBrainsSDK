@@ -28,7 +28,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
         [BrainPropertyMonaTag(true)] public string Tag { get => _tag; set => _tag = value; }
 
         [SerializeField] private string _message;
+        [SerializeField] private string _messageName;
         [BrainProperty(true)] public string Message { get => _message; set => _message = value; }
+        [BrainPropertyValueName("Message", typeof(IMonaVariablesStringValue))] public string MessageName { get => _messageName; set => _messageName = value; }
+
+        [SerializeField] private bool _includeAttached;
+        [SerializeField] private string _includeAttachedName;
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.Tag)]
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.MessageSender)]
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.OnConditionTarget)]
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.OnHitTarget)]
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.MySpawner)]
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.LastSpawnedByMe)]
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.AllSpawnedByMe)]
+        [BrainProperty(false)] public bool IncludeAttached { get => _includeAttached; set => _includeAttached = value; }
+        [BrainPropertyValueName("IncludeAttached", typeof(IMonaVariablesBoolValue))] public string IncludeAttachedName { get => _includeAttachedName; set => _includeAttachedName = value; }
 
         [SerializeField] private bool _appendPlayerId;
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.Tag)]
@@ -44,6 +58,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
             _brain = brainInstance;
         }
 
+        private bool SendToAllAttached
+        {
+            get
+            {
+                switch (_messageTarget)
+                {
+                    case MonaBrainBroadcastType.Self:
+                        return false;
+                    case MonaBrainBroadcastType.Parent:
+                        return false;
+                    case MonaBrainBroadcastType.Children:
+                        return false;
+                    default:
+                        return _includeAttached;
+                }
+            }
+        }
+
         private IMonaBrainRunner GetCachedRunner(IMonaBody body)
         {
             if (!_runnerCache.ContainsKey(body))
@@ -53,13 +85,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
         public override InstructionTileResult Do()
         {
+            if (_brain == null)
+                return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            if (!string.IsNullOrEmpty(_messageName))
+                _message = _brain.Variables.GetString(_messageName);
+
+            if (!string.IsNullOrEmpty(_includeAttachedName))
+                _includeAttached = _brain.Variables.GetBool(_includeAttachedName);
+
             switch (_messageTarget)
             {
                 case MonaBrainBroadcastType.Tag:
                     BroadcastToTag();
                     break;
                 case MonaBrainBroadcastType.Self:
-                    BroadcastToSelf();
+                    BroadcastToWholeEntity(_brain.Body);
                     break;
                 case MonaBrainBroadcastType.Children:
                     BroadcastToChildren(_brain.Body);
@@ -69,7 +110,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                     break;
                 default:
                     IMonaBody targetBody = GetTarget();
-                    if (targetBody != null)
+
+                    if (targetBody == null)
+                        break;
+
+                    if (SendToAllAttached)
+                        BroadcastToWholeEntity(targetBody);
+                    else
                         BroadcastMessage(_brain, _message, targetBody);
                     break;
             }
@@ -97,9 +144,27 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                 if (runner != null)
                 {
                     for (var j = 0; j < runner.BrainInstances.Count; j++)
-                        BroadcastMessage(_brain, _message, runner.BrainInstances[j]);
+                    {
+                        if (SendToAllAttached)
+                            BroadcastToWholeEntity(runner.BrainInstances[j].Body);
+                        else
+                            BroadcastMessage(_brain, _message, runner.BrainInstances[j]);
+                    }
                 }
             }
+        }
+
+        private void BroadcastToWholeEntity(IMonaBody body)
+        {
+            if (_brain.LoggingEnabled)
+                Debug.Log($"{nameof(BroadcastMessageToSelfInstructionTile)} {_message}");
+
+            IMonaBody topBody = body;
+            while (topBody.Parent != null)
+                topBody = topBody.Parent;
+
+            BroadcastMessage(_brain, _message, topBody);
+            BroadcastToChildren(topBody);
         }
 
         private void BroadcastToSelf()
@@ -138,7 +203,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
             for (int i = 0; i < spawned.Count; i++)
             {
-                if (spawned[i] != null)
+                if (spawned[i] == null)
+                    continue;
+
+                if (SendToAllAttached)
+                    BroadcastToWholeEntity(spawned[i]);
+                else
                     BroadcastMessage(_brain, _message, spawned[i]);
             }
         }
