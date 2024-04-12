@@ -260,7 +260,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 //Debug.Log($"ApplyForce to Body {body.ActiveTransform.name} {InputMoveDirection} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
 
                 body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
-                body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
+                if(!body.ActiveRigidbody.isKinematic)
+                    body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
                 StopPushing();
             }
 
@@ -302,7 +303,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 //    Debug.Log($"ApplyForce to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _force * deltaTime}", body.ActiveTransform.gameObject);
 
                 body.ApplyForce(_direction.normalized * _force, ForceMode.Impulse, true);
-                body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
+                if(!body.ActiveRigidbody.isKinematic)
+                    body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
 
                 if (_time >= 1f)
                 {

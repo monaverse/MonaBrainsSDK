@@ -60,6 +60,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             _audioSource = _brain.Body.ActiveTransform.GetComponent<AudioSource>();
             if (_audioSource == null)
                 _audioSource = _brain.Body.ActiveTransform.AddComponent<AudioSource>();
+            _audioSource.dopplerLevel = 0;
+            _audioSource.pitch = 1;
         }
 
         private void SetupClip()

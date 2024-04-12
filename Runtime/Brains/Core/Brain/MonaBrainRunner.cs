@@ -14,6 +14,8 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Brains.Core.Control;
 using UnityEngine.Networking;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -202,6 +204,7 @@ namespace Mona.SDK.Brains.Core.Brain
             AddHotReloadDelegates();
             DetectRigidbody();
             LoadUrl();
+            Debug.Log($"{nameof(MonaBrainRunner)} {nameof(Awake)}");
         }
 
         private void LoadUrl()
@@ -289,7 +292,7 @@ namespace Mona.SDK.Brains.Core.Brain
         public void WaitFrame(int index, Action<InstructionEvent> callback, InstructionEvent evt, bool debug = false)
         {
             _debug = debug;
-            //Debug.Log($"{nameof(WaitFrame)} WAIT WaitFrame {index}, type {type}, evt: {evt} {Time.frameCount}");
+            //Debug.Log($"{nameof(WaitFrame)} WAIT WaitFrame {index}, evt: {evt} {Time.frameCount}");
             if (!_layersSet.Contains(index))
             {
                 _layersSet.Add(index);
@@ -643,5 +646,32 @@ namespace Mona.SDK.Brains.Core.Brain
             EventBus.Trigger(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), new InstructionEvent(message, null, Time.frameCount));
         }
 
+        private Keyboard _keyboard;
+        public void SimulateKeyPress(string keyName)
+        {
+            if (_keyboard == null)
+            {
+                _keyboard = InputSystem.AddDevice<Keyboard>("Mobile");
+                InputSystem.EnableDevice(_keyboard);
+            }
+            Key key = (Key)Enum.Parse(typeof(Key), keyName);
+            KeyboardState stateA = new KeyboardState();
+            stateA.Press(key);
+            InputSystem.QueueStateEvent(_keyboard, stateA);
+        }
+
+        public void SimulateKeyRelease(string keyName)
+        {
+            if (_keyboard == null)
+            {
+                _keyboard = InputSystem.AddDevice<Keyboard>("Mobile");
+                InputSystem.EnableDevice(_keyboard);
+            }
+            Key key = (Key)Enum.Parse(typeof(Key), keyName);
+            Keyboard keyboard = InputSystem.GetDevice<Keyboard>();
+            KeyboardState stateA = new KeyboardState();
+            stateA.Release(key);
+            InputSystem.QueueStateEvent(_keyboard, stateA);
+        }
     }
 }

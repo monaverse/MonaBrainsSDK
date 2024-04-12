@@ -36,6 +36,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Look)]
         public MonaInputMoveType MoveDirection { get => _moveDirection; set => _moveDirection = value; }
 
+        [SerializeField]
+        private bool _useLookAsMove;
+        [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Look)]
+        [BrainProperty(true)]
+        public bool UseLookAsMove { get => _useLookAsMove; set => _useLookAsMove = value; }
+
         protected override MonaInputState GetInputState() => _inputState;
 
         private float _mouseLookSensitivity = 30f;
@@ -45,6 +51,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         protected override void ProcessLocalInput()
         {
             if (BrainOnRemotePlayer()) return;
+
+            //if (_useLookAsMove)
+            //    Cursor.lockState = CursorLockMode.Locked;
 
             var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, _inputType, GetInputState());
             if (localInput.GetButton(_inputType) == _inputState)
@@ -63,6 +72,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {evt.Input.GetButton(_inputType)}");
             _bodyInput = evt.Input;
             var input = _bodyInput.MoveValue;
+            if (_inputType == MonaInputType.Look)
+                input = _bodyInput.LookValue;
             
             var xDown = Mathf.Abs(input.x) > MonaBrainInput.DEAD_ZONE;
             var yDown = Mathf.Abs(input.y) > MonaBrainInput.DEAD_ZONE;
@@ -202,7 +213,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
             else
             {
-                _bodyInput.MoveValue = input;
+                if (_inputType == MonaInputType.Look && !_useLookAsMove)
+                    _bodyInput.LookValue = input;
+                else
+                    _bodyInput.MoveValue = input;
+
+                Debug.Log($"oninput: move: {_bodyInput.MoveValue}");
                 _instruction.InstructionInput = _bodyInput;
             }
         }

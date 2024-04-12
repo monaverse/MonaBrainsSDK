@@ -8,6 +8,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.InputSystem.LowLevel;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -31,6 +34,10 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void Awake()
         {
+#if UNITY_IOS && !UNITY_EDITOR
+            EnhancedTouchSupport.Enable();
+#endif
+
             _inputs = new Inputs();
             _playerInput = GetComponent<PlayerInput>();
             if (_playerInput == null)
@@ -164,7 +171,13 @@ namespace Mona.SDK.Brains.Core.Brain
                         _activeKeyListeners[i].State = MonaInputState.None;
                 }
 
-                var mouse = Mouse.current.position.ReadValue();
+                Vector2 mouse = Vector2.zero;
+                if (Mouse.current != null)
+                    mouse = Mouse.current.position.ReadValue();
+#if UNITY_IOS && !UNITY_EDITOR
+                else if(Touch.activeTouches.Count > 0)
+                    mouse = Touch.activeTouches[0].screenPosition;
+#endif
                 if (_player.PlayerCamera != null)
                     _ray = _player.PlayerCamera.ScreenPointToRay(new Vector3(mouse.x, mouse.y, 0f));
                 else
@@ -239,6 +252,15 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void ProcessKey(int index, KeyState state)
         {
+            Keyboard keyboard;
+            if (Keyboard.current == null)
+            {
+                keyboard = InputSystem.AddDevice<Keyboard>("Mobile");
+                InputSystem.EnableDevice(keyboard);
+            }
+            else
+                keyboard = Keyboard.current;
+
             var keyControl = Keyboard.current[state.Key];
             
             if (keyControl.wasPressedThisFrame && state.State == MonaInputState.None)

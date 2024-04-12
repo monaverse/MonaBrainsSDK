@@ -679,7 +679,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             ExecuteCorePageInstructions(InstructionEventTypes.Message);
             ExecuteStatePageInstructions(InstructionEventTypes.Message);
 
-            Debug.Log($"{nameof(ExecuteMessage)} message: {message} count: {_messages.Count}", _body.Transform.gameObject);
+            //Debug.Log($"{nameof(ExecuteMessage)} message: {message} count: {_messages.Count}", _body.Transform.gameObject);
             if (HasMessage(message))
             {
                 //Debug.Log($"{nameof(ExecuteMessage)} remove message: {message}");

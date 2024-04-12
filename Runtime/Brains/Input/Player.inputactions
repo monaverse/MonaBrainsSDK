@@ -327,6 +327,17 @@
                 },
                 {
                     "name": "",
+                    "id": "ce814a30-190b-4c5d-9d6a-39dfbb17eb70",
+                    "path": "<Touchscreen>/primaryTouch/tap",
+                    "interactions": "Tap",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "6764873e-fbdc-4006-8cb3-71f79dfec3de",
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
@@ -340,6 +351,17 @@
                     "name": "",
                     "id": "be3a37f6-0fbd-4b82-8c98-e01803f7f94c",
                     "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "InvertVector2(invertX=false)",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d5779677-83f2-4bb6-8fe9-a22d660ff0b2",
+                    "path": "<Touchscreen>/primaryTouch/delta",
                     "interactions": "",
                     "processors": "InvertVector2(invertX=false)",
                     "groups": "",
