@@ -26,7 +26,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (HasVector3Values(_directionName))
                 _directionValue = GetVector3Value(_brain, _directionName);
-            return _directionValue;
+            return _directionValue.normalized;
         }
     }
 }

@@ -49,8 +49,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         public void Dispose()
         {
-            if (_collider != null)
-                Destroy(_collider);
             _collider = null;
 
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);

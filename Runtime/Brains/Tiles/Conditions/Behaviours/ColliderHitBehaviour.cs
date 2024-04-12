@@ -75,8 +75,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         public void Dispose()
         {
-            if (!_colliderWasCreatedByMe) return;
-            if (_collider != null)
+            if (_collider != null && !_colliderWasCreatedByMe)
                 Destroy(_collider);
             _collider = null;
 

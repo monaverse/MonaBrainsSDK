@@ -38,6 +38,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         public List<IMonaBody> BodiesWithin => _bodiesWithin;
 
+        private bool _colliderWasCreatedByMe = false;
+
         private void Awake()
         {
             var colliders = gameObject.GetComponentsInChildren<Collider>();
@@ -48,6 +50,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 if(collider.isTrigger)
                 {
                     found = true;
+                    _colliderWasCreatedByMe = true;
                     _collider = collider;
                     break;
                 }
@@ -68,7 +71,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         public void Dispose()
         {
-            if (_collider != null)
+            if (_collider != null && !_colliderWasCreatedByMe)
                 Destroy(_collider);
             _collider = null;
 
