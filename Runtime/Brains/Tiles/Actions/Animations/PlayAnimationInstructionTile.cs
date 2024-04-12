@@ -123,7 +123,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         private void UpdateActive()
         {
-            if (!_active) return;
+            if (!_active)
+            {
+                if (_isPlaying)
+                    StopAnimating();
+                return;
+            }
 
             if (_isPlaying)
             {
@@ -203,15 +208,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
                 if (_monaAnimationController.HasEnded(_clip) && _hasPlayed)
                 {
-                    Debug.Log($"animation finished {_clip.Value}");
-                    _isPlaying = false;
-                    _monaAnimationController.SetLayerWeight(_clip.Layer, 0f);
-                    _monaAnimationController.Idle();
-                    RemoveFixedTickDelegate();
-                    if(_wait)
-                        Complete(InstructionTileResult.Success, true);
+                    StopAnimating();
                 }
             }
+        }
+
+        private void StopAnimating()
+        {
+            Debug.Log($"animation finished {_clip.Value}");
+            _isPlaying = false;
+            _monaAnimationController.SetLayerWeight(_clip.Layer, 0f);
+            _monaAnimationController.Idle();
+            RemoveFixedTickDelegate();
+            if (_wait)
+                Complete(InstructionTileResult.Success, true);
         }
 
         public override InstructionTileResult Do()

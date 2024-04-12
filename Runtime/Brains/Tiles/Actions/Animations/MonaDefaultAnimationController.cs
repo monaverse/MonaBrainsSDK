@@ -228,7 +228,7 @@ namespace Mona.SDK.Brains.Core.Animation
             else
             {
                 var current = _animator.GetCurrentAnimatorStateInfo(0);
-                if (HasEnded(clipItem) || current.IsName(START_STATE))
+                if (HasEnded(clipItem) || current.IsName(START_STATE) || current.IsName(WALK_STATE))
                 {
                     //Debug.Log($"transition time {transition.normalizedTime}");
                     //Debug.Log($"play {clipItem.Value.name}");

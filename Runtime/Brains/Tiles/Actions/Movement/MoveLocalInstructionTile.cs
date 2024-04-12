@@ -377,7 +377,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             _currentSpeed = Mathf.Abs(Vector3.Distance(_brain.Body.GetPosition(), _lastPosition) / deltaTime);
             _lastPosition = _brain.Body.GetPosition();
-            if (_currentSpeed < 0.01f)
+            if (_currentSpeed < 0.01f || !ShouldAnimateWalk(DirectionType))
                 _currentSpeed = 0;
 
             switch (_mode)
@@ -524,6 +524,28 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private void StopDefault()
         {
 
+        }
+
+        protected bool ShouldAnimateWalk(MoveDirectionType moveType)
+        {
+            switch (moveType)
+            {
+                case MoveDirectionType.Up: return false;
+                case MoveDirectionType.Down: return false;
+                //case MoveDirectionType.UseInput: return Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
+                //case MoveDirectionType.InputForwardBack: return Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
+                case MoveDirectionType.Y: return false;
+                case MoveDirectionType.YNegative: return false;
+                //case MoveDirectionType.CameraAll: return Mathf.Approximately(InputMoveDirection.y, 0) && Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(Mathf.Abs(InputMoveDirection.y) + Mathf.Abs(InputMoveDirection.x));
+                
+                case MoveDirectionType.CameraUp: return false;
+                case MoveDirectionType.CameraDown: return false;
+                //case MoveDirectionType.CameraTruePlanar: return Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y);
+                
+                case MoveDirectionType.CameraTrueUp: return false;
+                case MoveDirectionType.CameraTrueDown: return false;
+                default: return true;
+            }
         }
 
         protected float GetMotionSpeed(MoveDirectionType moveType)
