@@ -89,7 +89,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 {
                     if (_brain.LoggingEnabled)
                         Debug.Log($"{nameof(OnSelectTagInstructionTile)} clicked body with tag {_monaTag} {body.ActiveTransform.name} {(body.GetPosition() - _brain.Body.GetPosition()).normalized}", body.ActiveTransform.gameObject);
-                    _brain.Variables.Set(MonaBrainConstants.RESULT_DIRECTION_TO_TARGET, (body.GetPosition() - _brain.Body.GetPosition()).normalized);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_TARGET, body);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
@@ -97,7 +96,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 }
                 else if(_brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET) != null)
                 {
-                    _brain.Variables.Set(MonaBrainConstants.RESULT_DIRECTION_TO_TARGET, Vector3.zero);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_TARGET, (IMonaBody)null);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, Vector3.zero);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_NORMAL, Vector3.zero);

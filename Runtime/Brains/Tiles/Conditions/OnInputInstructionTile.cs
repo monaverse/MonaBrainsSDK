@@ -218,7 +218,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 else
                     _bodyInput.MoveValue = input;
 
-                Debug.Log($"oninput: move: {_bodyInput.MoveValue}");
+                //Debug.Log($"oninput: move: {_bodyInput.MoveValue}");
                 _instruction.InstructionInput = _bodyInput;
             }
         }

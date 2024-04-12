@@ -528,7 +528,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private void HandleStarted()
         {
             if (_began) return;
-            //Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(HandleStarted)} start brains {_body.Transform.name}", _body.Transform.gameObject);
+            Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(HandleStarted)} start brains {_body.Transform.name} active? {gameObject.activeInHierarchy}", _body.Transform.gameObject);
             if (!gameObject.activeInHierarchy) return;
             
             PreloadBrains();

@@ -51,7 +51,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 case MonaBrainResultType.OnHitNormal:
                     _brain.Variables.Set(_targetValue, (Vector3)_brain.Variables.GetVector3(MonaBrainConstants.RESULT_HIT_NORMAL)); break;
                 case MonaBrainResultType.DirectionToTarget:
-                    _brain.Variables.Set(_targetValue, (Vector3)_brain.Variables.GetVector3(MonaBrainConstants.RESULT_DIRECTION_TO_TARGET)); break;
+                    var dirTarget = _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
+                    if (dirTarget != null)
+                    {
+                        var dir = (dirTarget.GetPosition() - _brain.Body.GetPosition()).normalized;
+                        _brain.Variables.Set(_targetValue, (Vector3)dir); break;
+                    }
+                    else
+                    {
+                        _brain.Variables.Set(_targetValue, Vector3.zero); break;
+                    }
                 case MonaBrainResultType.LastMoveDirection:
                     _brain.Variables.Set(_targetValue, _brain.Variables.GetInternalVector3(MonaBrainConstants.LAST_MOVE_DIRECTION)); break;
                 default: break;

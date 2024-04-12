@@ -77,6 +77,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyValueName("Scale", typeof(IMonaVariablesVector3Value))]
         public string[] ScaleName { get => _scaleName; set => _scaleName = value; }
 
+        [SerializeField] private bool _spawnOnEmpty;
+        [BrainProperty(false)] public bool SpawnOnEmpty { get => _spawnOnEmpty; set => _spawnOnEmpty = value; }
+
+        [SerializeField] private bool _destroyOnDisable;
+        [BrainProperty(false)] public bool DestroyOnDisable { get => _destroyOnDisable; set => _destroyOnDisable = value; }
+
         protected IMonaBrain _brain;
         private Transform _defaultParent;
         private IMonaBodyAssetItem _item;
@@ -114,15 +120,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             //Debug.Log($"{nameof(SetupSpawnable)} spawn asset instruction tile");
             var items = GetPreloadAssets();
+
+            int poolCount = !string.IsNullOrEmpty(_poolCountName) ? (int)Mathf.Ceil(_brain.Variables.GetFloat(_poolCountName)) : (int)Mathf.Ceil(_poolCount);
+
             for (var i = 0; i < items.Count; i++)
             {
                 var item = items[i];
                 if (item == null) return;
                 if (_brain.Body.IsAttachedToRemotePlayer()) return;
                 if (!_brain.Body.HasControl()) return;
-
-                int poolCount = !string.IsNullOrEmpty(_poolCountName) ?
-                    (int)Mathf.Ceil(_brain.Variables.GetFloat(_poolCountName)) : (int)Mathf.Ceil(_poolCount);
 
                 for (var j = 0; j < poolCount; j++)
                 {
@@ -131,7 +137,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
         }
 
-        protected void Spawn(string prefabId, MonaBody monaBody)
+        protected void Spawn(string prefabId, MonaBody monaBody, bool disable = true)
         {
             var body = (IMonaBody)GameObject.Instantiate(monaBody, Vector3.up*10000f, Quaternion.identity);
 
@@ -149,7 +155,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
                     _pool[prefabId].Add(child);
                     child.OnDisabled += HandleBodyDisabled;
-                    child.SetActive(false);
+                    if(disable)
+                        child.SetActive(false);
                 }
 
                 ((MonaBodyBase)child).PrefabId = prefabId;
@@ -160,11 +167,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void HandleBodyDisabled(IMonaBody body)
         {
-            if (!_pool[((MonaBodyBase)body).PrefabId].Contains(body))
-                _pool[((MonaBodyBase)body).PrefabId].Add(body);
-
             if (_brain.SpawnedBodies.Contains(body))
                 _brain.SpawnedBodies.Remove(body);
+
+            if (_destroyOnDisable)
+                body.Destroy();
+            else
+            {
+                if (!_pool[((MonaBodyBase)body).PrefabId].Contains(body))
+                    _pool[((MonaBodyBase)body).PrefabId].Add(body);
+            }
         }
 
         public IMonaBody GetBodyToControl()
@@ -229,9 +241,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
                 var nextItem = GetAsset();
+                if(nextItem == null)
+                    return Complete(InstructionTileResult.Failure);
 
-                if (_pool[nextItem.PrefabId].Count > 0)
+                if (!_pool.ContainsKey(nextItem.PrefabId))
+                    _pool.Add(nextItem.PrefabId, new List<IMonaBody>());
+
+                if (_pool[nextItem.PrefabId].Count > 0 || _spawnOnEmpty)
                 {
+                    if(_pool[nextItem.PrefabId].Count == 0)
+                        Spawn(nextItem.PrefabId, nextItem.Value, disable: false);
+
                     var poolItem = _pool[nextItem.PrefabId][0];
                     _pool[nextItem.PrefabId].RemoveAt(0);
                     poolItem.SetScale(_scale, true);

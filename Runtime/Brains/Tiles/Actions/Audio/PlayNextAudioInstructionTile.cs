@@ -33,7 +33,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         [SerializeField] private float _volume = 1f;
         [BrainProperty(true)] public float Volume { get => _volume; set => _volume = value; }
 
-        [SerializeField] private bool _wait = true;
+        [SerializeField] private bool _wait = false;
         [BrainProperty(false)] public bool Wait { get => _wait; set => _wait = value; }
 
         [SerializeField] private bool _shuffled;

@@ -8,9 +8,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.InputSystem.LowLevel;
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
+using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
+#endif
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -34,7 +36,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void Awake()
         {
-#if UNITY_IOS && !UNITY_EDITOR
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
             EnhancedTouchSupport.Enable();
 #endif
 
@@ -174,7 +176,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 Vector2 mouse = Vector2.zero;
                 if (Mouse.current != null)
                     mouse = Mouse.current.position.ReadValue();
-#if UNITY_IOS && !UNITY_EDITOR
+#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
                 else if(Touch.activeTouches.Count > 0)
                     mouse = Touch.activeTouches[0].screenPosition;
 #endif
