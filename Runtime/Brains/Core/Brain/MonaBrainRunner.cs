@@ -204,7 +204,7 @@ namespace Mona.SDK.Brains.Core.Brain
             AddHotReloadDelegates();
             DetectRigidbody();
             LoadUrl();
-            Debug.Log($"{nameof(MonaBrainRunner)} {nameof(Awake)}");
+            //Debug.Log($"{nameof(MonaBrainRunner)} {nameof(Awake)}");
         }
 
         private void LoadUrl()
@@ -521,14 +521,16 @@ namespace Mona.SDK.Brains.Core.Brain
         public void StartBrains(bool force = false)
         {
             if (force) _began = false;
-            Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(StartBrains)} start brains from external source", _body.Transform.gameObject);
+            //Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(StartBrains)} start brains from external source", _body.Transform.gameObject);
+
             HandleStarted();
         }
 
         private void HandleStarted()
         {
             if (_began) return;
-            Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(HandleStarted)} start brains {_body.Transform.name} active? {gameObject.activeInHierarchy}", _body.Transform.gameObject);
+            //Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(HandleStarted)} start brains {_body.Transform.name} active? {gameObject.activeInHierarchy}", _body.Transform.gameObject);
+
             if (!gameObject.activeInHierarchy) return;
             
             PreloadBrains();
