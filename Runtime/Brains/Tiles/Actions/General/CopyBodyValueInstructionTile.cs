@@ -5,6 +5,7 @@ using UnityEngine;
 using System;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
+using Mona.SDK.Core.Body;
 using Mona.SDK.Core.State.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
@@ -16,6 +17,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public const string NAME = "Copy Body Value";
         public const string CATEGORY = "General";
         public override Type TileType => typeof(CopyBodyValueInstructionTile);
+
+        private TargetBodyType _body = TargetBodyType.Self;
+        [BrainPropertyEnum(true)] public TargetBodyType Body { get => _body; set => _body = value; }
+
+        [SerializeField] private string _tag;
+        [BrainPropertyShow(nameof(Body), (int)TargetBodyType.Tag)]
+        [BrainPropertyMonaTag(true)] public string Tag { get => _tag; set => _tag = value; }
 
         [SerializeField] private MonaBodyValueType _source = MonaBodyValueType.Position;
         [BrainPropertyEnum(true)] public MonaBodyValueType Source { get => _source; set => _source = value; }
@@ -44,7 +52,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private StringCopyType _copyType;
         [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.String)]
         [BrainPropertyEnum(false)]
-        public StringCopyType CopyType { get => _copyType; set => _copyType = value; }
+        public StringCopyType CopyType { get => _copyType; set => _copyType = value; }        
 
         public enum TargetVariableType
         {
@@ -63,6 +71,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             Show = 0,
             Hide = 10
+        }
+
+        public enum TargetBodyType
+        {
+            Tag = 0,
+            Self = 10,
+            Parent = 20,
+            MessageSender = 40,
+            OnConditionTarget = 50,
+            OnHitTarget = 60,
+            MySpawner = 70,
+            LastSpawnedByMe = 80
         }
 
         private IMonaBrain _brain;
@@ -86,27 +106,62 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override InstructionTileResult Do()
         {
-            switch(_source)
+            if (_brain == null)
+                return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            IMonaBody body = GetBody();
+
+            if (body == null)
+                return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            switch (_source)
             {
                 case MonaBodyValueType.StartPosition:
-                    SetVariable(_brain.Body.InitialPosition); break;
+                    SetVariable(body.InitialPosition); break;
                 case MonaBodyValueType.Rotation:
-                    SetVariable(_brain.Body.GetRotation().eulerAngles); break;
+                    SetVariable(body.GetRotation().eulerAngles); break;
                 case MonaBodyValueType.StartRotation:
-                    SetVariable(_brain.Body.InitialRotation.eulerAngles); break;
+                    SetVariable(body.InitialRotation.eulerAngles); break;
                 case MonaBodyValueType.Scale:
-                    SetVariable(_brain.Body.GetScale()); break;
+                    SetVariable(body.GetScale()); break;
                 case MonaBodyValueType.StartScale:
-                    SetVariable(_brain.Body.InitialScale); break;
+                    SetVariable(body.InitialScale); break;
                 case MonaBodyValueType.Velocity:
                     SetVelocity(); break;
                 case MonaBodyValueType.Forward:
-                    SetVariable(_brain.Body.ActiveTransform.forward); break;
+                    SetVariable(body.ActiveTransform.forward); break;
                 default:
-                    SetVariable(_brain.Body.GetPosition()); break;
+                    SetVariable(body.GetPosition()); break;
             }
 
             return Complete(InstructionTileResult.Success);
+        }
+
+        private IMonaBody GetBody()
+        {
+            switch (_body)
+            {
+                case TargetBodyType.Tag:
+                    var tagBodies = MonaBody.FindByTag(_tag);
+                    return tagBodies.Count > 0 ? tagBodies[0] : null;
+                case TargetBodyType.Self:
+                    return _brain.Body;
+                case TargetBodyType.Parent:
+                    return _brain.Body.Parent;
+                case TargetBodyType.MessageSender:
+                    var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
+                    return brain != null ? brain.Body : null;
+                case TargetBodyType.OnConditionTarget:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
+                case TargetBodyType.OnHitTarget:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
+                case TargetBodyType.MySpawner:
+                    return _brain.Body.Spawner;
+                case TargetBodyType.LastSpawnedByMe:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
+                default:
+                    return null;
+            }
         }
         
 
