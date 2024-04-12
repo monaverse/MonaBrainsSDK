@@ -294,6 +294,8 @@ namespace Mona.SDK.Brains.UIEditors
                 {
                     _monaTags = (MonaTags)_brain.MonaTagSource;
                     _tagsEditor.SetMonaTags(_monaTags);
+                    _tagsEditor.Unbind();
+                    _tagsEditor.TrackSerializedObjectValue(new SerializedObject(_monaTags), HandleCallback);
                     tagsWarning.style.display = DisplayStyle.Flex;
                 }
                 else
@@ -306,6 +308,8 @@ namespace Mona.SDK.Brains.UIEditors
                         {
                             _monaTags = (MonaTags)AssetDatabase.LoadAssetAtPath(path, typeof(MonaTags));
                             _tagsEditor.SetMonaTags(_monaTags);
+                            _tagsEditor.Unbind();
+                            _tagsEditor.TrackSerializedObjectValue(new SerializedObject(_monaTags), HandleCallback);
                             tagsWarning.style.display = DisplayStyle.None;
                         }
                         else
