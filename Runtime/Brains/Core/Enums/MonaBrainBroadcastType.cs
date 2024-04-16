@@ -6,6 +6,7 @@ namespace Mona.SDK.Brains.Core.Enums
         Self = 10,
         Parent = 20,
         Children = 30,
+        ThisBodyOnly = 35,
         MessageSender = 40,
         OnConditionTarget = 50,
         OnHitTarget = 60,

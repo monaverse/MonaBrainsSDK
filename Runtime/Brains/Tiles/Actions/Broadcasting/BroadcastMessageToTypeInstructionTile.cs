@@ -70,6 +70,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                         return false;
                     case MonaBrainBroadcastType.Children:
                         return false;
+                    case MonaBrainBroadcastType.ThisBodyOnly:
+                        return false;
                     default:
                         return _includeAttached;
                 }
@@ -104,6 +106,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                     break;
                 case MonaBrainBroadcastType.Children:
                     BroadcastToChildren(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ThisBodyOnly:
+                    BroadcastMessage(_brain, _message, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.AllSpawnedByMe:
                     BroadcastToAllSpawned();
