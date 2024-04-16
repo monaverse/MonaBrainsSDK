@@ -602,8 +602,17 @@ namespace Mona.SDK.Brains.Core.Brain
             {
                 var d = _transformDefaults[i];
                 d.Body.ActiveTransform.SetParent(d.Parent);
-                d.Body.ActiveTransform.position = d.Position;
-                d.Body.ActiveTransform.rotation = d.Rotation;
+
+                if (d.Parent != null)
+                {
+                    d.Body.ActiveTransform.localPosition = d.LocalPosition;
+                    d.Body.ActiveTransform.localRotation = d.LocalRotation;
+                }
+                else
+                {
+                    d.Body.ActiveTransform.position = d.Position;
+                    d.Body.ActiveTransform.rotation = d.Rotation;
+                }
             }
         }
 
