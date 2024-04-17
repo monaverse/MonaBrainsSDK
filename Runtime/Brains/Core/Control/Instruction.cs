@@ -665,6 +665,9 @@ namespace Mona.SDK.Brains.Core.Control
                 }
             }
 
+            if (page == null)
+                return;
+
             if (!page.IsCore)
             {
                 if (instance is IActionStateEndInstructionTile || instance is IActionEndInstructionTile)

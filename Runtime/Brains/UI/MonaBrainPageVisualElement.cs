@@ -85,6 +85,9 @@ namespace Mona.SDK.Brains.UIElements
                     _page.Instructions.RemoveAt(i);
             }
 
+            if (_instructionListView == null)
+                return;
+
             _instructionListView.itemsSource = _page.Instructions;
             _instructionListView.Rebuild();
         }

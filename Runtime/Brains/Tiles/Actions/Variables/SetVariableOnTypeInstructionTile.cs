@@ -28,7 +28,38 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
         [SerializeField] private string _myVariable;
+        [BrainPropertyShow(nameof(VariableType), (int)VariableUsageType.Any)]
         [BrainPropertyValue(typeof(IMonaVariablesValue))] public string MyVariable { get => _myVariable; set => _myVariable = value; }
+
+        [SerializeField] private float _myNumber;
+        [SerializeField] private string _myNumberName;
+        [BrainPropertyShow(nameof(VariableType), (int)VariableUsageType.Number)]
+        [BrainProperty(true)] public float MyNumber { get => _myNumber; set => _myNumber = value; }
+        [BrainPropertyValueName("MyNumber", typeof(IMonaVariablesFloatValue))] public string MyNumberName { get => _myNumberName; set => _myNumberName = value; }
+
+        [SerializeField] private string _myString;
+        [SerializeField] private string _myStringName;
+        [BrainPropertyShow(nameof(VariableType), (int)VariableUsageType.String)]
+        [BrainProperty(true)] public string MyString { get => _myString; set => _myString = value; }
+        [BrainPropertyValueName("MyString", typeof(IMonaVariablesStringValue))] public string MyStringName { get => _myStringName; set => _myStringName = value; }
+
+        [SerializeField] private bool _myBool;
+        [SerializeField] private string _myBoolName;
+        [BrainPropertyShow(nameof(VariableType), (int)VariableUsageType.Boolean)]
+        [BrainProperty(true)] public bool MyBool { get => _myBool; set => _myBool = value; }
+        [BrainPropertyValueName("MyBool", typeof(IMonaVariablesBoolValue))] public string MyBoolName { get => _myBoolName; set => _myBoolName = value; }
+
+        [SerializeField] private Vector2 _myVector2;
+        [SerializeField] private string[] _myVector2Name;
+        [BrainPropertyShow(nameof(VariableType), (int)VariableUsageType.Vector2)]
+        [BrainProperty(true)] public Vector2 MyVector2 { get => _myVector2; set => _myVector2 = value; }
+        [BrainPropertyValueName("MyVector2", typeof(IMonaVariablesVector2Value))] public string[] MyVector2Name { get => _myVector2Name; set => _myVector2Name = value; }
+
+        [SerializeField] private Vector3 _myVector3;
+        [SerializeField] private string[] _myVector3Name;
+        [BrainPropertyShow(nameof(VariableType), (int)VariableUsageType.Vector3)]
+        [BrainProperty(true)] public Vector3 MyVector3 { get => _myVector3; set => _myVector3 = value; }
+        [BrainPropertyValueName("MyVector3", typeof(IMonaVariablesVector3Value))] public string[] MyVector3Name { get => _myVector3Name; set => _myVector3Name = value; }
 
         //[SerializeField] private ValueChangeType _operator = ValueChangeType.Set;
         //[BrainPropertyEnum(true)] public ValueChangeType Operator { get => _operator; set => _operator = value; }
@@ -54,12 +85,26 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainProperty(false)] public bool AddPlayerIdToTag { get => _appendPlayerId; set => _appendPlayerId = value; }
 
+        [SerializeField] private VariableUsageType _variableType = VariableUsageType.Any;
+        [BrainPropertyEnum(false)] public VariableUsageType VariableType { get => _variableType; set => _variableType = value; }
+
         private IMonaBrain _brain;
         private Dictionary<IMonaBody, IMonaBrainRunner> _runnerCache = new Dictionary<IMonaBody, IMonaBrainRunner>();
 
         public SetVariableOnTypeInstructionTile() { }
 
         public void Preload(IMonaBrain brain) => _brain = brain;
+
+        [Serializable]
+        public enum VariableUsageType
+        {
+            Any = 0,
+            Number = 10,
+            String = 20,
+            Boolean = 30,
+            Vector2 = 40,
+            Vector3 = 50
+        }
 
         private bool ModifyAllAttached
         {
@@ -93,10 +138,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             if (_brain == null || string.IsNullOrEmpty(_myVariable))
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
+            var myValue = _brain.Variables.GetVariable(_myVariable);
+
             if (!string.IsNullOrEmpty(_includeAttachedName))
                 _includeAttached = _brain.Variables.GetBool(_includeAttachedName);
 
-            var myValue = _brain.Variables.GetVariable(_myVariable);
+            if (!string.IsNullOrEmpty(_myNumberName))
+                _myNumber = _brain.Variables.GetFloat(_myNumberName);
+
+            if (!string.IsNullOrEmpty(_myStringName))
+                _myString = _brain.Variables.GetString(_myStringName);
+
+            if (!string.IsNullOrEmpty(_myBoolName))
+                _myBool = _brain.Variables.GetBool(_myBoolName);
+
+            if (HasVector2Values(_myVector2Name))
+                _myVector2 = GetVector3Value(_brain, _myVector2Name);
+
+            if (HasVector3Values(_myVector3Name))
+                _myVector3 = GetVector3Value(_brain, _myVector3Name);
 
             switch (_target)
             {
@@ -235,30 +295,39 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 if (brainVariables == null)
                     continue;
 
-                var tagrgetValue = brainVariables.GetVariable(_targetVariable);
+                switch (_variableType)
+                {
+                    case VariableUsageType.Number:
+                        brainVariables.Set(_targetVariable, _myNumber);
+                        break;
+                    case VariableUsageType.String:
+                        brainVariables.Set(_targetVariable, _myString);
+                        break;
+                    case VariableUsageType.Boolean:
+                        brainVariables.Set(_targetVariable, _myBool);
+                        break;
+                    case VariableUsageType.Vector2:
+                        brainVariables.Set(_targetVariable, _myVector2);
+                        break;
+                    case VariableUsageType.Vector3:
+                        brainVariables.Set(_targetVariable, _myVector3);
+                        break;
+                    default:
+                        var tagrgetValue = brainVariables.GetVariable(_targetVariable);
+                        if (tagrgetValue == null)
+                            continue;
 
-                if (tagrgetValue == null)
-                    continue;
-
-                if (tagrgetValue is IMonaVariablesStringValue)
-                {
-                    brainVariables.Set(_targetVariable, _brain.Variables.GetValueAsString(_myVariable));
-                }
-                else if (tagrgetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesFloatValue)
-                {
-                    brainVariables.Set(_targetVariable, ((IMonaVariablesFloatValue)myValue).Value);
-                }
-                else if (tagrgetValue is IMonaVariablesBoolValue && myValue is IMonaVariablesBoolValue)
-                {
-                    brainVariables.Set(_targetVariable, ((IMonaVariablesBoolValue)myValue).Value);
-                }
-                else if (tagrgetValue is IMonaVariablesVector2Value && myValue is IMonaVariablesVector2Value)
-                {
-                    brainVariables.Set(_targetVariable, ((IMonaVariablesVector2Value)myValue).Value);
-                }
-                else if (tagrgetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
-                {
-                    brainVariables.Set(_targetVariable, ((IMonaVariablesVector3Value)myValue).Value);
+                        if (tagrgetValue is IMonaVariablesStringValue)
+                            brainVariables.Set(_targetVariable, _brain.Variables.GetValueAsString(_myVariable));
+                        else if (tagrgetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesFloatValue)
+                            brainVariables.Set(_targetVariable, ((IMonaVariablesFloatValue)myValue).Value);
+                        else if (tagrgetValue is IMonaVariablesBoolValue && myValue is IMonaVariablesBoolValue)
+                            brainVariables.Set(_targetVariable, ((IMonaVariablesBoolValue)myValue).Value);
+                        else if (tagrgetValue is IMonaVariablesVector2Value && myValue is IMonaVariablesVector2Value)
+                            brainVariables.Set(_targetVariable, ((IMonaVariablesVector2Value)myValue).Value);
+                        else if (tagrgetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
+                            brainVariables.Set(_targetVariable, ((IMonaVariablesVector3Value)myValue).Value);
+                        break;
                 }
             }
         }
