@@ -12,6 +12,8 @@ namespace Mona.SDK.Brains.Core.Enums
         OnHitTarget = 60,
         MySpawner = 70,
         LastSpawnedByMe = 80,
-        AllSpawnedByMe = 90
+        AllSpawnedByMe = 90,
+        MyPoolPreviouslySpawned = 100,
+        MyPoolNextSpawned = 110
     }
 }

@@ -232,82 +232,103 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override InstructionTileResult Do()
         {
             var body = GetBody();
-            if (body != null)
-            {
-                if (!string.IsNullOrEmpty(_spawnAsChildName))
-                    _spawnAsChild = _brain.Variables.GetBool(_spawnAsChildName);
 
-                if (_brain.HasPlayerTag(body.MonaTags))
-                    _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
+            if (body == null)
+                Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-                var nextItem = GetAsset();
-                if(nextItem == null)
-                    return Complete(InstructionTileResult.Failure);
+            if (!string.IsNullOrEmpty(_spawnAsChildName))
+                _spawnAsChild = _brain.Variables.GetBool(_spawnAsChildName);
 
-                if (!_pool.ContainsKey(nextItem.PrefabId))
-                    _pool.Add(nextItem.PrefabId, new List<IMonaBody>());
+            if (_brain.HasPlayerTag(body.MonaTags))
+                _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
-                if (_pool[nextItem.PrefabId].Count > 0 || _spawnOnEmpty)
-                {
-                    if(_pool[nextItem.PrefabId].Count == 0)
-                        Spawn(nextItem.PrefabId, nextItem.Value, disable: false);
+            var nextItem = GetAsset();
 
-                    var poolItem = _pool[nextItem.PrefabId][0];
-                    _pool[nextItem.PrefabId].RemoveAt(0);
-                    poolItem.SetScale(_scale, true);
+            if (nextItem == null)
+                return Complete(InstructionTileResult.Failure);
 
-                    var offset = _offset;
-                    if (HasVector3Values(_offsetName))
-                        offset = GetVector3Value(_brain, _offsetName);
+            if (!_pool.ContainsKey(nextItem.PrefabId))
+                _pool.Add(nextItem.PrefabId, new List<IMonaBody>());
 
-                    var eulerAngles = _eulerAngles;
-                    if (HasVector3Values(_eulerAnglesName))
-                        eulerAngles = GetVector3Value(_brain, _eulerAnglesName);
+            if (_pool[nextItem.PrefabId].Count < 1 && !_spawnOnEmpty)
+                return Complete(InstructionTileResult.Failure);
 
-                    var scale = _scale;
-                    if (HasVector3Values(_scaleName))
-                        scale = GetVector3Value(_brain, _scaleName);
- 
-                    poolItem.SetActive(true);
-                    poolItem.SetVisible(false);
+            if (_pool[nextItem.PrefabId].Count == 0)
+                Spawn(nextItem.PrefabId, nextItem.Value, disable: false);
 
-                    if (poolItem.ActiveRigidbody != null)
-                        poolItem.ActiveRigidbody.WakeUp();
+            var poolItem = _pool[nextItem.PrefabId][0];
+            _pool[nextItem.PrefabId].RemoveAt(0);
+            poolItem.SetScale(_scale, true);
 
-                    Vector3 position = body.GetPosition() + body.GetRotation()*offset;
-                    Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
+            var offset = _offset;
+            if (HasVector3Values(_offsetName))
+                offset = GetVector3Value(_brain, _offsetName);
 
-                    poolItem.Transform.SetParent(_spawnAsChild ? _brain.Body.Transform : _defaultParent);
-                    poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
+            var eulerAngles = _eulerAngles;
+            if (HasVector3Values(_eulerAnglesName))
+                eulerAngles = GetVector3Value(_brain, _eulerAnglesName);
 
-                    var childBrains = poolItem.Transform.GetComponentsInChildren<IMonaBrainRunner>();
-                    for(var i = 0;i < childBrains.Length; i++)
-                        childBrains[i].CacheTransforms();
+            var scale = _scale;
+            if (HasVector3Values(_scaleName))
+                scale = GetVector3Value(_brain, _scaleName);
 
-                    poolItem.SetVisible(true);
+            poolItem.SetActive(true);
+            poolItem.SetVisible(false);
 
-                    //Debug.Log($"{nameof(SpawnInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
+            if (poolItem.ActiveRigidbody != null)
+                poolItem.ActiveRigidbody.WakeUp();
 
-                    _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, poolItem);
-                    _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SPAWNED, poolItem);
-                    _brain.SpawnedBodies.Add(poolItem);
-                    SetSpawnerReferenceOnSpawned(poolItem);
-                }
-            }
+            Vector3 position = body.GetPosition() + body.GetRotation() * offset;
+            Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
+
+            poolItem.Transform.SetParent(_spawnAsChild ? _brain.Body.Transform : _defaultParent);
+            poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
+
+            var childBrains = poolItem.Transform.GetComponentsInChildren<IMonaBrainRunner>();
+            for (var i = 0; i < childBrains.Length; i++)
+                childBrains[i].CacheTransforms();
+
+            poolItem.SetVisible(true);
+
+            //Debug.Log($"{nameof(SpawnInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
+            IMonaBody previouslySpawnedBody = _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
+
+            _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, poolItem);
+            _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SPAWNED, poolItem);
+            _brain.SpawnedBodies.Add(poolItem);
+            SetSpawnerReferenceOnSpawned(poolItem, previouslySpawnedBody);
+
+            if (previouslySpawnedBody != null)
+                SetNextBodyReferenceOnPrevious(previouslySpawnedBody, poolItem);
 
             return Complete(InstructionTileResult.Success);
+
         }
 
-        private void SetSpawnerReferenceOnSpawned(IMonaBody spawned)
+        private void SetSpawnerReferenceOnSpawned(IMonaBody spawned, IMonaBody previouslySpawnedBody)
         {
             spawned.Spawner = _brain.Body;
+            spawned.PoolBodyPrevious = previouslySpawnedBody;
 
             var children = spawned.Children();
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i] != null)
-                    SetSpawnerReferenceOnSpawned(children[i]);
+                    SetSpawnerReferenceOnSpawned(children[i], previouslySpawnedBody);
+            }
+        }
+
+        private void SetNextBodyReferenceOnPrevious(IMonaBody targetBody, IMonaBody spawned)
+        {
+            targetBody.PoolBodyNext = spawned;
+
+            var children = targetBody.Children();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i] != null)
+                    SetNextBodyReferenceOnPrevious(children[i], spawned);
             }
         }
 

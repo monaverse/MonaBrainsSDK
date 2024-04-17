@@ -88,8 +88,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             switch (_valuesToSet)
             {
                 case ValuesToSetType.MinAndMax:
-                    variable.Min = _minValue <= _maxValue ? _minValue : _maxValue;
-                    variable.Max = _maxValue >= _minValue ? _maxValue : _minValue;
+                    variable.ForceMinMax(_minValue, _maxValue);
                     break;
                 case ValuesToSetType.MinOnly:
                     if (_minValue <= variable.Max)
