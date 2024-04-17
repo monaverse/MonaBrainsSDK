@@ -26,11 +26,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         public SetAnimatorIntegerInstructionTile() { }
 
-        [SerializeField] private string _floatName = null;
-        [BrainProperty(true)] public string FloatName { get => _floatName; set => _floatName = value; }
+        [SerializeField] private string _integerName = null;
+        [BrainProperty(true)] public string IntegerName { get => _integerName; set => _integerName = value; }
 
-        [SerializeField] private float _floatValue = 0;
-        [BrainProperty(true)] public float BoolValue { get => _floatValue; set => _floatValue = value; }
+        [SerializeField] private int _value = 0;
+        [SerializeField] private string _valueName;
+        [BrainProperty(true)] public int Value { get => _value; set => _value = value; }
+        [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))] public string ValueName { get => _valueName; set => _valueName = value; }
 
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
 
@@ -111,16 +113,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         private void HandleMonaValueChanged(MonaValueChangedEvent evt)
         {
-            if(_brain.Body.Animator != null && evt.Value is IMonaVariablesFloatValue && evt.Name == _floatName)
+            if(_brain.Body.Animator != null && evt.Value is IMonaVariablesFloatValue && evt.Name == _integerName)
             {
-                _brain.Body.Animator.SetInteger(_floatName, (int)((IMonaVariablesFloatValue)evt.Value).Value);
+                _brain.Body.Animator.SetInteger(_integerName, (int)((IMonaVariablesFloatValue)evt.Value).Value);
             }
             Debug.Log($"{nameof(HandleMonaValueChanged)}", _brain.Body.Transform.gameObject);
         }
 
         public override InstructionTileResult Do()
         {
-            _brain.Variables.Set(_floatName, _floatValue);
+            if (_brain == null || _brain.Body.Animator == null)
+                Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            if (!string.IsNullOrEmpty(_valueName))
+                _value = (int)_brain.Variables.GetFloat(_valueName);
+
+            _brain.Body.Animator.SetInteger(_integerName, _value);
+
             return Complete(InstructionTileResult.Success);
         }
     }

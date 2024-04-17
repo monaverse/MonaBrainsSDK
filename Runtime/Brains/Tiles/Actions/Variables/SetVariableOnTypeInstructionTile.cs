@@ -71,6 +71,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                         return false;
                     case MonaBrainBroadcastType.Children:
                         return false;
+                    case MonaBrainBroadcastType.ThisBodyOnly:
+                        return false;
                     default:
                         return _includeAttached;
                 }
@@ -104,6 +106,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     break;
                 case MonaBrainBroadcastType.Children:
                     ModifyOnChildren(myValue, _brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ThisBodyOnly:
+                    ModifyValueOnBrains(myValue, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.AllSpawnedByMe:
                     ModifyOnAllSpawned(myValue);
@@ -209,7 +214,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         private void ModifyValueOnBrains(IMonaVariablesValue myValue, IMonaBody body)
         {
-            if (body.ActiveTransform == null)//RG - won't allow me to use one brain on a body to set another brain on the same body, commenting for now || (body == _brain.Body && _targetVariable == _myVariable))
+            if (body.ActiveTransform == null)
                 return;
 
             var runner = GetCachedRunner(body);

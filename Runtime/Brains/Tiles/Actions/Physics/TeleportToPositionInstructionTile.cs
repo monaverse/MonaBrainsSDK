@@ -21,6 +21,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainProperty(true)] public Vector3 Value { get => _value; set => _value = value; }
         [BrainPropertyValueName("Value", typeof(IMonaVariablesVector3Value))] public string[] ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
+        [SerializeField] private bool _setToLocal = false;
+        [BrainProperty(false)] public bool SetToLocal { get => _setToLocal; set => _setToLocal = value; }
+
         private IMonaBrain _brain;
 
         public TeleportToPositionInstructionTile() { }
@@ -38,7 +41,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             //Debug.Log($"{nameof(TeleportToPositionInstructionTile)} {_value} {_valueValueName}");
             if (_brain != null)
             {
-                _brain.Body.TeleportPosition(_value, true);
+                _brain.Body.TeleportPosition(_value, true, _setToLocal);
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);

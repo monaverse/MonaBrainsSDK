@@ -18,7 +18,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public const string CATEGORY = "General";
         public override Type TileType => typeof(CopyBodyValueInstructionTile);
 
-        private TargetBodyType _body = TargetBodyType.Self;
+        [SerializeField] private TargetBodyType _body = TargetBodyType.Self;
         [BrainPropertyEnum(true)] public TargetBodyType Body { get => _body; set => _body = value; }
 
         [SerializeField] private string _tag;
@@ -49,7 +49,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.String)]
         [BrainPropertyValue(typeof(IMonaVariablesStringValue), true)] public string TargetString { get => _targetString; set => _targetString = value; }
 
-        private StringCopyType _copyType;
+        [SerializeField] private StringCopyType _copyType;
         [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.String)]
         [BrainPropertyEnum(false)]
         public StringCopyType CopyType { get => _copyType; set => _copyType = value; }        
@@ -112,7 +112,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             IMonaBody body = GetBody();
 
             if (body == null)
-                return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+                return Complete(InstructionTileResult.Success);
 
             switch (_source)
             {

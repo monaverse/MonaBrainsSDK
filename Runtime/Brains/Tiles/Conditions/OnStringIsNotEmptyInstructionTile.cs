@@ -20,7 +20,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override Type TileType => typeof(OnStringIsNotEmptyInstructionTile);
 
         [SerializeField] private string _valueName;
-        [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
+        [BrainPropertyValue(typeof(IMonaVariablesValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
 
         private IMonaBrain _brain;
 
@@ -41,7 +41,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-            string stringValue = _brain.Variables.GetString(_valueName);
+            string stringValue = _brain.Variables.GetValueAsString(_valueName);
 
             return !string.IsNullOrEmpty(stringValue) ?
                 Complete(InstructionTileResult.Success) :

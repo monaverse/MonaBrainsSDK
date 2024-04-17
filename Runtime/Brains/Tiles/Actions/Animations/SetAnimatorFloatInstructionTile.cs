@@ -29,8 +29,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
         [SerializeField] private string _floatName = null;
         [BrainProperty(true)] public string FloatName { get => _floatName; set => _floatName = value; }
 
-        [SerializeField] private float _floatValue = 0;
-        [BrainProperty(true)] public float BoolValue { get => _floatValue; set => _floatValue = value; }
+        [SerializeField] private float _value = 0;
+        [SerializeField] private string _valueName;
+        [BrainProperty(true)] public float Value { get => _value; set => _value = value; }
+        [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))] public string ValueName { get => _valueName; set => _valueName = value; }
+
 
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
 
@@ -120,7 +123,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         public override InstructionTileResult Do()
         {
-            _brain.Variables.Set(_floatName, _floatValue);
+            if (_brain == null || _brain.Body.Animator == null)
+                Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            if (!string.IsNullOrEmpty(_valueName))
+                _value = _brain.Variables.GetFloat(_valueName);
+
+            _brain.Body.Animator.SetFloat(_floatName, _value);
+
             return Complete(InstructionTileResult.Success);
         }
     }
