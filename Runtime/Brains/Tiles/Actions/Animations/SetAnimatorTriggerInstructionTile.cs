@@ -26,6 +26,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         public SetAnimatorTriggerInstructionTile() { }
 
+        public bool IsAnimationTile => true;
+
         [SerializeField] private string _triggerName = null;
         [BrainProperty(true)] public string TriggerName { get => _triggerName; set => _triggerName = value; }
 

@@ -410,22 +410,37 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if (!HasAnimationTiles()) return;
 
             var found = false;
-            if (_body.Transform.childCount == 1)
-            {
-                var child = _body.Transform.GetChild(0);
-                if (Vector3.Distance(child.position, _body.GetPosition()) < Mathf.Epsilon)
-                {
-                    _root = child;
-                    found = true;
-                }
-            }
-            else if (_body.Transform.Find("Root") != null)
+            if (_body.Transform.Find("Root") != null)
             {
                 var child = _body.Transform.Find("Root");
                 if (Vector3.Distance(child.position, _body.GetPosition()) < Mathf.Epsilon)
                 {
                     _root = child;
                     found = true;
+                }
+            }
+            else if (_body.Transform.childCount > 0)
+            {
+                for (var i = 0; i < _body.Transform.childCount; i++)
+                {
+                    var child = _body.Transform.GetChild(i);
+                    if(child.GetComponent<Animator>() != null)
+                    {
+                        _root = child;
+                        _root.name = "Root";
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found)
+                {
+                    var child = _body.Transform.GetChild(0);
+                    if (Vector3.Distance(child.position, _body.GetPosition()) < Mathf.Epsilon)
+                    {
+                        _root = child;
+                        _root.name = "Root";
+                        found = true;
+                    }
                 }
             }
 
@@ -458,6 +473,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private void SetupAnimation(Animator animator)
         {
             if (!HasAnimationTiles()) return;
+
             switch (PropertyType)
             {
                 default:
@@ -765,8 +781,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             RemoveHierarchyDelegates();
             _began = false;
 
-            if(_root != null && (MonoBehaviour)_root.GetComponent<IMonaAnimationController>() != null)
-                Destroy((MonoBehaviour)_root.GetComponent<IMonaAnimationController>());
+            //if(_root != null && (MonoBehaviour)_root.GetComponent<IMonaAnimationController>() != null)
+            //    Destroy((MonoBehaviour)_root.GetComponent<IMonaAnimationController>());
 
             RemoveMonaAssetsFromNetwork();
         }

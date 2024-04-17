@@ -31,8 +31,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public const string CATEGORY = "Character";
         public override Type TileType => typeof(ChangeAvatarInstructionTile);
 
+        public bool IsAnimationTile => _target == MonaBrainBroadcastType.Self;
+
+        [SerializeField] private MonaBrainBroadcastType _target = MonaBrainBroadcastType.Self;
+        [BrainPropertyEnum(true)] public MonaBrainBroadcastType Target { get => _target; set => _target = value; }
+
+        [SerializeField] private string _targetTag;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
+        [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
+
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaAvatarAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
+
+        [SerializeField] private string _monaAssetName = null;
+        [BrainPropertyValueName(nameof(MonaAsset), typeof(IMonaVariablesStringValue))] public string MonaAssetName { get => _monaAssetName; set => _monaAssetName = value; }
 
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
@@ -43,6 +55,38 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         private Vector3 _eulerAngles = Vector3.zero;
         [BrainProperty(false)]
         public Vector3 Rotation { get => _eulerAngles; set => _eulerAngles = value; }
+
+        [SerializeField] private bool _includeAttached = true;
+        [SerializeField] private string _includeAttachedName;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MessageSender)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.OnConditionTarget)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.OnHitTarget)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MySpawner)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.LastSpawnedByMe)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.AllSpawnedByMe)]
+        [BrainProperty(false)] public bool IncludeAttached { get => _includeAttached; set => _includeAttached = value; }
+        [BrainPropertyValueName("IncludeAttached", typeof(IMonaVariablesBoolValue))] public string IncludeAttachedName { get => _includeAttachedName; set => _includeAttachedName = value; }
+
+        private bool ModifyAllAttached
+        {
+            get
+            {
+                switch (_target)
+                {
+                    case MonaBrainBroadcastType.Self:
+                        return false;
+                    case MonaBrainBroadcastType.Parent:
+                        return false;
+                    case MonaBrainBroadcastType.Children:
+                        return false;
+                    case MonaBrainBroadcastType.ThisBodyOnly:
+                        return false;
+                    default:
+                        return _includeAttached;
+                }
+            }
+        }
 
         private IMonaBrain _brain;
         private Transform _root;
@@ -59,9 +103,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         {
             _brain = brainInstance;
 
-            OnAnimationControllerChanged = HandleAnimationControllerChanged;
-            EventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
-
             SetupAnimation();
         }
 
@@ -72,11 +113,107 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         private void SetupAnimation()
         {
-            if (_brain.Root != null)
-                _monaAnimationController = _brain.Root.GetComponent<IMonaAnimationController>();
+            switch (_target)
+            {
+                case MonaBrainBroadcastType.Tag:
+                    SetupOnTag();
+                    break;
+                case MonaBrainBroadcastType.Self:
+                    SetupOnWholeEntity(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.Children:
+                    SetupOnChildren(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ThisBodyOnly:
+                    SetupAnimation(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.AllSpawnedByMe:
+                    SetupOnAllSpawned();
+                    break;
+                default:
+                    IMonaBody targetBody = GetTarget();
+
+                    if (targetBody == null)
+                        break;
+
+                    //if (ModifyAllAttached)
+                    //    SetupOnWholeEntity(targetBody);
+                    //else
+                        SetupAnimation(targetBody);
+                    break;
+            }
+
+        }
+
+        private void SetupOnTag()
+        {
+            var tagBodies = MonaBody.FindByTag(_targetTag);
+
+            if (tagBodies.Count < 1)
+                return;
+
+            for (int i = 0; i < tagBodies.Count; i++)
+            {
+                if (tagBodies[i] == null)
+                    continue;
+
+                //if (ModifyAllAttached)
+                //    ModifyOnWholeEntity(tagBodies[i]);
+                //else
+                SetupAnimation(tagBodies[i]);
+            }
+        }
+
+        private void SetupOnWholeEntity(IMonaBody body)
+        {
+            IMonaBody topBody = body;
+            while (topBody.Parent != null)
+                topBody = topBody.Parent;
+
+            ChangeAvatar(topBody);
+            SetupAnimation(topBody);
+        }
+
+        private void SetupOnChildren(IMonaBody body)
+        {
+            var children = body.Children();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i] == null)
+                    continue;
+
+                ChangeAvatar(children[i]);
+                SetupAnimation(children[i]);
+            }
+        }
+
+        private void SetupOnAllSpawned()
+        {
+            var spawned = _brain.SpawnedBodies;
+
+            for (int i = 0; i < spawned.Count; i++)
+            {
+                if (spawned[i] == null)
+                    continue;
+
+                if (ModifyAllAttached)
+                    SetupAnimation(spawned[i]);
+                else
+                    ChangeAvatar(spawned[i]);
+            }
+        }
+
+        private void SetupAnimation(IMonaBody body)
+        {
+            OnAnimationControllerChanged = HandleAnimationControllerChanged;
+            EventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, body), OnAnimationControllerChanged);
+
+            if (body.Transform.Find("Root") != null)
+                _monaAnimationController = body.Transform.Find("Root").GetComponent<IMonaAnimationController>();
             else
             {
-                var children = _brain.Body.Children();
+                var children = body.Children();
                 for (var i = 0; i < children.Count; i++)
                 {
                     var root = children[i].Transform.Find("Root");
@@ -87,6 +224,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     }
                 }
             }
+
+            if (_monaAnimationController != null)
+                _avatarInstance = _monaAnimationController.Animator;
+
             _avatarAsset = (IMonaAvatarAssetItem)_brain.GetMonaAsset(_monaAsset);
         }
 
@@ -95,14 +236,126 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             return _brain.Body;
         }
 
-        private IMonaBody GetTarget()
-        {
-            return _brain.Body;
-        }
-
         public override InstructionTileResult Do()
         {
-            var body = GetTarget();
+            switch (_target)
+            {
+                case MonaBrainBroadcastType.Tag:
+                    ModifyOnTag();
+                    break;
+                case MonaBrainBroadcastType.Self:
+                    ModifyOnWholeEntity(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.Children:
+                    ModifyOnChildren(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ThisBodyOnly:
+                    ChangeAvatar(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.AllSpawnedByMe:
+                    ModifyOnAllSpawned();
+                    break;
+                default:
+                    IMonaBody targetBody = GetTarget();
+
+                    if (targetBody == null)
+                        break;
+
+                    //if (ModifyAllAttached)
+                    //    ModifyOnWholeEntity(targetBody);
+                    //else
+                        ChangeAvatar(targetBody);
+
+                    break;
+            }
+
+            return Complete(InstructionTileResult.Success);
+        }
+
+        private void ModifyOnTag()
+        {
+            var tagBodies = MonaBody.FindByTag(_targetTag);
+
+            if (tagBodies.Count < 1)
+                return;
+
+            for (int i = 0; i < tagBodies.Count; i++)
+            {
+                if (tagBodies[i] == null)
+                    continue;
+
+                //if (ModifyAllAttached)
+                //    ModifyOnWholeEntity(tagBodies[i]);
+                //else
+                    ChangeAvatar(tagBodies[i]);
+            }
+        }
+
+        private void ModifyOnWholeEntity(IMonaBody body)
+        {
+            IMonaBody topBody = body;
+            while (topBody.Parent != null)
+                topBody = topBody.Parent;
+
+            ChangeAvatar(topBody);
+            ModifyOnChildren(topBody);
+        }
+
+        private void ModifyOnChildren(IMonaBody body)
+        {
+            var children = body.Children();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i] == null)
+                    continue;
+
+                ChangeAvatar(children[i]);
+                ModifyOnChildren(children[i]);
+            }
+        }
+
+        private void ModifyOnAllSpawned()
+        {
+            var spawned = _brain.SpawnedBodies;
+
+            for (int i = 0; i < spawned.Count; i++)
+            {
+                if (spawned[i] == null)
+                    continue;
+
+                if (ModifyAllAttached)
+                    ModifyOnWholeEntity(spawned[i]);
+                else
+                    ChangeAvatar(spawned[i]);
+            }
+        }
+
+        private IMonaBody GetTarget()
+        {
+            switch (_target)
+            {
+                case MonaBrainBroadcastType.Parent:
+                    return _brain.Body.Parent;
+                case MonaBrainBroadcastType.MessageSender:
+                    var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
+                    if (brain != null)
+                        return brain.Body;
+                    break;
+                case MonaBrainBroadcastType.OnConditionTarget:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
+                case MonaBrainBroadcastType.OnHitTarget:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
+                case MonaBrainBroadcastType.MySpawner:
+                    return _brain.Body.Spawner;
+                case MonaBrainBroadcastType.LastSpawnedByMe:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
+            }
+            return null;
+        }
+
+        private InstructionTileResult ChangeAvatar(IMonaBody body)
+        {
             if (body != null)
             {
                 if (_brain.HasPlayerTag(body.MonaTags))
@@ -110,20 +363,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
                 if (_avatarAsset.Value != null)
                 {
-                    LoadAvatar(GameObject.Instantiate(_avatarAsset.Value));
+                    LoadAvatar(GameObject.Instantiate(_avatarAsset.Value), body);
                     return Complete(InstructionTileResult.Success);
                 }
                 else if (!string.IsNullOrEmpty(_avatarAsset.Url))
                 {
-                    LoadAvatarAtUrl(_avatarAsset.Url);
+                    LoadAvatarAtUrl(_avatarAsset.Url, body);
                     return Complete(InstructionTileResult.Running);
                 }
             }
-
-            return Complete(InstructionTileResult.Success);
+            return InstructionTileResult.Failure;
         }
 
-        private void LoadAvatarAtUrl(string url)
+
+        private void LoadAvatarAtUrl(string url, IMonaBody body)
         {
             var loader = _brain.Body.Transform.GetComponent<BrainsVrmLoader>();
             if (loader == null)
@@ -136,16 +389,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     var animator = avatar.GetComponent<Animator>();
                     if (animator == null)
                         animator = avatar.AddComponent<Animator>();
-                    LoadAvatar(animator);
+                    LoadAvatar(animator, body);
                 }
                 Complete(InstructionTileResult.Success, true);
             });
         }
 
-        private void LoadAvatar(Animator animator)
+        private void LoadAvatar(Animator animator, IMonaBody body)
         {
             _avatarInstance = animator;
-            _avatarInstance.transform.SetParent(_brain.Root);
+            var root = body.Transform.Find("Root");
+            _avatarInstance.transform.SetParent(root);
+
             _monaAnimationController.SetAnimator(_avatarInstance);
 
             var parts = new List<IMonaBodyPart>(_avatarInstance.transform.GetComponentsInChildren<IMonaBodyPart>());
@@ -198,8 +453,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 }
             }
 
-            var body = _brain.Body;
-
             var parent = body;
             while (parent != null)
             {
@@ -213,6 +466,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 body = body.Parent;
             }
 
+            _avatarInstance.transform.localScale = Vector3.one;
             _avatarInstance.transform.localPosition = _offset;
             _avatarInstance.transform.localRotation = Quaternion.Euler(_eulerAngles);
 
@@ -223,7 +477,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 EventBus.Trigger<MonaPlayerChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_CHANGE_AVATAR_EVENT), new MonaPlayerChangeAvatarEvent(playerId, _avatarInstance));
 
             Debug.Log($"{_avatarInstance} {_offset} {_avatarInstance.transform.position} brain body1 {_brain.Body.Transform.position}");
-
         }
 
         public override void Unload()
@@ -232,13 +485,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             EventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
 
-            if (_wearableTransforms != null)
-            {
-                for (var i = 0; i < _wearableTransforms.Count; i++)
-                    GameObject.Destroy(_wearableTransforms[i].gameObject);
-            }
-            if(_avatarInstance != null)
-                GameObject.Destroy(_avatarInstance.transform.gameObject);
+            //if(_avatarInstance != null)
+            //    GameObject.Destroy(_avatarInstance.transform.gameObject);
             _avatarInstance = null;
         }
 

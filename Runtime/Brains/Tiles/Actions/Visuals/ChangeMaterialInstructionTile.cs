@@ -30,6 +30,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         public const string CATEGORY = "Visuals";
         public override Type TileType => typeof(ChangeMaterialInstructionTile);
 
+        public bool IsAnimationTile => true;
+
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaMaterialAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
 

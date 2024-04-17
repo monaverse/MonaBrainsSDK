@@ -26,6 +26,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         public SetAnimatorBoolInstructionTile() { }
 
+        public bool IsAnimationTile => true;
+
         [SerializeField] private string _boolName = null;
         [BrainProperty(true)] public string BoolName { get => _boolName; set => _boolName = value; }
 

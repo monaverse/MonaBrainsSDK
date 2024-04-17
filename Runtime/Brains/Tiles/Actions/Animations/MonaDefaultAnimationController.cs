@@ -101,7 +101,12 @@ namespace Mona.SDK.Brains.Core.Animation
                 if (bodyAnimator != null)
                     _animator = bodyAnimator;
                 else
-                    _animator = gameObject.GetComponent<Animator>();
+                {
+                    var childAnimator = gameObject.GetComponentInChildren<Animator>();
+                    if (childAnimator != null && (childAnimator.transform.parent == transform || childAnimator.transform == transform))
+                        _animator = childAnimator;
+                }
+
                 if (_animator == null)
                     _animator = gameObject.AddComponent<Animator>();
             }
@@ -109,7 +114,8 @@ namespace Mona.SDK.Brains.Core.Animation
             {
                 if (_animator != null && _animator != animator)
                 {
-                    Destroy(_animator);
+                    if(_animator.gameObject != null)
+                        Destroy(_animator.gameObject);
                 }
                 _animator = animator;
                 _brain.Body.SetAnimator(_animator);

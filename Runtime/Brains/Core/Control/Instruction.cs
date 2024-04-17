@@ -180,7 +180,7 @@ namespace Mona.SDK.Brains.Core.Control
         {
             for (var i = 0; i < InstructionTiles.Count; i++)
             {
-                if (InstructionTiles[i] is IAnimationInstructionTile)
+                if (InstructionTiles[i] is IAnimationInstructionTile && ((IAnimationInstructionTile)InstructionTiles[i]).IsAnimationTile)
                     return true;
             }
             return false;

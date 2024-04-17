@@ -26,6 +26,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         public SetAnimatorIntegerInstructionTile() { }
 
+        public bool IsAnimationTile => true;
+
         [SerializeField] private string _integerName = null;
         [BrainProperty(true)] public string IntegerName { get => _integerName; set => _integerName = value; }
 

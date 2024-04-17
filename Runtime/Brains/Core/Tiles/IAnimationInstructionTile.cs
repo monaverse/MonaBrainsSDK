@@ -2,5 +2,6 @@
 {
     public interface IAnimationInstructionTile
     {
+        bool IsAnimationTile { get; }
     }
 }

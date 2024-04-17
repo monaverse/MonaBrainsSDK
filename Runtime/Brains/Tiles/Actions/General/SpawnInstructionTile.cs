@@ -155,8 +155,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
                     _pool[prefabId].Add(child);
                     child.OnDisabled += HandleBodyDisabled;
-                    if(disable)
+                    if (disable)
                         child.SetActive(false);
+                    else
+                        child.SetActive(true);
                 }
 
                 ((MonaBodyBase)child).PrefabId = prefabId;

@@ -26,6 +26,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         public SetAnimatorFloatInstructionTile() { }
 
+        public bool IsAnimationTile => true;
+
         [SerializeField] private string _floatName = null;
         [BrainProperty(true)] public string FloatName { get => _floatName; set => _floatName = value; }
 

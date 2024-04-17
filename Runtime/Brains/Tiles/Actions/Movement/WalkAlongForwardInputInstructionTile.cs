@@ -17,6 +17,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public const string CATEGORY = "Character";
         public override Type TileType => typeof(WalkAlongForwardInputInstructionTile);
 
+        public bool IsAnimationTile => true;
+
         public override MoveDirectionType DirectionType => MoveDirectionType.InputForwardBack;
 
         private IMonaAnimationController _controller;

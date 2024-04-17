@@ -19,6 +19,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public new const string CATEGORY = "Character";
         public override Type TileType => typeof(JumpInstructionTile);
 
+        public bool IsAnimationTile => true;
+
         private IMonaAnimationController _controller;
         private Action<MonaBodyFixedTickEvent> OnJumpTick;
 

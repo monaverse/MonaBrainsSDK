@@ -24,6 +24,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public const string CATEGORY = "Character";
         public override Type TileType => typeof(WearAssetInstructionTile);
 
+        public bool IsAnimationTile => true;
+
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaWearableAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
 

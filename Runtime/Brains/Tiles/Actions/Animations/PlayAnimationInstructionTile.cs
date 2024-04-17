@@ -27,6 +27,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         public PlayAnimationInstructionTile() { }
 
+        public bool IsAnimationTile => true;
+
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaAnimationAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
 
@@ -141,8 +143,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         public override void Unload()
         {
-            var controller = _root.GetComponent<MonaDefaultAnimationController>();
-            GameObject.Destroy(controller);
+            //var controller = _root.GetComponent<MonaDefaultAnimationController>();
+            //GameObject.Destroy(controller);
             RemoveFixedTickDelegate();
 
             EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);

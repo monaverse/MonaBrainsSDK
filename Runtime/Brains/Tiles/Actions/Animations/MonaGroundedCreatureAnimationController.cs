@@ -77,14 +77,26 @@ namespace Mona.SDK.Brains.Core.Animation
         {
             if (animator == null)
             {
-                _animator = gameObject.GetComponent<Animator>();
+                var bodyAnimator = _brain.Body.Transform.GetComponent<Animator>();
+                if (bodyAnimator != null)
+                    _animator = bodyAnimator;
+                else
+                {
+                    var childAnimator = gameObject.GetComponentInChildren<Animator>();
+                    if (childAnimator != null && (childAnimator.transform.parent == transform || childAnimator.transform == transform))
+                        _animator = childAnimator;
+                }
+
                 if (_animator == null)
                     _animator = gameObject.AddComponent<Animator>();
             }
             else
             {
                 if (_animator != null && _animator != animator)
-                    Destroy(_animator);
+                {
+                    if (_animator.gameObject != null)
+                        Destroy(_animator.gameObject);
+                }
                 _animator = animator;
                 _brain.Body.SetAnimator(_animator);
             }
@@ -111,6 +123,12 @@ namespace Mona.SDK.Brains.Core.Animation
                 _animator.Rebind();
             }
             _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
+        }
+
+        private IEnumerator DestroyNextFrame(GameObject go)
+        {
+            yield return null;
+            GameObject.Destroy(go);
         }
 
         public void SetAnimator(Animator animator)
