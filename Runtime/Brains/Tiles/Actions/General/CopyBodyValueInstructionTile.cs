@@ -82,7 +82,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             OnConditionTarget = 50,
             OnHitTarget = 60,
             MySpawner = 70,
-            LastSpawnedByMe = 80
+            LastSpawnedByMe = 80,
+            MyPoolPreviouslySpawned = 100,
+            MyPoolNextSpawned = 110
         }
 
         private IMonaBrain _brain;

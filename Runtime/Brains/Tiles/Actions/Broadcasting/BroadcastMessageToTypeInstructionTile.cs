@@ -41,6 +41,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.MySpawner)]
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.LastSpawnedByMe)]
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.AllSpawnedByMe)]
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.MyPoolPreviouslySpawned)]
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.MyPoolNextSpawned)]
         [BrainProperty(false)] public bool IncludeAttached { get => _includeAttached; set => _includeAttached = value; }
         [BrainPropertyValueName("IncludeAttached", typeof(IMonaVariablesBoolValue))] public string IncludeAttachedName { get => _includeAttachedName; set => _includeAttachedName = value; }
 
@@ -237,6 +239,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                     return _brain.Body.Spawner;
                 case MonaBrainBroadcastType.LastSpawnedByMe:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
+                case MonaBrainBroadcastType.MyPoolPreviouslySpawned:
+                    return _brain.Body.PoolBodyPrevious;
+                case MonaBrainBroadcastType.MyPoolNextSpawned:
+                    return _brain.Body.PoolBodyNext;
             }
             return null;
         }
