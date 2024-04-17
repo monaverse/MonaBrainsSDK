@@ -42,7 +42,7 @@ namespace Mona.SDK.Brains.UIElements
                 {
                     for (var i = 0; i < _assetSource.Count; i++)
                     {
-                        if (_assetSource[i].MonaAsset.Name == _brain.MonaAssets[_listIndex].Name)
+                        if (_assetSource[i] != null && _assetSource[i].MonaAsset.Name == _brain.MonaAssets[_listIndex].Name)
                         {
 #if UNITY_EDITOR
                             Selection.activeObject = (MonaAssetsDefinition)_assetSource[i];
@@ -79,9 +79,9 @@ namespace Mona.SDK.Brains.UIElements
             if (_assetSource == null)
             {
                 _assetSource = new List<MonaAssetsDefinition>();
+                _assetSource.Clear();
 #if UNITY_EDITOR
                 string[] guids = AssetDatabase.FindAssets("t:MonaAssetsDefinition", null);
-                _assetSource.Clear();
                 foreach (string guid in guids)
                     _assetSource.Add(((MonaAssetsDefinition)AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guid), typeof(MonaAssetsDefinition))));
 #endif

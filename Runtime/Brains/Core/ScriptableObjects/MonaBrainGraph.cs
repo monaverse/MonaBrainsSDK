@@ -95,6 +95,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         protected List<IMonaAssetProvider> _monaAssets = new List<IMonaAssetProvider>();
         public List<IMonaAssetProvider> MonaAssets => _monaAssets;
 
+        private List<IMonaAssetProviderBehaviour> _childAssets;
         private List<IMonaAssetItem> _assets = new List<IMonaAssetItem>();
         public List<IMonaAssetItem> GetAllMonaAssets()
         {
@@ -308,6 +309,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             _index = index;
             CacheReferences(gameObject, runner, _index);
+            CacheChildMonaAssets();
             AddMonaAssetsToNetwork();
             CacheReservedBrainVariables();
             BuildRoot();
@@ -315,6 +317,18 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             PreloadPages();
             AddEventDelegates();
             AddHierarchyDelgates();
+        }
+
+        private void CacheChildMonaAssets()
+        {
+            if (_childAssets == null)
+                _childAssets = new List<IMonaAssetProviderBehaviour>(_body.Transform.GetComponentsInChildren<IMonaAssetProviderBehaviour>(true));
+
+            for(var i = 0;i < _childAssets.Count; i++)
+            {
+                if(_childAssets[i].MonaAssetProvider != null)
+                    _monaAssets.Add(_childAssets[i].MonaAssetProvider);
+            }
         }
 
         private void CacheReservedBrainVariables()

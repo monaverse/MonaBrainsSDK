@@ -209,7 +209,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         private void ModifyValueOnBrains(IMonaVariablesValue myValue, IMonaBody body)
         {
-            if (body.ActiveTransform == null || (body == _brain.Body && _targetVariable == _myVariable))
+            if (body.ActiveTransform == null)//RG - won't allow me to use one brain on a body to set another brain on the same body, commenting for now || (body == _brain.Body && _targetVariable == _myVariable))
                 return;
 
             var runner = GetCachedRunner(body);
