@@ -36,11 +36,24 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Look)]
         public MonaInputMoveType MoveDirection { get => _moveDirection; set => _moveDirection = value; }
 
-        [SerializeField]
-        private bool _useLookAsMove;
+        [SerializeField] private bool _useLookAsMove;
         [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Look)]
-        [BrainProperty(true)]
-        public bool UseLookAsMove { get => _useLookAsMove; set => _useLookAsMove = value; }
+        [BrainProperty(true)] public bool UseLookAsMove { get => _useLookAsMove; set => _useLookAsMove = value; }
+
+        [SerializeField] private bool _allowTouch;
+        [BrainProperty(false)] public bool AllowTouch { get => _allowTouch; set => _allowTouch = value; }
+
+        [SerializeField] private float _gestureTimeout;
+        [BrainPropertyShow(nameof(AllowTouch), true)]
+        [BrainProperty(false)] public float GestureTimeout { get => _gestureTimeout; set => _gestureTimeout = value; }
+
+        [SerializeField] private float _joystickSize = 500;
+        [BrainPropertyShow(nameof(AllowTouch), true)]
+        [BrainProperty(false)] public float JoystickSize { get => _joystickSize; set => _joystickSize = value; }
+
+        [SerializeField] private float _joystickSizeDeadZone = 200;
+        [BrainPropertyShow(nameof(AllowTouch), true)]
+        [BrainProperty(false)] public float JoystickDeadZone { get => _joystickSizeDeadZone; set => _joystickSizeDeadZone = value; }
 
         protected override MonaInputState GetInputState() => _inputState;
 
@@ -52,10 +65,16 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (BrainOnRemotePlayer()) return;
 
+            if (_joystickSize == 0)
+                _joystickSize = 500f;
+
+            if (_joystickSizeDeadZone == 0)
+                _joystickSizeDeadZone = _joystickSize * .1f;
+
             //if (_useLookAsMove)
             //    Cursor.lockState = CursorLockMode.Locked;
 
-            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, _inputType, GetInputState());
+            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, _inputType, GetInputState(), _allowTouch, _gestureTimeout, _joystickSize, _joystickSizeDeadZone);
             if (localInput.GetButton(_inputType) == _inputState)
             {
                 //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_inputState}");
@@ -69,14 +88,16 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         protected override void HandleBodyInput(MonaInputEvent evt)
         {
-            //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {evt.Input.GetButton(_inputType)}");
             _bodyInput = evt.Input;
             var input = _bodyInput.MoveValue;
             if (_inputType == MonaInputType.Look)
                 input = _bodyInput.LookValue;
             
-            var xDown = Mathf.Abs(input.x) > MonaBrainInput.DEAD_ZONE;
-            var yDown = Mathf.Abs(input.y) > MonaBrainInput.DEAD_ZONE;
+            var xDown = Mathf.Abs(input.x) > _joystickSizeDeadZone / _joystickSize;
+            var yDown = Mathf.Abs(input.y) > _joystickSizeDeadZone / _joystickSize;
+
+            if (!xDown) input.x = 0;
+            if (!yDown) input.y = 0;
 
             bool shouldClear = false;
 
@@ -207,6 +228,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
             }
 
+            Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_moveDirection} {input} {xDown} {yDown}");
+
             if (shouldClear)
             {
                 ClearInput();
@@ -225,8 +248,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private Vector2 LockDiagonal(Vector2 input)
         {
-            var xDown = Mathf.Abs(input.x) > MonaBrainInput.DEAD_ZONE;
-            var yDown = Mathf.Abs(input.y) > MonaBrainInput.DEAD_ZONE;
+            var xDown = Mathf.Abs(input.x) > _joystickSizeDeadZone / _joystickSize;
+            var yDown = Mathf.Abs(input.y) > _joystickSizeDeadZone / _joystickSize;
 
             if (!xDown || !yDown)
                 input.x = input.y = 0;

@@ -9,10 +9,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
-#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
 using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
-#endif
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -36,9 +34,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void Awake()
         {
-#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
             EnhancedTouchSupport.Enable();
-#endif
 
             _inputs = new Inputs();
             _playerInput = GetComponent<PlayerInput>();
@@ -140,8 +136,12 @@ namespace Mona.SDK.Brains.Core.Brain
         private Ray _ray;
 
         private int _lastFrame = -1;
+        private bool _wasTouching;
+        private float _startTouchTime;
+        private Vector2 _startTouchPosition;
+        private Vector2 _lastTouchPosition;
 
-        public MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState = MonaInputState.Pressed)
+        public MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState = MonaInputState.Pressed, bool allowTouch = false, float gestureTimeout = 0f, float joystickSize = 500f, float joystickDeadZone = 100f)
         {
             if (_player == null) return default;
 
@@ -149,7 +149,50 @@ namespace Mona.SDK.Brains.Core.Brain
             {
                 _lastFrame = Time.frameCount;
 
-                ProcessAxis(MonaInputType.Move, _inputs.Player.Move);
+                if(allowTouch && logType == MonaInputType.Move)
+                {
+                    Vector2 value = Vector2.zero;
+
+                    if (Touch.activeTouches.Count > 0)
+                    {
+                        if(!_wasTouching)
+                        {
+                            _wasTouching = true;
+                            _startTouchTime = Time.time;
+                            _startTouchPosition = Touch.activeTouches[0].screenPosition;
+                        
+                        }
+                        _lastTouchPosition = Touch.activeTouches[0].screenPosition;
+                        value = _lastTouchPosition - _startTouchPosition;
+                        value /= joystickSize;
+
+                        if (gestureTimeout == 0f)
+                            ProcessAxis(MonaInputType.Move, value, joystickDeadZone/joystickSize);
+                    }
+                    else
+                    {
+                        if (_wasTouching)
+                        {
+                            value = _lastTouchPosition - _startTouchPosition;
+                            value /= joystickSize;
+                            if (gestureTimeout > 0)
+                            {
+                                if(Time.time - _startTouchTime < gestureTimeout)
+                                    ProcessAxis(MonaInputType.Move, value, joystickDeadZone / joystickSize);
+                            }
+                            else
+                            {
+                                ProcessAxis(MonaInputType.Move, value, joystickDeadZone / joystickSize);
+                            }
+                        }
+                        else
+                            ProcessAxis(MonaInputType.Move, _inputs.Player.Move);
+                        _wasTouching = false;
+                    }
+                }
+                else
+                    ProcessAxis(MonaInputType.Move, _inputs.Player.Move);
+
                 ProcessAxis(MonaInputType.Look, _inputs.Player.Look);
                 ProcessButton(MonaInputType.Jump, _inputs.Player.Jump);
                 ProcessButton(MonaInputType.Action, _inputs.Player.Action);
@@ -176,10 +219,9 @@ namespace Mona.SDK.Brains.Core.Brain
                 Vector2 mouse = Vector2.zero;
                 if (Mouse.current != null)
                     mouse = Mouse.current.position.ReadValue();
-#if (UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR
                 else if(Touch.activeTouches.Count > 0)
                     mouse = Touch.activeTouches[0].screenPosition;
-#endif
+
                 if (_player.PlayerCamera != null)
                     _ray = _player.PlayerCamera.ScreenPointToRay(new Vector3(mouse.x, mouse.y, 0f));
                 else
@@ -273,6 +315,19 @@ namespace Mona.SDK.Brains.Core.Brain
                 state.State = MonaInputState.Held;
             else
                 state.State = MonaInputState.None;
+        }
+
+        protected void ProcessAxis(MonaInputType type, Vector2 value, float deadZone)
+        {
+            if (type == MonaInputType.Move)
+                _moveValue = value;
+            else if (type == MonaInputType.Look)
+                _lookValue = value;
+
+            if (value.magnitude > deadZone)
+                PerformInput(type);
+            else
+                ReleaseInput(type);
         }
 
         protected void ProcessAxis(MonaInputType type, InputAction action)

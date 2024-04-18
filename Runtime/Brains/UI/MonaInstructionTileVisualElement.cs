@@ -325,7 +325,10 @@ namespace Mona.SDK.Brains.UIElements
                         else
                         {
                             var otherProperty = _tile.GetType().GetProperty(pair.Value[i].Name);
-                            if (((int)otherProperty.GetValue(_tile)) == pair.Value[i].Value)
+                            if (
+                                (!pair.Value[i].UseBoolValue && ((int)otherProperty.GetValue(_tile)) == pair.Value[i].Value)
+                                || (pair.Value[i].UseBoolValue && ((bool)otherProperty.GetValue(_tile)) == pair.Value[i].BoolValue)
+                                )
                             {
                                 if (targetFieldVisible.ContainsKey(pair.Key))
                                 {
