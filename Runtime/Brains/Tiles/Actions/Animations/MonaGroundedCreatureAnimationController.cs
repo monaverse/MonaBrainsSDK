@@ -95,7 +95,12 @@ namespace Mona.SDK.Brains.Core.Animation
                 if (_animator != null && _animator != animator)
                 {
                     if (_animator.gameObject != null)
-                        DestroyImmediate(_animator.gameObject);
+                    {
+                        if (_animator.gameObject != gameObject)
+                            DestroyImmediate(_animator.gameObject);
+                        else
+                            DestroyImmediate(_animator);
+                    }
                 }
                 _animator = animator;
                 _brain.Body.SetAnimator(_animator);
