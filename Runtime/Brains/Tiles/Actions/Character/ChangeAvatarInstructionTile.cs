@@ -119,7 +119,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     SetupOnTag();
                     break;
                 case MonaBrainBroadcastType.Self:
-                    SetupOnWholeEntity(_brain.Body);
+                    SetupAnimation(_brain.Body);
                     break;
                 case MonaBrainBroadcastType.Children:
                     SetupOnChildren(_brain.Body);
@@ -244,7 +244,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     ModifyOnTag();
                     break;
                 case MonaBrainBroadcastType.Self:
-                    ModifyOnWholeEntity(_brain.Body);
+                    ChangeAvatar(_brain.Body);
                     break;
                 case MonaBrainBroadcastType.Children:
                     ModifyOnChildren(_brain.Body);
@@ -476,7 +476,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             if(playerId > -1)
                 EventBus.Trigger<MonaPlayerChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_CHANGE_AVATAR_EVENT), new MonaPlayerChangeAvatarEvent(playerId, _avatarInstance));
 
-            Debug.Log($"{_avatarInstance} {_offset} {_avatarInstance.transform.position} brain body1 {_brain.Body.Transform.position}");
         }
 
         public override void Unload()

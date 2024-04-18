@@ -485,6 +485,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                         var monaAnimationControllerDefault = _root.GetComponent<MonaDefaultAnimationController>();
                         if (monaAnimationControllerDefault != null)
                         {
+                            Debug.Log($"{nameof(SetupAnimation)} destroy default", _body.Transform.gameObject);
                             DestroyImmediate(monaAnimationControllerDefault);
                         }
 
@@ -499,7 +500,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
                         var monaAnimationController = _root.GetComponent<MonaGroundedCreatureAnimationController>();
                         if (monaAnimationController != null)
-                        { 
+                        {
+                            Debug.Log($"{nameof(SetupAnimation)} destroy grounded", _body.Transform.gameObject);
                             DestroyImmediate(monaAnimationController);
                         }
 

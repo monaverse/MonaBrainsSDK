@@ -27,6 +27,7 @@ namespace Mona.SDK.Brains.Core.Utils
 
         public void Load(string url, Action<GameObject> callback)
         {
+            Debug.Log($"{nameof(Load)} VRM: {url}");
             _url = url;
             GetVrmData((byte[] avatarData) =>
             {
