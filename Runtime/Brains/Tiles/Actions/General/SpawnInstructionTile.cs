@@ -94,7 +94,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             Me,
             MyPart,
             OtherWithTag,
-            OtherWithTagPart
+            OtherWithTagPart,
+            LastSpawnedByMe = 80
         }
 
         public SpawnInstructionTile() { }
@@ -207,6 +208,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
                     var otherPart = otherPartBody.FindChildByTag(_part);
                     return otherPart != null ? otherPart : otherPartBody;
+                case LocationType.LastSpawnedByMe:
+                    var lastSpawnedBody = _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
+                    return lastSpawnedBody != null ? lastSpawnedBody : body;
             }
             
             return body;
@@ -280,10 +284,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (poolItem.ActiveRigidbody != null)
                 poolItem.ActiveRigidbody.WakeUp();
 
+            poolItem.Transform.SetParent(_spawnAsChild ? _brain.Body.Transform : _defaultParent);
+
             Vector3 position = body.GetPosition() + body.GetRotation() * offset;
             Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
 
-            poolItem.Transform.SetParent(_spawnAsChild ? _brain.Body.Transform : _defaultParent);
             poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
 
             var childBrains = poolItem.Transform.GetComponentsInChildren<IMonaBrainRunner>();
