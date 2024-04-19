@@ -141,6 +141,9 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void Awake()
         {
+
+            Application.targetFrameRate = 60;
+
             if (_instance == null)
             {
                 Instance = this;
