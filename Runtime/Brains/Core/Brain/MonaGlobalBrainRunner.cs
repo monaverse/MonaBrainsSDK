@@ -178,7 +178,7 @@ namespace Mona.SDK.Brains.Core.Brain
             SetupEasyUIGlobalRunner();
             CacheCamera();
 
-#if (UNITY_IOS && !UNITY_EDITOR && !OLYMPIA) || (UNITY_EDITOR && !OLYMPIA)
+#if ((UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR && !OLYMPIA) || (UNITY_EDITOR && !OLYMPIA)
             IMonaNetworkSpawner mockSpawner = null;
             EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT), new NetworkSpawnerStartedEvent(mockSpawner));
 #endif
