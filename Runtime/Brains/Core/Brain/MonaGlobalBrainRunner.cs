@@ -209,7 +209,7 @@ namespace Mona.SDK.Brains.Core.Brain
         
         private void HandleMonaBodyInstantiated(MonaBodyInstantiatedEvent evt)
         {
-#if (UNITY_IOS && !UNITY_EDITOR && !OLYMPIA) || (UNITY_EDITOR && !OLYMPIA)
+#if ((UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR && !OLYMPIA) || (UNITY_EDITOR && !OLYMPIA)
             IMonaNetworkSpawner mockSpawner = null;
             EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT, evt.Body), new NetworkSpawnerStartedEvent(mockSpawner));
 #endif
