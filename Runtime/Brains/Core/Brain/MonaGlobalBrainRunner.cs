@@ -94,6 +94,10 @@ namespace Mona.SDK.Brains.Core.Brain
         private MonaBrainInput _brainInput;
         private EasyUIGlobalRunner _easyUIRunner;
 
+        bool IsAndroidOrIOS => Application.platform == RuntimePlatform.IPhonePlayer ||
+            Application.platform == RuntimePlatform.tvOS ||
+            Application.platform == RuntimePlatform.Android;
+
         private static MonaGlobalBrainRunner _instance;
         public static MonaGlobalBrainRunner Instance {
             get
@@ -141,8 +145,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void Awake()
         {
-
-            Application.targetFrameRate = 60;
+            if (IsAndroidOrIOS)
+                Application.targetFrameRate = 60;
 
             if (_instance == null)
             {
