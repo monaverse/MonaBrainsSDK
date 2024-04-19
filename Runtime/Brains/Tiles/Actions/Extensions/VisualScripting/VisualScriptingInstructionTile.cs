@@ -39,19 +39,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Extensions
             _brain = brain;
         }
 
-        public override void SetThenCallback(IInstructionTileCallback thenCallback)
+        public override void SetThenCallback(InstructionTileCallback thenCallback)
         {
-            if (_thenCallback == null)
+            if (_thenCallback.ActionCallback == null)
             {
+                _instructionCallback = thenCallback;
                 _thenCallback = new InstructionTileCallback();
-                _thenCallback.Action = () =>
-                {
-                    EventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_THEN_EVENT, _brain), OnVisualScriptReceive);
-                    if (thenCallback != null) return thenCallback.Action.Invoke();
-                    return InstructionTileResult.Success;
-                };
+                _thenCallback.Tile = this;
+                _thenCallback.ActionCallback = ExecuteActionCallback;
             }
         }
+
+        private InstructionTileCallback _instructionCallback;
+        private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
+        {
+            EventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_THEN_EVENT, _brain), OnVisualScriptReceive);
+            if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
+            return InstructionTileResult.Success;
+        }
+
 
         public override InstructionTileResult Do()
         {

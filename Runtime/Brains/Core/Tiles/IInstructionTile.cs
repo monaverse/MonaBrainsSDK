@@ -19,8 +19,8 @@ namespace Mona.SDK.Brains.Core.Tiles
         InstructionTileResult LastResult { get; set; }
         IInstructionTile NextExecutionTile { get; set; }
         
-        IInstructionTileCallback ThenCallback { get; }
-        void SetThenCallback(IInstructionTileCallback thenCallback);
+        InstructionTileCallback ThenCallback { get; }
+        void SetThenCallback(InstructionTileCallback thenCallback);
 
         InstructionTileResult Do();
         void Unload(bool destroy = false);

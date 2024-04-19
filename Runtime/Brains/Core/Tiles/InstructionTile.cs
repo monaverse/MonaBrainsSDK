@@ -42,11 +42,11 @@ namespace Mona.SDK.Brains.Core.Tiles
         protected IInstructionTile _nextTile;
         public IInstructionTile NextExecutionTile { get => _nextTile; set => _nextTile = value; }
 
-        protected IInstructionTileCallback _thenCallback;
-        public IInstructionTileCallback ThenCallback => _thenCallback;
-        public virtual void SetThenCallback(IInstructionTileCallback thenCallback)
+        protected InstructionTileCallback _thenCallback;
+        public InstructionTileCallback ThenCallback => _thenCallback;
+        public virtual void SetThenCallback(InstructionTileCallback thenCallback)
         {
-            if (_thenCallback == null)
+            if (_thenCallback.ActionCallback == null)
                 _thenCallback = thenCallback;
         }
         
@@ -58,8 +58,8 @@ namespace Mona.SDK.Brains.Core.Tiles
             if (result == InstructionTileResult.LostAuthority)
                 NextExecutionTile = null;
 
-            if (invokeCallback && _thenCallback != null)
-                return _thenCallback.Action();
+            if (invokeCallback && _thenCallback.ActionCallback != null)
+                return _thenCallback.ActionCallback(_thenCallback);
 
             return result;
         }

@@ -130,17 +130,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
-        public override void SetThenCallback(IInstructionTileCallback thenCallback)
+
+        public override void SetThenCallback(InstructionTileCallback thenCallback)
         {
-            if (_thenCallback == null)
+            if (_thenCallback.ActionCallback == null)
             {
+                _instructionCallback = thenCallback;
                 _thenCallback = new InstructionTileCallback();
-                _thenCallback.Action = () =>
-                {
-                    if (thenCallback != null) return thenCallback.Action.Invoke();
-                    return InstructionTileResult.Success;
-                };
+                _thenCallback.Tile = this;
+                _thenCallback.ActionCallback = ExecuteActionCallback;
             }
+        }
+
+        private InstructionTileCallback _instructionCallback;
+        private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
+        {
+            if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
+            return InstructionTileResult.Success;
         }
 
         public virtual IMonaBody GetBodyToControl()

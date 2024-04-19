@@ -121,18 +121,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             return _isPlaying;
         }
 
-        public override void SetThenCallback(IInstructionTileCallback thenCallback)
+        public override void SetThenCallback(InstructionTileCallback thenCallback)
         {
-            if (_thenCallback == null)
+            if (_thenCallback.ActionCallback == null)
             {
+                _instructionCallback = thenCallback;
                 _thenCallback = new InstructionTileCallback();
-                _thenCallback.Action = () =>
-                {
-                    RemoveFixedTickDelegate();
-                    if (thenCallback != null) return thenCallback.Action.Invoke();
-                    return InstructionTileResult.Success;
-                };
+                _thenCallback.Tile = this;
+                _thenCallback.ActionCallback = ExecuteActionCallback;
             }
+        }
+
+        private InstructionTileCallback _instructionCallback;
+        private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
+        {
+            RemoveFixedTickDelegate();
+            if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
+            return InstructionTileResult.Success;
         }
 
         private void AddFixedTickDelegate()

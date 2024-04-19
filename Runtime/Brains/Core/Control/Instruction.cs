@@ -95,10 +95,14 @@ namespace Mona.SDK.Brains.Core.Control
             _firstActionIndex = -1;
             _needAuthInstructionTiles.Clear();
 
-            var pagePrefix = page.IsCore ? "Core" : ("State" + _brain.StatePages.IndexOf(page));
-            var instructionIndex = page.Instructions.IndexOf(this);
+            if (_progressTile == null)
+            {
+                var pagePrefix = page.IsCore ? "Core" : ("State" + _brain.StatePages.IndexOf(page));
+                var instructionIndex = page.Instructions.IndexOf(this);
 
-            _progressTile = $"__{pagePrefix}_{instructionIndex}_tile";
+                _progressTile = $"__{pagePrefix}_{instructionIndex}_tile";
+            }
+
             _brain.Variables.GetFloat(_progressTile);
 
             PreloadTiles();
@@ -128,7 +132,7 @@ namespace Mona.SDK.Brains.Core.Control
                 {
                     if (_firstActionIndex == -1)
                         _firstActionIndex = i;
-                    PreloadActionTile((IInstructionTile)tile);
+                    PreloadActionTile(tile);
                 }
             }
         }
@@ -298,13 +302,16 @@ namespace Mona.SDK.Brains.Core.Control
         private void PreloadActionTile(IInstructionTile tile)
         {
             var callback = new InstructionTileCallback();
-            callback.Action = () =>
-            {
-                //Debug.Log($"Execute Next from Then callback {tile}");
-                ExecuteActionTile(tile.NextExecutionTile);
-                return _result;
-            };
-            tile.SetThenCallback(callback);
+                callback.Tile = tile;
+                callback.ActionCallback = ExecuteCallback;
+
+            tile.SetThenCallback(callback);         
+        }
+
+        private InstructionTileResult ExecuteCallback(InstructionTileCallback callback)
+        {
+            ExecuteActionTile(callback.Tile.NextExecutionTile);
+            return _result;
         }
 
         public void Execute(InstructionEventTypes eventType, InstructionEvent evt = default)

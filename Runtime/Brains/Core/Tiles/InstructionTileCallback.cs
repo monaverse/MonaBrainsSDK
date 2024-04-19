@@ -1,10 +1,12 @@
-﻿using Mona.SDK.Brains.Core.Enums;
+﻿using Mona.SDK.Brains.Core.Control;
+using Mona.SDK.Brains.Core.Enums;
 using System;
 
 namespace Mona.SDK.Brains.Core.Tiles
 {
-    public class InstructionTileCallback : IInstructionTileCallback
+    public struct InstructionTileCallback
     {
-        public Func<InstructionTileResult> Action { get; set; }
+        public IInstructionTile Tile { get; set; }
+        public Func<InstructionTileCallback, InstructionTileResult> ActionCallback { get; set; }
     }
 }

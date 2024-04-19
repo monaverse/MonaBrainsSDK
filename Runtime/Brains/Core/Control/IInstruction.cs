@@ -29,6 +29,7 @@ namespace Mona.SDK.Brains.Core.Control
         MonaInput InstructionInput { get; set; }
         List<IMonaBody> InstructionBodies { get; set; }
         bool Muted { get; set; }
+        InstructionTileResult Result { get; set; }
 
         List<Token> Tokens { get; set; }
 

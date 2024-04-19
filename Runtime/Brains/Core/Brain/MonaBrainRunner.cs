@@ -294,6 +294,10 @@ namespace Mona.SDK.Brains.Core.Brain
         public void WaitFrame(int index, Action<InstructionEvent> callback, InstructionEvent evt, bool debug = false)
         {
             _debug = debug;
+
+            var instruction = evt.Instruction;
+            var type = evt.Type;
+
             //Debug.Log($"{nameof(WaitFrame)} WAIT WaitFrame {index}, evt: {evt} {Time.frameCount}");
             if (!_layersSet.Contains(index))
             {
@@ -301,45 +305,46 @@ namespace Mona.SDK.Brains.Core.Brain
                 _layers.Add(index);
             }
 
-            if (!_typesSet.Contains(evt.Type))
+            if (!_typesSet.Contains(type))
             {
-                _typesSet.Add(evt.Type);
-                _types.Add(evt.Type);
+                _typesSet.Add(type);
+                _types.Add(type);
             }
 
-            if (evt.Type == InstructionEventTypes.Tick)
+            if (type == InstructionEventTypes.Tick)
             {
-                if (!_instructionsSet.Contains(evt.Instruction))
+                if (!_instructionsSet.Contains(instruction))
                 {
-                    _instructionsSet.Add(evt.Instruction);
-                    _instructions.Add(evt.Instruction);
+                    _instructionsSet.Add(instruction);
+                    _instructions.Add(instruction);
                 }
 
-                if (!_waitForNextBrainTick[index].ContainsKey(evt.Instruction))
-                    _waitForNextBrainTick[index].Add(evt.Instruction, new WaitFrameQueueItem(-1));
+                var waitForNextBrainTick = _waitForNextBrainTick[index];
+                if (!waitForNextBrainTick.ContainsKey(instruction))
+                    waitForNextBrainTick.Add(instruction, new WaitFrameQueueItem(-1));
             }
 
-            if (!_wait[index].ContainsKey(evt.Type))
-                _wait[index].Add(evt.Type, new WaitFrameQueueItem(-1));
+            if (!_wait[index].ContainsKey(type))
+                _wait[index].Add(type, new WaitFrameQueueItem(-1));
 
             if (gameObject.activeInHierarchy)
             {
-                if (evt.Type == InstructionEventTypes.Trigger || evt.Type == InstructionEventTypes.Message)
+                if (type == InstructionEventTypes.Trigger || type == InstructionEventTypes.Message)
                 {
                     _waitQueue.Add(new WaitFrameQueueItem(index, callback, evt, Time.frameCount));
                     _waitFrameRequested = true;
                     //Debug.Log($"add to queue {_waitQueue.Count}");
                 }
-                else if (evt.Type == InstructionEventTypes.Tick)
+                else if (type == InstructionEventTypes.Tick)
                 {
-                    if (_waitForNextBrainTick[index][evt.Instruction].Index == -1)
-                        _waitForNextBrainTick[index][evt.Instruction] = new WaitFrameQueueItem(index, callback, evt, Time.frameCount);
+                    if (_waitForNextBrainTick[index][instruction].Index == -1)
+                        _waitForNextBrainTick[index][instruction] = new WaitFrameQueueItem(index, callback, evt, Time.frameCount);
                     _waitFrameRequested = true;
                 }
                 else
                 {
-                    if (_wait[index][evt.Type].Index == -1)
-                        _wait[index][evt.Type] = new WaitFrameQueueItem(index, callback, evt, Time.frameCount);
+                    if (_wait[index][type].Index == -1)
+                        _wait[index][type] = new WaitFrameQueueItem(index, callback, evt, Time.frameCount);
                     _waitFrameRequested = true;
                 }
 
@@ -495,26 +500,21 @@ namespace Mona.SDK.Brains.Core.Brain
             //Debug.Log($"{nameof(PreloadBrains)} {_body.Transform.name}", _body.Transform.gameObject);
             _body.InitializeTags();
 
-            _wait.Clear();
-            _waitQueue.Clear();
+            for (var i = 0; i < _wait.Count; i++)
+                _wait[i].Clear();
 
-            _layers.Clear();
-            _layersSet.Clear();
+            for (var i = 0; i < _waitInactiveQueue.Count; i++)
+                _waitInactiveQueue[i].Clear();
 
-            _types.Clear();
-            _typesSet.Clear();
+            for (var i = 0; i < _waitForNextBrainTick.Count; i++)
+                _waitForNextBrainTick[i].Clear();
 
-            _instructions.Clear();
-            _instructionsSet.Clear();
-
-            _waitInactiveQueue.Clear();
-            _waitForNextBrainTick.Clear();
             _waitFrameRequested = false;
-
-            _brainGraphs.RemoveAll(x => x == null);
 
             if (_brainInstances.Count == 0)
             {
+                _brainGraphs.RemoveAll(x => x == null);
+
                 for (var i = 0; i < _brainGraphs.Count; i++)
                 {
                     if (_brainGraphs[i] == null) continue;
@@ -537,10 +537,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 {
                     if (_brainInstances[i] == null) continue;
                     var instance = _brainInstances[i];
-                    _wait.Add(new Dictionary<InstructionEventTypes, WaitFrameQueueItem>());
-                    _waitForNextBrainTick.Add(new Dictionary<IInstruction, WaitFrameQueueItem>());
                     instance.Preload(gameObject, this, i);
-                    _waitInactiveQueue.Add(new List<WaitFrameQueueItem>());
                 }
             }
         }
