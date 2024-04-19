@@ -64,8 +64,8 @@ namespace Mona.SDK.Brains.Core.Brain
         void Begin();
         void Pause();
         void Resume();
-        void Unload();
-
+        void Unload(bool destroy = false);
+        
         string ToJson();
         void FromJson(string json);
 

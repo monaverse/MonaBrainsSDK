@@ -478,7 +478,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             base.Unload();
 

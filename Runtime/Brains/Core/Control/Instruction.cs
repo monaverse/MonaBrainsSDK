@@ -89,6 +89,7 @@ namespace Mona.SDK.Brains.Core.Control
 
         public void Preload(IMonaBrain brain, IMonaBrainPage page)
         {
+            _unloaded = false;
             _brain = brain;
             _page = page;
             _firstActionIndex = -1;
@@ -848,11 +849,11 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        public void Unload()
+        public void Unload(bool destroy = false)
         {
             _unloaded = true;
             for (var i = 0; i < _instructionTiles.Count; i++)
-                _instructionTiles[i].Unload();
+                _instructionTiles[i].Unload(destroy);
         }
     }
 }

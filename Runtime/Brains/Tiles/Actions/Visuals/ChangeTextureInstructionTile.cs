@@ -80,7 +80,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             body.SetTexture(texture, textureSlot, sharedMaterial);
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             base.Unload();
         }

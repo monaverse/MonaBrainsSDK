@@ -124,7 +124,7 @@ namespace Mona.SDK.Brains.Core.Tiles
             return false;
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             RemoveTickDelegate();
         }

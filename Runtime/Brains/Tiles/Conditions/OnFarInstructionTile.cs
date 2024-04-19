@@ -88,7 +88,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             return false;
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             if (_collider != null)
             {

@@ -24,6 +24,12 @@ namespace Mona.SDK.Brains.Core.State
             _brain = brain;
         }
 
+        public void SaveResetDefaults()
+        {
+            for (var i = 0; i < VariableList.Count; i++)
+                VariableList[i].SaveReset();
+        }
+
         public void SetGameObject(GameObject gameObject, IMonaBrain brain)
         {
             SetGameObject(gameObject);

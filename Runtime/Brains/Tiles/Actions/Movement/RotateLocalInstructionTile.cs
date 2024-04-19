@@ -159,7 +159,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         }
 
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             RemoveFixedTickDelegate();
             //if(_brain.LoggingEnabled)

@@ -140,6 +140,8 @@ namespace Mona.SDK.Brains.Core.Brain
         private bool _began;
         public bool Began => _began;
 
+        private int _beginBrainsAfterFrame = 0;
+
         public bool LegacyMonaPlatforms {
             get
             {
@@ -341,11 +343,6 @@ namespace Mona.SDK.Brains.Core.Brain
                     _waitFrameRequested = true;
                 }
 
-                if (OnMonaTick == null)
-                {
-                    OnMonaTick = HandleMonaTick;
-                    EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
-                }
             }
             else
                 _waitInactiveQueue[index].Add(new WaitFrameQueueItem(index, callback, evt, Time.frameCount));
@@ -369,8 +366,25 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
+        private void BeginBrains()
+        {
+            //Debug.Log($"{nameof(BeginBrains)} {_body.Transform.name}", _body.Transform.gameObject);
+            OnBegin?.Invoke(this);
+            for (var i = 0; i < _brainInstances.Count; i++)
+                _brainInstances[i].Begin();
+        }
+
         private void HandleMonaTick(MonaTickEvent evt)
         {
+            if(_beginBrainsAfterFrame > 0 && Time.frameCount - _beginBrainsAfterFrame > 0)
+            {
+                _beginBrainsAfterFrame = 0;
+                BeginBrains();                
+                return;
+            }
+
+            if (!_began) return;
+
             _waitFrameRequested = false; //if this gets flipped to true during the following callbacks, we know an instruction tile added another frame request to the queue recursively.
 
             var queueCleared = true;
@@ -478,6 +492,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void PreloadBrains()
         {
+            //Debug.Log($"{nameof(PreloadBrains)} {_body.Transform.name}", _body.Transform.gameObject);
             _body.InitializeTags();
 
             _wait.Clear();
@@ -493,22 +508,39 @@ namespace Mona.SDK.Brains.Core.Brain
             _instructionsSet.Clear();
 
             _waitInactiveQueue.Clear();
-            _brainInstances.Clear();
+            _waitForNextBrainTick.Clear();
+            _waitFrameRequested = false;
+
             _brainGraphs.RemoveAll(x => x == null);
 
-            for (var i = 0; i < _brainGraphs.Count; i++)
+            if (_brainInstances.Count == 0)
             {
-                if (_brainGraphs[i] == null) continue;
-                var instance = (IMonaBrain)Instantiate(_brainGraphs[i]);
-                if (instance != null)
+                for (var i = 0; i < _brainGraphs.Count; i++)
                 {
+                    if (_brainGraphs[i] == null) continue;
+                    var instance = (IMonaBrain)Instantiate(_brainGraphs[i]);
+                    if (instance != null)
+                    {
+                        _wait.Add(new Dictionary<InstructionEventTypes, WaitFrameQueueItem>());
+                        _waitForNextBrainTick.Add(new Dictionary<IInstruction, WaitFrameQueueItem>());
+                        instance.Guid = _brainGraphs[i].Guid;
+                        instance.LoggingEnabled = _brainGraphs[i].LoggingEnabled;
+                        instance.Preload(gameObject, this, i);
+                        _waitInactiveQueue.Add(new List<WaitFrameQueueItem>());
+                        _brainInstances.Add(instance);
+                    }
+                }
+            }
+            else
+            {
+                for (var i = 0; i < _brainInstances.Count; i++)
+                {
+                    if (_brainInstances[i] == null) continue;
+                    var instance = _brainInstances[i];
                     _wait.Add(new Dictionary<InstructionEventTypes, WaitFrameQueueItem>());
                     _waitForNextBrainTick.Add(new Dictionary<IInstruction, WaitFrameQueueItem>());
-                    instance.Guid = _brainGraphs[i].Guid;
-                    instance.LoggingEnabled = _brainGraphs[i].LoggingEnabled;
                     instance.Preload(gameObject, this, i);
                     _waitInactiveQueue.Add(new List<WaitFrameQueueItem>());
-                    _brainInstances.Add(instance);
                 }
             }
         }
@@ -535,8 +567,14 @@ namespace Mona.SDK.Brains.Core.Brain
             
             PreloadBrains();
 
-            StopCoroutine("BeginBrains");
-            StartCoroutine("BeginBrains");
+            if (OnMonaTick == null)
+            {
+                OnMonaTick = HandleMonaTick;
+                EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
+            }
+
+            _began = true;
+            _beginBrainsAfterFrame = Time.frameCount;
         }
 
         private void HandleResumed()
@@ -568,32 +606,20 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
-        private IEnumerator BeginBrains()
-        {
-            if (!_began)
-            {
-                _began = true;
-                yield return null;
-                OnBegin?.Invoke(this);
-                for (var i = 0; i < _brainInstances.Count; i++)
-                    _brainInstances[i].Begin();
-            }
-        }
-
         private void RestartBrains()
         {
-            //Debug.Log($"Resetart Brains");
+            //Debug.Log($"Restart Brains {_body.Transform.name}", _body.Transform.gameObject);
             _began = false;
-            ResetTransforms();
             UnloadBrains();
             PreloadBrains();
-            if(gameObject.activeInHierarchy)
-                StartCoroutine(BeginBrainsAgain());
+            if (gameObject.activeInHierarchy)
+                BeginBrainsAgain();
         }
 
-        private IEnumerator BeginBrainsAgain()
+        private void BeginBrainsAgain()
         {
-            yield return BeginBrains();
+            _began = true;
+            _beginBrainsAfterFrame = Time.frameCount;
         }            
 
         public void ResetTransforms()
@@ -601,15 +627,18 @@ namespace Mona.SDK.Brains.Core.Brain
             for (var i = 0; i < _transformDefaults.Count; i++)
             {
                 var d = _transformDefaults[i];
+                if (d.Body.ActiveRigidbody == null || d.Body.ActiveTransform.gameObject == null) continue;
                 d.Body.ActiveTransform.SetParent(d.Parent);
 
                 if (d.Parent != null)
                 {
+                    //Debug.Log($"{nameof(ResetTransform)} localPosition: {d.LocalPosition}", d.Body.Transform.gameObject);
                     d.Body.ActiveTransform.localPosition = d.LocalPosition;
                     d.Body.ActiveTransform.localRotation = d.LocalRotation;
                 }
                 else
                 {
+                    //Debug.Log($"{nameof(ResetTransform)} Position: {d.Position}", d.Body.Transform.gameObject);
                     d.Body.ActiveTransform.position = d.Position;
                     d.Body.ActiveTransform.rotation = d.Rotation;
                 }
@@ -619,23 +648,27 @@ namespace Mona.SDK.Brains.Core.Brain
         private void OnDestroy()
         {
             RemoveHotReloadDelegates();
-            UnloadBrains();
+            UnloadBrains(destroy:true);
         }
 
-        private void UnloadBrains()
+        private void UnloadBrains(bool destroy = false)
         {
+            ResetTransforms();
+            //_began = false;
+            //if(_body.Transform != null)
+            //    Debug.Log($"{nameof(UnloadBrains)} {_body.Transform.name}", _body.Transform.gameObject);
             for (var i = 0; i < _brainInstances.Count; i++)
             {
                 var instance = _brainInstances[i];
-                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), new MonaBrainDestroyedEvent(instance));
-                instance.Unload();
+                if(destroy) EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), new MonaBrainDestroyedEvent(instance));
+                instance.Unload(destroy);
             }
-
+            /*
             var variableBehaviours = gameObject.GetComponents<MonaBrainVariablesBehaviour>();
             for(var i  = 1;i < variableBehaviours.Length; i++)
             {
                 Destroy(variableBehaviours[i]);
-            }
+            }*/
         }
 
         public void SendMessageToTags(string message)

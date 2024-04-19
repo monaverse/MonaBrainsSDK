@@ -88,6 +88,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private IMonaBodyAssetItem _item;
         private List<IMonaBody> _equipmentInstances = new List<IMonaBody>();
         private Dictionary<string, List<IMonaBody>> _pool = new Dictionary<string, List<IMonaBody>>();
+        private bool _shouldSpawn = true;
 
         public enum LocationType
         {
@@ -119,6 +120,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void SetupSpawnable()
         {
+            if (!_shouldSpawn) return;
+
+            _shouldSpawn = false;
+
             //Debug.Log($"{nameof(SetupSpawnable)} spawn asset instruction tile");
             var items = GetPreloadAssets();
 
@@ -278,6 +283,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (HasVector3Values(_scaleName))
                 scale = GetVector3Value(_brain, _scaleName);
 
+            //Debug.Log($"{nameof(SpawnInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
+
             poolItem.SetActive(true);
             poolItem.SetVisible(false);
 
@@ -297,7 +304,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             poolItem.SetVisible(true);
 
-            //Debug.Log($"{nameof(SpawnInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
             IMonaBody previouslySpawnedBody = _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
 
             _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, poolItem);
@@ -308,6 +314,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (previouslySpawnedBody != null)
                 SetNextBodyReferenceOnPrevious(previouslySpawnedBody, poolItem);
 
+
+            //Debug.Log($"{nameof(SpawnInstructionTile)} SPAWN COMPLETE: {poolItem}", poolItem.Transform.gameObject);
             return Complete(InstructionTileResult.Success);
 
         }
@@ -339,21 +347,32 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
-            if(_brain.LoggingEnabled) //Debug.Log($"{nameof(Unload)} spawn asset instruction tile unload");
+            //if(_brain.LoggingEnabled) //
+            //Debug.Log($"{nameof(Unload)} spawn asset instruction tile unload");
             base.Unload();
             for (var i = 0; i < _equipmentInstances.Count; i++)
             {
                 var instance = _equipmentInstances[i];
                 if (instance == null) continue;
-                instance.OnDisabled -= HandleBodyDisabled;
-                if(instance.Transform != null && instance.Transform.gameObject != null)
-                    GameObject.Destroy(instance.Transform.gameObject);
+                if (destroy)
+                {
+                    instance.OnDisabled -= HandleBodyDisabled;
+                    if (instance.Transform != null && instance.Transform.gameObject != null)
+                        instance.Destroy();
+                }
+                else
+                    instance.SetActive(false);
             }
-            _brain.SpawnedBodies.Clear();
-            _equipmentInstances.Clear();
-            _pool.Clear();
+
+            if (destroy)
+            {
+                _shouldSpawn = true;
+                _brain.SpawnedBodies.Clear();
+                _equipmentInstances.Clear();
+                _pool.Clear();
+            }
         }
     }
 }

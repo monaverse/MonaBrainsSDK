@@ -82,7 +82,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
                 body.SetMaterial(GameObject.Instantiate(_materialAsset.Value));
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             base.Unload();
         }

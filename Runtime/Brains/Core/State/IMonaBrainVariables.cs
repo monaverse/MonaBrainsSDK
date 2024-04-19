@@ -19,6 +19,9 @@ namespace Mona.SDK.Brains.Core.State
         void SetNetworkVariables(INetworkMonaVariables state);
 
         void SyncValuesOnNetwork();
+
+        void SaveResetDefaults();
+
     }
 
 }

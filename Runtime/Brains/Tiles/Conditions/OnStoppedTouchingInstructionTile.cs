@@ -97,7 +97,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             //    _collider.SetActive(_active);
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             if (_collider != null)
             {

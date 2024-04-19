@@ -19,7 +19,7 @@ namespace Mona.SDK.Brains.Core.Control
         void SetIsCore(bool core);
         void Preload(IMonaBrain brain);
         void ExecuteInstructions(InstructionEventTypes eventType, InstructionEvent evt = default);
-        void Unload();
+        void Unload(bool destroy);
         void Pause();
         void Resume();
     }

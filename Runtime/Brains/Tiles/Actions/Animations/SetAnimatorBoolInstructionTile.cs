@@ -69,7 +69,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             AddRemoteAnimationDelegate();
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             RemoveRemoteAnimationDelegate();
         }

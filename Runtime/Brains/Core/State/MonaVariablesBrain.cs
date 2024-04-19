@@ -19,9 +19,20 @@ namespace Mona.SDK.Brains.Core.State.Structs
 
         [SerializeField]
         public IMonaBrain _value;
+        private IMonaBrain _resetValue;
 
         public IMonaBrain Value { get => _value; set => _value = value; }
 
         public MonaVariablesBrain() { }
+
+        public void Reset()
+        {
+            _value = _resetValue;
+        }
+
+        public void SaveReset()
+        {
+            _resetValue = _value;
+        }
     }
 }

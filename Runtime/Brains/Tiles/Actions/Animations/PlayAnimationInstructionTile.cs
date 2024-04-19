@@ -141,7 +141,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             //var controller = _root.GetComponent<MonaDefaultAnimationController>();
             //GameObject.Destroy(controller);

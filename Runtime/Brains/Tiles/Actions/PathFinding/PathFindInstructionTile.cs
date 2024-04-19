@@ -142,7 +142,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
         }
 
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             RemoveFixedTickDelegate();
             EventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);

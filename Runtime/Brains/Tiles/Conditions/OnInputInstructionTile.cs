@@ -228,7 +228,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
             }
 
-            Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_moveDirection} {input} {xDown} {yDown}");
+            //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_moveDirection} {input} {xDown} {yDown}");
 
             if (shouldClear)
             {

@@ -326,7 +326,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             for(var i = 0;i < _childAssets.Count; i++)
             {
-                if(_childAssets[i].MonaAssetProvider != null)
+                if(_childAssets[i].MonaAssetProvider != null && !_monaAssets.Contains(_childAssets[i].MonaAssetProvider))
                     _monaAssets.Add(_childAssets[i].MonaAssetProvider);
             }
         }
@@ -378,6 +378,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                     _defaultVariables = new MonaBrainVariables();
 
                 _variables.VariableList = _defaultVariables.VariableList;
+                _variables.SaveResetDefaults();
+
                 _variables.SetGameObject(_gameObject, this);
             }
 
@@ -401,6 +403,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void AddMonaAssetsToNetwork()
         {
+            //Debug.Log($"{nameof(AddMonaAssetsToNetwork)}", _body.Transform.gameObject);
             for (var i = 0; i < _monaAssets.Count; i++)
                 EventBus.Trigger<MonaAssetProviderAddedEvent>(new EventHook(MonaCoreConstants.MONA_ASSET_PROVIDER_ADDED), new MonaAssetProviderAddedEvent(_monaAssets[i]));
         }
@@ -408,6 +411,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private void BuildRoot()
         {
             if (!HasAnimationTiles()) return;
+            if (_root != null) return;
 
             var found = false;
             if (_body.Transform.Find("Root") != null)
@@ -562,16 +566,17 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), OnMonaBrainTick);
             EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _body), OnMonaBrainTick);
+
             EventBus.Unregister(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
+
             EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
 
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
             EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
 
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _body), OnMonaBodyHasInput);
+            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_HAS_INPUT_EVENT, _body), OnMonaBodyHasInput);
 
-            OnMonaBodyHasInput = null;
-            OnBroadcastMessage = null;
+            EventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, _body), OnAnimationControllerChange);
         }
 
         private void RemoveHierarchyDelegates()
@@ -774,11 +779,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 _activeStatePage.ExecuteInstructions(eventType, evt);
         }
 
-        public void Unload()
+        public void Unload(bool destroy = false)
         {
-            CorePage.Unload();
+            _messages.Clear();
+
+            CorePage.Unload(destroy);
             for (var i = 0; i < _statePages.Count; i++)
-                _statePages[i].Unload();
+                _statePages[i].Unload(destroy);
             RemoveEventDelegates();
             RemoveHierarchyDelegates();
             _began = false;
@@ -787,10 +794,20 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             //    Destroy((MonoBehaviour)_root.GetComponent<IMonaAnimationController>());
 
             RemoveMonaAssetsFromNetwork();
+            ResetBrainVariables();
+        }
+
+        private void ResetBrainVariables()
+        {
+            for(var i = 0;i < _variables.VariableList.Count; i++)
+            {
+                _variables.VariableList[i].Reset();
+            }
         }
 
         private void RemoveMonaAssetsFromNetwork()
         {
+            //Debug.Log($"{nameof(RemoveMonaAssetsFromNetwork)}", _body.Transform.gameObject);
             for (var i = 0; i < _monaAssets.Count; i++)
                 EventBus.Trigger<MonaAssetProviderRemovedEvent>(new EventHook(MonaCoreConstants.MONA_ASSET_PROVIDER_REMOVED), new MonaAssetProviderRemovedEvent(_monaAssets[i]));
         }

@@ -127,7 +127,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             return Complete(InstructionTileResult.Success);
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             base.Unload();
             EventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);

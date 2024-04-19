@@ -156,9 +156,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             _monaAnimationController.SetTPose(false);
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
-            base.Unload();
+            base.Unload(destroy);
             if (_wearableTransforms != null)
             {
                 for (var i = 0; i < _wearableTransforms.Count; i++)

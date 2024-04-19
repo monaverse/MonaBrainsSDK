@@ -45,7 +45,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 _changeState = _brain.Variables.GetString(_stateValueName);
 
             _brain.BrainState = _changeState;
-            //if(_brain.LoggingEnabled) Debug.Log($"{nameof(ChangeStateInstructionTile)} state: {_changeState}");
+            //if(_brain.LoggingEnabled)
+            //Debug.Log($"{nameof(ChangeStateInstructionTile)} state: {_changeState}", _brain.Body.Transform.gameObject);
             return Complete(InstructionTileResult.Success);
         }
     }

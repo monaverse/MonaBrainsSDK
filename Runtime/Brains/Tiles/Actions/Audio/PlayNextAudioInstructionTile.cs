@@ -101,7 +101,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         }
 
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             var audioSource = _brain.Body.ActiveTransform.GetComponent<AudioSource>();
             GameObject.Destroy(audioSource);

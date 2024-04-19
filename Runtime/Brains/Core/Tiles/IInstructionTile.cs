@@ -23,6 +23,6 @@ namespace Mona.SDK.Brains.Core.Tiles
         void SetThenCallback(IInstructionTileCallback thenCallback);
 
         InstructionTileResult Do();
-        void Unload();
+        void Unload(bool destroy = false);
     }
 }

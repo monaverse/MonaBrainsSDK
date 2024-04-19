@@ -125,7 +125,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         }
 
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             RemoveDelegates();
             //if (_brain.LoggingEnabled)

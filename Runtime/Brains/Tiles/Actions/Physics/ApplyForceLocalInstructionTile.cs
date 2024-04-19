@@ -146,7 +146,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             RemoveFixedTickDelegate();
             if (_brain.LoggingEnabled)

@@ -127,10 +127,10 @@ namespace Mona.SDK.Brains.Core.Control
                 _instructions[i].Resume();
         }
 
-        public void Unload()
+        public void Unload(bool destroy = false)
         {
             for (var i = 0; i < _instructions.Count; i++)
-                _instructions[i].Unload();
+                _instructions[i].Unload(destroy);
         }
 
         public void AddInstruction(Instruction instruction)

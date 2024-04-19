@@ -74,7 +74,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
                 AddFixedTickDelegate();
             }
         }
-        public override void Unload()
+        public override void Unload(bool destroy = false)
         {
             RemoveFixedTickDelegate();
         }

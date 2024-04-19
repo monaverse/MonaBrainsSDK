@@ -81,7 +81,7 @@ namespace Mona.SDK.Brains.Core.Tiles
 
         public abstract InstructionTileResult Do();
 
-        public virtual void Unload() { }
+        public virtual void Unload(bool destroy = false) { }
 
         protected bool HasVector3Values(string[] values)
         {
