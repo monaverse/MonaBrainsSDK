@@ -18,11 +18,16 @@ namespace Mona.SDK.Brains.Core.Brain.Structs
         public ResetTransform(IMonaBody body)
         {
             Body = body;
-            Parent = body.ActiveTransform.parent;
-            Position = body.ActiveTransform.position;
-            LocalPosition = body.ActiveTransform.localPosition;
-            Rotation = body.ActiveTransform.rotation;
-            LocalRotation = body.ActiveTransform.localRotation;
+
+            var transform = body.ActiveTransform;
+            if (transform == null)
+                transform = body.Transform;
+
+            Parent = transform.parent;
+            Position = transform.position;
+            LocalPosition = transform.localPosition;
+            Rotation = transform.rotation;
+            LocalRotation = transform.localRotation;
         }
     }
 }
