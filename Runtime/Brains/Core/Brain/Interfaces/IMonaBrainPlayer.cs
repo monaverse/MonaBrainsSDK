@@ -14,6 +14,7 @@ namespace Mona.SDK.Brains.Core.Brain.Interfaces
         public int PlayerId { get; }
         public IMonaNetworkSettings NetworkSettings { get; }
         public List<MonaRemotePlayer> OtherPlayers { get; }
+        public void HandleWalletConnected(string address);
         public int GetPlayerIdByBody(IMonaBody body);
     }
 }

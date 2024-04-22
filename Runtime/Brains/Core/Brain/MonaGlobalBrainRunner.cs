@@ -17,6 +17,7 @@ using UnityEngine.InputSystem;
 using Mona.SDK.Brains.EasyUI;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Core.Utils;
+using Mona.SDK.Brains.Core.Enums;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -209,6 +210,12 @@ namespace Mona.SDK.Brains.Core.Brain
             IMonaNetworkSpawner mockSpawner = null;
             EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT, evt.Body), new NetworkSpawnerStartedEvent(mockSpawner));
 #endif
+        }
+
+        public void HandleWalletConnected(string address)
+        {
+            Debug.Log($"{nameof(HandleWalletConnected)} a wallet has been connected");
+            EventBus.Trigger(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), new MonaWalletConnectedEvent(address));
         }
 
         private void HandleBrainSpawned(MonaBrainSpawnedEvent evt)

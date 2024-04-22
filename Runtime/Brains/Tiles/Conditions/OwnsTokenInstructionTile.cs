@@ -41,13 +41,35 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public OwnsTokenInstructionTile() { }
 
+        private Action<MonaWalletConnectedEvent> OnWalletConnected;
+
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
             _instruction = instruction;
+
             if (MonaGlobalBrainRunner.Instance.Blockchain != null)
             {
+                if (OnWalletConnected == null)
+                {
+                    OnWalletConnected = HandleWalletConnected;
+                    EventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletConnected);
+                }
+
                 FetchTokens();
+            }
+        }
+
+        private void HandleWalletConnected(MonaWalletConnectedEvent evt)
+        {
+            FetchTokens();
+        }
+
+        public override void Unload(bool destroy = false)
+        {
+            if(destroy)
+            {
+                EventBus.Unregister(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletConnected);
             }
         }
 
@@ -60,8 +82,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _tokenId = _brain.Variables.GetString(_tokenIdValueName);
 
             var block = MonaGlobalBrainRunner.Instance.Blockchain;
-            var token = await block.OwnsToken(_contractAddress, _tokenId);
-            if (!token.Equals(default))
+            Token token = await block.OwnsToken(_contractAddress, _tokenId);
+            if (!token.Equals((Token)default))
             {
                 var tokens = FilterAndForwardTokens(token);
                 _ownsToken = tokens.Count > 0;
