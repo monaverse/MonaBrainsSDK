@@ -119,7 +119,9 @@ namespace Mona.SDK.Brains.Core.Animation
                         if (_animator.gameObject != gameObject)
                             DestroyImmediate(_animator.gameObject);
                         else
+                        {
                             DestroyImmediate(_animator);
+                        }
                     }
                 }
                 _animator = animator;

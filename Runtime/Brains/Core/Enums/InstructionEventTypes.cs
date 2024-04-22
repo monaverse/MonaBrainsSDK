@@ -9,6 +9,7 @@
         Value=4,
         Trigger=5,
         Tick=6,
-        Authority=7
+        Authority=7,
+        Blockchain=8,
     }
 }

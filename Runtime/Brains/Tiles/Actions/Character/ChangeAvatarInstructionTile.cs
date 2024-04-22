@@ -20,6 +20,7 @@ using VRM;
 using UniHumanoid;
 using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Core.Assets;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Character
 {
@@ -40,11 +41,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
+        [SerializeField] private bool _useUri = false;
+        [BrainProperty(false)] public bool UseUrl { get => _useUri; set => _useUri = value; }
+
         [SerializeField] private string _monaAsset = null;
+        [BrainPropertyShow("UseUrl", false)]
         [BrainPropertyMonaAsset(typeof(IMonaAvatarAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
 
         [SerializeField] private string _monaAssetName = null;
         [BrainPropertyValueName(nameof(MonaAsset), typeof(IMonaVariablesStringValue))] public string MonaAssetName { get => _monaAssetName; set => _monaAssetName = value; }
+
+        [SerializeField] private string _assetUri = null;
+        [BrainPropertyShow("UseUrl", true)]
+        [BrainProperty(true)]
+        public string AssetUrl { get => _assetUri; set => _assetUri = value; }
+
+        [SerializeField] private string _assetUrlName = null;
+        [BrainPropertyValueName(nameof(AssetUrl), typeof(IMonaVariablesStringValue))] public string AssetUrlName { get => _assetUrlName; set => _assetUrlName = value; }
 
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
@@ -55,6 +68,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         private Vector3 _eulerAngles = Vector3.zero;
         [BrainProperty(false)]
         public Vector3 Rotation { get => _eulerAngles; set => _eulerAngles = value; }
+
+        [SerializeField]
+        private Vector3 _scale = Vector3.one;
+        [BrainProperty(false)]
+        public Vector3 Scale { get => _scale; set => _scale = value; }
 
         [SerializeField] private bool _includeAttached = true;
         [SerializeField] private string _includeAttachedName;
@@ -228,7 +246,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             if (_monaAnimationController != null)
                 _avatarInstance = _monaAnimationController.Animator;
 
-            _avatarAsset = (IMonaAvatarAssetItem)_brain.GetMonaAsset(_monaAsset);
         }
 
         public IMonaBody GetBodyToControl()
@@ -361,9 +378,28 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 if (_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
+                if (!string.IsNullOrEmpty(_assetUrlName))
+                    _assetUri = _brain.Variables.GetString(_assetUrlName);
+
+                if (!string.IsNullOrEmpty(_assetUri))
+                {
+                    _avatarAsset = (IMonaAvatarAssetItem)(new MonaAvatarAsset()
+                    {
+                        Url = _assetUri
+                    });
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(_monaAssetName))
+                        _monaAsset = _brain.Variables.GetString(_monaAssetName);
+
+                    _avatarAsset = (IMonaAvatarAssetItem)_brain.GetMonaAsset(_monaAsset);
+                }
+
                 if (_avatarAsset.Value != null)
                 {
-                    LoadAvatar(GameObject.Instantiate(_avatarAsset.Value), body);
+                    var avatar = GameObject.Instantiate(_avatarAsset.Value);
+                    LoadAvatar(avatar, body, avatar.gameObject);
                     return Complete(InstructionTileResult.Success);
                 }
                 else if (!string.IsNullOrEmpty(_avatarAsset.Url))
@@ -389,17 +425,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     var animator = avatar.GetComponent<Animator>();
                     if (animator == null)
                         animator = avatar.AddComponent<Animator>();
-                    LoadAvatar(animator, body);
+                    LoadAvatar(animator, body, avatar);
                 }
                 Complete(InstructionTileResult.Success, true);
             });
         }
 
-        private void LoadAvatar(Animator animator, IMonaBody body)
+        private void LoadAvatar(Animator animator, IMonaBody body, GameObject avatarGameObject)
         {
             _avatarInstance = animator;
             var root = body.Transform.Find("Root");
-            _avatarInstance.transform.SetParent(root);
+
+            for (var i = 0; i < root.childCount; i++)
+                GameObject.Destroy(root.GetChild(i).gameObject);
+
+            avatarGameObject.transform.SetParent(root);
 
             _monaAnimationController.SetAnimator(_avatarInstance);
 
@@ -470,7 +510,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             _avatarInstance.transform.localPosition = _offset;
             _avatarInstance.transform.localRotation = Quaternion.Euler(_eulerAngles);
 
-            Debug.Log($"{_avatarInstance} {_offset} {_avatarInstance.transform.position} brain body {_brain.Body.Transform.position}");
+            root.localScale = _scale;
+
+            Debug.Log($"{_avatarInstance} {_offset} scale {_scale} {_avatarInstance.transform.position} brain body {_brain.Body.Transform.position}");
 
             var playerId = _brain.Player.GetPlayerIdByBody(_brain.Body);
             if(playerId > -1)

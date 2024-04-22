@@ -5,6 +5,8 @@ using UniGLTF;
 using UnityEngine;
 using UnityEngine.Networking;
 using VRM;
+using UnityGLTF;
+using UnityGLTF.Loader;
 
 namespace Mona.SDK.Brains.Core.Utils
 {
@@ -51,19 +53,39 @@ namespace Mona.SDK.Brains.Core.Utils
                     return;
                 }
 
-                var vrmData = new VRMData(glbData);
+                try
+                {
 
-                var context = new VRMImporterContext(vrmData);
+                    var vrmData = new VRMData(glbData);
 
-                var runtimeGltfInstance = context.Load();
-                runtimeGltfInstance.EnableUpdateWhenOffscreen();
-                runtimeGltfInstance.ShowMeshes();
-                var avatarObject = runtimeGltfInstance.Root;
+                    var context = new VRMImporterContext(vrmData);
 
-                glbData.Dispose();
-                context.Dispose();
+                    var runtimeGltfInstance = context.Load();
+                    runtimeGltfInstance.EnableUpdateWhenOffscreen();
+                    runtimeGltfInstance.ShowMeshes();
+                    var avatarObject = runtimeGltfInstance.Root;
 
-                callback?.Invoke(avatarObject);
+                    glbData.Dispose();
+                    context.Dispose();
+                    callback?.Invoke(avatarObject);
+                }
+                catch(Exception e)
+                {
+                    Debug.Log($"could not load VRM data {e.Message}");
+                    System.IO.MemoryStream stream = new System.IO.MemoryStream(avatarData);
+                    GLTF.Schema.GLTFRoot gLTFRoot;
+                    GLTF.GLTFParser.ParseJson(stream, out gLTFRoot);
+
+                    UnityGLTF.GLTFSceneImporter sceneImporter = new UnityGLTF.GLTFSceneImporter(gLTFRoot, stream, new ImportOptions()
+                    {
+                        DataLoader = new StreamLoader(stream)
+                    });
+                    sceneImporter.LoadScene(-1, true, (obj, info) =>
+                    {
+                        callback?.Invoke(obj);
+                    });
+                }
+
             });
         }
 

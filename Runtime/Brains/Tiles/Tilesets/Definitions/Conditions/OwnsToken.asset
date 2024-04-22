@@ -10,20 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 272b08cad512148018bf9260520f2da5, type: 3}
-  m_Name: OwnsTokens
+  m_Name: OwnsToken
   m_EditorClassIdentifier: 
   _tile:
-    rid: 1609534955540447233
-  _id: OwnsTokens
-  _name: Owns Tokens
+    rid: 5012747694246461579
+  _id: OwnsToken
+  _name: Owns Token
   _category: Blockchain
   references:
     version: 2
     RefIds:
-    - rid: 1609534955540447233
-      type: {class: OwnsTokensInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
+    - rid: 5012747694246461579
+      type: {class: OwnsTokenInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: 
         _name: 
         _category: 
+        _muted: 0
         _contractAddress: 
+        _contractAddressValueName: 
+        _tokenId: 
+        _tokenIdValueName: 

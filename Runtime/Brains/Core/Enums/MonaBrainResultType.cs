@@ -12,5 +12,8 @@
         OnHitNormal = 6,
         DirectionToTarget=7,
         LastMoveDirection=9,
+        LastTokenAvatar=10,
+        LastTokenObject=11,
+        LastTokenTexture=12
     }
 }

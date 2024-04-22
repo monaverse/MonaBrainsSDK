@@ -99,7 +99,8 @@ namespace Mona.SDK.Brains.Core.Utils.Interfaces
     {
         void SetWalletAddress(string address);
         void RegisterContract(string address);
-        List<Token> OwnsTokens(string collectionAddress);
+        Task<Token> OwnsToken(string collectionAddress, string tokenId);
+        Task<List<Token>> OwnsTokens(string collectionAddress);
         List<Token> OwnsTokensWithAvatar();
         List<Token> OwnsTokensWithObject();
         List<Token> OwnsTokensWithTexture();

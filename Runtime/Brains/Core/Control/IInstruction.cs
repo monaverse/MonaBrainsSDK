@@ -25,6 +25,7 @@ namespace Mona.SDK.Brains.Core.Control
         bool HasOnMessageTile(string message);
 
         List<IInstructionTile> InstructionTiles { get; }
+        List<IBlockchainInstructionTile> BlockchainTiles { get; }
         IInstructionTile CurrentTile { get; }
         MonaInput InstructionInput { get; set; }
         List<IMonaBody> InstructionBodies { get; set; }

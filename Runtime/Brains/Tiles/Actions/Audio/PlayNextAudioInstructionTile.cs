@@ -213,15 +213,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
                         if (_brain.LoggingEnabled)
                             Debug.Log($"{nameof(PlayNextAudioInstructionTile)} play audio {_clip.Value}");
                         SetupClip();
-                        _audioSource.volume = _volume;
-                        _audioSource.Play();
-                        _isPlaying = true;
-                        AddFixedTickDelegate();
-                        if (_wait)
-                            return Complete(InstructionTileResult.Running);
-                        else
+                        try { 
+                            _audioSource.volume = _volume;
+                            _audioSource.Play();
+                            _isPlaying = true;
+                            AddFixedTickDelegate();
+                            if (_wait)
+                                return Complete(InstructionTileResult.Running);
+                            else
+                            {
+                                _isPlaying = false;
+                                return Complete(InstructionTileResult.Success);
+                            }
+                        }
+                        catch (Exception e)
                         {
-                            _isPlaying = false;
+                            Debug.LogError($"{nameof(PlayAudioInstructionTile)} could not player audio {e.Message}");
                             return Complete(InstructionTileResult.Success);
                         }
                     }

@@ -171,10 +171,6 @@ namespace Mona.SDK.Brains.Core.Brain
         private void FindBlockchainAPI()
         {
             _blockchain = GameObject.FindObjectOfType<MonaBrainBlockchain>();
-#if UNITY_EDITOR
-            if(_blockchain != null)
-                _blockchain.SetWalletAddress(MockWalletAddress);
-#endif
         }
 
         private void Start()
@@ -182,7 +178,7 @@ namespace Mona.SDK.Brains.Core.Brain
             SetupEasyUIGlobalRunner();
             CacheCamera();
 
-#if ((UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR && !OLYMPIA) || (UNITY_EDITOR && !OLYMPIA)
+#if (!OLYMPIA)
             IMonaNetworkSpawner mockSpawner = null;
             EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT), new NetworkSpawnerStartedEvent(mockSpawner));
 #endif
@@ -209,7 +205,7 @@ namespace Mona.SDK.Brains.Core.Brain
         
         private void HandleMonaBodyInstantiated(MonaBodyInstantiatedEvent evt)
         {
-#if ((UNITY_ANDROID || UNITY_IOS) && !UNITY_EDITOR && !OLYMPIA) || (UNITY_EDITOR && !OLYMPIA)
+#if (!OLYMPIA)
             IMonaNetworkSpawner mockSpawner = null;
             EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT, evt.Body), new NetworkSpawnerStartedEvent(mockSpawner));
 #endif

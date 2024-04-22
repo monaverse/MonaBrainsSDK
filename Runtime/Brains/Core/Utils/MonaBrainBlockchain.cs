@@ -8,9 +8,10 @@ namespace Mona.SDK.Brains.Core.Utils
 {
     public class MonaBrainBlockchain : MonoBehaviour, IMonaBrainBlockchain
     {
+        [SerializeField]
         protected string _walletAddress;
 
-        public void SetWalletAddress(string address) => _walletAddress = address;
+        public virtual void SetWalletAddress(string address) => _walletAddress = address;
 
         protected List<string> _contracts = new List<string>();
         public List<string> Contracts { get => _contracts; }
@@ -21,9 +22,14 @@ namespace Mona.SDK.Brains.Core.Utils
                 _contracts.Add(address);
         }
 
-        public virtual List<Token> OwnsTokens(string collectionAddress)
+        public async virtual Task<Token> OwnsToken(string collectionAddress, string tokenId)
         {
-            throw new System.NotImplementedException();
+            return default;
+        }
+
+        public async virtual Task<List<Token>> OwnsTokens(string collectionAddress)
+        {
+            return null;
         }
 
         public virtual List<Token> OwnsTokensWithAvatar()

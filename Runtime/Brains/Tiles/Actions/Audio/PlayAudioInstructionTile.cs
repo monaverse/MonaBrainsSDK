@@ -94,7 +94,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         public override void Unload(bool destroy = false)
         {
             var audioSource = _brain.Body.ActiveTransform.GetComponent<AudioSource>();
-            GameObject.Destroy(audioSource);
+            GameObject.DestroyImmediate(audioSource);
             RemoveFixedTickDelegate();
         }
 
@@ -202,15 +202,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
                     {
                         if (_brain.LoggingEnabled)
                             Debug.Log($"{nameof(PlayAudioInstructionTile)} play audio {_clip.Value}");
-                        SetupClip();
-                        _audioSource.volume = _volume;
-                        _audioSource.Play();
-                        _isPlaying = true;
-                        AddFixedTickDelegate();
-                        if (_wait)
-                            return Complete(InstructionTileResult.Running);
-                        else
+
+                        try
+                        {
+                            SetupClip();
+                            _audioSource.volume = _volume;
+                            _audioSource.Play();
+                            _isPlaying = true;
+                        
+                            AddFixedTickDelegate();
+                            if (_wait)
+                                return Complete(InstructionTileResult.Running);
+                            else
+                                return Complete(InstructionTileResult.Success);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError($"{nameof(PlayAudioInstructionTile)} could not player audio {e.Message}");
                             return Complete(InstructionTileResult.Success);
+                        }
                     }
                 }
                 catch(Exception e)

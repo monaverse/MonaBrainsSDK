@@ -48,6 +48,8 @@ namespace Mona.SDK.Brains.Core.Control
         public bool IsRunning() => _result == InstructionTileResult.Running;
 
         private List<IInstructionTile> _needAuthInstructionTiles = new List<IInstructionTile>();
+        private List<IBlockchainInstructionTile> _blockchainTiles = new List<IBlockchainInstructionTile>();
+        public List<IBlockchainInstructionTile> BlockchainTiles => _blockchainTiles;
 
         private bool _hasInputTile;
         private int _firstActionIndex = -1;
@@ -117,6 +119,9 @@ namespace Mona.SDK.Brains.Core.Control
 
                 if (tile is INeedAuthorityInstructionTile)
                     _needAuthInstructionTiles.Add(tile);
+
+                if (tile is IBlockchainInstructionTile)
+                    _blockchainTiles.Add((IBlockchainInstructionTile)tile);
 
                 if (tile is IInstructionTileWithPreload)
                     ((IInstructionTileWithPreload)tile).Preload(_brain);
@@ -420,6 +425,10 @@ namespace Mona.SDK.Brains.Core.Control
                             //Debug.Log($"execute tick");
                             ExecuteActionTile(tile);
                         }
+                        break;
+                    case InstructionEventTypes.Blockchain:
+                        if (_brain.Body.HasControl() && BlockchainTiles.Count > 0)
+                            ExecuteActionTile(tile);
                         break;
                     case InstructionEventTypes.Authority:
                         if(HasTilesNeedingAuthority())

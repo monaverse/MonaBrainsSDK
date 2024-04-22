@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddb922abd795944b19b6f1311551bcee, type: 3}
+  m_Name: ScaleLocal
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 5012747629767950473
+  _id: Scale To
+  _name: Scale To
+  _category: Scale
+  references:
+    version: 2
+    RefIds:
+    - rid: 5012747629767950473
+      type: {class: ScaleLocalInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
+        _muted: 0
+        _scale: {x: 0, y: 0, z: 0}
+        _scaleValueName: 
+        _mode: 1
+        _value: 1
+        _valueValueName: 
+        _easing: 1
+        _onlyTurnWhenMoving: 0
+        _lookStraightAhead: 0
