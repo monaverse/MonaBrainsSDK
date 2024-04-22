@@ -151,13 +151,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void SetActivationState(GameObject gameObject)
         {
-            gameObject.SetActive(_setActive);
             IMonaBody monaBody = gameObject.GetComponent<IMonaBody>();
 
             if (monaBody == null)
+            {
+                gameObject.SetActive(_setActive);
                 return;
+            }
 
-            monaBody.SetActive(true);
+            monaBody.SetActive(_setActive);
+
+            if (!_setActive)
+                return;
 
             if (monaBody.ActiveRigidbody != null)
                 monaBody.ActiveRigidbody.WakeUp();
