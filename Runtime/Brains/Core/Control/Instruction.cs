@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Core.Control
 {
@@ -64,6 +65,8 @@ namespace Mona.SDK.Brains.Core.Control
         private bool _hasMessageEventWaitingForAuthorization;
         private List<InstructionEvent> _messageEventsWaitingForAuthorization = new List<InstructionEvent>();
 
+        private InstructionEvent _instructionTickEvent;
+
         public IInstructionTile CurrentTile {
             get
             {
@@ -91,6 +94,10 @@ namespace Mona.SDK.Brains.Core.Control
 
         public void Preload(IMonaBrain brain, IMonaBrainPage page)
         {
+
+            if (_instructionTickEvent == default)
+                _instructionTickEvent = new InstructionEvent(InstructionEventTypes.Tick, this);
+
             _unloaded = false;
             _brain = brain;
             _page = page;
@@ -266,7 +273,7 @@ namespace Mona.SDK.Brains.Core.Control
                 if (body != null && !body.HasControl())
                 {
                     OnStateAuthorityChanged = HandleStateAuthorityChanged;
-                    EventBus.Register<MonaStateAuthorityChangedEvent>(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, body), OnStateAuthorityChanged);
+                    MonaEventBus.Register<MonaStateAuthorityChangedEvent>(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, body), OnStateAuthorityChanged);
                     _waitForAuthBodies.Add(body);
 
                     if (_brain.LoggingEnabled)
@@ -281,7 +288,7 @@ namespace Mona.SDK.Brains.Core.Control
 
         private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, evt.Body), OnStateAuthorityChanged);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, evt.Body), OnStateAuthorityChanged);
 
             if(_waitForAuthBodies.Count == 0)
             {
@@ -295,7 +302,7 @@ namespace Mona.SDK.Brains.Core.Control
             if(_waitForAuthBodies.Count == 0)
             {
                 //Debug.Log($"{nameof(Instruction)}.{nameof(HandleStateAuthorityChanged)} i now have necessary authority, send a tick");
-                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain.Body), new InstructionEvent(InstructionEventTypes.Authority));
+                MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain.Body), new InstructionEvent(InstructionEventTypes.Authority));
             }
             else
             {
@@ -339,7 +346,7 @@ namespace Mona.SDK.Brains.Core.Control
                 /*if (!HasConditional())
                 {
                     Debug.Log($"tick while runnin' {_result}");
-                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick));
+                    MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick));
                 }*/
 
                 return;
@@ -358,7 +365,7 @@ namespace Mona.SDK.Brains.Core.Control
             else if (result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
             {
                 //if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
-                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new InstructionEvent(InstructionEventTypes.Tick, this));
+                MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), _instructionTickEvent);
             }
 
             ClearInputs();
@@ -500,7 +507,7 @@ namespace Mona.SDK.Brains.Core.Control
                 for (var i = 0; i < _messageEventsWaitingForAuthorization.Count; i++)
                 {
                     Debug.Log($"{nameof(Instruction)} rebroadcast message {_messageEventsWaitingForAuthorization[i].Message}", _brain.Body.Transform.gameObject);
-                    EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _brain), _messageEventsWaitingForAuthorization[i]);
+                    MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _brain), _messageEventsWaitingForAuthorization[i]);
                 }
             }
         }
@@ -636,7 +643,7 @@ namespace Mona.SDK.Brains.Core.Control
                 if (!HasConditional() || HasTickAfter())
                 {
                     //if(HasTickAfter()) Debug.Log($"TICK IT success {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
-                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new InstructionEvent(InstructionEventTypes.Tick, this));
+                    MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), _instructionTickEvent);
                 }
             }
             else
@@ -651,7 +658,7 @@ namespace Mona.SDK.Brains.Core.Control
                 else if (_result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
                 {
                     //if (HasTickAfter() && _brain.LoggingEnabled) Debug.Log($"TICK IT failure {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
-                    EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new InstructionEvent(InstructionEventTypes.Tick, this));
+                    MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), _instructionTickEvent);
                 }
             }
         }
@@ -745,7 +752,7 @@ namespace Mona.SDK.Brains.Core.Control
         {
             OnRefresh(i);
             if(_brain != null)
-                EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brain.Guid), new MonaBrainReloadEvent());
+                MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brain.Guid), new MonaBrainReloadEvent());
         }
 
         public void DeleteTile(int i)

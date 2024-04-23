@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 {
@@ -41,19 +42,19 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             _collider.isTrigger = true;
 
             OnBodySpawned = HandleBodySpawned;
-            EventBus.Register(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);
+            MonaEventBus.Register(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);
 
             OnBodyDespawned = HandleBodyDespawned;
-            EventBus.Register(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);
+            MonaEventBus.Register(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);
         }
 
         public void Dispose()
         {
             _collider = null;
 
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);
-            EventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnTileTick);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnTileTick);
         }
 
         public void SetBrain(IMonaBrain brain)
@@ -74,7 +75,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         public void MonitorFieldOfView(bool inside)
         {
             OnTileTick = HandleTileTick;
-            EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnTileTick);
+            MonaEventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnTileTick);
             _monitorInside = inside;
         }
 
@@ -173,7 +174,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         {
                             //Debug.Log($"in view {body.Transform.name}");
                             _bodiesIndex[body] = true;
-                            EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnFieldOfViewChanged));
+                            MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnFieldOfViewChanged));
                         }
                     }
                     else
@@ -182,7 +183,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         {
                             //Debug.Log($"out of view {body.Transform.name}");
                             _bodiesIndex[body] = false;
-                            EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnFieldOfViewChanged));
+                            MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnFieldOfViewChanged));
                         }
                     }
                 }
@@ -214,7 +215,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         if (_bodiesIndex[body])
                         {
                             _bodiesIndex[body] = false;
-                            EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnFieldOfViewChanged));
+                            MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnFieldOfViewChanged));
                         }
                     }
                     else
@@ -222,7 +223,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         if (!_bodiesIndex[body])
                         {
                             _bodiesIndex[body] = true;
-                            EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnFieldOfViewChanged));
+                            MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnFieldOfViewChanged));
                         }
                     }
                 }
@@ -348,7 +349,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     //    Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(AddBody)} {_collider.radius} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _bodiesIndex.Add(body, false);
                     _bodies.Add(body);
-                    EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnTriggerEnter));
+                    MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnTriggerEnter));
                     return true;
                 }
             }
@@ -373,7 +374,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     //    Debug.Log($"{nameof(SphereColliderTriggerBehaviour)}.{nameof(RemoveBody)} {_radius} {_collider.radius} {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
                     _bodiesIndex.Remove(body);
                     _bodies.Remove(body);
-                    EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnTriggerExit));
+                    MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnTriggerExit));
                     return true;
                 }
             }

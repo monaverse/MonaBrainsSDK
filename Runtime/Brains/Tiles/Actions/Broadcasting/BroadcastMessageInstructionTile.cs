@@ -8,6 +8,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 {
@@ -24,13 +25,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
         protected void BroadcastMessage(IMonaBrain sender, string message, IMonaBody target)
         {
             //Debug.Log($"{nameof(BroadcastMessage)} '{message}' to ({target.Transform.name}) from ({sender.Name}) on frame {Time.frameCount}");
-            EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, target), new InstructionEvent(message, sender, Time.frameCount));
+            MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, target), new InstructionEvent(message, sender, Time.frameCount));
         }
 
         protected void BroadcastMessage(IMonaBrain sender, string message, IMonaBrain target)
         {
             //Debug.Log($"{nameof(BroadcastMessage)} '{message}' to ({target.Name}) from ({sender.Name}) on frame {Time.frameCount}");
-            EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, target), new InstructionEvent(message, sender, Time.frameCount));
+            MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, target), new InstructionEvent(message, sender, Time.frameCount));
         }
 
         public override InstructionTileResult Do()

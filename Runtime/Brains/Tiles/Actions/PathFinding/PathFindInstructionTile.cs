@@ -14,6 +14,7 @@ using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
 {
@@ -89,7 +90,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
             SetAgentSettings();
 
             OnAnimationControllerChanged = HandleAnimationControllerChanged;
-            EventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+            MonaEventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
 
             SetupAnimation();
         }
@@ -150,7 +151,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
         public override void Unload(bool destroy = false)
         {
             RemoveFixedTickDelegate();
-            EventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
 
             //if(_brain.LoggingEnabled)
             //    Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Unload)}");
@@ -211,16 +212,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
             //Debug.Log($"{nameof(AddFixedTickDelegate)}, fr: {Time.frameCount}", _brain.Body.Transform.gameObject);
 
             OnFixedTick = HandleFixedTick;
-            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
 
             OnBodyEvent = HandleBodyEvent;
-            EventBus.Register<MonaBodyEvent>(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), OnBodyEvent);
+            MonaEventBus.Register<MonaBodyEvent>(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), OnBodyEvent);
         }
 
         protected void RemoveFixedTickDelegate()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
-            EventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_EVENT, _brain.Body), OnBodyEvent);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_EVENT, _brain.Body), OnBodyEvent);
         }
 
         private void HandleBodyEvent(MonaBodyEvent evt)

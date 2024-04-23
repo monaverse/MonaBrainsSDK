@@ -12,6 +12,34 @@ namespace Mona.SDK.Brains.Core.State.Structs
 
         public void Change() => OnChange();
 
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hash = 17;
+
+                hash = hash * 23 + (_name?.GetHashCode() ?? 0);
+                hash = hash * 23 + _value?.GetHashCode() ?? 0;
+
+                return hash;
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is IMonaVariablesValue other))
+            {
+                return false;
+            }
+
+            return Equals(other);
+        }
+
+        public bool Equals(IMonaVariablesValue other)
+        {
+            return GetHashCode() == other.GetHashCode();
+        }
+
         [SerializeField]
         private string _name;
 

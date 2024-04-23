@@ -7,6 +7,7 @@ namespace Mona.SDK.Brains.Core.Events
 {
     public struct MonaBrainReloadEvent : IInstructionEvent
     {
+        public string Message { get; set; }
         public InstructionEventTypes Type { get; set; }
         public IInstruction Instruction { get; set; }
     }

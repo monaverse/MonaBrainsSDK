@@ -21,6 +21,7 @@ using UniHumanoid;
 using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.Assets;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Character
 {
@@ -225,7 +226,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         private void SetupAnimation(IMonaBody body)
         {
             OnAnimationControllerChanged = HandleAnimationControllerChanged;
-            EventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, body), OnAnimationControllerChanged);
+            MonaEventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, body), OnAnimationControllerChanged);
 
             if (body.Transform.Find("Root") != null)
                 _monaAnimationController = body.Transform.Find("Root").GetComponent<IMonaAnimationController>();
@@ -505,7 +506,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             while (body != null)
             {
-                EventBus.Trigger<MonaBodyAnimationControllerChangeEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, body), new MonaBodyAnimationControllerChangeEvent(_avatarInstance));
+                MonaEventBus.Trigger<MonaBodyAnimationControllerChangeEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, body), new MonaBodyAnimationControllerChangeEvent(_avatarInstance));
                 body = body.Parent;
             }
 
@@ -519,7 +520,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             var playerId = _brain.Player.GetPlayerIdByBody(_brain.Body);
             if(playerId > -1)
-                EventBus.Trigger<MonaPlayerChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_CHANGE_AVATAR_EVENT), new MonaPlayerChangeAvatarEvent(playerId, _avatarInstance));
+                MonaEventBus.Trigger<MonaPlayerChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_CHANGE_AVATAR_EVENT), new MonaPlayerChangeAvatarEvent(playerId, _avatarInstance));
 
         }
 
@@ -527,7 +528,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         {
             base.Unload();
 
-            EventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
 
             //if(_avatarInstance != null)
             //    GameObject.Destroy(_avatarInstance.transform.gameObject);

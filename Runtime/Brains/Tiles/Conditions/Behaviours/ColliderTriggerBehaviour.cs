@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 {
@@ -63,10 +64,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             }
 
             OnBodySpawned = HandleBodySpawned;
-            EventBus.Register(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);
+            MonaEventBus.Register(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);
 
             OnBodyDespawned = HandleBodyDespawned;
-            EventBus.Register(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);
+            MonaEventBus.Register(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);
         }
 
         public void Dispose()
@@ -75,9 +76,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 Destroy(_collider);
             _collider = null;
 
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);
-            EventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnTileTick);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnTileTick);
         }
 
         public void SetBrain(IMonaBrain brain)
@@ -198,7 +199,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         _bodiesThatEntered.Add(body);
                     if (!_bodiesWithin.Contains(body))
                         _bodiesWithin.Add(body);
-                    EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnTriggerEnter));
+                    MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnTriggerEnter));
                     return true;
                 }
             }
@@ -226,7 +227,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                         _bodiesThatLeft.Add(body);
                     if (_bodiesWithin.Contains(body))
                         _bodiesWithin.Remove(body);
-                    EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnTriggerExit));
+                    MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnTriggerExit));
                     return true;
                 }
             }

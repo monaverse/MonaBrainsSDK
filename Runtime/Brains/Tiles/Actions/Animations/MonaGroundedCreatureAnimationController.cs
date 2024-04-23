@@ -1,4 +1,4 @@
-using Mona.SDK.Brains.Core.Brain;
+﻿using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Assets;
@@ -11,6 +11,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Core.Animation
 {
@@ -56,7 +57,7 @@ namespace Mona.SDK.Brains.Core.Animation
                 SetupAnimationController(animator);
 
                 OnRemoteAnimation = HandleRemoteAnimationTriggered;
-                EventBus.Register<MonaBodyAnimationTriggeredEvent>(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), OnRemoteAnimation);
+                MonaEventBus.Register<MonaBodyAnimationTriggeredEvent>(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), OnRemoteAnimation);
 
                 _brain.Body.SetAnimator(_animator);
                 _brain.Variables.Set(MonaBrainConstants.TRIGGER, "");
@@ -69,7 +70,7 @@ namespace Mona.SDK.Brains.Core.Animation
         {
             Debug.Log($"{nameof(MonaGroundedCreatureAnimationController)}.{nameof(OnDestroy)}");
             if (_brain != null)
-                EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), OnRemoteAnimation);
+                MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), OnRemoteAnimation);
             _brain = null;
         }
 

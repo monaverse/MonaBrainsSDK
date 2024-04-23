@@ -1,4 +1,4 @@
-using Mona.SDK.Brains.Core.Animation;
+﻿using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Tiles;
@@ -8,6 +8,7 @@ using Mona.SDK.Core.Events;
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
@@ -46,7 +47,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private void AddJumpTickDelegate()
         {
             OnJumpTick = HandleJumpTick;
-            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnJumpTick);
+            MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnJumpTick);
         }
 
         private void HandleJumpTick(MonaBodyFixedTickEvent evt)
@@ -60,7 +61,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         private void RemoveJumpTickDelegate()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnJumpTick);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnJumpTick);
         }
 
         protected override void StoppedPushing()

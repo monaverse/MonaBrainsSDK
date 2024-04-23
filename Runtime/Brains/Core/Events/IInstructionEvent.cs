@@ -9,6 +9,7 @@ namespace Mona.SDK.Brains.Core.Events
 {
     public interface IInstructionEvent
     {
+        string Message { get; set; }
         IInstruction Instruction { get; set; }
         InstructionEventTypes Type { get; set; }
     }

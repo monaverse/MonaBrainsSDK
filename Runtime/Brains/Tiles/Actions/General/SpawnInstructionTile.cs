@@ -16,6 +16,7 @@ using Mona.SDK.Core.Assets.Interfaces;
 using System.Collections;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Animation;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -169,7 +170,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
                 ((MonaBodyBase)child).PrefabId = prefabId;
                 ((MonaBodyBase)child).MakeUnique(_brain.Player.PlayerId, true);
-                EventBus.Trigger<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), new MonaBodyInstantiatedEvent(child));
+                MonaEventBus.Trigger<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), new MonaBodyInstantiatedEvent(child));
             }
         }
 

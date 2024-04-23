@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.Extensions.Interfaces;
 using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Extensions
 {
@@ -53,7 +54,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Extensions
         private InstructionTileCallback _instructionCallback;
         private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
         {
-            EventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_THEN_EVENT, _brain), OnVisualScriptReceive);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_THEN_EVENT, _brain), OnVisualScriptReceive);
             if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
             return InstructionTileResult.Success;
         }
@@ -67,8 +68,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Extensions
                 _isRunning = true;
                 
                 OnVisualScriptReceive = HandleVisualScriptReceive;
-                EventBus.Register<MonaBrainsThenEvent>(new EventHook(MonaBrainConstants.MONA_BRAINS_THEN_EVENT, _brain), OnVisualScriptReceive);
-                EventBus.Trigger<MonaBrainsDoEvent>(new EventHook(MonaBrainConstants.MONA_BRAINS_DO_EVENT), new MonaBrainsDoEvent(_brain, _eventName));
+                MonaEventBus.Register<MonaBrainsThenEvent>(new EventHook(MonaBrainConstants.MONA_BRAINS_THEN_EVENT, _brain), OnVisualScriptReceive);
+                MonaEventBus.Trigger<MonaBrainsDoEvent>(new EventHook(MonaBrainConstants.MONA_BRAINS_DO_EVENT), new MonaBrainsDoEvent(_brain, _eventName));
             }
 
             Debug.Log($"{nameof(VisualScriptingInstructionTile)} Do");

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Brains.Core.Animation;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Animations
 {
@@ -109,13 +110,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
         private void AddRemoteAnimationDelegate()
         {
             OnMonaValueChanged = HandleMonaValueChanged;
-            EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
+            MonaEventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
 
         }
 
         private void RemoveRemoteAnimationDelegate()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
         }
 
         private void HandleMonaValueChanged(MonaValueChangedEvent evt)

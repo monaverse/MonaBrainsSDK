@@ -16,6 +16,7 @@ using Mona.SDK.Brains.Core.State.Structs;
 using Mona.SDK.Core.Assets.Interfaces;
 using Mona.SDK.Core.Assets;
 using Mona.SDK.Brains.Core.Animation;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Core.ScriptableObjects
 {
@@ -289,7 +290,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             for (var i = 0; i < _messages.Count; i++)
             {
-                if (_messages[i].Message == message)
+                if (_messages[i].Message.Equals(message))
                     return true;
             }
             return false;
@@ -398,14 +399,14 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                     _body.AddCollider();
             }
 
-            EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(this));
+            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(this));
         }
 
         private void AddMonaAssetsToNetwork()
         {
             //Debug.Log($"{nameof(AddMonaAssetsToNetwork)}", _body.Transform.gameObject);
             for (var i = 0; i < _monaAssets.Count; i++)
-                EventBus.Trigger<MonaAssetProviderAddedEvent>(new EventHook(MonaCoreConstants.MONA_ASSET_PROVIDER_ADDED), new MonaAssetProviderAddedEvent(_monaAssets[i]));
+                MonaEventBus.Trigger<MonaAssetProviderAddedEvent>(new EventHook(MonaCoreConstants.MONA_ASSET_PROVIDER_ADDED), new MonaAssetProviderAddedEvent(_monaAssets[i]));
         }
 
         private void BuildRoot()
@@ -520,7 +521,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             var parent = _body;
             while(parent != null)
             {
-                EventBus.Trigger(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, parent), new MonaBodyAnimationControllerChangedEvent());
+                MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, parent), new MonaBodyAnimationControllerChangedEvent());
                 parent = parent.Parent;
             }
 
@@ -529,60 +530,60 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private void AddEventDelegates()
         {
             OnBodyParentChanged = HandleBodyParentChanged;
-            EventBus.Register<MonaBodyParentChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
+            MonaEventBus.Register<MonaBodyParentChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
 
             OnMonaBrainTick = HandleMonaBrainTick;
-            EventBus.Register<InstructionEvent>(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), OnMonaBrainTick);
-            EventBus.Register<InstructionEvent>(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _body), OnMonaBrainTick);
+            MonaEventBus.Register<InstructionEvent>(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), OnMonaBrainTick);
+            MonaEventBus.Register<InstructionEvent>(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _body), OnMonaBrainTick);
 
             OnMonaTrigger = HandleMonaTrigger;
-            EventBus.Register<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
+            MonaEventBus.Register<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
 
             OnMonaValueChanged = HandleMonaValueChanged;
-            EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
+            MonaEventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
 
             OnBroadcastMessage = HandleBroadcastMessage;
-            EventBus.Register<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
-            EventBus.Register<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
+            MonaEventBus.Register<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
+            MonaEventBus.Register<InstructionEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
 
             OnMonaBodyHasInput = HandleHasInput;
-            EventBus.Register<MonaBodyHasInputEvent>(new EventHook(MonaCoreConstants.MONA_BODY_HAS_INPUT_EVENT, _body), OnMonaBodyHasInput);
+            MonaEventBus.Register<MonaBodyHasInputEvent>(new EventHook(MonaCoreConstants.MONA_BODY_HAS_INPUT_EVENT, _body), OnMonaBodyHasInput);
 
             OnAnimationControllerChange = HandleAnimationControllerChange;
-            EventBus.Register<MonaBodyAnimationControllerChangeEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, _body), OnAnimationControllerChange);
+            MonaEventBus.Register<MonaBodyAnimationControllerChangeEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, _body), OnAnimationControllerChange);
 
         }
 
         private void AddHierarchyDelgates()
         {
             //if (_bodyParent != null && _body is IMonaBodyPart)
-              //  EventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
+              //  MonaEventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
         }
 
 
         private void RemoveEventDelegates()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
 
-            EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), OnMonaBrainTick);
-            EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _body), OnMonaBrainTick);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), OnMonaBrainTick);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _body), OnMonaBrainTick);
 
-            EventBus.Unregister(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.TRIGGER_EVENT, this), OnMonaTrigger);
 
-            EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, this), OnMonaValueChanged);
 
-            EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
-            EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, this), OnBroadcastMessage);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), OnBroadcastMessage);
 
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_HAS_INPUT_EVENT, _body), OnMonaBodyHasInput);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_HAS_INPUT_EVENT, _body), OnMonaBodyHasInput);
 
-            EventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, _body), OnAnimationControllerChange);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, _body), OnAnimationControllerChange);
         }
 
         private void RemoveHierarchyDelegates()
         {
             //if (_bodyParent != null && _body is IMonaBodyPart)
-            //    EventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
+            //    MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
         }
 
         private void PreloadPages()
@@ -627,7 +628,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             for (var i = 0; i < _statePages.Count; i++)
                 _statePages[i].Resume();
 
-            EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), new InstructionEvent(InstructionEventTypes.Tick));
+            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, this), new InstructionEvent(InstructionEventTypes.Tick));
         }
 
         private void HandleBodyParentChanged(MonaBodyParentChangedEvent evt)
@@ -809,7 +810,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             //Debug.Log($"{nameof(RemoveMonaAssetsFromNetwork)}", _body.Transform.gameObject);
             for (var i = 0; i < _monaAssets.Count; i++)
-                EventBus.Trigger<MonaAssetProviderRemovedEvent>(new EventHook(MonaCoreConstants.MONA_ASSET_PROVIDER_REMOVED), new MonaAssetProviderRemovedEvent(_monaAssets[i]));
+                MonaEventBus.Trigger<MonaAssetProviderRemovedEvent>(new EventHook(MonaCoreConstants.MONA_ASSET_PROVIDER_REMOVED), new MonaAssetProviderRemovedEvent(_monaAssets[i]));
         }
 
         public string ToJson()

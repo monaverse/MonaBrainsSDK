@@ -1,4 +1,4 @@
-using Mona.SDK.Brains.Core.Enums;
+﻿using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
@@ -14,6 +14,7 @@ using Mona.SDK.Core.Input;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Brains.Core.Control;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -177,19 +178,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private void AddDelegates()
         {
             OnFixedTick = HandleFixedTick;
-            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
 
             if (DirectionType == MoveDirectionType.UseInput)
             {
                 OnInput = HandleBodyInput;
-                EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+                MonaEventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
             }
         }
 
         private void RemoveDelegates()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
-            EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
         public IMonaBody GetBodyToControl()

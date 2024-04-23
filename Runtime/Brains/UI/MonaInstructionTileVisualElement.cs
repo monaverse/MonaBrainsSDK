@@ -14,6 +14,7 @@ using Mona.SDK.Brains.Core.Control;
 using UnityEditor;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Assets.Interfaces;
+using Mona.SDK.Core.Utils;
 
 #if UNITY_EDITOR
 using UnityEditor.UIElements;
@@ -220,7 +221,7 @@ namespace Mona.SDK.Brains.UIElements
 
         private void Changed()
         {
-            EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brain.Guid), new MonaBrainReloadEvent());
+            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brain.Guid), new MonaBrainReloadEvent());
         }
 
         private void BuildValueEditor()

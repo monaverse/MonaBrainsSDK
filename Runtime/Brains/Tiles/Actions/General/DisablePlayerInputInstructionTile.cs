@@ -5,6 +5,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Unity.VisualScripting;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Input
 {
@@ -20,7 +21,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Input
 
         public override InstructionTileResult Do()
         {
-            EventBus.Trigger<MonaPlayerInputEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_INPUT_EVENT), new MonaPlayerInputEvent(false));
+            MonaEventBus.Trigger<MonaPlayerInputEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_INPUT_EVENT), new MonaPlayerInputEvent(false));
             return Complete(InstructionTileResult.Success);
         }
     }

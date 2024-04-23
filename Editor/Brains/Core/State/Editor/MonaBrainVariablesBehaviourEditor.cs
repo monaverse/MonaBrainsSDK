@@ -8,12 +8,18 @@ namespace Mona.SDK.Brains.Core.State.UIEditors
     [CustomEditor(typeof(MonaBrainVariablesBehaviour))]
     public class MonaBrainVariablesBehaviourEditor : Editor
     {
+        private MonaBrainValuesVisualElement _root;
         public override VisualElement CreateInspectorGUI()
         {
             var self = (IMonaBrainVariables)target;
-            var root = new MonaBrainValuesVisualElement();
-            root.SetState(self);
-            return root;
+            _root = new MonaBrainValuesVisualElement();
+            _root.SetState(self);
+            return _root;
+        }
+
+        public void OnDestroy()
+        {
+            _root.Dispose();
         }
     }
 #endif

@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 namespace Mona.SDK.Brains.Core.State.UIElements
 {
-    public class MonaBrainValuesVisualElement : VisualElement
+    public class MonaBrainValuesVisualElement : VisualElement, IDisposable
     {
         private IMonaBrainVariables _state;
         private ListView _list;
@@ -104,6 +104,11 @@ namespace Mona.SDK.Brains.Core.State.UIElements
                 _values = _state.VariableList;
             _list.itemsSource = _values;
             _list.Rebuild();
+        }
+
+        public void Dispose()
+        {
+            _list.Clear();
         }
 
     }

@@ -10,6 +10,7 @@ using Unity.VisualScripting;
 using Mona.SDK.Core;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Audio
 {
@@ -153,13 +154,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         private void AddFixedTickDelegate()
         {
             OnFixedTick = HandleFixedTick;
-            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
 
         }
 
         private void RemoveFixedTickDelegate()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)

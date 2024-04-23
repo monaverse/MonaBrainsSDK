@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 {
@@ -70,7 +71,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             }
 
             OnLateTick = HandleLateTick;
-            EventBus.Register<MonaLateTickEvent>(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
+            MonaEventBus.Register<MonaLateTickEvent>(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
         }
 
         public void Dispose()
@@ -79,7 +80,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 Destroy(_collider);
             _collider = null;
 
-            EventBus.Unregister(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
         }
 
         public void SetBrain(IMonaBrain brain)
@@ -142,12 +143,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                             }
                         }
                         Debug.Log($"Added collision {_lastPosition} {_brain.Body.ActiveRigidbody.position} {_brain.Body.ActiveTransform.position}", _brain.Body.Transform.gameObject);
-                        EventBus.Trigger(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), new MonaBodyEvent(MonaBodyEventType.OnStop));
+                        MonaEventBus.Trigger(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), new MonaBodyEvent(MonaBodyEventType.OnStop));
                         _brain.Body.TeleportPosition(_lastPosition, true);
                     }
 
                     //Debug.Log($"Added collision {body.ActiveTransform.name} {_monaTag} {Time.frameCount}");
-                    EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnCollisionEnter));
+                    MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnCollisionEnter));
                     //_bodiesThatHit.Clear();
                 }
             }
@@ -166,7 +167,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 if (_bodiesThatStayed.Contains(body))
                     _bodiesThatStayed.Remove(body);
 
-                EventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnCollisionExit));
+                MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnCollisionExit));
             }
         }
 

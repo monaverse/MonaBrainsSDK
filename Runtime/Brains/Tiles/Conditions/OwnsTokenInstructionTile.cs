@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Core;
@@ -13,6 +13,7 @@ using Mona.SDK.Brains.Core.Utils.Interfaces;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -54,10 +55,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 if (OnWalletConnected == null)
                 {
                     OnWalletConnected = HandleWalletConnected;
-                    EventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletConnected);
+                    MonaEventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletConnected);
 
                     OnWalletDisconnected = HandleWalletDisconneccted;
-                    EventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletDisconnected);
+                    MonaEventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletDisconnected);
                 }
 
                 FetchTokens();
@@ -79,8 +80,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if(destroy)
             {
-                EventBus.Unregister(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletConnected);
-                EventBus.Unregister(new EventHook(MonaBrainConstants.WALLET_DISCONNECTED_EVENT), OnWalletDisconnected);
+                MonaEventBus.Unregister(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletConnected);
+                MonaEventBus.Unregister(new EventHook(MonaBrainConstants.WALLET_DISCONNECTED_EVENT), OnWalletDisconnected);
             }
         }
 
@@ -110,7 +111,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private void TriggerRefresh()
         {
 
-            EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new InstructionEvent(InstructionEventTypes.Blockchain, _instruction));
+            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new InstructionEvent(InstructionEventTypes.Blockchain, _instruction));
 
         }
 

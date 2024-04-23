@@ -9,6 +9,7 @@ using Mona.SDK.Core.Input.Enums;
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Core.Tiles
 {
@@ -76,18 +77,18 @@ namespace Mona.SDK.Brains.Core.Tiles
         protected virtual void AddTickDelegate()
         {
             OnTick = HandleTick;
-            EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnTick);
+            MonaEventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnTick);
 
             OnInput = HandleBodyInput;
-            EventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+            MonaEventBus.Register<MonaInputEvent>(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
 
             _brainInput.StartListening(this);
         }
 
         protected virtual void RemoveTickDelegate()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnTick);
-            EventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnTick);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
 
             _brainInput.StopListening(this);
         }

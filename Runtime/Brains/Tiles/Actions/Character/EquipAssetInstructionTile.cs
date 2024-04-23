@@ -17,6 +17,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Character
 {
@@ -67,7 +68,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             _brain = brainInstance;
 
             OnAnimationControllerChanged = HandleAnimationControllerChanged;
-            EventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+            MonaEventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
 
             SetupAnimation();
         }
@@ -130,7 +131,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public override void Unload(bool destroy = false)
         {
             base.Unload();
-            EventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
 
             if (_equipmentInstance != null && _equipmentInstance.Transform != null && _equipmentInstance.Transform.gameObject != null)
                 GameObject.Destroy(_equipmentInstance.Transform.gameObject);

@@ -15,6 +15,7 @@ using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Input;
 using Mona.SDK.Core.Body.Enums;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -134,7 +135,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return;
             }
 
-            if (_movingState == MovingStateType.Moving)
+            if (InstantRotation ||  _movingState == MovingStateType.Moving)
             {
                 AddFixedTickDelegate();
             }
@@ -180,7 +181,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private InstructionTileCallback _instructionCallback;
         private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
         {
-            RemoveFixedTickDelegate();
+            if(!InstantRotation) RemoveFixedTickDelegate();
             if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
             return InstructionTileResult.Success;
         }
@@ -189,7 +190,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             //Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(AddFixedTickDelegate)}, {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
             OnFixedTick = HandleFixedTick;
-            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
         private void AddInputDelegate()
@@ -203,7 +204,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private void RemoveFixedTickDelegate()
         {
             //Debug.Log($"{nameof(RotateLocalInstructionTile)}.{nameof(RemoveFixedTickDelegate)}, {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
         public InstructionTileResult Continue()
@@ -240,7 +241,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 Progress = 0;
                 StartRotation();
-                AddFixedTickDelegate();
+                if(!InstantRotation)
+                    AddFixedTickDelegate();
             }
             _movingState = MovingStateType.Moving;
             return Complete(InstructionTileResult.Running);

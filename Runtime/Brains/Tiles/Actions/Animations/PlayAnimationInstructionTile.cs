@@ -13,6 +13,7 @@ using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Brains.Core.Events;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Animations
 {
@@ -64,7 +65,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             _canInterrupt = instruction.HasConditional();
 
             OnAnimationControllerChanged = HandleAnimationControllerChanged;
-            EventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+            MonaEventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
 
             SetupAnimation();
             SetupClip();
@@ -138,7 +139,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             }
 
             OnMonaValueChanged = HandleMonaValueChanged;
-            EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
+            MonaEventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
         }
 
         public override void Unload(bool destroy = false)
@@ -147,7 +148,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             //GameObject.Destroy(controller);
             RemoveFixedTickDelegate();
 
-            EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
         }
 
         public void Pause()
@@ -183,12 +184,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
         private void AddFixedTickDelegate()
         {
             OnFixedTick = HandleFixedTick;
-            EventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
         private void RemoveFixedTickDelegate()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
 
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)

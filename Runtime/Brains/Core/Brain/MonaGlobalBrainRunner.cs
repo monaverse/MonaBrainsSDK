@@ -1,4 +1,4 @@
-using Mona.SDK.Brains.Core.Brain.Interfaces;
+﻿using Mona.SDK.Brains.Core.Brain.Interfaces;
 using Mona.SDK.Brains.Core.Brain.Structs;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.ScriptableObjects;
@@ -18,6 +18,7 @@ using Mona.SDK.Brains.EasyUI;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Brains.Core.Enums;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -160,12 +161,12 @@ namespace Mona.SDK.Brains.Core.Brain
                 OnMonaPlayerJoined = HandleMonaPlayerJoined;
                 OnMonaBodyInstantiated = HandleMonaBodyInstantiated;
 
-                EventBus.Register<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), OnMonaBodyInstantiated);
-                EventBus.Register<MonaBrainSpawnedEvent>(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
-                EventBus.Register<MonaBrainDestroyedEvent>(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
-                EventBus.Register<MonaPlayerJoinedEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
+                MonaEventBus.Register<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), OnMonaBodyInstantiated);
+                MonaEventBus.Register<MonaBrainSpawnedEvent>(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
+                MonaEventBus.Register<MonaBrainDestroyedEvent>(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
+                MonaEventBus.Register<MonaPlayerJoinedEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
 
-                EventBus.Trigger<MonaRegisterNetworkSettingsEvent>(new EventHook(MonaCoreConstants.REGISTER_NETWORK_SETTINGS_EVENT), new MonaRegisterNetworkSettingsEvent(NetworkSettings));
+                MonaEventBus.Trigger<MonaRegisterNetworkSettingsEvent>(new EventHook(MonaCoreConstants.REGISTER_NETWORK_SETTINGS_EVENT), new MonaRegisterNetworkSettingsEvent(NetworkSettings));
             }
         }
 
@@ -181,7 +182,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
 #if (!OLYMPIA)
             IMonaNetworkSpawner mockSpawner = null;
-            EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT), new NetworkSpawnerStartedEvent(mockSpawner));
+            MonaEventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT), new NetworkSpawnerStartedEvent(mockSpawner));
 #endif
         }
 
@@ -198,30 +199,30 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void OnDestroy()
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), OnMonaBodyInstantiated);
-            EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
-            EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
-            EventBus.Unregister(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), OnMonaBodyInstantiated);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
         }
         
         private void HandleMonaBodyInstantiated(MonaBodyInstantiatedEvent evt)
         {
 #if (!OLYMPIA)
             IMonaNetworkSpawner mockSpawner = null;
-            EventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT, evt.Body), new NetworkSpawnerStartedEvent(mockSpawner));
+            MonaEventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT, evt.Body), new NetworkSpawnerStartedEvent(mockSpawner));
 #endif
         }
 
         public void HandleWalletConnected(string address)
         {
             Debug.Log($"{nameof(HandleWalletConnected)} a wallet has been connected");
-            EventBus.Trigger(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), new MonaWalletConnectedEvent(address));
+            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), new MonaWalletConnectedEvent(address));
         }
 
         public void HandleWalletDisconnected(string address)
         {
             Debug.Log($"{nameof(HandleWalletConnected)} a wallet has been disconnected");
-            EventBus.Trigger(new EventHook(MonaBrainConstants.WALLET_DISCONNECTED_EVENT), new MonaWalletConnectedEvent(address));
+            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.WALLET_DISCONNECTED_EVENT), new MonaWalletConnectedEvent(address));
         }
 
         private void HandleBrainSpawned(MonaBrainSpawnedEvent evt)
@@ -341,17 +342,17 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void TriggerFixedTick()
         {
-            EventBus.Trigger<MonaFixedTickEvent>(new EventHook(MonaCoreConstants.FIXED_TICK_EVENT), new MonaFixedTickEvent(Time.fixedDeltaTime));
+            MonaEventBus.Trigger<MonaFixedTickEvent>(new EventHook(MonaCoreConstants.FIXED_TICK_EVENT), new MonaFixedTickEvent(Time.fixedDeltaTime));
         }
 
         private void TriggerTick()
         {
-            EventBus.Trigger<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), new MonaTickEvent(Time.deltaTime));
+            MonaEventBus.Trigger<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), new MonaTickEvent(Time.deltaTime));
         }
 
         private void TriggerLateTick()
         {
-            EventBus.Trigger<MonaLateTickEvent>(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), new MonaLateTickEvent());
+            MonaEventBus.Trigger<MonaLateTickEvent>(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), new MonaLateTickEvent());
         }
 
         private void SetupEasyUIGlobalRunner()

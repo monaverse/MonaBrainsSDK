@@ -1,4 +1,4 @@
-using Mona.SDK.Brains.Core.Brain;
+﻿using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.State.Structs;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.State;
@@ -9,6 +9,7 @@ using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using System.Collections.Generic;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Core.State
 {
@@ -68,7 +69,7 @@ namespace Mona.SDK.Brains.Core.State
         protected override void FireValueEvent(string variableName, IMonaVariablesValue value)
         {
             base.FireValueEvent(variableName, value);
-            EventBus.Trigger<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain), new MonaValueChangedEvent(variableName, value));
+            MonaEventBus.Trigger<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain), new MonaValueChangedEvent(variableName, value));
         }
     }
 }

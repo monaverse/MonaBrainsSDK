@@ -13,6 +13,7 @@ using VRM;
 using UniHumanoid;
 using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Character
 {
@@ -85,7 +86,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 _monaAnimationController.SetTPose(true);
 
                 OnLateTick = HandleLateTick;
-                EventBus.Register<MonaLateTickEvent>(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
+                MonaEventBus.Register<MonaLateTickEvent>(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
             }
 
             return Complete(InstructionTileResult.Success);
@@ -93,7 +94,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         private void HandleLateTick(MonaLateTickEvent evt)
         {
-            EventBus.Unregister(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
 
             var transforms = new List<Transform>(_brain.Body.Animator.transform.GetComponentsInChildren<Transform>());
             transforms.Remove(_brain.Body.Animator.transform);

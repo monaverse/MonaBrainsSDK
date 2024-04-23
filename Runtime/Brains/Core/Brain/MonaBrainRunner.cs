@@ -16,6 +16,7 @@ using Mona.SDK.Brains.Core.Control;
 using UnityEngine.Networking;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -311,6 +312,9 @@ namespace Mona.SDK.Brains.Core.Brain
                 _types.Add(type);
             }
 
+            var wait = _wait[index];
+            var waitForNextBrainTick = _waitForNextBrainTick[index];
+
             if (type == InstructionEventTypes.Tick)
             {
                 if (!_instructionsSet.Contains(instruction))
@@ -319,13 +323,12 @@ namespace Mona.SDK.Brains.Core.Brain
                     _instructions.Add(instruction);
                 }
 
-                var waitForNextBrainTick = _waitForNextBrainTick[index];
                 if (!waitForNextBrainTick.ContainsKey(instruction))
                     waitForNextBrainTick.Add(instruction, new WaitFrameQueueItem(-1));
             }
 
-            if (!_wait[index].ContainsKey(type))
-                _wait[index].Add(type, new WaitFrameQueueItem(-1));
+            if (!wait.ContainsKey(type))
+                wait.Add(type, new WaitFrameQueueItem(-1));
 
             if (gameObject.activeInHierarchy)
             {
@@ -337,14 +340,15 @@ namespace Mona.SDK.Brains.Core.Brain
                 }
                 else if (type == InstructionEventTypes.Tick)
                 {
-                    if (_waitForNextBrainTick[index][instruction].Index == -1)
+                    var waitForNextBrainTickInstruction = waitForNextBrainTick[instruction];
+                    if (waitForNextBrainTickInstruction.Index == -1)
                         _waitForNextBrainTick[index][instruction] = new WaitFrameQueueItem(index, callback, evt, Time.frameCount);
                     _waitFrameRequested = true;
                 }
                 else
                 {
-                    if (_wait[index][type].Index == -1)
-                        _wait[index][type] = new WaitFrameQueueItem(index, callback, evt, Time.frameCount);
+                    if (wait[type].Index == -1)
+                        wait[type] = new WaitFrameQueueItem(index, callback, evt, Time.frameCount);
                     _waitFrameRequested = true;
                 }
 
@@ -470,7 +474,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 //if (_debug)
                  //   Debug.Log($"STOP LISTENIGN FOR TICK");
                 //_waitQueue.Clear();
-                //EventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
+                //MonaEventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
                 //OnMonaTick = null;
             }
 
@@ -482,7 +486,7 @@ namespace Mona.SDK.Brains.Core.Brain
             for (var i = 0; i < _brainGraphs.Count; i++)
             {
                 if(_brainGraphs[i] != null)
-                    EventBus.Register<MonaBrainReloadEvent>(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brainGraphs[i].Guid), OnHotReload);
+                    MonaEventBus.Register<MonaBrainReloadEvent>(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brainGraphs[i].Guid), OnHotReload);
             }
         }
 
@@ -491,7 +495,7 @@ namespace Mona.SDK.Brains.Core.Brain
             for (var i = 0; i < _brainGraphs.Count; i++)
             {
                 if (_brainGraphs[i] != null)
-                    EventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brainGraphs[i].Guid), OnHotReload);
+                    MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_RELOAD_EVENT, _brainGraphs[i].Guid), OnHotReload);
             }
         }
 
@@ -567,7 +571,7 @@ namespace Mona.SDK.Brains.Core.Brain
             if (OnMonaTick == null)
             {
                 OnMonaTick = HandleMonaTick;
-                EventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
+                MonaEventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
             }
 
             _began = true;
@@ -584,7 +588,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 {
                     _brainInstances[i].Resume();
                     ClearWaitFrameQueue(i);
-                    //EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brainInstances[i]), new MonaBrainTickEvent(InstructionEventTypes.Tick));
+                    //MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brainInstances[i]), new MonaBrainTickEvent(InstructionEventTypes.Tick));
                 }
             }
             else
@@ -657,7 +661,7 @@ namespace Mona.SDK.Brains.Core.Brain
             for (var i = 0; i < _brainInstances.Count; i++)
             {
                 var instance = _brainInstances[i];
-                if(destroy) EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), new MonaBrainDestroyedEvent(instance));
+                if(destroy) MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), new MonaBrainDestroyedEvent(instance));
                 instance.Unload(destroy);
             }
             /*
@@ -677,14 +681,14 @@ namespace Mona.SDK.Brains.Core.Brain
                 {
                     var bodies = MonaBody.FindByTag(tags[j]);
                     for (var b = 0; b < bodies.Count; b++)
-                        EventBus.Trigger(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, bodies[b]), new InstructionEvent(message, null, Time.frameCount));
+                        MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, bodies[b]), new InstructionEvent(message, null, Time.frameCount));
                 }
             }
         }
 
         public void SendMessageToBody(string message)
         {
-            EventBus.Trigger(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), new InstructionEvent(message, null, Time.frameCount));
+            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), new InstructionEvent(message, null, Time.frameCount));
         }
 
         private Keyboard _keyboard;

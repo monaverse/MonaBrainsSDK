@@ -1,4 +1,4 @@
-using Mona.SDK.Brains.Core.Brain;
+﻿using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Assets.Interfaces;
@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Core.Animation
 {
@@ -74,7 +75,7 @@ namespace Mona.SDK.Brains.Core.Animation
                 _brain = brain;
                 SetupAnimationController(animator);
                 OnMonaValueChanged = HandleMonaValueChanged;
-                EventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, brain.Body), OnMonaValueChanged);
+                MonaEventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, brain.Body), OnMonaValueChanged);
                 _brain.Body.SetAnimator(_animator);
                 _brain.Variables.Set(MonaBrainConstants.TRIGGER, "");
                 _brain.Variables.Set(MonaBrainConstants.ANIMATION_SPEED, 1f);
@@ -89,7 +90,7 @@ namespace Mona.SDK.Brains.Core.Animation
         private void OnDestroy()
         {
             if (_brain != null)
-                EventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
+                MonaEventBus.Unregister(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain.Body), OnMonaValueChanged);
         }
 
 
