@@ -47,13 +47,94 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyShow(nameof(AllowTouch), true)]
         [BrainProperty(false)] public float GestureTimeout { get => _gestureTimeout; set => _gestureTimeout = value; }
 
-        [SerializeField] private float _joystickSize = 500;
+        [SerializeField] private ZoneSizeType _joystickType = ZoneSizeType.ScreenPercentage;
         [BrainPropertyShow(nameof(AllowTouch), true)]
-        [BrainProperty(false)] public float JoystickSize { get => _joystickSize; set => _joystickSize = value; }
+        [BrainPropertyEnum(false)] public ZoneSizeType JoystickType { get => _joystickType; set => _joystickType = value; }
 
-        [SerializeField] private float _joystickSizeDeadZone = 200;
+        [SerializeField] private float _joystickSize = 30;
         [BrainPropertyShow(nameof(AllowTouch), true)]
-        [BrainProperty(false)] public float JoystickDeadZone { get => _joystickSizeDeadZone; set => _joystickSizeDeadZone = value; }
+        [BrainProperty(false)] public float JoystickSize
+        {
+            get
+            {
+                switch (_joystickType)
+                {
+                    case ZoneSizeType.ScreenPercentage:
+                        if (_joystickSize < 5f || _joystickSize > 95) _joystickSize = 30f;
+                        break;
+
+                    case ZoneSizeType.Resolution:
+                        if (_joystickSize < 5f) _joystickSize = 500f;
+                        break;
+                }
+
+                return _joystickSize;
+            }
+            set
+            {
+                switch (_joystickType)
+                {
+                    case ZoneSizeType.ScreenPercentage:
+                        if (value < 5f || value > 95) value = 30f;
+                        break;
+
+                    case ZoneSizeType.Resolution:
+                        if (value < 5f) value = 500f;
+                        break;
+                }
+
+                _joystickSize = value;
+            }
+        }
+
+        [SerializeField] private ZoneSizeType _deadZoneType = ZoneSizeType.ScreenPercentage;
+        [BrainPropertyShow(nameof(AllowTouch), true)]
+        [BrainPropertyEnum(false)] public ZoneSizeType DeadZoneType { get => _deadZoneType; set => _deadZoneType = value; }
+
+        [SerializeField] private float _joystickSizeDeadZone = 15;
+        [BrainPropertyShow(nameof(AllowTouch), true)]
+        [BrainProperty(false)] public float JoystickDeadZone
+        {
+            get
+            {
+                switch (_deadZoneType)
+                {
+                    case ZoneSizeType.ScreenPercentage:
+                        if (_joystickSizeDeadZone < 1f || _joystickSizeDeadZone > 95f) _joystickSizeDeadZone = 15f;
+                        break;
+                    case ZoneSizeType.Resolution:
+                        Mathf.Round(_joystickSizeDeadZone);
+                        if (_joystickSizeDeadZone < 1f) _joystickSizeDeadZone = 100f;
+                        break;
+                }
+
+                return _joystickSizeDeadZone;
+            }
+            set
+            {
+                switch (_deadZoneType)
+                {
+                    case ZoneSizeType.ScreenPercentage:
+                        if (value < 1f || value > 95f) value = 15f;
+                        break;
+                    case ZoneSizeType.Resolution:
+                        Mathf.Round(value);
+                        if (value < 1f) value = 100f;
+                        break;
+                }
+
+                _joystickSizeDeadZone = value;
+            }
+        }
+
+        private float TrueJoystickSize => _joystickType == ZoneSizeType.Resolution ? _joystickSize : GetPixelSizeFromPercentage(_joystickSize);
+        private float TrueDeadZone => _deadZoneType == ZoneSizeType.Resolution ? _joystickSizeDeadZone : GetPixelSizeFromPercentage(_joystickSizeDeadZone);
+
+        public enum ZoneSizeType
+        {
+            ScreenPercentage,
+            Resolution
+        }
 
         protected override MonaInputState GetInputState() => _inputState;
 
@@ -61,15 +142,26 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         protected MonaInput _bodyInput;
 
+        private int GetPixelSizeFromPercentage(float percentage)
+        {
+            percentage *= 0.1f;
+            float width = Screen.width;
+            float height = Screen.height;
+
+            float smallestResolution = width > height ? height : width;
+
+            return Mathf.RoundToInt(smallestResolution * percentage);
+        }
+
         protected override void ProcessLocalInput()
         {
             if (BrainOnRemotePlayer()) return;
 
-            if (_joystickSize == 0)
-                _joystickSize = 500f;
+            //if (_joystickSize == 0)
+            //    _joystickSize = 500f;
 
-            if (_joystickSizeDeadZone == 0)
-                _joystickSizeDeadZone = _joystickSize * .1f;
+            //if (_joystickSizeDeadZone == 0)
+            //    _joystickSizeDeadZone = _joystickSize * .1f;
 
             //if (_useLookAsMove)
             //    Cursor.lockState = CursorLockMode.Locked;
@@ -93,8 +185,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (_inputType == MonaInputType.Look)
                 input = _bodyInput.LookValue;
             
-            var xDown = Mathf.Abs(input.x) > _joystickSizeDeadZone / _joystickSize;
-            var yDown = Mathf.Abs(input.y) > _joystickSizeDeadZone / _joystickSize;
+            var xDown = Mathf.Abs(input.x) > TrueDeadZone / TrueJoystickSize;
+            var yDown = Mathf.Abs(input.y) > TrueDeadZone / TrueJoystickSize;
 
             if (!xDown) input.x = 0;
             if (!yDown) input.y = 0;
@@ -248,8 +340,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private Vector2 LockDiagonal(Vector2 input)
         {
-            var xDown = Mathf.Abs(input.x) > _joystickSizeDeadZone / _joystickSize;
-            var yDown = Mathf.Abs(input.y) > _joystickSizeDeadZone / _joystickSize;
+            var xDown = Mathf.Abs(input.x) > TrueDeadZone / JoystickSize;
+            var yDown = Mathf.Abs(input.y) > TrueDeadZone / JoystickSize;
 
             if (!xDown || !yDown)
                 input.x = input.y = 0;
