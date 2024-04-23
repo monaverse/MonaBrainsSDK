@@ -23,8 +23,17 @@ MonoBehaviour:
     - rid: 3250164769144701326
       type: {class: OnInputInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnInput
+        _name: Mona Input
+        _category: Input
+        _muted: 0
         _inputType: 3
         _inputState: 2
+        _moveDirection: 0
+        _useLookAsMove: 0
+        _allowTouch: 0
+        _gestureTimeout: 0
+        _joystickType: 0
+        _joystickSize: 30
+        _deadZoneType: 0
+        _joystickSizeDeadZone: 15
