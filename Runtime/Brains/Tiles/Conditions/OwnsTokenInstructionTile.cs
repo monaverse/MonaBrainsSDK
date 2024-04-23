@@ -42,6 +42,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public OwnsTokenInstructionTile() { }
 
         private Action<MonaWalletConnectedEvent> OnWalletConnected;
+        private Action<MonaWalletConnectedEvent> OnWalletDisconnected;
 
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
@@ -54,6 +55,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 {
                     OnWalletConnected = HandleWalletConnected;
                     EventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletConnected);
+
+                    OnWalletDisconnected = HandleWalletDisconneccted;
+                    EventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletDisconnected);
                 }
 
                 FetchTokens();
@@ -65,11 +69,18 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             FetchTokens();
         }
 
+        private void HandleWalletDisconneccted(MonaWalletConnectedEvent evt)
+        {
+            _ownsToken = false;
+            TriggerRefresh();
+        }
+
         public override void Unload(bool destroy = false)
         {
             if(destroy)
             {
                 EventBus.Unregister(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletConnected);
+                EventBus.Unregister(new EventHook(MonaBrainConstants.WALLET_DISCONNECTED_EVENT), OnWalletDisconnected);
             }
         }
 
@@ -93,7 +104,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _ownsToken = false;
             }
             Debug.Log($"{nameof(OwnsTokenInstructionTile)} {nameof(FetchTokens)} tokens: {_ownsToken}");
+            TriggerRefresh();
+        }
+
+        private void TriggerRefresh()
+        {
+
             EventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new InstructionEvent(InstructionEventTypes.Blockchain, _instruction));
+
         }
 
         private List<Token> FilterAndForwardTokens(Token token)

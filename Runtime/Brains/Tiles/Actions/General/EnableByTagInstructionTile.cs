@@ -28,8 +28,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             var bodies = MonaBody.FindByTag(_tag);
             for (var i = 0; i < bodies.Count; i++)
+            {
                 bodies[i].SetActive(true);
-            //Debug.Log($"{nameof(ChangeStateInstructionTile)} state: {_changeState}");
+                Debug.Log($"{nameof(EnableByTagInstructionTile)} body: {bodies[i].Transform.name}");
+            }
             return Complete(InstructionTileResult.Success);
         }
     }

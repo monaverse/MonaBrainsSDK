@@ -399,7 +399,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 if (_avatarAsset.Value != null)
                 {
                     var avatar = GameObject.Instantiate(_avatarAsset.Value);
-                    LoadAvatar(avatar, body, avatar.gameObject);
+                    var animator = avatar.GetComponent<Animator>();
+                    if (animator == null)
+                        animator = avatar.AddComponent<Animator>();
+                    LoadAvatar(animator, body, avatar.gameObject);
                     return Complete(InstructionTileResult.Success);
                 }
                 else if (!string.IsNullOrEmpty(_avatarAsset.Url))

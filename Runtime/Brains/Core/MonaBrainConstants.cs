@@ -36,6 +36,7 @@
         public const string MONA_BRAINS_THEN_EVENT = "OnMonaBrainsThenEvent";
 
         public const string WALLET_CONNECTED_EVENT = "OnMonaWalletConnected";
+        public const string WALLET_DISCONNECTED_EVENT = "OnMonaWalletDisconnected";
 
         public const string STATE_CHANGED_EVENT = "OnMonaStateChangedEvent";
         public const string STATE_AUTHORITY_CHANGED_EVENT = "OnMonaStateAuthorityChangedEvent";
