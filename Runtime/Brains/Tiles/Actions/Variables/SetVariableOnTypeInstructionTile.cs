@@ -135,7 +135,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         public override InstructionTileResult Do()
         {
-            if (_brain == null || string.IsNullOrEmpty(_myVariable))
+            if (_brain == null || (_variableType == VariableUsageType.Any && string.IsNullOrEmpty(_myVariable)))
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
             var myValue = _brain.Variables.GetVariable(_myVariable);
