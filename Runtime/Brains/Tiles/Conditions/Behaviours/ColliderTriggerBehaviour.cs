@@ -98,7 +98,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         public void SetActive(bool active)
         {
-            _collider.enabled = active;
+            if(_collider != null)
+                _collider.enabled = active;
         }
 
         public void SetLocalPlayerOnly(bool b)
