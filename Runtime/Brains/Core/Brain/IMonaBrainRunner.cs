@@ -10,6 +10,7 @@ namespace Mona.SDK.Brains.Core.Brain
     public interface IMonaBrainRunner
     {
         event Action<IMonaBrainRunner> OnBegin;
+        event Action<string> OnMessage;
 
         bool RequiresAnimator { get; }
         bool LegacyMonaPlatforms { get; }
@@ -35,6 +36,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         void CacheTransforms();
         void ResetTransforms();
+
+        void TriggerMessage(string message);
 
     }
 }

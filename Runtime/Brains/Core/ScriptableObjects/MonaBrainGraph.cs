@@ -379,6 +379,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                     _defaultVariables = new MonaBrainVariables();
 
                 _variables.VariableList = _defaultVariables.VariableList;
+
                 _variables.SaveResetDefaults();
 
                 _variables.SetGameObject(_gameObject, this);
@@ -716,6 +717,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             ExecuteCorePageInstructions(InstructionEventTypes.Message);
             ExecuteStatePageInstructions(InstructionEventTypes.Message);
+
+            _runner.TriggerMessage(message);
 
             //Debug.Log($"{nameof(ExecuteMessage)} message: {message} count: {_messages.Count}", _body.Transform.gameObject);
             if (HasMessage(message))

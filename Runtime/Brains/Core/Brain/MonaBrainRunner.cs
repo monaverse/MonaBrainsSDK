@@ -53,6 +53,7 @@ namespace Mona.SDK.Brains.Core.Brain
     public partial class MonaBrainRunner : MonoBehaviour, IMonaBrainRunner, IMonaTagged
     {
         public event Action<IMonaBrainRunner> OnBegin;
+        public event Action<string> OnMessage;
 
         [SerializeField]
         private List<MonaBrainGraph> _brainGraphs = new List<MonaBrainGraph>();
@@ -670,6 +671,11 @@ namespace Mona.SDK.Brains.Core.Brain
             {
                 Destroy(variableBehaviours[i]);
             }*/
+        }
+
+        public void TriggerMessage(string message)
+        {
+            OnMessage?.Invoke(message);
         }
 
         public void SendMessageToTags(string message)

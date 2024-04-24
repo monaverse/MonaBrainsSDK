@@ -99,9 +99,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (_collider != null)
             {
-                _collider.Dispose();
-                GameObject.Destroy(_collider);
-                _collider = null;
+                if (destroy)
+                {
+                    _collider.Dispose();
+                    GameObject.Destroy(_collider);
+                    _collider = null;
+                }
             }
         }
 

@@ -16,7 +16,7 @@ using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 {
-    public class ColliderTriggerBehaviour : MonoBehaviour, IDisposable
+    public class ColliderTriggerBehaviour : MonoBehaviour
     {
         private Collider _collider;
         private IMonaBrain _brain;
@@ -43,7 +43,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private void Awake()
         {
-            var colliders = gameObject.GetComponentsInChildren<Collider>();
+            var colliders = gameObject.GetComponentsInChildren<Collider>(true);
             var found = false;
             for(var i = 0;i < colliders.Length; i++)
             {
@@ -51,7 +51,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 if(collider.isTrigger)
                 {
                     found = true;
-                    _colliderWasCreatedByMe = true;
                     _collider = collider;
                     break;
                 }
@@ -59,6 +58,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
             if (!found)
             {
+                _colliderWasCreatedByMe = true;
                 _collider = gameObject.AddComponent<BoxCollider>();
                 _collider.isTrigger = true;
             }
@@ -72,7 +72,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         public void Dispose()
         {
-            if (_collider != null && !_colliderWasCreatedByMe)
+            if (_collider != null && _colliderWasCreatedByMe)
                 Destroy(_collider);
             _collider = null;
 
