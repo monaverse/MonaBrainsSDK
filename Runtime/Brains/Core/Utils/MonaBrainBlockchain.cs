@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using UnityEngine;
 using System;
+using Mona.SDK.Brains.Core.Utils.Structs;
 
 namespace Mona.SDK.Brains.Core.Utils
 {

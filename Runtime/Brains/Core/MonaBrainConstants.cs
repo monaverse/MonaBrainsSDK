@@ -38,6 +38,7 @@
 
         public const string WALLET_CONNECTED_EVENT = "OnMonaWalletConnected";
         public const string WALLET_DISCONNECTED_EVENT = "OnMonaWalletDisconnected";
+        public const string WALLET_TOKEN_SELECTED_EVENT = "OnMonaWalletTokenSelected";
 
         public const string STATE_CHANGED_EVENT = "OnMonaStateChangedEvent";
         public const string STATE_AUTHORITY_CHANGED_EVENT = "OnMonaStateAuthorityChangedEvent";

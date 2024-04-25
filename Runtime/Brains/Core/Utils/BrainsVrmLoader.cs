@@ -91,8 +91,16 @@ namespace Mona.SDK.Brains.Core.Utils
 
         public void GetVrmData(Action<byte[]> callback)
         {
-            StartCoroutine(DoGetVrmData(callback));
-        }
+            try
+            {
+                StartCoroutine(DoGetVrmData(callback));
+            }
+            catch(Exception e)
+            {
+                Debug.LogError($"{nameof(GetVrmData)} Exception Occured {e.Message}");
+                callback(null);
+            }
+}
 
         public IEnumerator DoGetVrmData(Action<byte[]> callback)
         {

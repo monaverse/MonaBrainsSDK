@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.Utils;
+using Mona.SDK.Brains.Core.Utils.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -25,23 +26,19 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public const string CATEGORY = "Blockchain";
         public override Type TileType => typeof(OnSelectTokenInstructionTile);
 
-        [SerializeField] private float _index = 0;
-        [SerializeField] private string _indexValueName;
-
-        [BrainProperty(true)] public float Index { get => _index; set => _index = value; }
-        [BrainPropertyValueName("Index", typeof(IMonaVariablesFloatValue))] public string IndexValueName { get => _indexValueName; set => _indexValueName = value; }
-
         [SerializeField] private string _targetValue;
         [BrainProperty(true)] public string TargetValue { get => _targetValue; set => _targetValue = value; }
 
         private IMonaBrain _brain;
 
         private bool _selectedToken;
+        private Token _token;
 
         public OnSelectTokenInstructionTile() { }
 
         private Action<MonaWalletConnectedEvent> OnWalletConnected;
         private Action<MonaWalletConnectedEvent> OnWalletDisconnected;
+        private Action<MonaWalletTokenSelectedEvent> OnTokenSelected;
 
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
@@ -57,20 +54,32 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                     OnWalletDisconnected = HandleWalletDisconneccted;
                     MonaEventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletDisconnected);
-                }
 
-                FetchTokens();
+                    OnTokenSelected = HandleTokenSelected;
+                    MonaEventBus.Register<MonaWalletTokenSelectedEvent>(new EventHook(MonaBrainConstants.WALLET_TOKEN_SELECTED_EVENT), OnTokenSelected);
+
+                }
             }
         }
 
         private void HandleWalletConnected(MonaWalletConnectedEvent evt)
         {
-            FetchTokens();
+            _selectedToken = false;
         }
 
         private void HandleWalletDisconneccted(MonaWalletConnectedEvent evt)
         {
             _selectedToken = false;
+        }
+
+        private void HandleTokenSelected(MonaWalletTokenSelectedEvent evt)
+        {
+            _selectedToken = true;
+            _token = evt.Token;
+
+            FilterAndForwardTokens(evt.Token);
+                
+            Debug.Log($"{nameof(OnSelectTokenInstructionTile)} {nameof(HandleTokenSelected)} token: {evt.Token}");
             TriggerRefresh();
         }
 
@@ -80,36 +89,16 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             {
                 MonaEventBus.Unregister(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletConnected);
                 MonaEventBus.Unregister(new EventHook(MonaBrainConstants.WALLET_DISCONNECTED_EVENT), OnWalletDisconnected);
+                MonaEventBus.Unregister(new EventHook(MonaBrainConstants.WALLET_TOKEN_SELECTED_EVENT), OnTokenSelected);
             }
-        }
-
-        private List<Token> _tokens;
-        private async void FetchTokens()
-        {
-            var block = MonaGlobalBrainRunner.Instance.Blockchain;
-            _tokens = await block.OwnsTokensWithObject();
-            
-            if (_tokens.Count > 0)
-            {
-                FilterAndForwardTokens(_tokens);
-                _selectedToken = _tokens.Count > 0;
-            }
-            else
-            {
-                _selectedToken = false;
-            }
-            Debug.Log($"{nameof(OnSelectTokenInstructionTile)} {nameof(FetchTokens)} tokens: {_selectedToken}");
-            TriggerRefresh();
         }
 
         private void TriggerRefresh()
         {
-
             MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new InstructionEvent(InstructionEventTypes.Blockchain, _instruction));
-
         }
 
-        private List<Token> FilterAndForwardTokens(List<Token> tokens)
+        private List<Token> FilterAndForwardTokens(Token token)
         {
             if (_instruction.BlockchainTiles[0] == this)
                 _instruction.Tokens.Clear();
@@ -118,12 +107,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             {
                 if (_instruction.BlockchainTiles[0] == this)
                 {
-                    _instruction.Tokens.AddRange(tokens);
+                    _instruction.Tokens.Add(token);
                 }
             }
             else
             {
-                var filtered = _instruction.Tokens.FindAll(x => tokens.Contains(x));
+                var filtered = _instruction.Tokens.FindAll(x => x.Equals(token));
                 _instruction.Tokens = filtered;
 
             }
@@ -132,16 +121,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public override InstructionTileResult Do()
         {
-            if (!string.IsNullOrEmpty(_indexValueName))
-                _index = _brain.Variables.GetFloat(_indexValueName);
-
-            var index = (int)_index;
-
-            Debug.Log($"{nameof(OnSelectTokenInstructionTile)} {_tokens.Count} {index}");
-            if (_tokens.Count > 0 && index > -1 && index < _tokens.Count)
+            if (_selectedToken)
             {
-                Debug.Log($"{nameof(OnSelectTokenInstructionTile)} {_tokens[index].Artifacts[0].Uri}");
-                _brain.Variables.Set(_targetValue, _tokens[index].Artifacts[0].Uri);
+                Debug.Log($"{nameof(OnSelectTokenInstructionTile)} {_token.Artifacts[0].Uri}");
+                _brain.Variables.Set(_targetValue, _token.Artifacts[0].Uri);
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);

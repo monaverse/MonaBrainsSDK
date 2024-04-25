@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.Utils;
+using Mona.SDK.Brains.Core.Utils.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {

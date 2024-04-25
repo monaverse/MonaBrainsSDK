@@ -415,12 +415,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             return InstructionTileResult.Failure;
         }
 
-
+        private GameObject _avatarLoader;
         private void LoadAvatarAtUrl(string url, IMonaBody body)
         {
-            var loader = _brain.Body.Transform.GetComponent<BrainsVrmLoader>();
+            if (_avatarLoader == null)
+                _avatarLoader = new GameObject("AvatarLoader");
+
+            var loader = _avatarLoader.GetComponent<BrainsVrmLoader>();
             if (loader == null)
-                loader = _brain.Body.Transform.AddComponent<BrainsVrmLoader>();
+                loader = _avatarLoader.AddComponent<BrainsVrmLoader>();
 
             loader.Load(url, (avatar) =>
             {
