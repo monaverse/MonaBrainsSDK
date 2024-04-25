@@ -3,9 +3,18 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using UnityEngine;
+using System;
 
 namespace Mona.SDK.Brains.Core.Utils
 {
+    [Serializable]
+    public class RegisteredContract
+    {
+        public string Address;
+        public int TokenCount;
+        public string TokenType;
+    }
+
     public class MonaBrainBlockchain : MonoBehaviour, IMonaBrainBlockchain
     {
         [SerializeField]
@@ -13,48 +22,49 @@ namespace Mona.SDK.Brains.Core.Utils
 
         public virtual void SetWalletAddress(string address) => _walletAddress = address;
 
-        protected List<string> _contracts = new List<string>();
-        public List<string> Contracts { get => _contracts; }
+        [SerializeField]
+        protected List<RegisteredContract> _contracts = new List<RegisteredContract>();
+        public List<RegisteredContract> Contracts { get => _contracts; }
 
-        public virtual void RegisterContract(string address)
+        public virtual void RegisterContract(string address, int tokenCount = -1, string tokenType = "ERC1155")
         {
-            if (!_contracts.Contains(address))
-                _contracts.Add(address);
+            if (_contracts.Find(x => x.Address == address) == null)
+                _contracts.Add(new RegisteredContract() { Address = address, TokenCount = tokenCount, TokenType = tokenType });
         }
 
-        public async virtual Task<Token> OwnsToken(string collectionAddress, string tokenId)
+        public virtual Task<Token> OwnsToken(string collectionAddress, string tokenId)
         {
             return default;
         }
 
-        public async virtual Task<List<Token>> OwnsTokens(string collectionAddress)
+        public virtual Task<List<Token>> OwnsTokens(string collectionAddress)
         {
             return null;
         }
 
-        public virtual List<Token> OwnsTokensWithAvatar()
+        public virtual Task<List<Token>> OwnsTokensWithAvatar()
         {
-            throw new System.NotImplementedException();
+            return null;
         }
 
-        public virtual List<Token> OwnsTokensWithObject()
+        public virtual Task<List<Token>> OwnsTokensWithObject()
         {
-            throw new System.NotImplementedException();
+            return null;
         }
 
-        public virtual List<Token> OwnsTokensWithTexture()
+        public virtual Task<List<Token>> OwnsTokensWithTexture()
         {
-            throw new System.NotImplementedException();
+            return null;
         }
 
-        public virtual List<Token> OwnsTokensWithTrait(string trait, string value)
+        public virtual Task<List<Token>> OwnsTokensWithTrait(string trait, string value)
         {
-            throw new System.NotImplementedException();
+            return null;
         }
 
-        public virtual List<Token> OwnsTokensWithTrait(string trait, float value)
+        public virtual Task<List<Token>> OwnsTokensWithTrait(string trait, float value)
         {
-            throw new System.NotImplementedException();
+            return null;
         }
     }
 }

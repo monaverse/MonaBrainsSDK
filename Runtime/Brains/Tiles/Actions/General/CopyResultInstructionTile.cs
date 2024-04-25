@@ -106,6 +106,48 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         }
                     }
                     break;
+                case MonaBrainResultType.LastTokenAvatarCount:
+                    if (_instruction.Tokens.Count > 0)
+                    {
+                        var count = 0;
+                        for (var i = 0; i < _instruction.Tokens.Count; i++)
+                        {
+                            var token = _instruction.Tokens[i];
+                            var index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Avatar);
+                            if (index > -1)
+                                count++;
+                        }
+                        _brain.Variables.Set(_targetValue, (float)count);
+                    }
+                    break;
+                case MonaBrainResultType.LastTokenObjectCount:
+                    if (_instruction.Tokens.Count > 0)
+                    {
+                        var count = 0;
+                        for (var i = 0; i < _instruction.Tokens.Count; i++)
+                        {
+                            var token = _instruction.Tokens[i];
+                            var index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Object);
+                            if (index > -1)
+                                count++;
+                        }
+                        _brain.Variables.Set(_targetValue, (float)count);
+                    }
+                    break;
+                case MonaBrainResultType.LastTokenTextureCount:
+                    if (_instruction.Tokens.Count > 0)
+                    {
+                        var count = 0;
+                        for (var i = 0; i < _instruction.Tokens.Count; i++)
+                        {
+                            var token = _instruction.Tokens[i];
+                            var index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Texture);
+                            if (index > -1)
+                                count++;
+                        }
+                        _brain.Variables.Set(_targetValue, (float)count);
+                    }
+                    break;
                 default: break;
             }
             return Complete(InstructionTileResult.Success);

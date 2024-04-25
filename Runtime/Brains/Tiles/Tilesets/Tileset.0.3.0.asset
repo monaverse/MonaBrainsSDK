@@ -55,6 +55,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 51103135148d74c73b08dbb35e083a77, type: 2}
   - {fileID: 11400000, guid: 96c3edf8b93ac4861a2145a506983ae6, type: 2}
   - {fileID: 11400000, guid: a92c06fd7e92f496186512277a832d0d, type: 2}
+  - {fileID: 11400000, guid: 250996b70236d4707a3f6d986b3565a5, type: 2}
+  - {fileID: 11400000, guid: 1578051a496724fe0a7003b8eeb088da, type: 2}
   _actionTiles:
   - {fileID: 11400000, guid: 514b0a9dc1f567f40b3727e4bf539b42, type: 2}
   - {fileID: 11400000, guid: 40a82220226a84062a54f8aa54609f67, type: 2}

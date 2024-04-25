@@ -84,6 +84,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private bool _destroyOnDisable;
         [BrainProperty(false)] public bool DestroyOnDisable { get => _destroyOnDisable; set => _destroyOnDisable = value; }
 
+        [SerializeField] private bool _enableAll;
+        [BrainProperty(false)] public bool EnableAll { get => _enableAll; set => _enableAll = value; }
+
         protected IMonaBrain _brain;
         private Transform _defaultParent;
         private IMonaBodyAssetItem _item;
@@ -254,6 +257,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (_brain.HasPlayerTag(body.MonaTags))
                 _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
+            if (_enableAll)
+            {
+                int poolCount = !string.IsNullOrEmpty(_poolCountName) ? (int)Mathf.Ceil(_brain.Variables.GetFloat(_poolCountName)) : (int)Mathf.Ceil(_poolCount);
+                _spawnOnEmpty = true;
+                for (var i = 0; i < poolCount; i++)
+                    EnableSpawn(i);
+                return InstructionTileResult.Success;
+            }
+            else
+                return EnableSpawn(0);
+        }
+
+        private InstructionTileResult EnableSpawn(int index)
+        { 
+            var body = GetBody();
             var nextItem = GetAsset();
 
             if (nextItem == null)
@@ -270,6 +288,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             var poolItem = _pool[nextItem.PrefabId][0];
             _pool[nextItem.PrefabId].RemoveAt(0);
+
+            poolItem.ChildIndex = index;
             poolItem.SetScale(_scale, true);
 
             var offset = _offset;

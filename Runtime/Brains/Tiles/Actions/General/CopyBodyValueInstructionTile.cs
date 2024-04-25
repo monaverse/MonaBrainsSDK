@@ -93,10 +93,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             get
             {
-                if (TargetType == TargetVariableType.Number && _source != MonaBodyValueType.Velocity)
-                    return AxisDisplayType.Show;
-                else if (TargetType == TargetVariableType.String && CopyType == StringCopyType.SingleAxis)
-                    return AxisDisplayType.Show;
+                if (_source != MonaBodyValueType.ChildIndex)
+                {
+                    if (TargetType == TargetVariableType.Number && _source != MonaBodyValueType.Velocity)
+                        return AxisDisplayType.Show;
+                    else if (TargetType == TargetVariableType.String && CopyType == StringCopyType.SingleAxis)
+                        return AxisDisplayType.Show;
+                }
 
                 return AxisDisplayType.Hide;
             }
@@ -132,6 +135,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     SetVelocity(); break;
                 case MonaBodyValueType.Forward:
                     SetVariable(body.ActiveTransform.forward); break;
+                case MonaBodyValueType.ChildIndex:
+                    SetVariable((float)body.ChildIndex); break;
                 default:
                     SetVariable(body.GetPosition()); break;
             }
@@ -165,7 +170,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     return null;
             }
         }
-        
+
+        private void SetVariable(float result)
+        {
+            switch (_targetType)
+            {
+                case TargetVariableType.Vector3:
+                    _brain.Variables.Set(_targetValue, result);
+                    break;
+                case TargetVariableType.Number:
+                    _brain.Variables.Set(_targetNumber, result);
+                    break;
+                case TargetVariableType.String:
+                    _brain.Variables.Set(_targetString, result.ToString());
+                    break;
+            }
+        }
 
         private void SetVariable(Vector3 result)
         {

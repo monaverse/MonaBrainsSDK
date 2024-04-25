@@ -9,6 +9,7 @@
         Scale = 8,
         StartScale = 10,
         Velocity = 12,
-        Forward = 14
+        Forward = 14,
+        ChildIndex = 16
     }
 }

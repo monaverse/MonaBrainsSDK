@@ -14,6 +14,9 @@
         LastMoveDirection=9,
         LastTokenAvatar=10,
         LastTokenObject=11,
-        LastTokenTexture=12
+        LastTokenTexture=12,
+        LastTokenAvatarCount = 13,
+        LastTokenObjectCount = 14,
+        LastTokenTextureCount = 15,
     }
 }
