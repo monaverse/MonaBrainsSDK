@@ -46,7 +46,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (BrainOnRemotePlayer()) return;
 
-            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, MonaInputType.Key, GetInputState(), false, 0);
+            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, MonaInputType.Key, GetInputState());
             if (localInput.GetKey(_keyIndex) == GetInputState())
             {
                 SetLocalInput(localInput);

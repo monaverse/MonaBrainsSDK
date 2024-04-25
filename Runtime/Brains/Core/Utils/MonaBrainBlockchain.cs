@@ -27,6 +27,9 @@ namespace Mona.SDK.Brains.Core.Utils
         protected List<RegisteredContract> _contracts = new List<RegisteredContract>();
         public List<RegisteredContract> Contracts { get => _contracts; }
 
+        protected bool _walletConnected;
+        public bool WalletConnected { get => _walletConnected; set => _walletConnected = value; }
+
         public virtual void RegisterContract(string address, int tokenCount = -1, string tokenType = "ERC1155")
         {
             if (_contracts.Find(x => x.Address == address) == null)

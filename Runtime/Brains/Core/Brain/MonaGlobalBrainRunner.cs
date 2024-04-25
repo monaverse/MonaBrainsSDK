@@ -221,7 +221,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void HandleWalletDisconnected(string address)
         {
-            Debug.Log($"{nameof(HandleWalletConnected)} a wallet has been disconnected");
+            Debug.Log($"{nameof(HandleWalletDisconnected)} a wallet has been disconnected");
             MonaEventBus.Trigger(new EventHook(MonaBrainConstants.WALLET_DISCONNECTED_EVENT), new MonaWalletConnectedEvent(address));
         }
 

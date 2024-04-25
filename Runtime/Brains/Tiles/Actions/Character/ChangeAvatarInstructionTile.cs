@@ -519,12 +519,56 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             root.localScale = _scale;
 
+            var bounds = GetBounds(_avatarInstance.gameObject);
+            var extents = bounds.extents * 2f;
+            var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
+            var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
+            var scale = maxScale / max;
+
+            root.localScale = _scale * scale;
+
             Debug.Log($"{_avatarInstance} {_offset} scale {_scale} {_avatarInstance.transform.position} brain body {_brain.Body.Transform.position}");
 
             var playerId = _brain.Player.GetPlayerIdByBody(_brain.Body);
             if(playerId > -1)
                 MonaEventBus.Trigger<MonaPlayerChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_CHANGE_AVATAR_EVENT), new MonaPlayerChangeAvatarEvent(playerId, _avatarInstance));
+            MonaEventBus.Trigger<MonaChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_CHANGE_AVATAR_EVENT), new MonaChangeAvatarEvent(_avatarInstance));
 
+        }
+
+        private Bounds GetBounds(GameObject go)
+        {
+            Bounds bounds;
+            Renderer childRender;
+            bounds = GetRenderBounds(go);
+            if (bounds.extents.x == 0)
+            {
+                bounds = new Bounds(go.transform.position, Vector3.zero);
+                foreach (Transform child in go.transform)
+                {
+                    childRender = child.GetComponent<Renderer>();
+                    if (childRender)
+                    {
+                        bounds.Encapsulate(childRender.bounds);
+                    }
+                    else
+                    {
+                        bounds.Encapsulate(GetBounds(child.gameObject));
+                    }
+                }
+            }
+            return bounds;
+        }
+
+        private Bounds GetRenderBounds(GameObject go)
+        {
+            Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
+            Renderer render = go.GetComponent<Renderer>();
+            if (render != null)
+            {
+                return render.bounds;
+            }
+            return bounds;
         }
 
         public override void Unload(bool destroy = false)

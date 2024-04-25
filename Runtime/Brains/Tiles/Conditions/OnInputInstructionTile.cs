@@ -144,7 +144,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private int GetPixelSizeFromPercentage(float percentage)
         {
-            percentage *= 0.1f;
+            percentage *= 0.01f;
             float width = Screen.width;
             float height = Screen.height;
 
@@ -166,7 +166,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             //if (_useLookAsMove)
             //    Cursor.lockState = CursorLockMode.Locked;
 
-            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, _inputType, GetInputState(), _allowTouch, _gestureTimeout, _joystickSize, _joystickSizeDeadZone);
+            if(_allowTouch)
+            {
+                _brainInput.SetTouchJoystickSettings(GestureTimeout, TrueJoystickSize, TrueDeadZone);
+            }
+
+            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, _inputType, GetInputState());
             if (localInput.GetButton(_inputType) == _inputState)
             {
                 //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_inputState}");

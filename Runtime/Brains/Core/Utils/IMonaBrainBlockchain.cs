@@ -10,6 +10,7 @@ namespace Mona.SDK.Brains.Core.Utils.Interfaces
     {
         void SetWalletAddress(string address);
         void RegisterContract(string address, int tokenCount = -1, string tokenType = "ERC1155");
+        bool WalletConnected { get; }
         Task<Token> OwnsToken(string collectionAddress, string tokenId);
         Task<List<Token>> OwnsTokens(string collectionAddress);
         Task<List<Token>> OwnsTokensWithAvatar();
