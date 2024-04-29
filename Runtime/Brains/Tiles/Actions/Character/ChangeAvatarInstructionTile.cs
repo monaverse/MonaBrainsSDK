@@ -444,7 +444,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             var root = body.Transform.Find("Root");
 
             for (var i = 0; i < root.childCount; i++)
-                GameObject.Destroy(root.GetChild(i).gameObject);
+                GameObject.DestroyImmediate(root.GetChild(i).gameObject);
 
             avatarGameObject.transform.position = Vector3.zero;
             avatarGameObject.transform.rotation = Quaternion.identity;

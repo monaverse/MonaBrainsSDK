@@ -64,6 +64,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private bool _active;
         private MonaInput _brainInput;
 
+        private Light[] _lights;
+
         public Vector2 InputMoveDirection
         {
             get => _brainInput.MoveValue;
@@ -91,6 +93,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             _brain = brainInstance;
             _instruction = instruction;
+            _lights = _brain.Body.Transform.GetComponentsInChildren<Light>();
 
             var pagePrefix = page.IsCore ? "Core" : ("State" + brainInstance.StatePages.IndexOf(page));
             var instructionIndex = page.Instructions.IndexOf(instruction);
@@ -208,6 +211,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             return Do();
         }
 
+        private void SetColor(Color c)
+        {
+            if(_brain.Body.Renderers.Length > 0)
+            {
+                _brain.Body.SetColor(_color, true);
+            }
+            else if(_lights.Length > 0)
+            {
+                for (var i = 0; i < _lights.Length; i++)
+                    _lights[i].color = c;
+            }
+        }
+
         public override InstructionTileResult Do()
         {
             if (!string.IsNullOrEmpty(_durationValueName))
@@ -215,7 +231,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             if (_duration == 0)
             {
-                _brain.Body.SetColor(_color, true);
+                SetColor(_color);
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -275,12 +291,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             {
                 if(Progress >= 1f)
                 {
-                    _brain.Body.SetColor(_end, true);
+                    SetColor(_end);
                     StopMoving();
                 }
                 else
                 {
-                    _brain.Body.SetColor(Color.Lerp(_start, _end, Evaluate(Progress)), true);
+                    SetColor(Color.Lerp(_start, _end, Evaluate(Progress)));
                 }
                 Progress += deltaTime / _duration;
             }
