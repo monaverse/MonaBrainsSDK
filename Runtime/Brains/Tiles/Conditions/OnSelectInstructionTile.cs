@@ -25,6 +25,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         [BrainProperty(false)] public float Distance { get => _distance; set => _distance = value; }
         [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
+
+        [SerializeField] private bool _allowParent;
+        [BrainProperty(false)] public bool AllowParent { get => _allowParent; set => _allowParent = value; }
         
         protected override MonaInputState GetInputState() => MonaInputState.Pressed;
 
@@ -49,11 +52,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (BrainOnRemotePlayer()) return;
 
             var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, MonaInputType.Action, GetInputState());
-
+            if (localInput.GetButton(MonaInputType.Action) != MonaInputState.None)
+                Debug.Log($"{localInput.GetButton(MonaInputType.Action)} Action");
             if (localInput.GetButton(MonaInputType.Action) == GetInputState())
             {
                 //if (_brain.LoggingEnabled)
-                //    Debug.Log($"{nameof(OnSelectInstructionTile)} setlocalinput {localInput.Ray.origin} {localInput.Ray.direction}");
+                    Debug.Log($"{nameof(OnSelectInstructionTile)} setlocalinput {localInput.Ray.origin} {localInput.Ray.direction}");
 
                 SetLocalInput(localInput);
             }
@@ -92,7 +96,23 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 if (_brain.LoggingEnabled && body != null)
                     Debug.Log($"selected body {body.ActiveTransform.name}", body.ActiveTransform.gameObject);
 
-                if (body != null && body == _brain.Body)
+                var foundBody = false;
+                if(_allowParent)
+                {
+                    var parent = _brain.Body;
+                    while(parent != null)
+                    {
+                        if (parent == body)
+                            foundBody = true;
+                        parent = parent.Parent;
+                    }
+                }
+                else
+                {
+                    foundBody = body == _brain.Body;
+                }
+
+                if (body != null && foundBody)
                 {
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_TARGET, body);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);

@@ -78,7 +78,9 @@ namespace Mona.SDK.Brains.Core.Utils
 
                     UnityGLTF.GLTFSceneImporter sceneImporter = new UnityGLTF.GLTFSceneImporter(gLTFRoot, stream, new ImportOptions()
                     {
-                        DataLoader = new StreamLoader(stream)
+                        DataLoader = new StreamLoader(stream),
+                        AnimationMethod = AnimationMethod.None
+
                     });
                     sceneImporter.LoadScene(-1, true, (obj, info) =>
                     {
@@ -114,7 +116,7 @@ namespace Mona.SDK.Brains.Core.Utils
                 case UnityWebRequest.Result.ConnectionError:
                 case UnityWebRequest.Result.ProtocolError:
                 case UnityWebRequest.Result.DataProcessingError:
-                    Debug.LogError($"{nameof(BrainsVrmLoader)}.{nameof(GetVrmData)} - Request error: {request.error}");
+                    Debug.LogError($"{nameof(BrainsVrmLoader)}.{nameof(GetVrmData)} - Request error: {request.error} {request.result} {_url}");
                     data = null;
                     break;
                 case UnityWebRequest.Result.Success:

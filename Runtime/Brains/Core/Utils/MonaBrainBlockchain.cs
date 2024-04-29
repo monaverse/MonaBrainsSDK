@@ -14,6 +14,7 @@ namespace Mona.SDK.Brains.Core.Utils
         public string Address;
         public int TokenCount;
         public string TokenType;
+        public bool Active;
     }
 
     public class MonaBrainBlockchain : MonoBehaviour, IMonaBrainBlockchain

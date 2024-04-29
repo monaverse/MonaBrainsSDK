@@ -446,59 +446,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             for (var i = 0; i < root.childCount; i++)
                 GameObject.Destroy(root.GetChild(i).gameObject);
 
+            avatarGameObject.transform.position = Vector3.zero;
+            avatarGameObject.transform.rotation = Quaternion.identity;
+            avatarGameObject.transform.localScale = Vector3.one;
+
             avatarGameObject.transform.SetParent(root);
-
-            _monaAnimationController.SetAnimator(_avatarInstance);
-
-            var parts = new List<IMonaBodyPart>(_avatarInstance.transform.GetComponentsInChildren<IMonaBodyPart>());
-            var transforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
-
-            var boneMappings = _avatarInstance.GetComponent<VRMHumanoidDescription>();
-            if (boneMappings != null)
-            {
-                var avatarTransforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
-
-                AvatarDescription description = boneMappings.GetDescription(out bool isCreated);
-                var avatar = description.ToHumanDescription(_avatarInstance.transform);
-
-                for (var i = 0; i < avatar.human.Length; i++)
-                {
-                    var tag = avatar.human[i].humanName;
-                    if (_brain.MonaTagSource.HasTag(tag))
-                    {
-                        var part = parts.Find(x => x.HasMonaTag(tag));
-                        if (part == null)
-                        {
-                            var t = transforms.Find(x => x.name == avatar.human[i].boneName);
-                            if (t != null)
-                            {
-                                var newPart = t.AddComponent<MonaBodyPart>();
-                                newPart.AddTag(tag);
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for (var i = 0; i < (int)HumanBodyBones.LastBone; i++)
-                {
-                    var tag = ((HumanBodyBones)i).ToString();
-                    if (_brain.MonaTagSource.HasTag(tag))
-                    {
-                        var part = parts.Find(x => x.HasMonaTag(tag));
-                        if (part == null)
-                        {
-                            var t = transforms.Find(x => x.name == tag);
-                            if (t != null)
-                            {
-                                var newPart = t.AddComponent<MonaBodyPart>();
-                                newPart.AddTag(tag);
-                            }
-                        }
-                    }
-                }
-            }
 
             var parent = body;
             while (parent != null)
@@ -507,15 +459,71 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 parent = parent.Parent;
             }
 
-            while (body != null)
+            if (_monaAnimationController != null)
             {
-                MonaEventBus.Trigger<MonaBodyAnimationControllerChangeEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, body), new MonaBodyAnimationControllerChangeEvent(_avatarInstance));
-                body = body.Parent;
+
+                _monaAnimationController.SetAnimator(_avatarInstance);
+
+                var parts = new List<IMonaBodyPart>(_avatarInstance.transform.GetComponentsInChildren<IMonaBodyPart>());
+                var transforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
+
+                var boneMappings = _avatarInstance.GetComponent<VRMHumanoidDescription>();
+                if (boneMappings != null)
+                {
+                    var avatarTransforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
+
+                    AvatarDescription description = boneMappings.GetDescription(out bool isCreated);
+                    var avatar = description.ToHumanDescription(_avatarInstance.transform);
+
+                    for (var i = 0; i < avatar.human.Length; i++)
+                    {
+                        var tag = avatar.human[i].humanName;
+                        if (_brain.MonaTagSource.HasTag(tag))
+                        {
+                            var part = parts.Find(x => x.HasMonaTag(tag));
+                            if (part == null)
+                            {
+                                var t = transforms.Find(x => x.name == avatar.human[i].boneName);
+                                if (t != null)
+                                {
+                                    var newPart = t.AddComponent<MonaBodyPart>();
+                                    newPart.AddTag(tag);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (var i = 0; i < (int)HumanBodyBones.LastBone; i++)
+                    {
+                        var tag = ((HumanBodyBones)i).ToString();
+                        if (_brain.MonaTagSource.HasTag(tag))
+                        {
+                            var part = parts.Find(x => x.HasMonaTag(tag));
+                            if (part == null)
+                            {
+                                var t = transforms.Find(x => x.name == tag);
+                                if (t != null)
+                                {
+                                    var newPart = t.AddComponent<MonaBodyPart>();
+                                    newPart.AddTag(tag);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                while (body != null)
+                {
+                    MonaEventBus.Trigger<MonaBodyAnimationControllerChangeEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, body), new MonaBodyAnimationControllerChangeEvent(_avatarInstance));
+                    body = body.Parent;
+                }
             }
 
-            _avatarInstance.transform.localScale = Vector3.one;
-            _avatarInstance.transform.localPosition = _offset;
-            _avatarInstance.transform.localRotation = Quaternion.Euler(_eulerAngles);
+            avatarGameObject.transform.localScale = Vector3.one;
+            avatarGameObject.transform.localPosition = _offset;
+            avatarGameObject.transform.localRotation = Quaternion.Euler(_eulerAngles);
 
             root.localScale = _scale;
 
@@ -527,7 +535,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             root.localScale = _scale * scale;
 
-            Debug.Log($"{_avatarInstance} {_offset} scale {_scale} {_avatarInstance.transform.position} brain body {_brain.Body.Transform.position}");
+            Debug.Log($"{_avatarInstance} {_offset} scale {_scale} {avatarGameObject.transform.position} brain body {_brain.Body.Transform.position}");
 
             var playerId = _brain.Player.GetPlayerIdByBody(_brain.Body);
             if(playerId > -1)
