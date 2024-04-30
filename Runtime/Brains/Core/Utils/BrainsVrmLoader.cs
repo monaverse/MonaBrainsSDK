@@ -79,7 +79,7 @@ namespace Mona.SDK.Brains.Core.Utils
                     UnityGLTF.GLTFSceneImporter sceneImporter = new UnityGLTF.GLTFSceneImporter(gLTFRoot, stream, new ImportOptions()
                     {
                         DataLoader = new StreamLoader(stream),
-                        AnimationMethod = AnimationMethod.None
+                        AnimationMethod = AnimationMethod.MecanimHumanoid
 
                     });
                     sceneImporter.LoadScene(-1, true, (obj, info) =>

@@ -13,5 +13,6 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
         public string BackgroundColor;
         public string AnimationUrl;
         public string YoutubeUrl;
+        public string MetaverseUrl;
     }
 }

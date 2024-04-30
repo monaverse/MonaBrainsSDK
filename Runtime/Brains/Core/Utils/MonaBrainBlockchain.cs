@@ -12,9 +12,12 @@ namespace Mona.SDK.Brains.Core.Utils
     public class RegisteredContract
     {
         public string Address;
+        public int StartToken;
         public int TokenCount;
         public string TokenType;
         public bool Active;
+        public bool RequireOwnership = true;
+        public string Chain;
     }
 
     public class MonaBrainBlockchain : MonoBehaviour, IMonaBrainBlockchain

@@ -263,8 +263,8 @@ namespace Mona.SDK.Brains.Core.Brain
                         {
                             var listener = _activeKeyListeners[i];
                             //Debug.Log($"Key {listener.Key} {listener.State}");
-                           // if (listener.State != MonaInputState.None)
-                             //   Debug.Log($"Key {listener.Key} {listener.State}");
+                            //if (listener.State != MonaInputState.None)
+                               // Debug.Log($"Key {listener.Key} {listener.State} {i}");
                         }
                     }
                     else
@@ -333,7 +333,7 @@ namespace Mona.SDK.Brains.Core.Brain
             else
                 keyboard = Keyboard.current;
 
-            var keyControl = Keyboard.current[state.Key];
+            var keyControl = keyboard[state.Key];
             
             if (keyControl.wasPressedThisFrame && state.State == MonaInputState.None)
                 state.State = MonaInputState.Pressed;

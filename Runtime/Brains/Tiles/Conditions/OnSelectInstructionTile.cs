@@ -52,12 +52,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (BrainOnRemotePlayer()) return;
 
             var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, MonaInputType.Action, GetInputState());
-            if (localInput.GetButton(MonaInputType.Action) != MonaInputState.None)
-                Debug.Log($"{localInput.GetButton(MonaInputType.Action)} Action");
+            //if (localInput.GetButton(MonaInputType.Action) != MonaInputState.None)
+            //    Debug.Log($"{localInput.GetButton(MonaInputType.Action)} Action");
             if (localInput.GetButton(MonaInputType.Action) == GetInputState())
             {
                 //if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnSelectInstructionTile)} setlocalinput {localInput.Ray.origin} {localInput.Ray.direction}");
+                //    Debug.Log($"{nameof(OnSelectInstructionTile)} setlocalinput {localInput.Ray.origin} {localInput.Ray.direction}");
 
                 SetLocalInput(localInput);
             }
@@ -89,8 +89,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             if (Physics.Raycast(ray.origin, ray.direction, out hit, _distance, targetRayLayer))
             {
-                if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnSelectInstructionTile)} {hit.point} {hit.collider}");
+                //if (_brain.LoggingEnabled)
+                   // Debug.Log($"{nameof(OnSelectInstructionTile)} {hit.point} {hit.collider}");
 
                 var body = hit.collider.GetComponentInParent<IMonaBody>();
                 if (_brain.LoggingEnabled && body != null)
@@ -106,6 +106,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                             foundBody = true;
                         parent = parent.Parent;
                     }
+                    parent = body;
+                    while(parent != null)
+                    {
+                        if (parent == _brain.Body)
+                            foundBody = true;
+                        parent = parent.Parent;
+                    }
                 }
                 else
                 {
@@ -114,6 +121,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                 if (body != null && foundBody)
                 {
+                    //Debug.Log($"{nameof(OnSelectInstructionTile)} {hit.point} {hit.collider}");
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_TARGET, body);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
