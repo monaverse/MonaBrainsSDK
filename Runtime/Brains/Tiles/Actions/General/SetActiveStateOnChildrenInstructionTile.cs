@@ -167,7 +167,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (monaBody.ActiveRigidbody != null)
                 monaBody.ActiveRigidbody.WakeUp();
 
-            var childBrains = monaBody.Transform.GetComponentsInChildren<IMonaBrainRunner>();
+            var childBrains = monaBody.Transform.GetComponentsInChildren<IMonaBrainRunner>(true);
             for (var i = 0; i < childBrains.Length; i++)
                 childBrains[i].CacheTransforms();
         }

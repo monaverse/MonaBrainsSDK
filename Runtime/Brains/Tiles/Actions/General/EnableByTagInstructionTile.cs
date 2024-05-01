@@ -30,7 +30,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             for (var i = 0; i < bodies.Count; i++)
             {
                 bodies[i].SetActive(true);
-                Debug.Log($"{nameof(EnableByTagInstructionTile)} body: {bodies[i].Transform.name}");
+                //Debug.Log($"{nameof(EnableByTagInstructionTile)} body: {bodies[i].Transform.name}");
             }
             return Complete(InstructionTileResult.Success);
         }
