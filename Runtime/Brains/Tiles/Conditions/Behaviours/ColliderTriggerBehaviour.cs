@@ -78,7 +78,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnBodySpawned);
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_DESPAWNED), OnBodyDespawned);
-            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnTileTick);
+            
         }
 
         public void SetBrain(IMonaBrain brain)
@@ -100,6 +100,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         {
             if(_collider != null)
                 _collider.enabled = active;
+            if(!active)
+            {
+                _bodiesIndex.Clear();
+                _bodies.Clear();
+            }
         }
 
         public void SetLocalPlayerOnly(bool b)
