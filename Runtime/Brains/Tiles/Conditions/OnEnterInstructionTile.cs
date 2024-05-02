@@ -64,8 +64,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     _collider.SetMonaTag(_tag);
                     _collider.SetLocalPlayerOnly(PlayerTriggered);
                 }
-                UpdateActive();
             }
+
+            UpdateActive();
 
             _brain.Body.AddRigidbody();
         }

@@ -35,6 +35,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaMaterialAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
 
+        [SerializeField] private bool _includeChildren = false;
+        [BrainProperty(false)] public bool IncludeChildren { get => _includeChildren; set => _includeChildren = value; }
+
         [SerializeField] private bool _sharedMaterial = false;
         [BrainProperty(false)] public bool SharedMaterial { get => _sharedMaterial; set => _sharedMaterial = value; }
 
@@ -76,10 +79,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         private void LoadMaterial(IMonaBody body, Material material, bool sharedMaterial)
         {
-            if (sharedMaterial)
-                body.SetSharedMaterial(material);
+            if (_includeChildren)
+            {
+                if (sharedMaterial)
+                    body.SetSharedMaterial(material);
+                else
+                    body.SetMaterial(GameObject.Instantiate(_materialAsset.Value));
+            }
             else
-                body.SetMaterial(GameObject.Instantiate(_materialAsset.Value));
+            {
+                if (sharedMaterial)
+                    body.SetBodyMaterial(material, true);
+                else
+                    body.SetBodyMaterial(GameObject.Instantiate(_materialAsset.Value));
+            }
         }
 
         public override void Unload(bool destroy = false)
