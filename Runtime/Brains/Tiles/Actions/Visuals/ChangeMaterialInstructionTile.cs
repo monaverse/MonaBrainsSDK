@@ -41,6 +41,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         [SerializeField] private bool _sharedMaterial = false;
         [BrainProperty(false)] public bool SharedMaterial { get => _sharedMaterial; set => _sharedMaterial = value; }
 
+        [SerializeField] private bool _preserveTexture = false;
+        [BrainProperty(false)] public bool PreserveTexture { get => !SharedMaterial ? _preserveTexture : false; set => _preserveTexture = value; }
+
+        [SerializeField] private string _textureSlot = "_MainTex";
+        [BrainProperty(false)] public string TextureSlot { get => _textureSlot; set => _textureSlot = value; }
+
+        private List<Texture> _textures = new List<Texture>();
+        private Renderer[] _renderers;
+        private Material[] _materials;
+
         private IMonaBrain _brain;
         private IMonaMaterialAssetItem _materialAsset;
 
@@ -57,22 +67,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             _materialAsset = (IMonaMaterialAssetItem)_brain.GetMonaAsset(_monaAsset);
         }
 
-        private IMonaBody GetTarget()
-        {
-            return _brain.Body;
-        }
-
         public override InstructionTileResult Do()
         {
-            var body = GetTarget();
-            if (body != null)
-            {
-                if (_materialAsset.Value != null)
-                {
-                    LoadMaterial(body, _materialAsset.Value, _sharedMaterial);
-                    return Complete(InstructionTileResult.Success);
-                }
-            }
+            if (_brain == null || _materialAsset.Value == null)
+                return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            var body = _brain.Body;
+
+            OperateOnTextures(body, true);
+            LoadMaterial(body, _materialAsset.Value, _sharedMaterial);
+            OperateOnTextures(body, false);
 
             return Complete(InstructionTileResult.Success);
         }
@@ -92,6 +96,40 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
                     body.SetBodyMaterial(material, true);
                 else
                     body.SetBodyMaterial(GameObject.Instantiate(_materialAsset.Value));
+            }
+        }
+
+        private void OperateOnTextures(IMonaBody body, bool storeTextures)
+        {
+            if (!PreserveTexture)
+                return;
+
+            if (storeTextures)
+                _textures.Clear();
+
+            _renderers = _includeChildren ? body.Renderers : body.BodyRenderers;
+
+            for (int i = 0; i < _renderers.Length; i++)
+            {
+                _materials = _renderers[i].materials;
+
+                for (int j = 0; j < _materials.Length; j++)
+                {
+                    if (storeTextures)
+                    {
+                        Texture texture = _materials[j].GetTexture(_textureSlot);
+
+                        if (texture == null)
+                            continue;
+
+                        _textures.Add(texture);
+                    }
+                    else if (_textures.Count > 0)
+                    {
+                        _materials[j].SetTexture(_textureSlot, _textures[0]);
+                        _textures.RemoveAt(0);
+                    }
+                }
             }
         }
 
