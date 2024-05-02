@@ -126,6 +126,19 @@ namespace Mona.SDK.Brains.Core.Animation
                     }
                 }
                 _animator = animator;
+                
+                if (_controller != null)
+                {
+                    RuntimeAnimatorController oldController = null;
+                    if (_controller is AnimatorOverrideController)
+                        oldController = ((AnimatorOverrideController)_controller).runtimeAnimatorController;
+                    else
+                        oldController = _controller.runtimeAnimatorController;
+
+                    if (oldController != null && _animator.runtimeAnimatorController == null)
+                        _animator.runtimeAnimatorController = oldController;
+                }
+
                 _brain.Body.SetAnimator(_animator);
             }
 

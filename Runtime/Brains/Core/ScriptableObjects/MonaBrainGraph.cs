@@ -483,7 +483,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             switch (PropertyType)
             {
                 default:
-                    var parts = new List<IMonaBodyPart>(_root.GetComponentsInChildren<IMonaBodyPart>(true));
+                    /*var parts = new List<IMonaBodyPart>(_root.GetComponentsInChildren<IMonaBodyPart>(true));
                     if (parts.Find(x => x.HasMonaTag(HumanBodyBones.Hips.ToString())) != null)
                     {
                         Debug.Log($"{nameof(SetupAnimation)} add human controller", _body.ActiveTransform.gameObject);
@@ -500,7 +500,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                             monaAnimationController = _root.AddComponent<MonaGroundedCreatureAnimationController>();
                         monaAnimationController.SetBrain(this, animator);
                     }
-                    else
+                    else*/
                     {
                         //Debug.Log($"{nameof(SetupAnimation)} add default controller", _body.ActiveTransform.gameObject);
 
