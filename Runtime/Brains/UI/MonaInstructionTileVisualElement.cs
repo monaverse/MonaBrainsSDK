@@ -326,6 +326,10 @@ namespace Mona.SDK.Brains.UIElements
                         else
                         {
                             var otherProperty = _tile.GetType().GetProperty(pair.Value[i].Name);
+                            if(otherProperty == null)
+                            {
+                                Debug.LogError($"{nameof(CheckVisibleChange)} cannot find property {pair.Value[i].Name}");
+                            }
                             if (
                                 (!pair.Value[i].UseBoolValue && ((int)otherProperty.GetValue(_tile)) == pair.Value[i].Value)
                                 || (pair.Value[i].UseBoolValue && ((bool)otherProperty.GetValue(_tile)) == pair.Value[i].BoolValue)

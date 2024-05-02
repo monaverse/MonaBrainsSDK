@@ -15,8 +15,8 @@ MonoBehaviour:
   _tile:
     rid: 6317540276382466707
   _id: ChangeAvatar
-  _name: Change Avatar
-  _category: Character
+  _name: Change Avatar/Skin
+  _category: Audio / Visual
   references:
     version: 2
     RefIds:
@@ -24,8 +24,8 @@ MonoBehaviour:
       type: {class: ChangeAvatarInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Character, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ChangeAvatar
-        _name: Change Avatar
-        _category: Character
+        _name: Change Avatar/Skin
+        _category: Audio / Visual
         _muted: 0
         _target: 10
         _targetTag: 

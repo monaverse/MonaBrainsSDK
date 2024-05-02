@@ -45,6 +45,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         [SerializeField] private bool _useUri = false;
         [BrainProperty(false)] public bool UseUrl { get => _useUri; set => _useUri = value; }
 
+        [SerializeField] private bool _importAnimation = false;
+        [BrainProperty(false)] public bool ImportAnimation { get => _importAnimation; set => _importAnimation = value; }
+
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyShow("UseUrl", false)]
         [BrainPropertyMonaAsset(typeof(IMonaAvatarAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
@@ -425,7 +428,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             if (loader == null)
                 loader = _avatarLoader.AddComponent<BrainsVrmLoader>();
 
-            loader.Load(url, (avatar) =>
+            loader.Load(url, _importAnimation, (avatar) =>
             {
                 if (avatar != null)
                 {

@@ -27,7 +27,7 @@ namespace Mona.SDK.Brains.Core.Utils
     {
         private string _url;
 
-        public void Load(string url, Action<GameObject> callback)
+        public void Load(string url, bool importAnimation, Action<GameObject> callback)
         {
             Debug.Log($"{nameof(Load)} VRM: {url}");
             _url = url;
@@ -76,13 +76,19 @@ namespace Mona.SDK.Brains.Core.Utils
                     GLTF.Schema.GLTFRoot gLTFRoot;
                     GLTF.GLTFParser.ParseJson(stream, out gLTFRoot);
 
-                    UnityGLTF.GLTFSceneImporter sceneImporter = new UnityGLTF.GLTFSceneImporter(gLTFRoot, stream, new ImportOptions()
+                    var options = new ImportOptions()
                     {
                         DataLoader = new StreamLoader(stream),
                         AnimationMethod = AnimationMethod.None
-                        //AnimationMethod = AnimationMethod.MecanimHumanoid
+                    };
 
-                    }); ;
+                    if (importAnimation)
+                    {
+                        options.AnimationMethod = AnimationMethod.MecanimHumanoid;
+                        options.AnimationLoopPose = true;
+                    }
+
+                    UnityGLTF.GLTFSceneImporter sceneImporter = new UnityGLTF.GLTFSceneImporter(gLTFRoot, stream, options);
                     sceneImporter.LoadScene(-1, true, (obj, info) =>
                     {
                         callback?.Invoke(obj);

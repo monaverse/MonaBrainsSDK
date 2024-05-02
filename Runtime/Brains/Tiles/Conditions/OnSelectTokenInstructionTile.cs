@@ -33,21 +33,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public const string CATEGORY = "Blockchain";
         public override Type TileType => typeof(OnSelectTokenInstructionTile);
 
-        [SerializeField] private SelectTokenCopyType _copyValue;
-        [BrainPropertyEnum(true)] public SelectTokenCopyType CopyValue { get => _copyValue; set => _copyValue = value; }
-
-        [SerializeField] private string _targetValue;
-        [BrainPropertyShow("CopyValue", (int)SelectTokenCopyType.AvatarUrl)]
-        [BrainPropertyValue(typeof(IMonaVariablesStringValue))] public string TargetAvatarValue { get => _targetValue; set => _targetValue = value; }
-
-        [SerializeField] private string _traitName;
-        [BrainPropertyShow("CopyValue", (int)SelectTokenCopyType.TraitValue)]
-        [BrainProperty(true)] public string TraitName { get => _traitName; set => _traitName = value; }
-
-        [SerializeField] private string _targetTraitValue;
-        [BrainPropertyShow("CopyValue", (int)SelectTokenCopyType.TraitValue)]
-        [BrainPropertyValue(typeof(IMonaVariablesStringValue))] public string TargetTraitValue { get => _targetTraitValue; set => _targetTraitValue = value; }
-
         private IMonaBrain _brain;
 
         private bool _selectedToken;
@@ -142,19 +127,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (_selectedToken)
             {
-
-                if (_copyValue == SelectTokenCopyType.AvatarUrl)
-                {
-                    Debug.Log($"{nameof(OnSelectTokenInstructionTile)} {_token.Artifacts[0].Uri}");
-                    _brain.Variables.Set(_targetValue, _token.Artifacts[0].Uri);
-
-                }
-                else if (_copyValue == SelectTokenCopyType.TraitValue)
-                {
-                    if (_token.Traits.ContainsKey(_traitName.ToLower()))
-                        _brain.Variables.Set(_targetTraitValue, _token.Traits[_traitName.ToLower()].ToString());
-                }
-
                 _selectedToken = false;
                 return Complete(InstructionTileResult.Success);
             }
