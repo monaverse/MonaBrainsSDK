@@ -148,7 +148,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             {
                 _TokensFound = false;
             }
-            Debug.Log($"{nameof(OwnsTokensInstructionTile)} {nameof(FetchTokens)} tokens: {_TokensFound}");
+            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} {nameof(FetchTokens)} tokens: {_TokensFound}");
             TriggerRefresh();
         }
 
