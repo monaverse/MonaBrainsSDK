@@ -70,6 +70,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                         return false;
                     case MonaBrainBroadcastType.Parent:
                         return false;
+                    case MonaBrainBroadcastType.Parents:
+                        return false;
                     case MonaBrainBroadcastType.Children:
                         return false;
                     case MonaBrainBroadcastType.ThisBodyOnly:
@@ -106,6 +108,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     break;
                 case MonaBrainBroadcastType.Self:
                     GetFromWholeEntity(myValue, _brain.Body);
+                    break;
+                case MonaBrainBroadcastType.Parents:
+                    GetFromParents(myValue, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.Children:
                     GetFromChildren(myValue, _brain.Body);
@@ -166,6 +171,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 return;
 
             GetFromChildren(myValue, topBody);
+        }
+
+        private void GetFromParents(IMonaVariablesValue myValue, IMonaBody body)
+        {
+            IMonaBody parent = body.Parent;
+
+            if (parent == null || GetValueFromBrains(myValue, parent))
+                return;
+
+            GetFromParents(myValue, parent);
         }
 
         private void GetFromChildren(IMonaVariablesValue myValue, IMonaBody body)

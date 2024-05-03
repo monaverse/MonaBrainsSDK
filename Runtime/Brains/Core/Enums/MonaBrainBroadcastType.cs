@@ -5,6 +5,7 @@ namespace Mona.SDK.Brains.Core.Enums
         Tag = 0,
         Self = 10,
         Parent = 20,
+        Parents = 24,
         Children = 30,
         ThisBodyOnly = 35,
         MessageSender = 40,

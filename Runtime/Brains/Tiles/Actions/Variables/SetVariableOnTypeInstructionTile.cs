@@ -116,6 +116,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                         return false;
                     case MonaBrainBroadcastType.Parent:
                         return false;
+                    case MonaBrainBroadcastType.Parents:
+                        return false;
                     case MonaBrainBroadcastType.Children:
                         return false;
                     case MonaBrainBroadcastType.ThisBodyOnly:
@@ -165,6 +167,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     break;
                 case MonaBrainBroadcastType.Self:
                     ModifyOnWholeEntity(myValue, _brain.Body);
+                    break;
+                case MonaBrainBroadcastType.Parents:
+                    ModifyOnParents(myValue, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.Children:
                     ModifyOnChildren(myValue, _brain.Body);
@@ -219,6 +224,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
             ModifyValueOnBrains(myValue, topBody);
             ModifyOnChildren(myValue, topBody);
+        }
+
+        private void ModifyOnParents(IMonaVariablesValue myValue, IMonaBody body)
+        {
+            IMonaBody parent = body.Parent;
+
+            if (parent == null)
+                return;
+
+            ModifyValueOnBrains(myValue, parent);
+            ModifyOnParents(myValue, parent);
         }
 
         private void ModifyOnChildren(IMonaVariablesValue myValue, IMonaBody body)

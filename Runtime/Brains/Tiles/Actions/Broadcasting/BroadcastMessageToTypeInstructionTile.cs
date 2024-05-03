@@ -70,6 +70,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                         return false;
                     case MonaBrainBroadcastType.Parent:
                         return false;
+                    case MonaBrainBroadcastType.Parents:
+                        return false;
                     case MonaBrainBroadcastType.Children:
                         return false;
                     case MonaBrainBroadcastType.ThisBodyOnly:
@@ -105,6 +107,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                     break;
                 case MonaBrainBroadcastType.Self:
                     BroadcastToWholeEntity(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.Parents:
+                    BroadcastToParents(_brain.Body);
                     break;
                 case MonaBrainBroadcastType.Children:
                     BroadcastToChildren(_brain.Body);
@@ -185,6 +190,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
             BroadcastMessage(_brain, _message, topBody);
             BroadcastToChildren(topBody);
+        }
+
+        private void BroadcastToParents(IMonaBody body)
+        {
+            IMonaBody parent = body.Parent;
+
+            if (parent == null)
+                return;
+
+            BroadcastMessage(_brain, _message, parent);
+            BroadcastToParents(parent);
         }
 
         private void BroadcastToChildren(IMonaBody body)
