@@ -26,6 +26,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public const string CATEGORY = "Blockchain";
         public override Type TileType => typeof(OwnsTokensInstructionTile);
 
+        [SerializeField] private bool _ownsTokens = true;
+        [SerializeField] private string _ownsTokensName;
+        [BrainProperty(true)] public bool OwnsTokens { get => _ownsTokens; set => _ownsTokens = value; }
+        [BrainPropertyValueName("OwnsTokens", typeof(IMonaVariablesBoolValue))] public string OwnsTokensName { get => _ownsTokensName; set => _ownsTokensName = value; }
+
         [SerializeField] private MonaBrainTokenFilterType _tokenFilter = MonaBrainTokenFilterType.IncludeAll;
         [BrainProperty(true)] public MonaBrainTokenFilterType TokenFilter { get => _tokenFilter; set => _tokenFilter = value; }
 
@@ -47,7 +52,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private IMonaBrain _brain;
 
-        private bool _OwnsTokens;
+        private bool _TokensFound;
 
         public OwnsTokensInstructionTile() { }
 
@@ -81,7 +86,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private void HandleWalletDisconneccted(MonaWalletConnectedEvent evt)
         {
-            _OwnsTokens = false;
+            _TokensFound = false;
             TriggerRefresh();
         }
 
@@ -137,13 +142,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     tokens = tokens.FindAll(x => x.Artifacts.Count > 0 && (x.Avatars == null || x.Avatars.Count == 0));
 
                 FilterAndForwardTokens(tokens);
-                _OwnsTokens = tokens.Count > 0;
+                _TokensFound = tokens.Count > 0;
             }
             else
             {
-                _OwnsTokens = false;
+                _TokensFound = false;
             }
-            Debug.Log($"{nameof(OwnsTokensInstructionTile)} {nameof(FetchTokens)} tokens: {_OwnsTokens}");
+            Debug.Log($"{nameof(OwnsTokensInstructionTile)} {nameof(FetchTokens)} tokens: {_TokensFound}");
             TriggerRefresh();
         }
 
@@ -177,8 +182,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public override InstructionTileResult Do()
         {
-            Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_OwnsTokens}");
-            if(_OwnsTokens)
+            if (!string.IsNullOrEmpty(_ownsTokensName))
+                _ownsTokens = _brain.Variables.GetBool(_ownsTokensName);
+
+            Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_TokensFound}");
+
+            if(_TokensFound == _ownsTokens)
             {
                 return Complete(InstructionTileResult.Success);
             }

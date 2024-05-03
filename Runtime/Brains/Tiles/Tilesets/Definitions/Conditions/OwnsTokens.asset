@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 5156608443998797841
   _id: OwnsTokens
-  _name: Owns Tokens
+  _name: Token Ownership
   _category: Blockchain
   references:
     version: 2
@@ -23,7 +23,14 @@ MonoBehaviour:
     - rid: 5156608443998797841
       type: {class: OwnsTokensInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OwnsTokens
+        _name: Token Ownership
+        _category: Blockchain
         _muted: 0
+        _ownsTokens: 1
+        _ownsTokensName: 
+        _tokenFilter: 0
+        _traitFilter: 0
+        _traitName: 
+        _traitValue: 
+        _traitValueName: 
