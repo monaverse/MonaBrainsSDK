@@ -17,6 +17,9 @@ namespace Mona.SDK.Brains.Core.Animation
     {
         Animator Animator { get; }
         MonaBrainPropertyType PropertyType { get; }
+        AnimatorOverrideController Controller { get; set; }
+        AnimatorOverrideController OldController { get; set; }
+        bool ReuseController { get; set; }
 
         bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed, bool isNetworked);
         bool HasEnded(IMonaAnimationAssetItem clipItem);
@@ -42,6 +45,25 @@ namespace Mona.SDK.Brains.Core.Animation
         public Animator Animator => _animator;
 
         private AnimatorOverrideController _controller;
+        public AnimatorOverrideController Controller
+        {
+            get => _controller;
+            set => _controller = value;
+        }
+
+        private AnimatorOverrideController _oldController;
+        public AnimatorOverrideController OldController
+        {
+            get => _oldController;
+            set => _oldController = value;
+        }
+
+        private bool _reuseController;
+        public bool ReuseController
+        {
+            get => _reuseController;
+            set => _reuseController = value;
+        }
 
         private const string START_STATE = "__Start";
         private const string WALK_STATE = "Walk";
@@ -107,9 +129,6 @@ namespace Mona.SDK.Brains.Core.Animation
                     if (childAnimator != null && (childAnimator.transform.parent == transform || childAnimator.transform == transform))
                         _animator = childAnimator;
                 }
-
-                if (_animator == null)
-                    _animator = gameObject.AddComponent<Animator>();
             }
             else
             {
@@ -126,58 +145,35 @@ namespace Mona.SDK.Brains.Core.Animation
                     }
                 }
                 _animator = animator;
-                
-                if (_controller != null)
+
+                if (_oldController != null && _reuseController)
                 {
                     RuntimeAnimatorController oldController = null;
-                    if (_controller is AnimatorOverrideController)
-                        oldController = ((AnimatorOverrideController)_controller).runtimeAnimatorController;
+                    if (_oldController is AnimatorOverrideController)
+                        oldController = ((AnimatorOverrideController)_oldController).runtimeAnimatorController;
                     else
-                        oldController = _controller.runtimeAnimatorController;
+                        oldController = _oldController.runtimeAnimatorController;
 
-                    if (oldController != null && _animator.runtimeAnimatorController == null)
+                    if (oldController != null)
                         _animator.runtimeAnimatorController = oldController;
                 }
 
                 _brain.Body.SetAnimator(_animator);
             }
 
-            if (_animator.runtimeAnimatorController == null)
-            {
-                var controller = (RuntimeAnimatorController)GameObject.Instantiate(Resources.Load("MonaDefaultAnimationController", typeof(RuntimeAnimatorController)));
-                controller.name = "MonaDefaultAnimationController";
-                if (controller == null)
-                {
-                    Debug.LogError($"{nameof(MonaDefaultAnimationController)} Cannot find Resource MonaDefaultAnimationController, please make sure to import the MonaBodySDK Starter Sample");
-                    return;
-                }
-                var overrideController = new AnimatorOverrideController(controller);
-                overrideController.name = "MonaDefaultAnimationController";
-                _animator.runtimeAnimatorController = overrideController;
-                _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
-            }
-            else if(_override)
+            if (_animator != null && _animator.runtimeAnimatorController != null && _reuseController)
             {
                 var overrideController = new AnimatorOverrideController(_animator.runtimeAnimatorController);
                 _animator.runtimeAnimatorController = overrideController;
             }
 
-            if(_animator.runtimeAnimatorController is AnimatorOverrideController)
+            if (_animator != null && _animator.runtimeAnimatorController is AnimatorOverrideController)
                 _controller = (AnimatorOverrideController)_animator.runtimeAnimatorController;
-            _animator.Rebind();
         }
 
         public void SetAnimator(Animator animator)
         {
             SetupAnimationController(animator);
-        }
-
-        private void Update()
-        {
-            //if (_brain.Body.AttachType != MonaBodyAttachType.None) return;
-            if (_brain.Body.NetworkBody != null) return;
-            _speed = Mathf.Lerp(_speed, _toSpeed, Time.deltaTime * 10f);
-            _animator.SetFloat(SPEED, _speed);
         }
 
         private float _speed = 0f;
@@ -197,33 +193,33 @@ namespace Mona.SDK.Brains.Core.Animation
 
         public void SetMotionSpeed(float speed)
         {
-            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            if (_animator == null || _brain.Body.IsAttachedToRemotePlayer()) return;
             _animator.SetFloat(MOTION_SPEED, speed);
         }
 
         public void Jump()
         {
-            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            if (_animator == null || _brain.Body.IsAttachedToRemotePlayer()) return;
             _animator.SetBool(GROUNDED, false);
             _animator.SetBool(JUMP, true);
         }
 
         public void Landed()
         {
-            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            if (_animator == null || _brain.Body.IsAttachedToRemotePlayer()) return;
             _animator.SetBool(JUMP, false);
             _animator.SetBool(GROUNDED, true);
         }
 
         public void Idle()
         {
-            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            if (_animator == null || _brain.Body.IsAttachedToRemotePlayer()) return;
             _animator.SetBool(IDLE, true);
         }
 
         public void IdleOff()
         {
-            if (_brain.Body.IsAttachedToRemotePlayer()) return;
+            if (_animator == null || _brain.Body.IsAttachedToRemotePlayer()) return;
             _animator.SetBool(IDLE, false);
         }
 
@@ -234,12 +230,13 @@ namespace Mona.SDK.Brains.Core.Animation
 
         public void SetLayerWeight(int layer, float layerWeight)
         {
+            if (_animator == null) return;
             _animator.SetLayerWeight(layer, layerWeight);
         }
 
         public bool Play(IMonaAnimationAssetItem clipItem, bool canInterrupt, float speed = 1f, bool force = false)
         {
-            if (_controller == null) return false;
+            if (_animator == null || _controller == null) return false;
 
             if (canInterrupt)
             {

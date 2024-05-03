@@ -23,7 +23,7 @@ using Mona.SDK.Brains.Core.Utils;
 namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 {
     [Serializable]
-    public class ChangeMaterialInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile, IAnimationInstructionTile
+    public class ChangeMaterialInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile
     {
         public const string ID = "ChangeMaterial";
         public const string NAME = "Change Material Asset";
@@ -117,6 +117,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
                 {
                     if (storeTextures)
                     {
+                        if (!_materials[j].HasTexture(_textureSlot))
+                            continue;
+
                         Texture texture = _materials[j].GetTexture(_textureSlot);
 
                         if (texture == null)

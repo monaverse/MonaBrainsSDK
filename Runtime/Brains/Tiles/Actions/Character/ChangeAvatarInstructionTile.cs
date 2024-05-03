@@ -48,6 +48,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         [SerializeField] private bool _importAnimation = false;
         [BrainProperty(false)] public bool ImportAnimation { get => _importAnimation; set => _importAnimation = value; }
 
+        [SerializeField] private bool _reuseController = true;
+        [BrainProperty(false)] public bool ReuseAnimController { get => _reuseController; set => _reuseController = value; }
+
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyShow("UseUrl", false)]
         [BrainPropertyMonaAsset(typeof(IMonaAvatarAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
@@ -436,7 +439,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     if (animator == null)
                         animator = avatar.AddComponent<Animator>();
                     ParseHumanoid(avatar, animator);
-                    LoadAvatar(animator, body, avatar);
+                    try
+                    {
+                        LoadAvatar(animator, body, avatar);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"{nameof(LoadAvatarAtUrl)} {e.Message} {e.StackTrace}");
+                    }
                 }
                 Complete(InstructionTileResult.Success, true);
             });
@@ -584,6 +594,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             if (_monaAnimationController != null)
             {
 
+                _monaAnimationController.ReuseController = _reuseController;
                 _monaAnimationController.SetAnimator(_avatarInstance);
 
                 var parts = new List<IMonaBodyPart>(_avatarInstance.transform.GetComponentsInChildren<IMonaBodyPart>());
