@@ -472,7 +472,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleAnimationControllerChange(MonaBodyAnimationControllerChangeEvent evt)
         {
-            Debug.Log($"{nameof(HandleAnimationControllerChange)}", _body.ActiveTransform.gameObject);
+            //Debug.Log($"{nameof(HandleAnimationControllerChange)}", _body.ActiveTransform.gameObject);
             SetupAnimation(evt.Animator);
         }
 

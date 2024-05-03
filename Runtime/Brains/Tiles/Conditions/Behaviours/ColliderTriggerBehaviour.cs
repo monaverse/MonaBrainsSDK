@@ -39,6 +39,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         public List<IMonaBody> BodiesWithin => _bodiesWithin;
 
+        public bool ColliderEnabled => _collider != null && _collider.enabled;
+
         private bool _colliderWasCreatedByMe = false;
 
         private void Awake()
