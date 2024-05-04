@@ -185,7 +185,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (!string.IsNullOrEmpty(_ownsTokensName))
                 _ownsTokens = _brain.Variables.GetBool(_ownsTokensName);
 
-            Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_TokensFound}");
+            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_TokensFound}");
 
             if(_TokensFound == _ownsTokens)
             {

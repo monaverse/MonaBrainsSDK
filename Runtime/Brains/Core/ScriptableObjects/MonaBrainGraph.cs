@@ -492,7 +492,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                         {
                             oldController = oldMonaAnimationController.Controller;
                             reuseController = oldMonaAnimationController.ReuseController;
-                            Debug.Log($"{nameof(SetupAnimation)} destroy previous controller", _body.Transform.gameObject);
+                            //Debug.Log($"{nameof(SetupAnimation)} destroy previous controller", _body.Transform.gameObject);
                             DestroyImmediate((MonoBehaviour)oldMonaAnimationController);
                         }
 
