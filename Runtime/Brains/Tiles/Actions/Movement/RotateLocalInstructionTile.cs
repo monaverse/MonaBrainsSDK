@@ -310,7 +310,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void LostControl()
         {
-            Debug.Log($"{nameof(RotateLocalInstructionTile)} {nameof(LostControl)}");
+            //Debug.Log($"{nameof(RotateLocalInstructionTile)} {nameof(LostControl)}");
             _movingState = MovingStateType.Stopped;
             Complete(InstructionTileResult.LostAuthority, true);
         }
