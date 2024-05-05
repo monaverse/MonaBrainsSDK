@@ -48,6 +48,8 @@ namespace Mona.SDK.Brains.UIElements
 
                 if (i < _instruction.InstructionTiles.Count - 1)
                     Add(new Label(">"));
+
+                elem.Reset();
             }
         }
 

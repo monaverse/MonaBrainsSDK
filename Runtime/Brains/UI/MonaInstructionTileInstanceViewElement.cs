@@ -40,6 +40,18 @@ namespace Mona.SDK.Brains.UIElements
                 style.color = Color.white;
                 tooltip = reason;
             }
+            else if(result == InstructionTileResult.LostAuthority)
+            {
+                SetBackground(Color.magenta);
+                style.color = Color.white;
+                tooltip = reason;
+            }
+            else if (result == InstructionTileResult.WaitingForAuthority)
+            {
+                SetBackground(Color.blue);
+                style.color = Color.white;
+                tooltip = reason;
+            }
         }
 
         public void Reset()
@@ -47,6 +59,8 @@ namespace Mona.SDK.Brains.UIElements
             SetBackground(Color.grey);
             style.color = Color.black;
             tooltip = "Not Executed";
+            if(_tile.LastResult != InstructionTileResult.Success)
+                HandleExecute(_tile.LastResult, "Reset", _tile);
         }
 
         private void SetBorderRadius(float radius)

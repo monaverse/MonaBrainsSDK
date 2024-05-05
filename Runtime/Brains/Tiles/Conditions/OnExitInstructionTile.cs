@@ -62,8 +62,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     _collider.SetMonaTag(_tag);
                     _collider.SetLocalPlayerOnly(PlayerTriggered);
                 }
-                UpdateActive();
             }
+
+            SetActive(true);
 
             _brain.Body.AddRigidbody();
         }
@@ -85,13 +86,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public void Pause()
         {
-            if (_collider != null)
-                _collider.SetActive(false);
+            SetActive(false);
         }
 
         public bool Resume()
         {
-            UpdateActive();
+            SetActive(true);
             return false;
         }
 

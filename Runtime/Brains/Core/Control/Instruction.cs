@@ -157,6 +157,7 @@ namespace Mona.SDK.Brains.Core.Control
                 var tile = InstructionTiles[i];
                 if (i < InstructionTiles.Count - 1)
                     tile.NextExecutionTile = InstructionTiles[i + 1];
+                tile.LastResult = InstructionTileResult.Success;
             }
         }
 

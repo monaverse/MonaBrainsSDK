@@ -66,14 +66,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 }
             }
 
-            UpdateActive();
+            SetActive(true);
 
             _brain.Body.AddRigidbody();
         }
 
         public void SetActive(bool active)
         {
-            if (_active != active || _collider.ColliderEnabled != active)
+            if (_active != active)
             {
                 _active = active;
                 UpdateActive();
@@ -82,13 +82,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public void Pause()
         {
-            if (_collider != null)
-                _collider.SetActive(false);
+            SetActive(false);
         }
 
         public bool Resume()
         {
-            UpdateActive();
+            SetActive(true);
             return false;
         }
 

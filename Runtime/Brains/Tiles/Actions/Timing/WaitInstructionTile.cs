@@ -48,7 +48,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
-            UpdateActive();
+            SetActive(true);
         }
 
         public void SetActive(bool active)
@@ -77,6 +77,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
         }
         public override void Unload(bool destroy = false)
         {
+            SetActive(false);
+            _isRunning = false;
             RemoveFixedTickDelegate();
         }
 

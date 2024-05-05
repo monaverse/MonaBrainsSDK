@@ -484,24 +484,31 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             IMonaAnimationController newMonaAnimationController = null;
             AnimatorOverrideController oldController = null;
             bool reuseController = true;
+            bool destroyed = false;
 
             switch (PropertyType)
             {
                 case MonaBrainPropertyType.Default:
-                        if (oldMonaAnimationController != null)
-                        {
-                            oldController = oldMonaAnimationController.Controller;
-                            reuseController = oldMonaAnimationController.ReuseController;
-                            Debug.Log($"{nameof(SetupAnimation)} destroy previous controller", _body.Transform.gameObject);
-                            DestroyImmediate((MonoBehaviour)oldMonaAnimationController);
-                        }
+                    if (oldMonaAnimationController != null && !(oldMonaAnimationController is MonaDefaultAnimationController))
+                    {
+                        oldController = oldMonaAnimationController.Controller;
+                        reuseController = oldMonaAnimationController.ReuseController;
+                        Debug.Log($"{nameof(SetupAnimation)} destroy previous controller", _body.Transform.gameObject);
+                        DestroyImmediate((MonoBehaviour)oldMonaAnimationController);
+                        destroyed = true;
+                    }
+                    else if (oldMonaAnimationController != null)
+                        newMonaAnimationController = oldMonaAnimationController;
 
+                    if (destroyed || newMonaAnimationController == null)
+                    {
                         newMonaAnimationController = _root.AddComponent<MonaDefaultAnimationController>();
                         if (oldController != null)
                             newMonaAnimationController.OldController = oldController;
 
                         newMonaAnimationController.ReuseController = reuseController;
-                        newMonaAnimationController.SetBrain(this, animator);
+                    }
+                    newMonaAnimationController.SetBrain(this, animator);
                     break;
                 default:
                     var parts = new List<IMonaBodyPart>(_root.GetComponentsInChildren<IMonaBodyPart>(true));
@@ -619,13 +626,15 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             CorePage.Preload(this);
             for (var i = 0; i < StatePages.Count; i++)
                 StatePages[i].Preload(this);
-            if(StatePages.Count > 0)
+            if (StatePages.Count > 0)
                 BrainState = StatePages[0].Name;
+            _activeStatePage = null;
         }
 
         public void Begin()
         {
             _began = true;
+
             SetActiveStatePage(BrainState);
             //if (LoggingEnabled)
             //    Debug.Log($"{nameof(Begin)} brain on Body {_body.ActiveTransform.name}", _body.ActiveTransform);
@@ -782,7 +791,6 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             _activeStatePage = null;
             for (var i = 0; i < StatePages.Count; i++)
             {
-                StatePages[i].SetActive(false);
 
                 for(var m = _messages.Count-1; m >= 0; m--)
                 {
@@ -790,10 +798,14 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                         _messages.RemoveAt(m);
                 }
 
-                if (StatePages[i].Name == BrainState)
+                if (StatePages[i].Name == value || (string.IsNullOrEmpty(value) && i == 0))
                 {
                     StatePages[i].SetActive(true);
                     _activeStatePage = StatePages[i];
+                }
+                else
+                {
+                    StatePages[i].SetActive(false);
                 }
             }
         }
@@ -805,6 +817,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void ExecuteStatePageInstructions(InstructionEventTypes eventType, InstructionEvent evt = default)
         {
+            if (_activeStatePage == null && _statePages.Count > 0)
+                SetActiveStatePage(null);
+
             if (_activeStatePage != null)
                 _activeStatePage.ExecuteInstructions(eventType, evt);
         }

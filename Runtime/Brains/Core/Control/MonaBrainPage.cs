@@ -129,6 +129,7 @@ namespace Mona.SDK.Brains.Core.Control
 
         public void Unload(bool destroy = false)
         {
+            SetActive(false);
             for (var i = 0; i < _instructions.Count; i++)
                 _instructions[i].Unload(destroy);
         }
