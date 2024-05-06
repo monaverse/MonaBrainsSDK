@@ -72,7 +72,7 @@ namespace Mona.SDK.Brains.Core.Animation
             if (_brain == null)
             {
                 OnRemoteAnimation = HandleRemoteAnimationTriggered;
-                MonaEventBus.Register<MonaBodyAnimationTriggeredEvent>(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), OnRemoteAnimation);
+                MonaEventBus.Register<MonaBodyAnimationTriggeredEvent>(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, brain.Body), OnRemoteAnimation);
             }
 
             _brain = brain;
