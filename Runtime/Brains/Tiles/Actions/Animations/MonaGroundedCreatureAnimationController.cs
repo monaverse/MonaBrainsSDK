@@ -71,17 +71,17 @@ namespace Mona.SDK.Brains.Core.Animation
             Debug.Log($"{nameof(MonaGroundedCreatureAnimationController)}.{nameof(SetBrain)} {_brain == null}");
             if (_brain == null)
             {
-                _brain = brain;
-                SetupAnimationController(animator);
-
                 OnRemoteAnimation = HandleRemoteAnimationTriggered;
                 MonaEventBus.Register<MonaBodyAnimationTriggeredEvent>(new EventHook(MonaCoreConstants.MONA_BODY_ANIMATION_TRIGGERED_EVENT, _brain.Body), OnRemoteAnimation);
-
-                _brain.Body.SetAnimator(_animator);
-                _brain.Variables.Set(MonaBrainConstants.TRIGGER, "");
-                _brain.Variables.Set(MonaBrainConstants.ANIMATION_SPEED, 1f);
-                Debug.Log($"I WAS CALLLED {MonaBrainConstants.TRIGGER} = {_brain.Variables.GetString(MonaBrainConstants.TRIGGER)}");
             }
+
+            _brain = brain;
+            SetupAnimationController(animator);
+
+            _brain.Body.SetAnimator(_animator);
+            _brain.Variables.Set(MonaBrainConstants.TRIGGER, "");
+            _brain.Variables.Set(MonaBrainConstants.ANIMATION_SPEED, 1f);
+            Debug.Log($"I WAS CALLLED {MonaBrainConstants.TRIGGER} = {_brain.Variables.GetString(MonaBrainConstants.TRIGGER)}");
         }
 
         private void OnDestroy()

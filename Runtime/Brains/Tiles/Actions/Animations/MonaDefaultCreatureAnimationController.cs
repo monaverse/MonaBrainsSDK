@@ -68,14 +68,15 @@ namespace Mona.SDK.Brains.Core.Animation
         {
             if (_brain == null)
             {
-                _brain = brain;
-                SetupAnimationController(animator);
-                OnMonaValueChanged = HandleMonaValueChanged;
                 MonaEventBus.Register<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, brain.Body), OnMonaValueChanged);
-                _brain.Body.SetAnimator(_animator);
-                _brain.Variables.Set(MonaBrainConstants.TRIGGER, "");
-                _brain.Variables.Set(MonaBrainConstants.ANIMATION_SPEED, 1f);
             }
+
+            _brain = brain;
+            SetupAnimationController(animator);
+            OnMonaValueChanged = HandleMonaValueChanged;
+            _brain.Variables.Set(MonaBrainConstants.TRIGGER, "");
+            _brain.Variables.Set(MonaBrainConstants.ANIMATION_SPEED, 1f);
+            _brain.Body.SetAnimator(_animator);
         }
 
         public void SetOverride(bool value)

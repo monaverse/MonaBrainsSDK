@@ -489,10 +489,14 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             switch (PropertyType)
             {
                 case MonaBrainPropertyType.Default:
-                    if (oldMonaAnimationController != null && !(oldMonaAnimationController is MonaDefaultAnimationController))
+                    if (oldMonaAnimationController != null)
                     {
                         oldController = oldMonaAnimationController.Controller;
                         reuseController = oldMonaAnimationController.ReuseController;
+                    }
+
+                    if (oldMonaAnimationController != null && !(oldMonaAnimationController is MonaDefaultAnimationController))
+                    {
                         Debug.Log($"{nameof(SetupAnimation)} destroy previous controller", _body.Transform.gameObject);
                         DestroyImmediate((MonoBehaviour)oldMonaAnimationController);
                         destroyed = true;
@@ -503,11 +507,11 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                     if (destroyed || newMonaAnimationController == null)
                     {
                         newMonaAnimationController = _root.AddComponent<MonaDefaultAnimationController>();
-                        if (oldController != null)
-                            newMonaAnimationController.OldController = oldController;
-
-                        newMonaAnimationController.ReuseController = reuseController;
                     }
+                    if (oldController != null)
+                        newMonaAnimationController.OldController = oldController;
+
+                    newMonaAnimationController.ReuseController = reuseController;
                     newMonaAnimationController.SetBrain(this, animator);
                     break;
                 default:
@@ -515,34 +519,45 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                     if (parts.Find(x => x.HasMonaTag(HumanBodyBones.Hips.ToString())) != null)
                     {
                         Debug.Log($"{nameof(SetupAnimation)} add human controller", _body.ActiveTransform.gameObject);
-                        if (oldMonaAnimationController != null)
+                        if (oldMonaAnimationController != null && !(oldMonaAnimationController is MonaGroundedCreatureAnimationController))
                         {
                             oldController = oldMonaAnimationController.Controller;
                             reuseController = oldMonaAnimationController.ReuseController;
                             Debug.Log($"{nameof(SetupAnimation)} destroy previous controller", _body.Transform.gameObject);
                             DestroyImmediate((MonoBehaviour)oldMonaAnimationController);
+                            destroyed = true;
                         }
+                        else if (oldMonaAnimationController != null)
+                            newMonaAnimationController = oldMonaAnimationController;
 
-                        newMonaAnimationController = _root.AddComponent<MonaGroundedCreatureAnimationController>();
+                        if (destroyed || newMonaAnimationController == null)
+                        {
+                            newMonaAnimationController = _root.AddComponent<MonaGroundedCreatureAnimationController>();
+                        }
                         if (oldController != null)
                             newMonaAnimationController.OldController = oldController;
 
                         newMonaAnimationController.ReuseController = reuseController;
-
                         newMonaAnimationController.SetBrain(this, animator);
                     }
                     else
                     {
                         //Debug.Log($"{nameof(SetupAnimation)} add default controller", _body.ActiveTransform.gameObject
-                        if (oldMonaAnimationController != null)
+                        if (oldMonaAnimationController != null && !(oldMonaAnimationController is MonaDefaultCreatureAnimationController))
                         {
                             oldController = oldMonaAnimationController.Controller;
                             reuseController = oldMonaAnimationController.ReuseController;
                             Debug.Log($"{nameof(SetupAnimation)} destroy previous controller", _body.Transform.gameObject);
                             DestroyImmediate((MonoBehaviour)oldMonaAnimationController);
+                            destroyed = true;
                         }
+                        else if (oldMonaAnimationController != null)
+                            newMonaAnimationController = oldMonaAnimationController;
 
-                        newMonaAnimationController = _root.AddComponent<MonaDefaultCreatureAnimationController>();
+                        if (destroyed || newMonaAnimationController == null)
+                        {
+                            newMonaAnimationController = _root.AddComponent<MonaDefaultCreatureAnimationController>();
+                        }
                         if (oldController != null)
                             newMonaAnimationController.OldController = oldController;
 
