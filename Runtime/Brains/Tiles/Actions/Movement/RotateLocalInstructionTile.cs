@@ -260,6 +260,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void FixedTick(float deltaTime)
         {
+            if (InstantRotation && _movingState == MovingStateType.Stopped) return;
+
             UpdateInput();
 
             if (!_brain.Body.HasControl())
