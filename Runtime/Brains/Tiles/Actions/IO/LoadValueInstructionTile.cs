@@ -80,7 +80,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                 string storageKey = GetStorageKeyString(StorageVariableType.Number, keyName, brainName, string.Empty);
 
                 if (PlayerPrefs.HasKey(storageKey))
-                    ((IMonaVariablesFloatValue)myValue).Value = PlayerPrefs.GetFloat(storageKey);
+                    _brain.Variables.Set(_variable, PlayerPrefs.GetFloat(storageKey));
             }
             else if (myValue is IMonaVariablesBoolValue)
             {
@@ -89,7 +89,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                 if (PlayerPrefs.HasKey(storageKey))
                 {
                     int boolBinary = PlayerPrefs.GetInt(storageKey);
-                    ((IMonaVariablesBoolValue)myValue).Value = boolBinary == 1;
+                    _brain.Variables.Set(_variable, boolBinary == 1);
                 }
             }
             else if (myValue is IMonaVariablesStringValue)
@@ -97,7 +97,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                 string storageKey = GetStorageKeyString(StorageVariableType.String, keyName, brainName, string.Empty);
 
                 if (PlayerPrefs.HasKey(storageKey))
-                    ((IMonaVariablesStringValue)myValue).Value = PlayerPrefs.GetString(storageKey);
+                    _brain.Variables.Set(_variable, PlayerPrefs.GetString(storageKey));
             }
             else if (myValue is IMonaVariablesVector2Value)
             {
@@ -109,7 +109,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                     float x = PlayerPrefs.GetFloat(storageX);
                     float y = PlayerPrefs.GetFloat(storageY);
 
-                    ((IMonaVariablesVector2Value)myValue).Value = new Vector2(x, y);
+                    _brain.Variables.Set(_variable, new Vector2(x, y));
                 }
             }
             else if (myValue is IMonaVariablesVector3Value)
@@ -124,7 +124,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                     float y = PlayerPrefs.GetFloat(storageY);
                     float z = PlayerPrefs.GetFloat(storageZ);
 
-                    ((IMonaVariablesVector3Value)myValue).Value = new Vector3(x, y, z);
+                    _brain.Variables.Set(_variable, new Vector3(x, y, z));
                 }
             }
 
