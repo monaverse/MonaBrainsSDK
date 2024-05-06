@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a358ae2efe6ab488e96aa4c0daa1d869, type: 3}
+  m_Name: UISetText
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 6017384286733730344
+  _id: UISetText
+  _name: Set UI Text
+  _category: User Interface
+  references:
+    version: 2
+    RefIds:
+    - rid: 6017384286733730344
+      type: {class: UISetTextInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.UI, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
+        _muted: 0
+        _newText: 
+        _newTextString: 
