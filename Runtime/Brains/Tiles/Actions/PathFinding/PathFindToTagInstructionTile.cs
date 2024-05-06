@@ -47,22 +47,32 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
                 {
                     IMonaBody closest = bodies[0];
 
-                    for (var i = 1; i < bodies.Count; i++)
+                    if (_chooseTagType == ChooseTagType.Random)
                     {
-                        var distanceClosest = Vector3.Distance(_brain.Body.GetPosition(), closest.GetPosition());
-                        var distanceBody = Vector3.Distance(_brain.Body.GetPosition(), bodies[i].GetPosition());
-                        switch (_chooseTagType)
+                        var active = bodies.FindAll(x => x.GetActive());
+                        if (active.Count > 0)
+                            closest = active[UnityEngine.Random.Range(0, active.Count)];
+                    }
+                    else
+                    {
+                        for (var i = 1; i < bodies.Count; i++)
                         {
-                            case ChooseTagType.Closest:
-                                if (distanceBody < distanceClosest)
-                                    closest = bodies[i];
-                                break;
-                            case ChooseTagType.Furthest:
-                                if (distanceBody > distanceClosest)
-                                    closest = bodies[i];
-                                break;
+                            if (!bodies[i].GetActive()) continue;
+                            var distanceClosest = Vector3.Distance(_brain.Body.GetPosition(), closest.GetPosition());
+                            var distanceBody = Vector3.Distance(_brain.Body.GetPosition(), bodies[i].GetPosition());
+                            switch (_chooseTagType)
+                            {
+                                case ChooseTagType.Closest:
+                                    if (distanceBody < distanceClosest)
+                                        closest = bodies[i];
+                                    break;
+                                case ChooseTagType.Furthest:
+                                    if (distanceBody > distanceClosest)
+                                        closest = bodies[i];
+                                    break;
+                            }
+                            pos += bodies[i].GetPosition();
                         }
-                        pos += bodies[i].GetPosition();
                     }
 
                     if (_brain != null && closest != null)
