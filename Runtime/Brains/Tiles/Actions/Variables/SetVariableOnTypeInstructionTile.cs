@@ -286,7 +286,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     return _brain.Body.Spawner;
                 case MonaBrainBroadcastType.LastSpawnedByMe:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
-                case MonaBrainBroadcastType.MyPoolPreviouslySpawned:;
+                case MonaBrainBroadcastType.MyPoolPreviouslySpawned:
                     return _brain.Body.PoolBodyPrevious;
                 case MonaBrainBroadcastType.MyPoolNextSpawned:
                     return _brain.Body.PoolBodyNext;

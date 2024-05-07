@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 8514828729091621459
   _id: TeleportToPositionInstructionTile
-  _name: Teleport To Position
+  _name: Teleport To
   _category: Adv Movement
   references:
     version: 2
@@ -24,7 +24,17 @@ MonoBehaviour:
       type: {class: TeleportToPositionInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: TeleportToPositionInstructionTile
-        _name: Teleport To Position
+        _name: Teleport To
         _category: Adv Movement
+        _muted: 0
+        _target: 14
+        _targetPosition: 0
+        _targetTag: 
         _value: {x: 0, y: 0, z: 0}
-        _valueValueName: 
+        _valueValueName: []
+        _offset: {x: 0, y: 0, z: 0}
+        _offsetName:
+        - 
+        - 
+        - 
+        - 
