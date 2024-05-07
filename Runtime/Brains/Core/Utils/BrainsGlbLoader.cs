@@ -27,20 +27,31 @@ namespace Mona.SDK.Brains.Core.Utils
 
     public sealed class BrainsGlbLoader : MonoBehaviour
     {
-        public static Dictionary<string, GameObject> PoolSource = new Dictionary<string, GameObject>();
         public static Dictionary<string, List<GameObject>> Pool = new Dictionary<string, List<GameObject>>();
+        public static Dictionary<string, List<GameObject>> Used = new Dictionary<string, List<GameObject>>();
 
         public void ReturnToPool(string url, GameObject instance)
         {
             if (!Pool.ContainsKey(url))
                 Pool[url] = new List<GameObject>();
 
-            if(!Pool[url].Contains(instance))
+            if (!Used.ContainsKey(url))
+                Used[url] = new List<GameObject>();
+
+            if (!Pool[url].Contains(instance) && instance != null)
                 Pool[url].Add(instance);
 
-            instance.transform.SetParent(transform, true);
-            instance.SetActive(false);
-            Debug.Log($"{nameof(ReturnToPool)} {url}", instance.gameObject);
+            if (Used[url].Contains(instance) && instance != null)
+                Used[url].Remove(instance);
+
+            if (instance != null)
+            {
+                instance.transform.SetParent(transform, true);
+                instance.SetActive(false);
+                Debug.Log($"{nameof(ReturnToPool)} {url}", instance.gameObject);
+            }
+            else
+                Debug.Log($"{nameof(ReturnToPool)} {url} returned empty");
         }
 
         public GameObject GetFromPool(string url)
@@ -48,13 +59,20 @@ namespace Mona.SDK.Brains.Core.Utils
             if (!Pool.ContainsKey(url))
                 Pool[url] = new List<GameObject>();
 
+            if (!Used.ContainsKey(url))
+                Used[url] = new List<GameObject>();
+
             if (Pool[url].Count > 0)
             {
                 var instance = Pool[url][0];
                 Pool[url].RemoveAt(0);
                 instance.SetActive(true);
                 Debug.Log($"{nameof(GetFromPool)} {url}", instance.gameObject);
-                return instance;
+
+                if (!Used[url].Contains(instance) && instance != null)
+                    Used[url].Add(instance);
+
+                return instance;                
             }
             return null;
         }
@@ -67,6 +85,14 @@ namespace Mona.SDK.Brains.Core.Utils
             }
         }
 
+        public void HandleDestroyed(BrainsGlb obj)
+        {
+            Debug.LogError($"{nameof(BrainsGlbLoader)} glb destroyed {obj.Url} {obj.gameObject.name}");
+            obj.OnDestroyed -= HandleDestroyed;
+            if (Pool[obj.Url].Contains(obj.gameObject))
+                Pool[obj.Url].Remove(obj.gameObject);
+        }
+
         public void Load(string url, bool importAnimation, Action<GameObject> callback, int poolSize = 1, bool returnToPool = false)
         {
             Debug.Log($"{nameof(Load)} VRM: {url}");
@@ -74,7 +100,7 @@ namespace Mona.SDK.Brains.Core.Utils
             var instance = GetFromPool(url);
             if (instance == null)
             {
-                if (!PoolSource.ContainsKey(url))
+                if (!Used.ContainsKey(url) || Used[url].Count == 0)
                 {
                     GetVrmData(url, (byte[] avatarData) =>
                     {
@@ -111,15 +137,23 @@ namespace Mona.SDK.Brains.Core.Utils
                             runtimeGltfInstance.ShowMeshes();
                             var avatarObject = runtimeGltfInstance.Root;
 
-                            PoolSource[url] = avatarObject;
-
                             glbData.Dispose();
                             context.Dispose();
 
+                            Used[url].Add(avatarObject);
+
+                            var glb = avatarObject.AddComponent<BrainsGlb>();
+                            glb.Url = url;
+                            glb.OnDestroyed += HandleDestroyed;
+
                             if (poolSize > 1)
                             {
-                                for (var i = 1; i < poolSize-1; i++)
-                                    ReturnToPool(url, Instantiate(avatarObject));
+                                for (var i = 1; i < poolSize - 1; i++)
+                                {
+                                    var glbInstance = Instantiate(glb);
+                                    glbInstance.OnDestroyed += HandleDestroyed;
+                                    ReturnToPool(url, glbInstance.gameObject);
+                                }
                             }
 
                             if (returnToPool)
@@ -152,12 +186,20 @@ namespace Mona.SDK.Brains.Core.Utils
                                 UnityGLTF.GLTFSceneImporter sceneImporter = new UnityGLTF.GLTFSceneImporter(gLTFRoot, stream, options);
                                 sceneImporter.LoadScene(-1, true, (obj, info) =>
                                 {
-                                    PoolSource[url] = obj;
+                                    Used[url].Add(obj);
+
+                                    var glb = obj.AddComponent<BrainsGlb>();
+                                    glb.Url = url;
+                                    glb.OnDestroyed += HandleDestroyed;
 
                                     if (poolSize > 1)
                                     {
-                                        for (var i = 0; i < poolSize-1; i++)
-                                            ReturnToPool(url, Instantiate(obj));
+                                        for (var i = 0; i < poolSize - 1; i++)
+                                        {
+                                            var glbInstance = Instantiate(glb);
+                                                glbInstance.OnDestroyed += HandleDestroyed;
+                                            ReturnToPool(url, glbInstance.gameObject);
+                                        }
                                     }
 
                                     if (returnToPool)
@@ -179,7 +221,7 @@ namespace Mona.SDK.Brains.Core.Utils
                 else
                 {
                     Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} instantiate from pool source {url}");
-                    callback?.Invoke(Instantiate(PoolSource[url]));
+                    callback?.Invoke(Instantiate(Used[url][0]));
                 }
             }
             else

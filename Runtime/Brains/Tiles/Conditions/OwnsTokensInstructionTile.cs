@@ -149,7 +149,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             FilterAndForwardTokens(tokens);
             _TokensFound = tokens.Count > 0;
-            Debug.Log($"{nameof(OwnsTokensInstructionTile)} tokens found {_TokensFound} {tokens.Count}", _brain.Body.Transform.gameObject);
+            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} tokens found {_TokensFound} {tokens.Count}", _brain.Body.Transform.gameObject);
 
             //Debug.Log($"{nameof(OwnsTokensInstructionTile)} {nameof(FetchTokens)} tokens: {_TokensFound}");
             TriggerRefresh();
@@ -200,10 +200,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             //Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_TokensFound}");
 
-            Debug.Log($"{nameof(OwnsTokensInstructionTile)} DO: tokens found {_TokensFound} {_instruction.Tokens.Count}", _brain.Body.Transform.gameObject);
+            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} DO: tokens found {_TokensFound} {_instruction.Tokens.Count}", _brain.Body.Transform.gameObject);
             if (_TokensFound == _ownsTokens)
             {
-                Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_TokensFound} {_instruction.Tokens.Count}");
+                //Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_TokensFound} {_instruction.Tokens.Count}");
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
