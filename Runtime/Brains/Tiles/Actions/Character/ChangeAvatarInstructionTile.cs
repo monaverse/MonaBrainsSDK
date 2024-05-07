@@ -448,6 +448,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             {
                 if (avatar != null)
                 {
+                    avatar.SetActive(true);
                     var animator = avatar.GetComponent<Animator>();
                     if (animator == null)
                         animator = avatar.AddComponent<Animator>();
