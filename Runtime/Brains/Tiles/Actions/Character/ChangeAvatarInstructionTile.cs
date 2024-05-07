@@ -133,6 +133,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         {
             _brain = brainInstance;
 
+            if (_avatarLoader == null)
+                _avatarLoader = new GameObject("AvatarLoader");
+
+            _urlLoader = _avatarLoader.GetComponent<BrainsGlbLoader>();
+            if (_urlLoader == null)
+                _urlLoader = _avatarLoader.AddComponent<BrainsGlbLoader>();
+
             SetupAnimation();
         }
 
@@ -430,13 +437,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         private BrainsGlbLoader _urlLoader;
         private void LoadAvatarAtUrl(string url, IMonaBody body)
         {
-            if (_avatarLoader == null)
-                _avatarLoader = new GameObject("AvatarLoader");
-
-            _urlLoader = _avatarLoader.GetComponent<BrainsGlbLoader>();
-            if (_urlLoader == null)
-                _urlLoader = _avatarLoader.AddComponent<BrainsGlbLoader>();
-
             if (url == _brain.Body.SkinId)
             {
                 Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatarAtUrl)} same url don't change {url}");
