@@ -8,6 +8,7 @@ using VRM;
 using UnityGLTF;
 using UnityGLTF.Loader;
 using System.Collections.Generic;
+using Mona.SDK.Brains.Core.Utils.Structs;
 
 namespace Mona.SDK.Brains.Core.Utils
 {
@@ -24,7 +25,7 @@ namespace Mona.SDK.Brains.Core.Utils
         }
     }
 
-    public sealed class BrainsVrmLoader : MonoBehaviour
+    public sealed class BrainsGlbLoader : MonoBehaviour
     {
         public static Dictionary<string, GameObject> PoolSource = new Dictionary<string, GameObject>();
         public static Dictionary<string, List<GameObject>> Pool = new Dictionary<string, List<GameObject>>();
@@ -58,7 +59,15 @@ namespace Mona.SDK.Brains.Core.Utils
             return null;
         }
 
-        public void Load(string url, bool importAnimation, Action<GameObject> callback, int poolSize = 1)
+        public void CacheTokens(List<Token> tokens, Action callback, int poolSize = 1)
+        {
+            for(var i = 0;i < tokens.Count; i++)
+            {
+                Load(tokens[i].AssetUrl, false, (obj) => {}, poolSize, true);
+            }
+        }
+
+        public void Load(string url, bool importAnimation, Action<GameObject> callback, int poolSize = 1, bool returnToPool = false)
         {
             Debug.Log($"{nameof(Load)} VRM: {url}");
 
@@ -69,7 +78,7 @@ namespace Mona.SDK.Brains.Core.Utils
                 {
                     GetVrmData(url, (byte[] avatarData) =>
                     {
-                        Debug.Log($"{nameof(BrainsVrmLoader)} {url} loaded from url and created new");
+                        Debug.Log($"{nameof(BrainsGlbLoader)} {url} loaded from url and created new");
 
                         if (avatarData == null)
                         {
@@ -109,16 +118,19 @@ namespace Mona.SDK.Brains.Core.Utils
 
                             if (poolSize > 1)
                             {
-                                for (var i = 0; i < poolSize; i++)
+                                for (var i = 1; i < poolSize-1; i++)
                                     ReturnToPool(url, Instantiate(avatarObject));
                             }
 
-                            Debug.Log($"{nameof(BrainsVrmLoader)} {nameof(Load)} load from url {url}");
+                            if (returnToPool)
+                                ReturnToPool(url, avatarObject);
+
+                            Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} load from url {url}");
                             callback?.Invoke(avatarObject);
                         }
                         catch (Exception e)
                         {
-                            Debug.Log($"could not load VRM data {e.Message}");
+                            Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} error loading VRM: {e.Message}");
                             System.IO.MemoryStream stream = new System.IO.MemoryStream(avatarData);
                             GLTF.Schema.GLTFRoot gLTFRoot;
                             GLTF.GLTFParser.ParseJson(stream, out gLTFRoot);
@@ -135,33 +147,44 @@ namespace Mona.SDK.Brains.Core.Utils
                                 options.AnimationLoopPose = true;
                             }
 
-                            UnityGLTF.GLTFSceneImporter sceneImporter = new UnityGLTF.GLTFSceneImporter(gLTFRoot, stream, options);
-                            sceneImporter.LoadScene(-1, true, (obj, info) =>
+                            try
                             {
-                                PoolSource[url] = obj;
-
-                                if (poolSize > 1)
+                                UnityGLTF.GLTFSceneImporter sceneImporter = new UnityGLTF.GLTFSceneImporter(gLTFRoot, stream, options);
+                                sceneImporter.LoadScene(-1, true, (obj, info) =>
                                 {
-                                    for (var i = 0; i < poolSize; i++)
-                                        ReturnToPool(url, Instantiate(obj));
-                                }
+                                    PoolSource[url] = obj;
 
-                                Debug.Log($"{nameof(BrainsVrmLoader)} {nameof(Load)} load from url (not vrm) {url}");
-                                callback?.Invoke(obj);
-                            });
+                                    if (poolSize > 1)
+                                    {
+                                        for (var i = 0; i < poolSize-1; i++)
+                                            ReturnToPool(url, Instantiate(obj));
+                                    }
+
+                                    if (returnToPool)
+                                        ReturnToPool(url, obj);
+
+                                    Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} load from url (not vrm) {url}");
+                                    callback?.Invoke(obj);
+                                });
+                            }
+                            catch(Exception e2)
+                            {
+                                Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} error loading glb {e2.Message}");
+                                callback?.Invoke(null);
+                            }
                         }
 
                     });
                 }
                 else
                 {
-                    Debug.Log($"{nameof(BrainsVrmLoader)} {nameof(Load)} instantiate from pool source {url}");
+                    Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} instantiate from pool source {url}");
                     callback?.Invoke(Instantiate(PoolSource[url]));
                 }
             }
             else
             {
-                Debug.Log($"{nameof(BrainsVrmLoader)} {nameof(Load)} fetched from pool {url}");
+                Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} fetched from pool {url}");
                 callback?.Invoke(instance);
             }
         }
@@ -191,14 +214,14 @@ namespace Mona.SDK.Brains.Core.Utils
                 case UnityWebRequest.Result.ConnectionError:
                 case UnityWebRequest.Result.ProtocolError:
                 case UnityWebRequest.Result.DataProcessingError:
-                    Debug.LogError($"{nameof(BrainsVrmLoader)}.{nameof(GetVrmData)} - Request error: {request.error} {request.result} {url}");
+                    Debug.LogError($"{nameof(BrainsGlbLoader)}.{nameof(GetVrmData)} - Request error: {request.error} {request.result} {url}");
                     data = null;
                     break;
                 case UnityWebRequest.Result.Success:
                     data = request.downloadHandler.data;
                     break;
                 default:
-                    Debug.LogError($"{nameof(BrainsVrmLoader)}.{nameof(GetVrmData)} - Request error: {request.error}");
+                    Debug.LogError($"{nameof(BrainsGlbLoader)}.{nameof(GetVrmData)} - Request error: {request.error}");
                     data = null;
                     break;
             }

@@ -104,6 +104,7 @@ namespace Mona.SDK.Brains.Core.Control
             _page = page;
             _firstActionIndex = -1;
             _needAuthInstructionTiles.Clear();
+            _blockchainTiles.Clear();
 
             if (_progressTile == null)
             {

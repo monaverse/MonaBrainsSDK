@@ -532,9 +532,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             if (_avatarLoader == null)
                 _avatarLoader = new GameObject("AvatarLoader");
 
-            var loader = _avatarLoader.GetComponent<BrainsVrmLoader>();
+            var loader = _avatarLoader.GetComponent<BrainsGlbLoader>();
             if (loader == null)
-                loader = _avatarLoader.AddComponent<BrainsVrmLoader>();
+                loader = _avatarLoader.AddComponent<BrainsGlbLoader>();
 
             loader.Load(url, false, (avatar) =>
             {

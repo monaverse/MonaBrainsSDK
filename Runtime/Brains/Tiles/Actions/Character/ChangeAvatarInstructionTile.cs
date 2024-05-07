@@ -427,15 +427,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         }
 
         private GameObject _avatarLoader;
-        private BrainsVrmLoader _urlLoader;
+        private BrainsGlbLoader _urlLoader;
         private void LoadAvatarAtUrl(string url, IMonaBody body)
         {
             if (_avatarLoader == null)
                 _avatarLoader = new GameObject("AvatarLoader");
 
-            _urlLoader = _avatarLoader.GetComponent<BrainsVrmLoader>();
+            _urlLoader = _avatarLoader.GetComponent<BrainsGlbLoader>();
             if (_urlLoader == null)
-                _urlLoader = _avatarLoader.AddComponent<BrainsVrmLoader>();
+                _urlLoader = _avatarLoader.AddComponent<BrainsGlbLoader>();
 
             if (url == _brain.Body.SkinId)
             {

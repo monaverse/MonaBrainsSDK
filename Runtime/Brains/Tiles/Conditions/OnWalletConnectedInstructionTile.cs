@@ -26,9 +26,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public const string CATEGORY = "Blockchain";
         public override Type TileType => typeof(OnWalletConnectedInstructionTile);
 
-        [SerializeField] private string _walletValue;
-        [BrainPropertyValue(typeof(IMonaVariablesStringValue))] public string StoreAddress { get => _walletValue; set => _walletValue = value; }
-
         private IMonaBrain _brain;
 
         private string _address;
@@ -86,7 +83,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (MonaGlobalBrainRunner.Instance.Blockchain != null && MonaGlobalBrainRunner.Instance.Blockchain.WalletConnected)
             {
-                _brain.Variables.Set(_walletValue, _address);
+                Debug.Log($"{nameof(OnWalletConnectedInstructionTile)} connected");
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);

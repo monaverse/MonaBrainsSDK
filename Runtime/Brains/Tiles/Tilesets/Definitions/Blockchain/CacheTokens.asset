@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94839d4fe993d40b8b656a423bfebbfa, type: 3}
+  m_Name: CacheTokens
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 5156608553733324982
+  _id: CacheTokens
+  _name: Cache Tokens
+  _category: Blockchain
+  references:
+    version: 2
+    RefIds:
+    - rid: 5156608553733324982
+      type: {class: CacheTokensInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Blockchain, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
+        _muted: 0
+        _poolSize: 1

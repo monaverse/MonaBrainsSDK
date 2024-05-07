@@ -20,7 +20,7 @@ using Mona.SDK.Brains.Core.Utils.Enums;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OwnsTokensInstructionTile : InstructionTile, IInstructionTileWithPreloadAndPageAndInstruction, IConditionInstructionTile, IStartableInstructionTile, IBlockchainInstructionTile
+    public class OwnsTokensInstructionTile : InstructionTile, IInstructionTileWithPreloadAndPageAndInstruction, IConditionInstructionTile, IStartableInstructionTile, IBlockchainInstructionTile, IBlockchainTokenFilterInstructionTile
     {
         public const string ID = "OwnsTokens";
         public const string NAME = "Owns Tokens";
@@ -73,7 +73,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     MonaEventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletConnected);
 
                     OnWalletDisconnected = HandleWalletDisconneccted;
-                    MonaEventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_CONNECTED_EVENT), OnWalletDisconnected);
+                    MonaEventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_DISCONNECTED_EVENT), OnWalletDisconnected);
                 }
 
                 FetchTokens();
@@ -87,6 +87,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private void HandleWalletDisconneccted(MonaWalletConnectedEvent evt)
         {
+            Debug.Log($"{nameof(OwnsTokensInstructionTile)} tokens found set to false");
             _TokensFound = false;
             TriggerRefresh();
         }
@@ -144,13 +145,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     });
                 }
 
-                FilterAndForwardTokens(tokens);
-                _TokensFound = tokens.Count > 0;
             }
-            else
-            {
-                _TokensFound = false;
-            }
+
+            FilterAndForwardTokens(tokens);
+            _TokensFound = tokens.Count > 0;
+            Debug.Log($"{nameof(OwnsTokensInstructionTile)} tokens found {_TokensFound} {tokens.Count}", _brain.Body.Transform.gameObject);
+
             //Debug.Log($"{nameof(OwnsTokensInstructionTile)} {nameof(FetchTokens)} tokens: {_TokensFound}");
             TriggerRefresh();
         }
@@ -164,12 +164,22 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private List<Token> FilterAndForwardTokens(List<Token> tokens)
         {
-            if (_instruction.BlockchainTiles[0] == this)
+            IBlockchainTokenFilterInstructionTile firstFilter = null;
+            for (var i = 0; i < _instruction.BlockchainTiles.Count; i++)
+            {
+                if (_instruction.BlockchainTiles[i] is IBlockchainTokenFilterInstructionTile)
+                {
+                    firstFilter = (IBlockchainTokenFilterInstructionTile)_instruction.BlockchainTiles[i];
+                    break;
+                }
+            }
+
+            if (firstFilter == this)
                 _instruction.Tokens.Clear();
 
             if (_instruction.Tokens.Count == 0)
             {
-                if (_instruction.BlockchainTiles[0] == this)
+                if (firstFilter == this)
                 {
                     _instruction.Tokens.AddRange(tokens);
                 }
@@ -190,8 +200,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             //Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_TokensFound}");
 
-            if(_TokensFound == _ownsTokens)
+            Debug.Log($"{nameof(OwnsTokensInstructionTile)} DO: tokens found {_TokensFound} {_instruction.Tokens.Count}", _brain.Body.Transform.gameObject);
+            if (_TokensFound == _ownsTokens)
             {
+                Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_TokensFound} {_instruction.Tokens.Count}");
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
