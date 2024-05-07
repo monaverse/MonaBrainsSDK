@@ -13,8 +13,9 @@ namespace Mona.SDK.Brains.Core.Utils.Interfaces
         bool WalletConnected { get; }
         Task<Token> OwnsToken(string collectionAddress, string tokenId);
         Task<List<Token>> OwnsTokens(string collectionAddress);
+        Task<List<Token>> OwnsTokens();
         Task<List<Token>> OwnsTokensWithAvatar();
-        Task<List<Token>> OwnsTokensWithObject();
+        Task<List<Token>> OwnsTokensWithArtifact();
         Task<List<Token>> OwnsTokensWithTexture();
         Task<List<Token>> OwnsTokensWithTrait(string trait, string value);
         Task<List<Token>> OwnsTokensWithTrait(string trait, float value);

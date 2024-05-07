@@ -15,6 +15,7 @@ using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.Utils;
 using Mona.SDK.Brains.Core.Utils.Structs;
+using Mona.SDK.Brains.Core.Utils.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -102,7 +103,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private async void FetchTokens()
         {
             var block = MonaGlobalBrainRunner.Instance.Blockchain;
-            List<Token> tokens = await block.OwnsTokensWithObject();
+            List<Token> tokens = new List<Token>();
+
+            if (_tokenFilter == MonaBrainTokenFilterType.IncludeAll)
+                tokens = await block.OwnsTokens();
+            if (_tokenFilter == MonaBrainTokenFilterType.OnlyAvatars)
+                tokens = await block.OwnsTokensWithAvatar();
+            else if (_tokenFilter == MonaBrainTokenFilterType.OnlyObjects)
+                tokens = await block.OwnsTokensWithArtifact();
 
             if (tokens.Count > 0)
             {
@@ -135,11 +143,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                         return true;
                     });
                 }
-
-                if (_tokenFilter == MonaBrainTokenFilterType.OnlyAvatars)
-                    tokens = tokens.FindAll(x => x.Avatars != null && x.Avatars.Count > 0);
-                else if (_tokenFilter == MonaBrainTokenFilterType.OnlyObjects)
-                    tokens = tokens.FindAll(x => x.Artifacts.Count > 0 && (x.Avatars == null || x.Avatars.Count == 0));
 
                 FilterAndForwardTokens(tokens);
                 _TokensFound = tokens.Count > 0;

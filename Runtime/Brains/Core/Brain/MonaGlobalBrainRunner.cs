@@ -172,7 +172,15 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void FindBlockchainAPI()
         {
-            _blockchain = GameObject.FindObjectOfType<MonaBrainBlockchain>();
+            var blockchains = GameObject.FindObjectsOfType<MonaBrainBlockchain>();
+            for (var i = 0; i < blockchains.Length; i++)
+            {
+                if (blockchains[i].enabled)
+                {
+                    _blockchain = blockchains[i];
+                    break;
+                }
+            }
         }
 
         private void Start()

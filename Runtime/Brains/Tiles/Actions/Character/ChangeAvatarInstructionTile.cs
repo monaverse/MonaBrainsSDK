@@ -81,6 +81,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         [BrainProperty(false)]
         public Vector3 Scale { get => _scale; set => _scale = value; }
 
+        [SerializeField]
+        private int _poolSize = 1;
+        [BrainProperty(false)]
+        public int PoolSize { get => _poolSize; set => _poolSize = value; }
+
         [SerializeField] private bool _includeAttached = true;
         [SerializeField] private string _includeAttachedName;
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
@@ -422,16 +427,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         }
 
         private GameObject _avatarLoader;
+        private BrainsVrmLoader _urlLoader;
         private void LoadAvatarAtUrl(string url, IMonaBody body)
         {
             if (_avatarLoader == null)
                 _avatarLoader = new GameObject("AvatarLoader");
 
-            var loader = _avatarLoader.GetComponent<BrainsVrmLoader>();
-            if (loader == null)
-                loader = _avatarLoader.AddComponent<BrainsVrmLoader>();
+            _urlLoader = _avatarLoader.GetComponent<BrainsVrmLoader>();
+            if (_urlLoader == null)
+                _urlLoader = _avatarLoader.AddComponent<BrainsVrmLoader>();
 
-            loader.Load(url, _importAnimation, (avatar) =>
+            if (url == _brain.Body.SkinId)
+            {
+                Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatarAtUrl)} same url don't change {url}");
+                Complete(InstructionTileResult.Success, true);
+                return;
+            }
+
+            _urlLoader.Load(url, _importAnimation, (avatar) =>
             {
                 if (avatar != null)
                 {
@@ -442,6 +455,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     try
                     {
                         LoadAvatar(animator, body, avatar);
+                        _brain.Body.SkinId = url;
+                        _brain.Body.Skin = avatar;
                     }
                     catch (Exception e)
                     {
@@ -449,7 +464,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     }
                 }
                 Complete(InstructionTileResult.Success, true);
-            });
+            }, _poolSize);
         }
 
         //thank you gpt!
@@ -575,8 +590,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             _avatarInstance = animator;
             var root = body.Transform.Find("Root");
 
+            if(!string.IsNullOrEmpty(_brain.Body.SkinId))
+            {
+                Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} skin id was loaded, return it to pool {_brain.Body.SkinId}");
+                _urlLoader.ReturnToPool(_brain.Body.SkinId, _brain.Body.Skin);
+                _brain.Body.SkinId = null;
+            }
+
             for (var i = 0; i < root.childCount; i++)
-                GameObject.DestroyImmediate(root.GetChild(i).gameObject);
+            {
+                if (_brain.Body.Skin != root.GetChild(i).gameObject)
+                {
+                    Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} destroy previous skin {_brain.Body.SkinId} other: {root.GetChild(i).gameObject}");
+                    GameObject.DestroyImmediate(root.GetChild(i).gameObject);
+                }
+            }
 
             avatarGameObject.transform.position = Vector3.zero;
             avatarGameObject.transform.rotation = Quaternion.identity;

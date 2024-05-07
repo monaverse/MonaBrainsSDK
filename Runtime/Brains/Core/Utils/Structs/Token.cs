@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using Mona.SDK.Brains.Core.Utils.Enums;
 
 namespace Mona.SDK.Brains.Core.Utils.Structs
 {
@@ -31,10 +32,7 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
         public string Slug;
         public string SubCollectionId;
         public Dictionary<string, object> Traits;
-        public string Versions;
-
-        public List<TokenArtifact> Artifacts;
-        public List<TokenAvatar> Avatars;
-         
+        public TokenAssetType AssetType;
+        public string AssetUrl;         
     }
 }

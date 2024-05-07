@@ -50,12 +50,17 @@ namespace Mona.SDK.Brains.Core.Utils
             return null;
         }
 
+        public virtual Task<List<Token>> OwnsTokens()
+        {
+            return null;
+        }
+
         public virtual Task<List<Token>> OwnsTokensWithAvatar()
         {
             return null;
         }
 
-        public virtual Task<List<Token>> OwnsTokensWithObject()
+        public virtual Task<List<Token>> OwnsTokensWithArtifact()
         {
             return null;
         }

@@ -64,21 +64,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
                         {
                             case MonaBrainSelectTokenType.Last:
                                 token = _instruction.Tokens[_instruction.Tokens.Count - 1];
-                                index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Object);
-                                if (index > -1)
-                                    _brain.Variables.Set(_targetValue, token.Artifacts[index].Uri);
+                                _brain.Variables.Set(_targetValue, token.AssetUrl);
                                 break;
                             case MonaBrainSelectTokenType.First:
                                 token = _instruction.Tokens[0];
-                                index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Object);
-                                if (index > -1)
-                                    _brain.Variables.Set(_targetValue, token.Artifacts[index].Uri);
+                                _brain.Variables.Set(_targetValue, token.AssetUrl);
                                 break;
                             case MonaBrainSelectTokenType.Random:
                                 token = _instruction.Tokens[UnityEngine.Random.Range(0, _instruction.Tokens.Count)];
-                                index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Object);
-                                if (index > -1)
-                                    _brain.Variables.Set(_targetValue, token.Artifacts[index].Uri);
+                                _brain.Variables.Set(_targetValue, token.AssetUrl);
                                 break;
                         }
                     }
@@ -91,21 +85,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
                         {
                             case MonaBrainSelectTokenType.Last:
                                 token = _instruction.Tokens[_instruction.Tokens.Count - 1];
-                                index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Avatar);
-                                if (index > -1)
-                                    _brain.Variables.Set(_targetValue, token.Artifacts[index].Uri);
+                                _brain.Variables.Set(_targetValue, token.AssetUrl);
                                 break;
                             case MonaBrainSelectTokenType.First:
                                 token = _instruction.Tokens[0];
-                                index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Avatar);
-                                if (index > -1)
-                                    _brain.Variables.Set(_targetValue, token.Artifacts[index].Uri);
+                                _brain.Variables.Set(_targetValue, token.AssetUrl);
                                 break;
                             case MonaBrainSelectTokenType.Random:
                                 token = _instruction.Tokens[UnityEngine.Random.Range(0, _instruction.Tokens.Count)];
-                                index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Avatar);
-                                if (index > -1)
-                                    _brain.Variables.Set(_targetValue, token.Artifacts[index].Uri);
+                                _brain.Variables.Set(_targetValue, token.AssetUrl);
                                 break;
                         }
                     }

@@ -77,9 +77,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         for (var i = 0; i < _instruction.Tokens.Count; i++)
                         {
                             var token = _instruction.Tokens[i];
-                            var index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Avatar);
-                            if (index > -1)
-                                _brain.Variables.Set(_targetValue, token.Artifacts[index].Uri);
+                            _brain.Variables.Set(_targetValue, token.AssetUrl);
                         }
                     }
                     break;
@@ -89,9 +87,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         for (var i = 0; i < _instruction.Tokens.Count; i++)
                         {
                             var token = _instruction.Tokens[i];
-                            var index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Object);
-                            if (index > -1)
-                                _brain.Variables.Set(_targetValue, token.Artifacts[index].Uri);
+                            _brain.Variables.Set(_targetValue, token.AssetUrl);
                         }
                     }
                     break;
@@ -101,9 +97,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         for (var i = 0; i < _instruction.Tokens.Count; i++)
                         {
                             var token = _instruction.Tokens[i];
-                            var index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Texture);
-                            if (index > -1)
-                                _brain.Variables.Set(_targetValue, token.Artifacts[index].Uri);
+                            _brain.Variables.Set(_targetValue, token.AssetUrl);
                         }
                     }
                     break;
@@ -114,8 +108,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         for (var i = 0; i < _instruction.Tokens.Count; i++)
                         {
                             var token = _instruction.Tokens[i];
-                            var index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Avatar);
-                            if (index > -1)
+                            var isAvatar = token.AssetType == TokenAssetType.Avatar;
+                            if (isAvatar)
                                 count++;
                         }
                         _brain.Variables.Set(_targetValue, (float)count);
@@ -128,8 +122,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         for (var i = 0; i < _instruction.Tokens.Count; i++)
                         {
                             var token = _instruction.Tokens[i];
-                            var index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Object);
-                            if (index > -1)
+                            var isObject = token.AssetType == TokenAssetType.Artifact;
+                            if (isObject)
                                 count++;
                         }
                         _brain.Variables.Set(_targetValue, (float)count);
@@ -142,8 +136,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         for (var i = 0; i < _instruction.Tokens.Count; i++)
                         {
                             var token = _instruction.Tokens[i];
-                            var index = token.Artifacts.FindIndex(x => x.AssetType == TokenAssetType.Texture);
-                            if (index > -1)
+                            var isTexture = token.AssetType == TokenAssetType.Texture;
+                            if (isTexture)
                                 count++;
                         }
                         _brain.Variables.Set(_targetValue, (float)count);

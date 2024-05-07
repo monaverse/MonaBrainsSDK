@@ -22,7 +22,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     public class OwnsObjectTokensInstructionTile : InstructionTile, IInstructionTileWithPreloadAndPageAndInstruction, IConditionInstructionTile, IStartableInstructionTile, IBlockchainInstructionTile
     {
         public const string ID = "OwnsObjectTokens";
-        public const string NAME = "Owns Object Tokens";
+        public const string NAME = "Owns Artifact Tokens";
         public const string CATEGORY = "Blockchain";
         public override Type TileType => typeof(OwnsObjectTokensInstructionTile);
 
@@ -78,7 +78,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private async void FetchTokens()
         {
             var block = MonaGlobalBrainRunner.Instance.Blockchain;
-            List<Token> tokens = await block.OwnsTokensWithObject();
+            List<Token> tokens = await block.OwnsTokensWithArtifact();
 
             if (tokens.Count > 0)
             {
