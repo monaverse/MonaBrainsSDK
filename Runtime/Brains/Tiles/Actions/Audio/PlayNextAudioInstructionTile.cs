@@ -32,7 +32,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         [BrainPropertyValueName(nameof(MonaAssetProvider), typeof(IMonaVariablesStringValue))] public string MonaAssetProviderName { get => _monaAssetProviderName; set => _monaAssetProviderName = value; }
 
         [SerializeField] private float _volume = 1f;
+        [SerializeField] private string _volumeName;
         [BrainProperty(true)] public float Volume { get => _volume; set => _volume = value; }
+        [BrainPropertyValueName("Volume", typeof(IMonaVariablesFloatValue))] public string VolumeName { get => _volumeName; set => _volumeName = value; }
+
+        [SerializeField] private float _pitch = 1f;
+        [SerializeField] private string _pitchName;
+        [BrainProperty(false)] public float Pitch { get => _pitch; set => _pitch = value; }
+        [BrainPropertyValueName("Pitch", typeof(IMonaVariablesFloatValue))] public string PitchName { get => _pitchName; set => _pitchName = value; }
 
         [SerializeField] private bool _wait = false;
         [BrainProperty(false)] public bool Wait { get => _wait; set => _wait = value; }
@@ -68,6 +75,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             _audioSource = _brain.Body.ActiveTransform.GetComponent<AudioSource>();
             if (_audioSource == null)
                 _audioSource = _brain.Body.ActiveTransform.AddComponent<AudioSource>();
+
+            _audioSource.playOnAwake = false;
+            _audioSource.dopplerLevel = 0;
         }
 
         private void SetupClip()
@@ -104,11 +114,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
 
         public override void Unload(bool destroy = false)
         {
+            _isPlaying = false;
+            _active = false;
+
             if (destroy)
             {
                 var audioSource = _brain.Body.ActiveTransform.GetComponent<AudioSource>();
                 GameObject.Destroy(audioSource);
             }
+
             RemoveFixedTickDelegate();
         }
 
@@ -200,8 +214,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         {
             switch (_brain.PropertyType)
             {
-
-                default: return DefaultDo(); break;
+                default: return DefaultDo();
             }
         }
 
@@ -210,14 +223,28 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             //Debug.Log($"{nameof(PlayAnimationInstructionTile)} do {_clip.Value}");
             if (!_isPlaying)
             {
+                if (!string.IsNullOrEmpty(_volumeName))
+                    _volume = _brain.Variables.GetFloat(_volumeName);
+
+                if (!string.IsNullOrEmpty(_pitchName))
+                    _pitch = _brain.Variables.GetFloat(_pitchName);
+
                 try
                 {
                     if (_canInterrupt || !_audioSource.isPlaying)
                     {
                         if (_brain.LoggingEnabled)
                             Debug.Log($"{nameof(PlayNextAudioInstructionTile)} play audio {_clip.Value}");
+
                         SetupClip();
-                        try { 
+                        try {
+
+                            if (!string.IsNullOrEmpty(_volumeName))
+                                _volume = _brain.Variables.GetFloat(_volumeName);
+
+                            if (!string.IsNullOrEmpty(_pitchName))
+                                _pitch = _brain.Variables.GetFloat(_pitchName);
+
                             _audioSource.volume = _volume;
                             _audioSource.Play();
                             _isPlaying = true;

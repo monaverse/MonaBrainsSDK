@@ -6,6 +6,7 @@ using System;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Assets.Interfaces;
 using Mona.SDK.Core.Events;
+using Mona.SDK.Core.State.Structs;
 using Unity.VisualScripting;
 using Mona.SDK.Core;
 using Mona.SDK.Brains.Core.Control;
@@ -28,7 +29,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         [BrainPropertyMonaAsset(typeof(IMonaAudioAssetItem))] public string AudioClip { get => _monaAsset; set => _monaAsset = value; }
 
         [SerializeField] private float _volume = 1f;
+        [SerializeField] private string _volumeName;
         [BrainProperty(true)] public float Volume { get => _volume; set => _volume = value; }
+        [BrainPropertyValueName("Volume", typeof(IMonaVariablesFloatValue))] public string VolumeName { get => _volumeName; set => _volumeName = value; }
+
+        [SerializeField] private float _pitch = 1f;
+        [SerializeField] private string _pitchName;
+        [BrainProperty(false)] public float Pitch { get => _pitch; set => _pitch = value; }
+        [BrainPropertyValueName("Pitch", typeof(IMonaVariablesFloatValue))] public string PitchName { get => _pitchName; set => _pitchName = value; }
 
         [SerializeField] private bool _wait = true;
         [BrainProperty(false)] public bool Wait { get => _wait; set => _wait = value; }
@@ -61,8 +69,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             _audioSource = _brain.Body.ActiveTransform.GetComponent<AudioSource>();
             if (_audioSource == null)
                 _audioSource = _brain.Body.ActiveTransform.AddComponent<AudioSource>();
+            _audioSource.playOnAwake = false;
             _audioSource.dopplerLevel = 0;
-            _audioSource.pitch = 1;
         }
 
         private void SetupClip()
@@ -94,8 +102,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
 
         public override void Unload(bool destroy = false)
         {
-            var audioSource = _brain.Body.ActiveTransform.GetComponent<AudioSource>();
-            GameObject.DestroyImmediate(audioSource);
+            _isPlaying = false;
+            _active = false;
+
+            if (destroy)
+            {
+                var audioSource = _brain.Body.ActiveTransform.GetComponent<AudioSource>();
+                GameObject.DestroyImmediate(audioSource);
+            }
+
             RemoveFixedTickDelegate();
         }
 
@@ -175,7 +190,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             {
                 if (!_audioSource.isPlaying || (_audioSource.clip == _clip.Value && _audioSource.time >= _audioSource.clip.length))
                 {
-                    Debug.Log($"audio finished {_clip.Value}");
+                    //Debug.Log($"audio finished {_clip.Value}");
                     _isPlaying = false;
                     if(_wait)
                         Complete(InstructionTileResult.Success, true);
@@ -187,8 +202,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         {
             switch (_brain.PropertyType)
             {
-
-                default: return DefaultDo(); break;
+                default: return DefaultDo();
             }
         }
 
@@ -207,7 +221,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
                         try
                         {
                             SetupClip();
+
+                            if (!string.IsNullOrEmpty(_volumeName))
+                                _volume = _brain.Variables.GetFloat(_volumeName);
+
+                            if (!string.IsNullOrEmpty(_pitchName))
+                                _pitch = _brain.Variables.GetFloat(_pitchName);
+
                             _audioSource.volume = _volume;
+                            _audioSource.pitch = _pitch;
                             _audioSource.Play();
                             _isPlaying = true;
                         
