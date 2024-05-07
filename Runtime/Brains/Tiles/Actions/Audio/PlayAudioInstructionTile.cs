@@ -105,11 +105,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             _isPlaying = false;
             _active = false;
 
-            if (destroy)
-            {
-                var audioSource = _brain.Body.ActiveTransform.GetComponent<AudioSource>();
-                GameObject.DestroyImmediate(audioSource);
-            }
+            //if (destroy)
+            //{
+            //    var audioSource = _brain.Body.ActiveTransform.GetComponent<AudioSource>();
+            //    GameObject.Destroy(audioSource, 0.1f);
+            //}
 
             RemoveFixedTickDelegate();
         }
