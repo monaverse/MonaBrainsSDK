@@ -254,7 +254,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         private bool GetValueFromBrains(IMonaVariablesValue myValue, IMonaBody body)
         {
             bool valueFound = false;
-
+            
             if (body.ActiveTransform == null || body == _brain.Body)
                 return false;
 
@@ -262,6 +262,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
             if (runner == null)
                 return false;
+
+            //Debug.Log("AA: Get Value '" + _targetVariable + "' - body and runner found on object: " + body.Transform.gameObject.name);
 
             for (int i = 0; i < runner.BrainInstances.Count; i++)
             {
@@ -275,16 +277,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 if (targetValue == null)
                     continue;
 
+                //Debug.Log("AA: Get Value - Can get value '" + _targetVariable + "' from Brain: " + runner.BrainInstances[i].Name + " | Value = " + brainVariables.GetValueAsString(_targetVariable));
+
                 if (myValue is IMonaVariablesStringValue)
                     _brain.Variables.Set(_storeResultOn, brainVariables.GetValueAsString(_targetVariable));
                 else if (targetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesFloatValue)
-                    _brain.Variables.Set(_storeResultOn, ((IMonaVariablesFloatValue)targetValue).Value);
+                    _brain.Variables.Set(_storeResultOn, brainVariables.GetFloat(_targetVariable, false));
                 else if (targetValue is IMonaVariablesBoolValue && myValue is IMonaVariablesBoolValue)
-                    _brain.Variables.Set(_storeResultOn, ((IMonaVariablesBoolValue)targetValue).Value);
+                    _brain.Variables.Set(_storeResultOn, brainVariables.GetBool(_targetVariable, false));
                 else if (targetValue is IMonaVariablesVector2Value && myValue is IMonaVariablesVector2Value)
-                    _brain.Variables.Set(_storeResultOn, ((IMonaVariablesVector2Value)targetValue).Value);
+                    _brain.Variables.Set(_storeResultOn, brainVariables.GetVector2(_targetVariable, false));
                 else if (targetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
-                    _brain.Variables.Set(_storeResultOn, ((IMonaVariablesVector3Value)targetValue).Value);
+                    _brain.Variables.Set(_storeResultOn, brainVariables.GetVector3(_targetVariable, false));
 
                 valueFound = true;
                 break;
