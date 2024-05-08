@@ -420,7 +420,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     var avatar = GameObject.Instantiate(_avatarAsset.Value);
                     var animator = avatar.GetComponent<Animator>();
                     if (animator == null)
+                    {
                         animator = avatar.AddComponent<Animator>();
+                        //animator.applyRootMotion = true;
+                    }
                     LoadAvatar(animator, body, avatar.gameObject);
                     return Complete(InstructionTileResult.Success);
                 }
@@ -451,7 +454,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     avatar.SetActive(true);
                     var animator = avatar.GetComponent<Animator>();
                     if (animator == null)
+                    {
                         animator = avatar.AddComponent<Animator>();
+                        //animator.applyRootMotion = true;
+                    }
                     ParseHumanoid(avatar, animator);
                     try
                     {
@@ -611,6 +617,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             avatarGameObject.transform.rotation = Quaternion.identity;
             avatarGameObject.transform.localScale = Vector3.one;
 
+            root.localScale = Vector3.one;
             avatarGameObject.transform.SetParent(root);
 
             var parent = body;
@@ -683,20 +690,31 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 }
             }
 
-            avatarGameObject.transform.localScale = Vector3.one;
-            avatarGameObject.transform.localPosition = _offset;
-            avatarGameObject.transform.localRotation = Quaternion.Euler(_eulerAngles);
-
-            root.localScale = _scale;
-
-            var bounds = GetBounds(_avatarInstance.gameObject);
+            var bounds = GetBounds(avatarGameObject.gameObject);
             var extents = bounds.extents * 2f;
             var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
             var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
             var scale = maxScale / max;
 
-            root.localScale = _scale * scale;
+            var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
+            /*
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} center: {bounds.center}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} extents: {bounds.extents}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} local: {avatarGameObject.transform.localPosition}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} center to bottom: {(root.InverseTransformPoint(bounds.center).y - extents.y)}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} offsetY: {offsetY}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} scale: {scale}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} yscale factor: {extents.y / max}");
+            */
+            avatarGameObject.transform.localScale = Vector3.one;
+            avatarGameObject.transform.localPosition = Vector3.zero;
+            avatarGameObject.transform.localRotation = Quaternion.Euler(_eulerAngles);
 
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} localPosition: {avatarGameObject.transform.localPosition}");
+
+            root.localScale = _scale * scale;
+            root.localPosition = (root.InverseTransformDirection(_offset) - offsetY) * scale;
+                                       
             Debug.Log($"{_avatarInstance} {_offset} scale {_scale} {avatarGameObject.transform.position} brain body {_brain.Body.Transform.position}");
 
             var playerId = _brain.Player.GetPlayerIdByBody(_brain.Body);
