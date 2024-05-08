@@ -378,7 +378,9 @@ namespace Mona.SDK.Brains.UIEditors
                     {
                         if (_globalRunner != null && _globalRunner.PlayerBrainGraphs.Contains(x)) return true;
                         if (_runner != null && _runner.BrainGraphs.Contains(x)) return true;
+                        if (x.name.ToLower().Contains(evt.newValue.ToLower())) return true;
                         if (x.Name.ToLower().Contains(evt.newValue.ToLower())) return true;
+                        if (x.CorePage.Instructions.Find(x => x.InstructionTiles.Find(t => t.Name.ToLower().Contains(evt.newValue.ToLower())) != null) != null) return true;
                         if (x.HasMonaTag(evt.newValue)) return true;
                         return false;
                     });
@@ -395,7 +397,7 @@ namespace Mona.SDK.Brains.UIEditors
                             if (_runner.BrainGraphs.Contains(a)) return -1;
                             if (_runner.BrainGraphs.Contains(b)) return 1;
                         }
-                        return a.Name.CompareTo(b.Name);
+                        return a.name.CompareTo(b.name);
                     });
 
                     _listView.itemsSource = items;
@@ -404,6 +406,21 @@ namespace Mona.SDK.Brains.UIEditors
                 }
                 else
                 {
+                    _items.Sort((a, b) =>
+                    {
+                        if (_globalRunner != null)
+                        {
+                            if (_globalRunner.PlayerBrainGraphs.Contains(a)) return -1;
+                            if (_globalRunner.PlayerBrainGraphs.Contains(b)) return 1;
+                        }
+                        if (_runner != null)
+                        {
+                            if (_runner.BrainGraphs.Contains(a)) return -1;
+                            if (_runner.BrainGraphs.Contains(b)) return 1;
+                        }
+                        return a.name.CompareTo(b.name);
+                    });
+
                     _listView.itemsSource = _items;
                     _listView.Rebuild();
                     _status.text = $"({_items.Count}) Brain{(_items.Count > 1 ? "s" : "")} Found";
@@ -640,7 +657,7 @@ namespace Mona.SDK.Brains.UIEditors
 
             _items.Sort((a, b) =>
             {
-                return a.Name.CompareTo(b.Name);
+                return a.name.CompareTo(b.name);
             });
 
             var items = _items.FindAll(x => (_runner != null && _runner.BrainGraphs.Contains(x)) || (_globalRunner != null && _globalRunner.PlayerBrainGraphs.Contains(x)));
@@ -657,6 +674,11 @@ namespace Mona.SDK.Brains.UIEditors
 
             ListSelectionChanged();
             ListSelectionChangedAttached();
+
+            nonAttached.Sort((a, b) =>
+            {
+                return a.name.CompareTo(b.name);
+            });
 
             _listView.itemsSource = nonAttached;
             _listView.Rebuild();

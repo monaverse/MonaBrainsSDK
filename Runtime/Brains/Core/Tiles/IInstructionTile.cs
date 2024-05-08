@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Core.Tiles
 {
-    public interface IInstructionTile : IGraphElementData
+    public interface IInstructionTile
     {
         event Action<InstructionTileResult, string, IInstructionTile> OnExecute;
         event Action OnMuteChanged;
