@@ -85,20 +85,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 return Complete(InstructionTileResult.Success);
             }
 
-            GetTargetPosition(out Vector3 position, out bool targetFound);
+            GetTargetPosition(out Vector3 position, out bool targetFound, out bool useLocalSpace);
 
             if (!targetFound)
                 return Complete(InstructionTileResult.Success);
 
-            _brain.Body.TeleportPosition(position + _offset, true, false);
+            _brain.Body.TeleportPosition(position + _offset, true, useLocalSpace);
             return Complete(InstructionTileResult.Success);
         }
 
-        private void GetTargetPosition(out Vector3 position, out bool targetFound)
+        private void GetTargetPosition(out Vector3 position, out bool targetFound, out bool useLocalSpace)
         {
+            useLocalSpace = false;
+
             switch (_target)
             {
                 case MonaBrainTransformType.Self:
+                    useLocalSpace = _targetPosition == MonaBrainSelfTransformType.CurrentLocal || _targetPosition == MonaBrainSelfTransformType.InitialLocal;
                     position = GetMyPosition();
                     targetFound = true;
                     return;

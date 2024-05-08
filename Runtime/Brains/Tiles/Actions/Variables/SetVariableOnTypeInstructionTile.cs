@@ -334,15 +334,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                             continue;
 
                         if (tagrgetValue is IMonaVariablesStringValue)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetValueAsString(_myVariable));
+                            brainVariables.Set(_targetVariable, _brain.Variables.GetValueAsString(_myVariable), false);
                         else if (tagrgetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesFloatValue)
-                            brainVariables.Set(_targetVariable, ((IMonaVariablesFloatValue)myValue).Value);
+                            brainVariables.Set(_targetVariable, ((IMonaVariablesFloatValue)myValue).Value, false);
                         else if (tagrgetValue is IMonaVariablesBoolValue && myValue is IMonaVariablesBoolValue)
-                            brainVariables.Set(_targetVariable, ((IMonaVariablesBoolValue)myValue).Value);
+                            brainVariables.Set(_targetVariable, ((IMonaVariablesBoolValue)myValue).Value, false);
                         else if (tagrgetValue is IMonaVariablesVector2Value && myValue is IMonaVariablesVector2Value)
-                            brainVariables.Set(_targetVariable, ((IMonaVariablesVector2Value)myValue).Value);
+                            brainVariables.Set(_targetVariable, ((IMonaVariablesVector2Value)myValue).Value, false);
                         else if (tagrgetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
-                            brainVariables.Set(_targetVariable, ((IMonaVariablesVector3Value)myValue).Value);
+                            brainVariables.Set(_targetVariable, ((IMonaVariablesVector3Value)myValue).Value, false);
                         break;
                 }
             }
