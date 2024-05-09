@@ -462,8 +462,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     try
                     {
                         LoadAvatar(animator, body, avatar);
-                        _brain.Body.SkinId = url;
-                        _brain.Body.Skin = avatar;
+                        body.SkinId = url;
+                        body.Skin = avatar;
                     }
                     catch (Exception e)
                     {
@@ -599,16 +599,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             if(!string.IsNullOrEmpty(body.SkinId))
             {
-                Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} skin id was loaded, return it to pool {_brain.Body.SkinId}");
+                Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} skin id was loaded, return it to pool {body.SkinId}");
                 _urlLoader.ReturnToPool(body.SkinId, body.Skin);
                 body.SkinId = null;
             }
 
             for (var i = 0; i < root.childCount; i++)
             {
-                if (_brain.Body.Skin != root.GetChild(i).gameObject)
+                if (body.Skin != root.GetChild(i).gameObject)
                 {
-                    Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} destroy previous skin {_brain.Body.SkinId} other: {root.GetChild(i).gameObject}");
+                    Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} destroy previous skin {body.SkinId} other: {root.GetChild(i).gameObject}");
                     GameObject.DestroyImmediate(root.GetChild(i).gameObject);
                 }
             }
