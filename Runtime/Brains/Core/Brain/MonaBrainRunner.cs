@@ -63,6 +63,8 @@ namespace Mona.SDK.Brains.Core.Brain
         private List<string> _brainUrls = new List<string>();
         public List<string> BrainUrls => _brainUrls;
 
+        public IMonaBody Body => _body;
+
         public void SetBrainGraphs(List<MonaBrainGraph> graphs)
         {
             _brainGraphs = graphs;

@@ -440,7 +440,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         private BrainsGlbLoader _urlLoader;
         private void LoadAvatarAtUrl(string url, IMonaBody body)
         {
-            if (url == _brain.Body.SkinId)
+            if (url == body.SkinId)
             {
                 Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatarAtUrl)} same url don't change {url}");
                 Complete(InstructionTileResult.Success, true);
@@ -597,11 +597,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             _avatarInstance = animator;
             var root = body.Transform.Find("Root");
 
-            if(!string.IsNullOrEmpty(_brain.Body.SkinId))
+            if(!string.IsNullOrEmpty(body.SkinId))
             {
                 Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} skin id was loaded, return it to pool {_brain.Body.SkinId}");
-                _urlLoader.ReturnToPool(_brain.Body.SkinId, _brain.Body.Skin);
-                _brain.Body.SkinId = null;
+                _urlLoader.ReturnToPool(body.SkinId, body.Skin);
+                body.SkinId = null;
             }
 
             for (var i = 0; i < root.childCount; i++)

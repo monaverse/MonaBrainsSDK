@@ -1,5 +1,6 @@
 ﻿using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.ScriptableObjects;
+using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Body.Enums;
 using System;
 using System.Collections;
@@ -11,6 +12,8 @@ namespace Mona.SDK.Brains.Core.Brain
     {
         event Action<IMonaBrainRunner> OnBegin;
         event Action<string> OnMessage;
+
+        IMonaBody Body { get; }
 
         bool RequiresAnimator { get; }
         bool LegacyMonaPlatforms { get; }

@@ -9,6 +9,7 @@ using UnityGLTF;
 using UnityGLTF.Loader;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Utils.Structs;
+using System.Runtime.ExceptionServices;
 
 namespace Mona.SDK.Brains.Core.Utils
 {
@@ -77,11 +78,20 @@ namespace Mona.SDK.Brains.Core.Utils
             return null;
         }
 
+        private int _cached;
         public void CacheTokens(List<Token> tokens, Action callback, int poolSize = 1)
         {
+            Action<GameObject> loadCallback = (obj) =>
+            {
+                _cached++;
+                Debug.Log($"CACHED: " + _cached);
+                if (_cached >= tokens.Count)
+                    callback?.Invoke();
+            };
+
             for(var i = 0;i < tokens.Count; i++)
             {
-                Load(tokens[i].AssetUrl, false, (obj) => {}, poolSize, true);
+                Load(tokens[i].AssetUrl, false, loadCallback, poolSize, true);
             }
         }
 
@@ -184,9 +194,17 @@ namespace Mona.SDK.Brains.Core.Utils
                             try
                             {
                                 UnityGLTF.GLTFSceneImporter sceneImporter = new UnityGLTF.GLTFSceneImporter(gLTFRoot, stream, options);
-                                sceneImporter.LoadScene(-1, true, (obj, info) =>
+
+                                Action<GameObject, ExceptionDispatchInfo> OnImportComplete = (obj, info) =>
                                 {
+                                    Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(sceneImporter.LoadScene)} {obj == null}");
+
+                                    if (obj == null)
+                                        throw (info.SourceException);
+
                                     Used[url].Add(obj);
+
+                                    Debug.Log($"{nameof(BrainsGlbLoader)} add BrainsGlb component {obj}");
 
                                     var glb = obj.AddComponent<BrainsGlb>();
                                     glb.Url = url;
@@ -196,18 +214,22 @@ namespace Mona.SDK.Brains.Core.Utils
                                     {
                                         for (var i = 0; i < poolSize - 1; i++)
                                         {
+                                            Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(sceneImporter.LoadScene)} create new instance and pool");
                                             var glbInstance = Instantiate(glb);
-                                                glbInstance.OnDestroyed += HandleDestroyed;
+                                            glbInstance.OnDestroyed += HandleDestroyed;
                                             ReturnToPool(url, glbInstance.gameObject);
                                         }
                                     }
 
+                                    Debug.Log($"{nameof(BrainsGlbLoader)} return to pool {returnToPool} {obj}");
                                     if (returnToPool)
                                         ReturnToPool(url, obj);
 
                                     Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} load from url (not vrm) {url}");
                                     callback?.Invoke(obj);
-                                });
+                                };
+
+                                sceneImporter.LoadScene(-1, true, OnImportComplete);
                             }
                             catch(Exception e2)
                             {
@@ -220,8 +242,18 @@ namespace Mona.SDK.Brains.Core.Utils
                 }
                 else
                 {
-                    Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} instantiate from pool source {url}");
-                    callback?.Invoke(Instantiate(Used[url][0]));
+                    var inst = Used[url].Find(x => x != null && x.gameObject != null);
+                    if (inst == null)
+                        inst = Pool[url].Find(x => x != null && x.gameObject != null);
+                    if (inst != null)
+                    {
+                        Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} instantiate from pool source {url}");
+                        callback?.Invoke(Instantiate(inst));
+                    }
+                    else
+                    {
+                        Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} cannot find instance {url}");
+                    }
                 }
             }
             else
