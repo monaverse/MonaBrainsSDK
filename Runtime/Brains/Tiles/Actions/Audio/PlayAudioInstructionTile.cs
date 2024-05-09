@@ -38,8 +38,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         [BrainProperty(false)] public float Pitch { get => _pitch; set => _pitch = value; }
         [BrainPropertyValueName("Pitch", typeof(IMonaVariablesFloatValue))] public string PitchName { get => _pitchName; set => _pitchName = value; }
 
-        [SerializeField] private bool _wait = true;
+        [SerializeField] private bool _allowInterruption = true;
+        [SerializeField] private string _allowInterruptionName;
+        [BrainProperty(false)] public bool AllowInterruption { get => _allowInterruption; set => _allowInterruption = value; }
+        [BrainPropertyValueName("AllowInterruption", typeof(IMonaVariablesBoolValue))] public string AllowInterruptionName { get => _allowInterruptionName; set => _allowInterruptionName = value; }
+
+        [SerializeField] private bool _loopAudio = false;
+        [SerializeField] private string _loopAudioName;
+        [BrainProperty(false)] public bool LoopAudio { get => _loopAudio; set => _loopAudio = value; }
+        [BrainPropertyValueName("LoopAudio", typeof(IMonaVariablesBoolValue))] public string LoopAudioName { get => _loopAudioName; set => _loopAudioName = value; }
+
+        [SerializeField] private bool _wait = false;
+        [SerializeField] private string _waitName;
         [BrainProperty(false)] public bool Wait { get => _wait; set => _wait = value; }
+        [BrainPropertyValueName("Wait", typeof(IMonaVariablesBoolValue))] public string WaitName { get => _waitName; set => _waitName = value; }
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
         private Action<MonaBodyAnimationTriggeredEvent> OnAnimationTriggered;
@@ -208,12 +220,27 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
 
         private InstructionTileResult DefaultDo()
         {
+            if (!string.IsNullOrEmpty(_volumeName))
+                _volume = _brain.Variables.GetFloat(_volumeName);
+
+            if (!string.IsNullOrEmpty(_pitchName))
+                _pitch = _brain.Variables.GetFloat(_pitchName);
+
+            if (!string.IsNullOrEmpty(_loopAudioName))
+                _loopAudio = _brain.Variables.GetBool(_loopAudioName);
+
+            if (!string.IsNullOrEmpty(_waitName))
+                _wait = _brain.Variables.GetBool(_waitName);
+
+            if (!string.IsNullOrEmpty(_allowInterruptionName))
+                _allowInterruption = _brain.Variables.GetBool(_allowInterruptionName);
+
             //Debug.Log($"{nameof(PlayAnimationInstructionTile)} do {_clip.Value}");
             if (!_isPlaying)
             {
                 try
                 {
-                    if (_canInterrupt || !_audioSource.isPlaying)
+                    if (_allowInterruption || !_audioSource.isPlaying)
                     {
                         if (_brain.LoggingEnabled)
                             Debug.Log($"{nameof(PlayAudioInstructionTile)} play audio {_clip.Value}");
@@ -222,14 +249,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
                         {
                             SetupClip();
 
-                            if (!string.IsNullOrEmpty(_volumeName))
-                                _volume = _brain.Variables.GetFloat(_volumeName);
-
-                            if (!string.IsNullOrEmpty(_pitchName))
-                                _pitch = _brain.Variables.GetFloat(_pitchName);
-
                             _audioSource.volume = _volume;
                             _audioSource.pitch = _pitch;
+                            _audioSource.loop = _loopAudio;
                             _audioSource.Play();
                             _isPlaying = true;
                         

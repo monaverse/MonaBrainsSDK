@@ -10,6 +10,7 @@
         StartScale = 10,
         Velocity = 12,
         Forward = 14,
-        ChildIndex = 16
+        ChildIndex = 16,
+        ChildCount = 18
     }
 }
