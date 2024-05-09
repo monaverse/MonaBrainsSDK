@@ -29,30 +29,52 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyEnum(true)] public MonaBodyValueType Source { get => _source; set => _source = value; }
 
         [SerializeField] private VectorThreeAxis _axis = VectorThreeAxis.Y;
-        [BrainPropertyShow(nameof(AxisDisplay), (int)AxisDisplayType.Show)]
+        [BrainPropertyShow(nameof(AxisDisplay), (int)UIDisplayType.Show)]
         [BrainPropertyEnum(true)]
         public VectorThreeAxis Axis { get => _axis; set => _axis = value; }
 
         [SerializeField] private TargetVariableType _targetType;
-        [BrainPropertyEnum(false)]
-        [SerializeField] public TargetVariableType TargetType { get => _targetType; set => _targetType = value; }
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Velocity)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.StartScale)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.StartRotation)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.StartPosition)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Scale)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Rotation)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Position)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Forward)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.ChildIndex)]
+        [BrainPropertyEnum(false)] public TargetVariableType TargetType { get => _targetType; set => _targetType = value; }
 
         [SerializeField] string _targetValue;
-        [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.Vector3)]
+        [BrainPropertyShow(nameof(TrueTargetType), (int)TargetVariableType.Vector3)]
         [BrainPropertyValue(typeof(IMonaVariablesVector3Value), true)] public string TargetValue { get => _targetValue; set => _targetValue = value; }
 
         [SerializeField] private string _targetNumber;
-        [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.Number)]
+        [BrainPropertyShow(nameof(TrueTargetType), (int)TargetVariableType.Number)]
         [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string TargetNumber { get => _targetNumber; set => _targetNumber = value; }
 
         [SerializeField] private string _targetString;
-        [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.String)]
+        [BrainPropertyShow(nameof(TrueTargetType), (int)TargetVariableType.String)]
         [BrainPropertyValue(typeof(IMonaVariablesStringValue), true)] public string TargetString { get => _targetString; set => _targetString = value; }
 
         [SerializeField] private StringCopyType _copyType;
-        [BrainPropertyShow(nameof(TargetType), (int)TargetVariableType.String)]
+        [BrainPropertyShow(nameof(TrueTargetType), (int)TargetVariableType.String)]
         [BrainPropertyEnum(false)]
         public StringCopyType CopyType { get => _copyType; set => _copyType = value; }        
+
+        public TargetVariableType TrueTargetType
+        {
+            get
+            {
+                switch (Source)
+                {
+                    case MonaBodyValueType.ChildCount:
+                        return TargetVariableType.Number;
+                }
+
+                return _targetType;
+            }
+        }
 
         public enum TargetVariableType
         {
@@ -67,7 +89,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             SingleAxis = 10
         }
 
-        public enum AxisDisplayType
+        public enum UIDisplayType
         {
             Show = 0,
             Hide = 10
@@ -89,19 +111,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private IMonaBrain _brain;
 
-        public AxisDisplayType AxisDisplay
+        public UIDisplayType AxisDisplay
         {
             get
             {
-                if (_source != MonaBodyValueType.ChildIndex)
+                if (_source != MonaBodyValueType.ChildIndex && _source != MonaBodyValueType.ChildCount)
                 {
                     if (TargetType == TargetVariableType.Number && _source != MonaBodyValueType.Velocity)
-                        return AxisDisplayType.Show;
+                        return UIDisplayType.Show;
                     else if (TargetType == TargetVariableType.String && CopyType == StringCopyType.SingleAxis)
-                        return AxisDisplayType.Show;
+                        return UIDisplayType.Show;
                 }
 
-                return AxisDisplayType.Hide;
+                return UIDisplayType.Hide;
             }
         }
 
@@ -137,6 +159,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     SetVariable(body.ActiveTransform.forward); break;
                 case MonaBodyValueType.ChildIndex:
                     SetVariable((float)body.ChildIndex); break;
+                case MonaBodyValueType.ChildCount:
+                    SetVariable((float)body.Transform.childCount); break;
                 default:
                     SetVariable(body.GetPosition()); break;
             }
@@ -173,7 +197,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void SetVariable(float result)
         {
-            switch (_targetType)
+            switch (TrueTargetType)
             {
                 case TargetVariableType.Vector3:
                     _brain.Variables.Set(_targetValue, result);
@@ -189,7 +213,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void SetVariable(Vector3 result)
         {
-            switch (_targetType)
+            switch (TrueTargetType)
             {
                 case TargetVariableType.Vector3:
                     _brain.Variables.Set(_targetValue, result);

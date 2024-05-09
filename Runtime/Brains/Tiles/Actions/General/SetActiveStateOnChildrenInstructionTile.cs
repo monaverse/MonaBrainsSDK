@@ -41,8 +41,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainProperty(true)] public string StringValue { get => _stringValue; set => _stringValue = value; }
         [BrainPropertyValueName("StringValue", typeof(IMonaVariablesStringValue))] public string StringValueName { get => _stringValueName; set => _stringValueName = value; }
 
+        [SerializeField] private bool _childrenOfChildren = false;
+        [SerializeField] private string _childrenOfChildrenName;
+        [BrainProperty(false)] public bool ChildrenOfChildren { get => _childrenOfChildren; set => _childrenOfChildren = value; }
+        [BrainPropertyValueName("ChildrenOfChildren", typeof(IMonaVariablesBoolValue))] public string ChildrenOfChildrenName { get => _childrenOfChildrenName; set => _childrenOfChildrenName = value; }
+
         private IMonaBrain _brain;
-        private List<IMonaBody> _children = new List<IMonaBody>();
         private Transform _bodyTransform;
 
         public enum ObjectActivationType
@@ -81,71 +85,92 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (!string.IsNullOrEmpty(_stringValueName))
                 _stringValue = _brain.Variables.GetString(_stringValueName);
 
+            if (!string.IsNullOrEmpty(_childrenOfChildrenName))
+                _childrenOfChildren = _brain.Variables.GetBool(_childrenOfChildrenName);
+
+            Transform parent = _bodyTransform;
+
             switch (_objectsToSet)
             {
                 case ObjectActivationType.All:
-                    SetActivationOnAll();
+                    SetActivationOnAll(parent);
                     break;
                 case ObjectActivationType.RandomOne:
-                    SetActivationOnRandom(false);
+                    SetActivationOnRandom(parent, false);
                     break;
                 case ObjectActivationType.RandomAny:
-                    SetActivationOnRandom(true);
+                    SetActivationOnRandom(parent, true);
                     break;
                 case ObjectActivationType.AtIndex:
-                    SetActiveAtIndex((int)_index);
+                    SetActiveAtIndex(parent, (int)_index);
                     break;
                 case ObjectActivationType.WithName:
-                    SetActiveWithName(true);
+                    SetActiveWithName(parent, true);
                     break;
                 case ObjectActivationType.ContainingString:
-                    SetActiveWithName(false);
+                    SetActiveWithName(parent, false);
                     break;
             }
 
             return Complete(InstructionTileResult.Success);
         }
 
-        private void SetActivationOnAll()
+        private void SetActivationOnAll(Transform parent)
         {
-            for (int i = 0; i < _bodyTransform.childCount; i++)
-                SetActivationState(_bodyTransform.GetChild(i).gameObject);
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                SetActivationState(parent.GetChild(i).gameObject);
+
+                if (_childrenOfChildren)
+                    SetActivationOnAll(parent.GetChild(i));
+            }
         }
 
-        private void SetActivationOnRandom(bool randomOnAll)
+        private void SetActivationOnRandom(Transform parent, bool randomOnAll)
         {
             if (randomOnAll)
             {
-                for (int i = 0; i < _bodyTransform.childCount; i++)
+                for (int i = 0; i < parent.childCount; i++)
                 {
                     if (UnityEngine.Random.Range(0f, 1f) > 0.5f)
-                        SetActiveAtIndex(i);
+                    {
+                        SetActiveAtIndex(parent, i);
+
+                        if (_childrenOfChildren)
+                            SetActivationOnRandom(parent.GetChild(i), randomOnAll);
+                    }
                 }
             }
             else
             {
-                int randomIndex = UnityEngine.Random.Range(0, _bodyTransform.childCount);
-                SetActiveAtIndex(randomIndex);
+                int randomIndex = UnityEngine.Random.Range(0, parent.childCount);
+                SetActiveAtIndex(parent, randomIndex);
+
+                if (_childrenOfChildren)
+                    SetActivationOnRandom(parent.GetChild(randomIndex), randomOnAll);
             }
         }
 
-        private void SetActiveAtIndex(int index)
+        private void SetActiveAtIndex(Transform parent, int index)
         {
-            if (index < 0 || index >= _bodyTransform.childCount)
+            if (index < 0 || index >= parent.childCount)
                 return;
 
-            SetActivationState(_bodyTransform.GetChild(index).gameObject);
+            SetActivationState(parent.GetChild(index).gameObject);
         }
 
-        private void SetActiveWithName(bool useWholeName)
+        private void SetActiveWithName(Transform parent, bool useWholeName)
         {
-            for (int i = 0; i < _children.Count; i++)
+            for (int i = 0; i < parent.childCount; i++)
             {
-                GameObject go = _bodyTransform.GetChild(i).gameObject;
+                GameObject go = parent.GetChild(i).gameObject;
                 bool setActiveState = useWholeName ? go.name == _stringValue : go.name.Contains(_stringValue);
 
                 if (setActiveState)
                     SetActivationState(go);
+
+                if (_childrenOfChildren)
+                    SetActiveWithName(parent.GetChild(i), useWholeName);
             }
         }
 
