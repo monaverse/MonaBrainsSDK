@@ -43,4 +43,23 @@ namespace Mona.SDK.Brains.Core.Enums
         InitialWorld,
         InitialLocal
     }
+
+    public enum MonaBrainTargetMaterialType
+    {
+        Tag = 0,
+        Self = 10,
+        Skybox = 12,
+        Parent = 20,
+        Parents = 24,
+        Children = 30,
+        ThisBodyOnly = 35,
+        MessageSender = 40,
+        OnConditionTarget = 50,
+        OnHitTarget = 60,
+        MySpawner = 70,
+        LastSpawnedByMe = 80,
+        AllSpawnedByMe = 90,
+        MyPoolPreviouslySpawned = 100,
+        MyPoolNextSpawned = 110
+    }
 }
