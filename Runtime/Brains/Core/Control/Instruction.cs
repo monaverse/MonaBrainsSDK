@@ -162,8 +162,6 @@ namespace Mona.SDK.Brains.Core.Control
                 if (InstructionTiles[i] is ITickAfterInstructionTile)
                     _hasTickAfterTile = true;
 
-                if (InstructionTiles[i] is IAnimationInstructionTile && ((IAnimationInstructionTile)InstructionTiles[i]).IsAnimationTile)
-                    _hasAnimationTile = true;
 
                 if (InstructionTiles[i] is IRigidbodyInstructionTile)
                     _hasRigidbodyTile = true;
@@ -208,12 +206,22 @@ namespace Mona.SDK.Brains.Core.Control
 
         public bool HasAnimationTiles()
         {
-            return _hasAnimationTile;
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                if (InstructionTiles[i] is IAnimationInstructionTile && ((IAnimationInstructionTile)InstructionTiles[i]).IsAnimationTile)
+                    return true;
+            }
+            return false;
         }
 
         public bool HasRigidbodyTiles()
         {
-            return _hasRigidbodyTile;
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                if (InstructionTiles[i] is IRigidbodyInstructionTile)
+                    return true;
+            }
+            return false;
         }
 
         public bool HasUsePhysicsTileSetToTrue()
