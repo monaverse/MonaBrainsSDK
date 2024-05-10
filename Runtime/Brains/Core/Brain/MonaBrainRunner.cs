@@ -17,6 +17,7 @@ using UnityEngine.Networking;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using Mona.SDK.Core.Utils;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Core.Brain
 {
@@ -231,10 +232,13 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
+        static readonly ProfilerMarker _restartBrains = new ProfilerMarker("MonaBrains.RestartBrains");
         private void OnEnable()
         {
+            _restartBrains.Begin();
             if (_began)
                 RestartBrains();
+            _restartBrains.End();
         }
 
         private void OnDisable()
@@ -280,11 +284,6 @@ namespace Mona.SDK.Brains.Core.Brain
         
         private List<List<WaitFrameQueueItem>> _waitInactiveQueue = new List<List<WaitFrameQueueItem>>();
 
-        public void WaitFrame(Action callback)
-        {
-            StartCoroutine(WaitFrameCallback(callback));
-        }
-
         private IEnumerator WaitFrameCallback(Action callback)
         {
             yield return null;
@@ -295,8 +294,11 @@ namespace Mona.SDK.Brains.Core.Brain
         private bool _waitFrameRequested;
         private bool _debug;
 
+        static readonly ProfilerMarker _processWaitFrame = new ProfilerMarker("MonaBrains.WaitFrame");
+
         public void WaitFrame(int index, Action<InstructionEvent> callback, InstructionEvent evt, bool debug = false)
         {
+
             _debug = debug;
 
             var instruction = evt.Instruction;
@@ -358,6 +360,7 @@ namespace Mona.SDK.Brains.Core.Brain
             }
             else
                 _waitInactiveQueue[index].Add(new WaitFrameQueueItem(index, callback, evt, Time.frameCount));
+
         }
 
         private void ClearWaitFrameQueue(int index)
@@ -388,7 +391,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void HandleMonaTick(MonaTickEvent evt)
         {
-            if(_beginBrainsAfterFrame > 0 && Time.frameCount - _beginBrainsAfterFrame > 0)
+            _processWaitFrame.Begin();
+            if (_beginBrainsAfterFrame > 0 && Time.frameCount - _beginBrainsAfterFrame > 0)
             {
                 _beginBrainsAfterFrame = 0;
                 BeginBrains();                
@@ -481,6 +485,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 //OnMonaTick = null;
             }
 
+            _processWaitFrame.End();
         }
 
         private void AddHotReloadDelegates()

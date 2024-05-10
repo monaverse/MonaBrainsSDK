@@ -9,6 +9,7 @@ using Mona.SDK.Brains.Core.State.Structs;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Body;
 using System.Collections.Generic;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 {
@@ -89,10 +90,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
             return _runnerCache[body];
         }
 
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(BroadcastMessageToTypeInstructionTile)}.{nameof(Do)}");
+
         public override InstructionTileResult Do()
         {
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            _profilerDo.Begin();
 
             if (!string.IsNullOrEmpty(_messageName))
                 _message = _brain.Variables.GetString(_messageName);
@@ -133,6 +138,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                     break;
             }
 
+            _profilerDo.End();
             return Complete(InstructionTileResult.Success);
         }
 

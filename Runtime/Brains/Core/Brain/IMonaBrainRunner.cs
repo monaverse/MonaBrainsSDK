@@ -19,7 +19,6 @@ namespace Mona.SDK.Brains.Core.Brain
         bool LegacyMonaPlatforms { get; }
 
         void WaitFrame(int brainIndex, Action<InstructionEvent> callback, InstructionEvent evt, bool debug);
-        void WaitFrame(Action callback);
 
         List<MonaBrainGraph> BrainGraphs { get; }
         List<string> BrainUrls { get; }

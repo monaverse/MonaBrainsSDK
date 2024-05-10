@@ -8,6 +8,7 @@ using Mona.SDK.Brains.Core.State;
 using Mona.SDK.Brains.Tiles.Actions.Variables.Interfaces;
 using Mona.SDK.Brains.Tiles.Actions.Variables.Enums;
 using Mona.SDK.Core.State.Structs;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
@@ -119,8 +120,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             _brain = brainInstance;
         }
 
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(SetNumberToInstructionTile)}.{nameof(Do)}");
+
         public override InstructionTileResult Do()
         {
+            _profilerDo.Begin();
+
             if (!string.IsNullOrEmpty(_amountValueName))
                 _amount = _brain.Variables.GetFloat(_amountValueName);
 
@@ -128,12 +133,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 _by = _brain.Variables.GetFloat(_byValueName);
 
             if (_brain == null || string.IsNullOrEmpty(_numberName) || (SetResultTo == VariableTargetToStoreResult.OtherVariable && string.IsNullOrEmpty(_storeResultOn)))
+            {
+                _profilerDo.End();
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+            }
 
             if (Evaluate(_brain.Variables))
             {
                 //if(_brain.LoggingEnabled)
                 //    Debug.Log($"{nameof(SetNumberToInstructionTile)} {_operator} {_amount} = {_brain.Variables.GetFloat(_valueName)}");
+                _profilerDo.End();
                 return Complete(InstructionTileResult.Success);
             }
 

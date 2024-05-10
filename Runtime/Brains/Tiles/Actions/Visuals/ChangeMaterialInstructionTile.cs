@@ -19,6 +19,7 @@ using Mona.SDK.Brains.Core.Animation;
 using VRM;
 using UniHumanoid;
 using Mona.SDK.Brains.Core.Utils;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 {
@@ -111,6 +112,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             }
         }
 
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeMaterialInstructionTile)}.{nameof(Do)}");
+
         public override InstructionTileResult Do()
         {
             if (!string.IsNullOrEmpty(_monaAssetName))
@@ -118,6 +121,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            _profilerDo.Begin();
 
             switch (_target)
             {
@@ -155,6 +160,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
                     break;
             }
 
+            _profilerDo.End();
             return Complete(InstructionTileResult.Success);
         }
 
@@ -262,12 +268,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             OperateOnTextures(body, false);
         }
 
+        private Dictionary<string, Material> _cachedMaterials = new Dictionary<string, Material>();
         private void LoadMaterial(IMonaBody body, Material material, bool sharedMaterial)
         {
+            if (!_cachedMaterials.ContainsKey(_monaAssetName) || _cachedMaterials[_monaAssetName] == null)
+                _cachedMaterials[_monaAssetName] = (Material)GameObject.Instantiate(_materialAsset.Value);
+
             if (sharedMaterial)
                 body.SetBodyMaterial(material, true);
             else
-                body.SetBodyMaterial(GameObject.Instantiate(_materialAsset.Value));
+                body.SetBodyMaterial(_cachedMaterials[_monaAssetName]);
         }
 
         private void OperateOnTextures(IMonaBody body, bool storeTextures)

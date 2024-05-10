@@ -7,6 +7,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.State.Structs;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -27,6 +28,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private IMonaBrain _brain;
 
+
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeStateInstructionTile)}.{nameof(Do)}");
+
         public ChangeStateInstructionTile() { }
 
         public void Preload(IMonaBrain brain)
@@ -41,12 +45,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override InstructionTileResult Do()
         {
+            _profilerDo.Begin();
             if (!string.IsNullOrEmpty(_stateValueName))
                 _changeState = _brain.Variables.GetString(_stateValueName);
 
             _brain.BrainState = _changeState;
             //if(_brain.LoggingEnabled)
             //Debug.Log($"{nameof(ChangeStateInstructionTile)} state: {_changeState}", _brain.Body.Transform.gameObject);
+            _profilerDo.End();
             return Complete(InstructionTileResult.Success);
         }
     }

@@ -17,6 +17,7 @@ using Mona.SDK.Core.Assets.Interfaces;
 using Mona.SDK.Core.Assets;
 using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Core.Utils;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Core.ScriptableObjects
 {
@@ -26,6 +27,16 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
     {
         public event Action<string, IMonaBrain> OnStateChanged;
         public event Action OnMigrate;
+
+        static readonly ProfilerMarker _profilerMonaTickEvent = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(HandleMonaBrainTick)}");
+        static readonly ProfilerMarker _profilerTick = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.TickEvent");
+        static readonly ProfilerMarker _profilerStart = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.StartEvent");
+        static readonly ProfilerMarker _profilerMessage = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(ExecuteMessage)}");
+        static readonly ProfilerMarker _profilerInput = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(HandleHasInput)}");
+        static readonly ProfilerMarker _profilerValueChanged = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(ExecuteValueEvent)}");
+        static readonly ProfilerMarker _profilerStateChanged = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(HandleStatePropertyChanged)}");
+        static readonly ProfilerMarker _profilerTrigger = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(HandleMonaTrigger)}");
+        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(Preload)}");
 
         [SerializeField]
         private Guid _guid = Guid.NewGuid();
@@ -308,6 +319,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         public void Preload(GameObject gameObject, IMonaBrainRunner runner, int index)
         {
+            _profilerPreload.Begin();
             _index = index;
             CacheReferences(gameObject, runner, _index);
             CacheChildMonaAssets();
@@ -318,6 +330,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             PreloadPages();
             AddEventDelegates();
             AddHierarchyDelgates();
+            _profilerPreload.End();
         }
 
         private void CacheChildMonaAssets()
@@ -702,22 +715,28 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleMonaBrainTick(InstructionEvent evt)
         {
-            if(OnExecuteTickEvent == null) OnExecuteTickEvent = ExecuteTickEvent;
+            if (OnExecuteTickEvent == null) OnExecuteTickEvent = ExecuteTickEvent;
             _runner.WaitFrame(_index, OnExecuteTickEvent, evt, LoggingEnabled);
         }
 
         private void ExecuteTickEvent(InstructionEvent evt)
         {
+            _profilerMonaTickEvent.Begin();
+            if (evt.Type == InstructionEventTypes.Start) _profilerStart.Begin();
+            if (evt.Type == InstructionEventTypes.Tick) _profilerTick.Begin();
             //if(LoggingEnabled)
             //    Debug.Log($"{nameof(ExecuteTickEvent)} {evt.Type}", _body.ActiveTransform.gameObject);
             ExecuteCorePageInstructions(evt.Type, evt);
             ExecuteStatePageInstructions(evt.Type, evt);
+
+            if (evt.Type == InstructionEventTypes.Start) _profilerStart.End();
+            if (evt.Type == InstructionEventTypes.Tick) _profilerTick.End();
+            _profilerMonaTickEvent.End();
         }
 
         private void HandleMonaTrigger(InstructionEvent evt)
         {
             if (!_began) return;
-
             if (evt.TriggerType == MonaTriggerType.OnFieldOfViewChanged)
             {
                 if (OnExecuteTriggerEvent == null) OnExecuteTriggerEvent = ExecuteTriggerEvent;
@@ -725,8 +744,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             }
             else
             {
+                _profilerTrigger.Begin();
                 ExecuteCorePageInstructions(InstructionEventTypes.Trigger, evt);
                 ExecuteStatePageInstructions(InstructionEventTypes.Trigger, evt);
+                _profilerTrigger.End();
             }
         }
 
@@ -753,9 +774,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         private void ExecuteValueEvent(InstructionEvent evt)
         {
             if (!_began) return;
-
+            _profilerValueChanged.Begin();
             ExecuteCorePageInstructions(InstructionEventTypes.Value, evt);
             ExecuteStatePageInstructions(InstructionEventTypes.Value, evt);
+            _profilerValueChanged.End();
         }
 
         private void HandleBroadcastMessage(InstructionEvent evt)
@@ -767,6 +789,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void ExecuteMessage(InstructionEvent evt)
         {
+            _profilerMessage.Begin();
+
             var message = evt.Message;
             if (!HasMessage(message))
                 _messages.Add(evt);
@@ -782,20 +806,24 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 //Debug.Log($"{nameof(ExecuteMessage)} remove message: {message}");
                 _messages.Remove(evt);
             }
+
+            _profilerMessage.End();
         }
 
         private void HandleHasInput(MonaBodyHasInputEvent evt)
         {
             if (!_began) return;
+            _profilerInput.Begin();
 
             ExecuteCorePageInstructions(InstructionEventTypes.Input);
             ExecuteStatePageInstructions(InstructionEventTypes.Input);
+            _profilerInput.End();
         }
 
         private void HandleStatePropertyChanged(string value)
         {
             if (!_began) return;
-
+            _profilerStateChanged.Begin();
             if (_activeStatePage == null || value != _activeStatePage.Name)
             {
                 SetActiveStatePage(value);
@@ -805,6 +833,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 ExecuteStatePageInstructions(InstructionEventTypes.State);
                 _variables.Set(MonaBrainConstants.ON_STARTING, false, false);
             }
+            _profilerStateChanged.End();
         }
 
         private void SetActiveStatePage(string value)
@@ -831,18 +860,24 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             }
         }
 
+        static readonly ProfilerMarker _executeCorePage = new ProfilerMarker("MonaBrains.ExecuteCorePage");
         private void ExecuteCorePageInstructions(InstructionEventTypes eventType, InstructionEvent evt = default)
         {
+            _executeCorePage.Begin();
             CorePage.ExecuteInstructions(eventType, evt);
+            _executeCorePage.End();
         }
 
+        static readonly ProfilerMarker _executeStatePages = new ProfilerMarker("MonaBrains.ExecuteStatePage");
         private void ExecuteStatePageInstructions(InstructionEventTypes eventType, InstructionEvent evt = default)
         {
+            _executeStatePages.Begin();
             if (_activeStatePage == null && _statePages.Count > 0)
                 SetActiveStatePage(null);
 
             if (_activeStatePage != null)
                 _activeStatePage.ExecuteInstructions(eventType, evt);
+            _executeStatePages.End();
         }
 
         public void Unload(bool destroy = false)

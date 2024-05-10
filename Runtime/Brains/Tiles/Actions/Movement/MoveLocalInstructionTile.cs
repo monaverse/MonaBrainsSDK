@@ -17,6 +17,7 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Core.Utils;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -274,8 +275,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private float _cooldown;
         private bool _coolingDown;
 
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(MoveLocalInstructionTile)}.{nameof(Do)}");
+        static readonly ProfilerMarker _profilerFixedTick = new ProfilerMarker($"MonaBrains.{nameof(MoveLocalInstructionTile)}.{nameof(HandleFixedTick)}");
+
         public override InstructionTileResult Do()
         {
+            _profilerDo.Begin();
+
             UpdateInput();
 
             _startPosition = _brain.Body.GetPosition();
@@ -305,12 +311,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             }
 
             _movingState = MovingStateType.Moving;
+
+            _profilerDo.End();
             return Complete(InstructionTileResult.Running);
         }
 
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
             if (InstantMovement && _movingState == MovingStateType.Stopped) return;
+
+            _profilerFixedTick.Begin();
 
             UpdateInput();
 
@@ -338,6 +348,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 _brain.Body.AddPosition(_direction.normalized * step, true);
                 StopMoving();
             }
+
+            _profilerFixedTick.End();
 
         }
 

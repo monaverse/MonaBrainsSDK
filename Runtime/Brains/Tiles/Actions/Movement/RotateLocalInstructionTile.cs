@@ -16,6 +16,7 @@ using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Input;
 using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Core.Utils;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -215,8 +216,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             return Do();
         }
 
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(RotateLocalInstructionTile)}.{nameof(Do)}");
+        static readonly ProfilerMarker _profilerFixedTick = new ProfilerMarker($"MonaBrains.{nameof(RotateLocalInstructionTile)}.{nameof(HandleFixedTick)}");
+
         public override InstructionTileResult Do()
         {
+            _profilerDo.Begin();
+
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetFloat(_valueValueName);
 
@@ -233,6 +239,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if(Mathf.Approximately(_bodyInput.MoveValue.x, 0f) || (_lookStraightAhead && Mathf.Approximately(_bodyInput.MoveValue.y, 0)))
                 {
                     _movingState = MovingStateType.Stopped;
+                    _profilerDo.End();
                     return Complete(InstructionTileResult.Success);
                 }
             }
@@ -245,6 +252,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     AddFixedTickDelegate();
             }
             _movingState = MovingStateType.Moving;
+
+            _profilerDo.End();
             return Complete(InstructionTileResult.Running);
         }
 
@@ -255,7 +264,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
+            _profilerFixedTick.Begin();
             FixedTick(evt.DeltaTime);
+            _profilerFixedTick.End();
         }
 
         private void FixedTick(float deltaTime)

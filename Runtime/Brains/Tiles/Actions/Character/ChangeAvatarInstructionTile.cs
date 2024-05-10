@@ -22,6 +22,7 @@ using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.Assets;
 using Mona.SDK.Core.Utils;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Character
 {
@@ -34,6 +35,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public override Type TileType => typeof(ChangeAvatarInstructionTile);
 
         public bool IsAnimationTile => _target == MonaBrainBroadcastType.Self;
+
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeAvatarInstructionTile)}.{nameof(Do)}");
 
         [SerializeField] private MonaBrainBroadcastType _target = MonaBrainBroadcastType.Self;
         [BrainPropertyEnum(true)] public MonaBrainBroadcastType Target { get => _target; set => _target = value; }
@@ -274,6 +277,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         public override InstructionTileResult Do()
         {
+            _profilerDo.Begin();
             switch (_target)
             {
                 case MonaBrainBroadcastType.Tag:
@@ -305,6 +309,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     break;
             }
 
+            _profilerDo.End();
             return Complete(InstructionTileResult.Success);
         }
 

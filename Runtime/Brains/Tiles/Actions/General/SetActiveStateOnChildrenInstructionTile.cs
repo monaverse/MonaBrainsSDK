@@ -9,6 +9,7 @@ using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.State.Structs;
 using Mona.SDK.Core.State.Structs;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -46,6 +47,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainProperty(false)] public bool ChildrenOfChildren { get => _childrenOfChildren; set => _childrenOfChildren = value; }
         [BrainPropertyValueName("ChildrenOfChildren", typeof(IMonaVariablesBoolValue))] public string ChildrenOfChildrenName { get => _childrenOfChildrenName; set => _childrenOfChildrenName = value; }
 
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(SetActiveStateOnChildrenInstructionTile)}.{nameof(Do)}");
+
         private IMonaBrain _brain;
         private Transform _bodyTransform;
 
@@ -68,6 +71,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override InstructionTileResult Do()
         {
+            _profilerDo.Begin();
+
             if (_brain == null)
                 Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
@@ -112,6 +117,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     break;
             }
 
+            _profilerDo.End();
             return Complete(InstructionTileResult.Success);
         }
 
@@ -180,21 +186,26 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             if (monaBody == null)
             {
-                gameObject.SetActive(_setActive);
+                if(gameObject.activeSelf != _setActive)
+                    gameObject.SetActive(_setActive);
                 return;
             }
 
-            monaBody.SetActive(_setActive);
+            if(monaBody.GetActive() != _setActive)
+                monaBody.SetActive(_setActive);
 
             if (!_setActive)
                 return;
 
-            if (monaBody.ActiveRigidbody != null)
-                monaBody.ActiveRigidbody.WakeUp();
+            //if (monaBody.ActiveRigidbody != null)
+            //    monaBody.ActiveRigidbody.WakeUp();
 
-            var childBrains = monaBody.Transform.GetComponentsInChildren<IMonaBrainRunner>(true);
-            for (var i = 0; i < childBrains.Length; i++)
-                childBrains[i].CacheTransforms();
+            if (_setActive)
+            {
+                var childBrains = monaBody.Children();
+                for (var i = 0; i < childBrains.Count; i++)
+                    childBrains[i].Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
+            }
         }
     }
 }

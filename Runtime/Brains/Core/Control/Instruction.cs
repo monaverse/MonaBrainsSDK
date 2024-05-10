@@ -15,6 +15,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using Mona.SDK.Core.Utils;
 using Mona.SDK.Brains.Core.Utils.Structs;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Core.Control
 {
@@ -67,6 +68,12 @@ namespace Mona.SDK.Brains.Core.Control
         private List<InstructionEvent> _messageEventsWaitingForAuthorization = new List<InstructionEvent>();
 
         private InstructionEvent _instructionTickEvent;
+
+        private bool _hasConditionalTile;
+        private bool _hasTickAfterTile;
+        private bool _hasRigidbodyTile;
+        private bool _hasAnimationTile;
+        private bool _hasOnMessageTile;
 
         public IInstructionTile CurrentTile {
             get
@@ -148,6 +155,19 @@ namespace Mona.SDK.Brains.Core.Control
                         _firstActionIndex = i;
                     PreloadActionTile(tile);
                 }
+
+                if (InstructionTiles[i] is IConditionInstructionTile)
+                    _hasConditionalTile = true;
+
+                if (InstructionTiles[i] is ITickAfterInstructionTile)
+                    _hasTickAfterTile = true;
+
+                if (InstructionTiles[i] is IAnimationInstructionTile && ((IAnimationInstructionTile)InstructionTiles[i]).IsAnimationTile)
+                    _hasAnimationTile = true;
+
+                if (InstructionTiles[i] is IRigidbodyInstructionTile)
+                    _hasRigidbodyTile = true;
+                
             }
         }
 
@@ -178,42 +198,22 @@ namespace Mona.SDK.Brains.Core.Control
 
         public bool HasConditional()
         {
-            for (var i = 0; i < InstructionTiles.Count; i++)
-            {
-                if (InstructionTiles[i] is IConditionInstructionTile)
-                    return true;
-            }
-            return false;
+            return _hasConditionalTile;
         }
 
         public bool HasTickAfter()
         {
-            for (var i = 0; i < InstructionTiles.Count; i++)
-            {
-                if (InstructionTiles[i] is ITickAfterInstructionTile)
-                    return true;
-            }
-            return false;
+            return _hasTickAfterTile;
         }
 
         public bool HasAnimationTiles()
         {
-            for (var i = 0; i < InstructionTiles.Count; i++)
-            {
-                if (InstructionTiles[i] is IAnimationInstructionTile && ((IAnimationInstructionTile)InstructionTiles[i]).IsAnimationTile)
-                    return true;
-            }
-            return false;
+            return _hasAnimationTile;
         }
 
         public bool HasRigidbodyTiles()
         {
-            for (var i = 0; i < InstructionTiles.Count; i++)
-            {
-                if (InstructionTiles[i] is IRigidbodyInstructionTile)
-                    return true;
-            }
-            return false;
+            return _hasRigidbodyTile;
         }
 
         public bool HasUsePhysicsTileSetToTrue()
@@ -329,6 +329,24 @@ namespace Mona.SDK.Brains.Core.Control
             return _result;
         }
 
+        static readonly ProfilerMarker _profilerHasConditional = new ProfilerMarker($"MonaBrains.{nameof(Instruction)}.{nameof(HasConditional)}");
+        static readonly ProfilerMarker _profilerHasTickAfter = new ProfilerMarker($"MonaBrains.{nameof(Instruction)}.{nameof(HasTickAfter)}");
+        static readonly ProfilerMarker _profilerHasAnimation = new ProfilerMarker($"MonaBrains.{nameof(Instruction)}.{nameof(HasAnimationTiles)}");
+
+        private void StartProfile()
+        {
+            if (HasTickAfter()) _profilerHasTickAfter.Begin();
+            if (HasConditional()) _profilerHasConditional.Begin();
+            if (HasAnimationTiles()) _profilerHasAnimation.Begin();
+        }
+
+        private void EndProfile()
+        {
+            if (HasAnimationTiles()) _profilerHasAnimation.End();
+            if (HasConditional()) _profilerHasConditional.End();
+            if (HasTickAfter()) _profilerHasTickAfter.End();
+        }
+
         public void Execute(InstructionEventTypes eventType, InstructionEvent evt = default)
         {
             //Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction received event {eventType}", _brain.Body.ActiveTransform.gameObject);
@@ -336,14 +354,19 @@ namespace Mona.SDK.Brains.Core.Control
             if (_paused) return;
             if (_muted) return;
 
+            StartProfile();
+
             if (_result == InstructionTileResult.WaitingForAuthority)
             {
                 if (eventType != InstructionEventTypes.Authority)
+                {
+                    EndProfile();
                     return;
+                }
             }
             else if (IsRunning())
             {
-               // if (_brain.LoggingEnabled)
+                // if (_brain.LoggingEnabled)
                 //    Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction still running", _brain.Body.ActiveTransform.gameObject);
 
                 /*if (!HasConditional())
@@ -352,16 +375,20 @@ namespace Mona.SDK.Brains.Core.Control
                     MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick));
                 }*/
 
+                EndProfile();
                 return;
             }
 
             if (_instructionTiles.Count == 0)
+            {
+                EndProfile();
                 return;
+            }
 
             var result = ExecuteFirstTile(eventType, evt);
             if (result == InstructionTileResult.Success)
             {
-                OnReset?.Invoke(this);
+                //OnReset?.Invoke(this);
                 if (ExecuteRemainingConditionals() == InstructionTileResult.Success)
                     ExecuteActions();
             }
@@ -372,6 +399,9 @@ namespace Mona.SDK.Brains.Core.Control
             }
 
             ClearInputs();
+
+            EndProfile();
+
         }
 
         private void ClearInputs()

@@ -17,6 +17,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Core.Utils;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -27,6 +28,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public const string NAME = "Spawn Asset";
         public const string CATEGORY = "General";
         public override Type TileType => typeof(SpawnInstructionTile);
+
+        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(SpawnAssetInstructionTile)}.{nameof(Preload)}");
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(SpawnAssetInstructionTile)}.{nameof(Do)}");
 
         [SerializeField] private float _poolCount = 5;
         [SerializeField] private string _poolCountName;
@@ -107,9 +111,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public void Preload(IMonaBrain brainInstance) 
         {
+            _profilerPreload.Begin();
             _brain = brainInstance;
             _defaultParent = GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform;
             SetupSpawnable();
+            _profilerPreload.End();
         }
 
         protected virtual List<IMonaBodyAssetItem> GetPreloadAssets()
@@ -246,6 +252,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override InstructionTileResult Do()
         {
+            _profilerDo.Begin();
             var body = GetBody();
 
             if (body == null)
@@ -263,10 +270,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 _spawnOnEmpty = true;
                 for (var i = 0; i < poolCount; i++)
                     EnableSpawn(i);
+                _profilerDo.End();
                 return InstructionTileResult.Success;
             }
             else
+            {
+                _profilerDo.End();
                 return EnableSpawn(0);
+            }
         }
 
         private InstructionTileResult EnableSpawn(int index)
