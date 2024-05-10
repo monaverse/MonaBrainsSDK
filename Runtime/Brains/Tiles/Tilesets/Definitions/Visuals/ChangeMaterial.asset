@@ -24,8 +24,15 @@ MonoBehaviour:
       type: {class: ChangeMaterialInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Visuals, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ChangeMaterial
-        _name: Change Material Asset
+        _name: Change Material
         _category: Audio / Visual
+        _muted: 0
+        _target: 35
+        _targetTag: 
         _monaAsset: 
-        _offset: {x: 0, y: 0, z: 0}
-        _eulerAngles: {x: 0, y: 0, z: 0}
+        _monaAssetName: 
+        _includeAttached: 0
+        _sharedMaterial: 0
+        _preserveTexture: 0
+        _sourceTextureSlot: _MainTex
+        _newTextureSlot: _MainTex
