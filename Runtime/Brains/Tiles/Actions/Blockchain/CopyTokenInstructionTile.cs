@@ -41,6 +41,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
         [BrainPropertyShow(nameof(Source), (int)MonaBrainTokenResultType.TraitValue)]
         [BrainPropertyValue(typeof(IMonaVariablesStringValue))] public string TargetTraitValue { get => _targetTraitValue; set => _targetTraitValue = value; }
 
+        [SerializeField] private string _defaultTraitValue = "";
+        [SerializeField] private string _defaultTraitValueName = "";
+
+        [BrainPropertyShow(nameof(Source), (int)MonaBrainTokenResultType.TraitValue)]
+        [BrainProperty(false)] public string DefaultTraitValue { get => _defaultTraitValue; set => _defaultTraitValue = value; }
+        [BrainPropertyValueName(nameof(DefaultTraitValue), typeof(IMonaVariablesStringValue))] public string DefaultTraitValueName { get => _defaultTraitValueName; set => _defaultTraitValueName = value; }
+
         private IMonaBrain _brain;
 
         public CopyTokenInstructionTile() { }
@@ -112,6 +119,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
 
                     if (tokens.Count > 0)
                     {
+
+                        if (!string.IsNullOrEmpty(_defaultTraitValueName))
+                            _defaultTraitValue = _brain.Variables.GetString(_defaultTraitValueName);
+
                         switch (_select)
                         {
                             case MonaBrainSelectTokenType.Last:
@@ -128,6 +139,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
                                 break;
                         }
                     }
+                    else
+                        _brain.Variables.Set(_targetTraitValue, _defaultTraitValue.ToLower());
                     break;
                 default: break;
             }
