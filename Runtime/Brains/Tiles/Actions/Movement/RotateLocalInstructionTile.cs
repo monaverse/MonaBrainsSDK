@@ -102,19 +102,28 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public RotateLocalInstructionTile() { }
 
+        private bool _preloaded;
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
+            _profilerPreload.Begin();
+
             _brain = brainInstance;
             _instruction = instruction;
-            
-            var pagePrefix = page.IsCore ? "Core" : ("State" + brainInstance.StatePages.IndexOf(page));
-            var instructionIndex = page.Instructions.IndexOf(instruction);
 
-            _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
+            if (!_preloaded)
+            {
+                var pagePrefix = page.IsCore ? "Core" : ("State" + brainInstance.StatePages.IndexOf(page));
+                var instructionIndex = page.Instructions.IndexOf(instruction);
+
+                _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
+                _preloaded = true;
+            }
 
             _brain.Variables.Set(_progressName, 0f);
 
             UpdateActive();
+
+            _profilerPreload.End();
         }
 
         public void SetActive(bool active)
@@ -217,6 +226,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         }
 
         static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(RotateLocalInstructionTile)}.{nameof(Do)}");
+        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(RotateLocalInstructionTile)}.{nameof(Preload)}");
         static readonly ProfilerMarker _profilerFixedTick = new ProfilerMarker($"MonaBrains.{nameof(RotateLocalInstructionTile)}.{nameof(HandleFixedTick)}");
 
         public override InstructionTileResult Do()

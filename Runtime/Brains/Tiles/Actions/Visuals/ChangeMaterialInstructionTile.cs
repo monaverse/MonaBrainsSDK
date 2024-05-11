@@ -79,10 +79,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         public ChangeMaterialInstructionTile() { }
 
+        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(ChangeMaterialInstructionTile)}.{nameof(Preload)}");
+
         public void Preload(IMonaBrain brainInstance)
         {
+            _profilerPreload.Begin();
             _brain = brainInstance;
             SetupMaterial();
+            _profilerPreload.End();
         }
 
         private void SetupMaterial()

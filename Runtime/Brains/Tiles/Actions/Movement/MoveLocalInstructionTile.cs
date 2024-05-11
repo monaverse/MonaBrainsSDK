@@ -113,16 +113,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         }
 
         public MoveLocalInstructionTile() { }
-        
+
+        private bool _preloaded;
+
         public virtual void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
+            _profilerPreload.Begin();
+
             _brain = brainInstance;
             _instruction = instruction;
 
-            var pagePrefix = page.IsCore ? "Core" : ("State" + brainInstance.StatePages.IndexOf(page));
-            var instructionIndex = page.Instructions.IndexOf(instruction);
+            if (!_preloaded)
+            {
+                var pagePrefix = page.IsCore ? "Core" : ("State" + brainInstance.StatePages.IndexOf(page));
+                var instructionIndex = page.Instructions.IndexOf(instruction);
 
-            _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
+                _progressName = $"__{pagePrefix}_{instructionIndex}_progress";
+
+                _preloaded = true;
+            }
 
             _brain.Variables.Set(_progressName, 0f);
 
@@ -132,6 +141,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             MonaEventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
 
             SetupAnimation();
+
+            _profilerPreload.End();
         }
 
         private void HandleAnimationControllerChanged(MonaBodyAnimationControllerChangedEvent evt)
@@ -276,6 +287,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private bool _coolingDown;
 
         static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(MoveLocalInstructionTile)}.{nameof(Do)}");
+        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(MoveLocalInstructionTile)}.{nameof(Preload)}");
         static readonly ProfilerMarker _profilerFixedTick = new ProfilerMarker($"MonaBrains.{nameof(MoveLocalInstructionTile)}.{nameof(HandleFixedTick)}");
 
         public override InstructionTileResult Do()

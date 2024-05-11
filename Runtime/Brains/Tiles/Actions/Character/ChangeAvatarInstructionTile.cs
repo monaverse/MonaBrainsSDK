@@ -37,6 +37,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public bool IsAnimationTile => _target == MonaBrainBroadcastType.Self;
 
         static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeAvatarInstructionTile)}.{nameof(Do)}");
+        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(ChangeAvatarInstructionTile)}.{nameof(Preload)}");
+
 
         [SerializeField] private MonaBrainBroadcastType _target = MonaBrainBroadcastType.Self;
         [BrainPropertyEnum(true)] public MonaBrainBroadcastType Target { get => _target; set => _target = value; }
@@ -134,6 +136,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         public void Preload(IMonaBrain brainInstance)
         {
+            _profilerPreload.Begin();
+
             _brain = brainInstance;
 
             if (_avatarLoader == null)
@@ -144,6 +148,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 _urlLoader = _avatarLoader.AddComponent<BrainsGlbLoader>();
 
             SetupAnimation();
+
+            _profilerPreload.End();
         }
 
         private void HandleAnimationControllerChanged(MonaBodyAnimationControllerChangedEvent evt)

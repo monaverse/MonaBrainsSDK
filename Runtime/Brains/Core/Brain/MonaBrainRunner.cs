@@ -257,6 +257,7 @@ namespace Mona.SDK.Brains.Core.Brain
             _body = GetComponent<IMonaBody>();
             if (_body == null)
                 _body = gameObject.AddComponent<MonaBody>();
+            _body.OnDisableOnLoad += HandleDisableOnLoad;
             _body.OnStarted += HandleStarted;
             _body.OnResumed += HandleResumed;
             _body.OnPaused += HandlePaused;
@@ -335,7 +336,7 @@ namespace Mona.SDK.Brains.Core.Brain
             if (!wait.ContainsKey(type))
                 wait.Add(type, new WaitFrameQueueItem(-1));
 
-            if (gameObject.activeInHierarchy)
+            if (gameObject.activeSelf && gameObject.activeInHierarchy)
             {
                 if (type == InstructionEventTypes.Trigger || type == InstructionEventTypes.Message)
                 {
@@ -536,6 +537,7 @@ namespace Mona.SDK.Brains.Core.Brain
                         _wait.Add(new Dictionary<InstructionEventTypes, WaitFrameQueueItem>());
                         _waitForNextBrainTick.Add(new Dictionary<IInstruction, WaitFrameQueueItem>());
                         instance.Guid = _brainGraphs[i].Guid;
+                        instance.ListenGuid = Guid.NewGuid().ToString();
                         instance.LoggingEnabled = _brainGraphs[i].LoggingEnabled;
                         instance.Preload(gameObject, this, i);
                         _waitInactiveQueue.Add(new List<WaitFrameQueueItem>());
@@ -565,6 +567,12 @@ namespace Mona.SDK.Brains.Core.Brain
             //Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(StartBrains)} start brains from external source", _body.Transform.gameObject);
 
             HandleStarted();
+        }
+
+        private void HandleDisableOnLoad()
+        {
+            if (!gameObject.activeInHierarchy) return;
+           //    PreloadBrains();
         }
 
         private void HandleStarted()

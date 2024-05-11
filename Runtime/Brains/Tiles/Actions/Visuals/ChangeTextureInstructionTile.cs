@@ -19,6 +19,7 @@ using Mona.SDK.Brains.Core.Animation;
 using VRM;
 using UniHumanoid;
 using Mona.SDK.Brains.Core.Utils;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 {
@@ -44,10 +45,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         public ChangeTextureInstructionTile() { }
 
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeTextureInstructionTile)}.{nameof(Do)}");
+        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(ChangeTextureInstructionTile)}.{nameof(Preload)}");
+
         public void Preload(IMonaBrain brainInstance)
         {
+            _profilerPreload.Begin();
             _brain = brainInstance;
             SetupTexture();
+            _profilerPreload.End();
         }
 
         private void SetupTexture()

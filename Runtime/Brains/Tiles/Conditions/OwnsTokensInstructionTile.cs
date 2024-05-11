@@ -16,6 +16,7 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.Utils;
 using Mona.SDK.Brains.Core.Utils.Structs;
 using Mona.SDK.Brains.Core.Utils.Enums;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -60,8 +61,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private Action<MonaWalletConnectedEvent> OnWalletConnected;
         private Action<MonaWalletConnectedEvent> OnWalletDisconnected;
 
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(OwnsTokensInstructionTile)}.{nameof(Do)}");
+        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(OwnsTokensInstructionTile)}.{nameof(Preload)}");
+
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
+            _profilerPreload.Begin();
             _brain = brainInstance;
             _instruction = instruction;
 
@@ -78,6 +83,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                 FetchTokens();
             }
+            _profilerPreload.End();
         }
 
         private void HandleWalletConnected(MonaWalletConnectedEvent evt)

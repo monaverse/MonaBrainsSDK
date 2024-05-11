@@ -11,6 +11,7 @@ using Unity.VisualScripting;
 using Mona.SDK.Core;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.Utils;
+using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Audio
 {
@@ -65,8 +66,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
 
         private AudioSource _audioSource;
 
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(PlayAudioInstructionTile)}.{nameof(Do)}");
+        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(PlayAudioInstructionTile)}.{nameof(Preload)}");
+
         public void Preload(IMonaBrain brain, IMonaBrainPage page, IInstruction instruction)
         {
+            _profilerPreload.Begin();
+
             _brain = brain;
             _canInterrupt = instruction.HasConditional();
 
@@ -74,6 +80,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             SetupClip();
 
             UpdateActive();
+
+            _profilerPreload.End();
         }
 
         private void SetupAudioSource()

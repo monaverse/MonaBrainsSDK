@@ -394,7 +394,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     if (instance.Transform != null && instance.Transform.gameObject != null)
                         instance.Destroy();
                 }
-                else
+                else if(instance != null && instance.Transform != null)
                     instance.SetActive(false);
             }
 

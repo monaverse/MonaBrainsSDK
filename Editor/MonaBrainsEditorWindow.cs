@@ -381,6 +381,7 @@ namespace Mona.SDK.Brains.UIEditors
                         if (x.name.ToLower().Contains(evt.newValue.ToLower())) return true;
                         if (x.Name.ToLower().Contains(evt.newValue.ToLower())) return true;
                         if (x.CorePage.Instructions.Find(x => x.InstructionTiles.Find(t => t.Name.ToLower().Contains(evt.newValue.ToLower())) != null) != null) return true;
+                        if (x.StatePages.Find(s => s.Instructions.Find(x => x.InstructionTiles.Find(t => t.Name.ToLower().Contains(evt.newValue.ToLower())) != null) != null) != null) return true;
                         if (x.HasMonaTag(evt.newValue)) return true;
                         return false;
                     });

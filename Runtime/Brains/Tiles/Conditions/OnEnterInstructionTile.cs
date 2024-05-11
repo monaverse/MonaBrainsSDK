@@ -9,6 +9,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.State.Structs;
 using System;
 using System.Collections.Generic;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
@@ -22,6 +23,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public const string NAME = "Enter";
         public const string CATEGORY = "Proximity";
         public override Type TileType => typeof(OnEnterInstructionTile);
+
+        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(OnEnterInstructionTile)}.{nameof(Do)}");
+        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(OnEnterInstructionTile)}.{nameof(Preload)}");
 
         [SerializeField] private string _tag;
         [BrainPropertyMonaTag(true)] public string MonaTag { get => _tag; set => _tag = value; }
@@ -40,6 +44,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page)
         {
+            _profilerDo.Begin();
+
             _brain = brainInstance;
             
             if (_collider == null)
@@ -69,6 +75,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             SetActive(true);
 
             _brain.Body.AddRigidbody();
+
+            _profilerDo.End();
         }
 
         public void SetActive(bool active)
