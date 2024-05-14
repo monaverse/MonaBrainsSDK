@@ -1,24 +1,12 @@
 ﻿using UnityEngine;
 using System;
-using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Core.Enums;
-using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Body;
-using Mona.SDK.Core.Events;
-using Mona.SDK.Brains.Tiles.Actions.Physics.Interfaces;
-using Mona.SDK.Core;
-using Mona.SDK.Brains.Core.State.Structs;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Assets.Interfaces;
-using System.Collections;
-using System.Collections.Generic;
-using Mona.SDK.Brains.Core.Animation;
-using VRM;
-using UniHumanoid;
-using Mona.SDK.Brains.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 {
@@ -40,16 +28,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
         [SerializeField] private string _monaAsset = null;
-        [BrainPropertyShow(nameof(AssetToUse), (int)AssetGroupType.DefinedAsset)]
+        [BrainPropertyShow(nameof(AssetToUse), (int)MonaAssetGroupType.DefinedAsset)]
         [BrainPropertyMonaAsset(typeof(IMonaMeshAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
 
         [SerializeField] private string _monaAssetName = null;
         [BrainPropertyValueName(nameof(MonaAsset), typeof(IMonaVariablesStringValue))] public string MonaAssetName { get => _monaAssetName; set => _monaAssetName = value; }
 
         [SerializeField] private string _monaAssetGroup = null;
-        [BrainPropertyShow(nameof(AssetToUse), (int)AssetGroupType.IndexInCollection)]
-        [BrainPropertyShow(nameof(AssetToUse), (int)AssetGroupType.NextFromCollection)]
-        [BrainPropertyShow(nameof(AssetToUse), (int)AssetGroupType.RandomFromCollection)]
+        [BrainPropertyShow(nameof(AssetToUse), (int)MonaAssetGroupType.IndexInCollection)]
+        [BrainPropertyShow(nameof(AssetToUse), (int)MonaAssetGroupType.NextFromCollection)]
+        [BrainPropertyShow(nameof(AssetToUse), (int)MonaAssetGroupType.RandomFromCollection)]
         [BrainPropertyMonaAsset(typeof(IMonaMeshAssetItem), useProviders:true)] public string MonaAssetProvider { get => _monaAssetGroup; set => _monaAssetGroup = value; }
 
         [SerializeField] private string _monaAssetProviderName = null;
@@ -57,13 +45,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         [SerializeField] private float _atIndex;
         [SerializeField] private string _atIndexName;
-        [BrainPropertyShow(nameof(AssetToUse), (int)AssetGroupType.IndexInCollection)]
+        [BrainPropertyShow(nameof(AssetToUse), (int)MonaAssetGroupType.IndexInCollection)]
         [BrainProperty(true)] public float AtIndex { get => _atIndex; set => _atIndex = value; }
         [BrainPropertyValueName("AtIndex", typeof(IMonaVariablesFloatValue))] public string AtIndexName { get => _atIndexName; set => _atIndexName = value; }
 
-
-        [SerializeField] private AssetGroupType _assetToUse = AssetGroupType.DefinedAsset;
-        [BrainPropertyEnum(false)] public AssetGroupType AssetToUse { get => _assetToUse; set => _assetToUse = value; }
+        [SerializeField] private MonaAssetGroupType _assetToUse = MonaAssetGroupType.DefinedAsset;
+        [BrainPropertyEnum(false)] public MonaAssetGroupType AssetToUse { get => _assetToUse; set => _assetToUse = value; }
 
         [SerializeField] private bool _includeAttached = false;
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
@@ -79,14 +66,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         private IMonaBrain _brain;
         private IMonaMeshAssetItem _meshAsset;
-
-        public enum AssetGroupType
-        {
-            DefinedAsset = 0,
-            IndexInCollection = 10,
-            NextFromCollection = 20,
-            RandomFromCollection = 30
-        }    
 
         public ChangeMeshInstructionTile() { }
 
@@ -130,18 +109,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
             switch (_assetToUse)
             {
-                case AssetGroupType.DefinedAsset:
+                case MonaAssetGroupType.DefinedAsset:
                     _meshAsset = (IMonaMeshAssetItem)_brain.GetMonaAsset(_monaAsset);
                     break;
-                case AssetGroupType.IndexInCollection:
+                case MonaAssetGroupType.IndexInCollection:
                     var providerIndex = _brain.GetMonaAssetProvider(_monaAssetGroup);
                     _meshAsset = (IMonaMeshAssetItem)providerIndex.GetMonaAssetByIndex((int)_atIndex);
                     break;
-                case AssetGroupType.NextFromCollection:
+                case MonaAssetGroupType.NextFromCollection:
                     var providerNext = _brain.GetMonaAssetProvider(_monaAssetGroup);
                     _meshAsset = (IMonaMeshAssetItem)providerNext.TakeTopCardOffDeck(false);
                     break;
-                case AssetGroupType.RandomFromCollection:
+                case MonaAssetGroupType.RandomFromCollection:
                     var providerRandom = _brain.GetMonaAssetProvider(_monaAssetGroup);
                     _meshAsset = (IMonaMeshAssetItem)providerRandom.TakeTopCardOffDeck(true);
                     break;
