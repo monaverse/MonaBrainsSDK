@@ -34,6 +34,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         static readonly ProfilerMarker _profilerMessage = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(ExecuteMessage)}");
         static readonly ProfilerMarker _profilerInput = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(HandleHasInput)}");
         static readonly ProfilerMarker _profilerValueChanged = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(ExecuteValueEvent)}");
+        static readonly ProfilerMarker _profilerHandleValueChanged = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(HandleMonaValueChanged)}");
         static readonly ProfilerMarker _profilerStateChanged = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(HandleStatePropertyChanged)}");
         static readonly ProfilerMarker _profilerTrigger = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(HandleMonaTrigger)}");
         static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(Preload)}");
@@ -291,6 +292,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private bool _coreOnStarting;
         private bool _stateOnStarting;
+        private bool _preloaded;
 
         public void SetMonaBrainPlayer(IMonaBrainPlayer player)
         {
@@ -329,8 +331,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             BuildRoot();
             SetupAnimation(null);
             PreloadPages();
-            AddEventDelegates();
-            AddHierarchyDelgates();
+
+            if(!_preloaded)
+            {
+                AddEventDelegates();
+                _preloaded = true;
+            }
+
             _profilerPreload.End();
         }
 
@@ -356,28 +363,31 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             _profilerCacheReserved.Begin();
 
-            var speed = _variables.GetVariable(MonaBrainConstants.SPEED_FACTOR, typeof(MonaVariablesFloat));
-            ((IMonaVariablesFloatValue)speed).Value = 1f;
-
-            _variables.GetVariable(MonaBrainConstants.RESULT_SENDER, typeof(MonaVariablesBrain));
-            _variables.GetVariable(MonaBrainConstants.RESULT_TARGET, typeof(MonaVariablesBody));
-            _variables.GetVariable(MonaBrainConstants.RESULT_LAST_SPAWNED, typeof(MonaVariablesBody));
-
-            _variables.GetVariable(MonaBrainConstants.RESULT_MOVE_DIRECTION, typeof(MonaVariablesVector2));
-            _variables.GetVariable(MonaBrainConstants.RESULT_MOUSE_DIRECTION, typeof(MonaVariablesVector2));
-
-            _variables.GetVariable(MonaBrainConstants.RESULT_HIT_TARGET, typeof(MonaVariablesBody));
-            _variables.GetVariable(MonaBrainConstants.RESULT_HIT_POINT, typeof(MonaVariablesVector3));
-            _variables.GetVariable(MonaBrainConstants.RESULT_HIT_NORMAL, typeof(MonaVariablesVector3));
-
-            _variables.GetVariable(MonaBrainConstants.RESULT_STATE, typeof(MonaVariablesString));
-            _variables.GetVariable(MonaBrainConstants.ON_STARTING, typeof(MonaVariablesBool));
-
-            if (HasAnimationTiles())
+            if(!_preloaded)
             {
-                _variables.GetVariable(MonaBrainConstants.TRIGGER, typeof(MonaVariablesString));
-                _variables.GetVariable(MonaBrainConstants.TRIGGER_1, typeof(MonaVariablesString));
-                _variables.GetVariable(MonaBrainConstants.ANIMATION_SPEED, typeof(MonaVariablesFloat));
+                var speed = _variables.GetVariable(MonaBrainConstants.SPEED_FACTOR, typeof(MonaVariablesFloat));
+                ((IMonaVariablesFloatValue)speed).Value = 1f;
+
+                _variables.GetVariable(MonaBrainConstants.RESULT_SENDER, typeof(MonaVariablesBrain));
+                _variables.GetVariable(MonaBrainConstants.RESULT_TARGET, typeof(MonaVariablesBody));
+                _variables.GetVariable(MonaBrainConstants.RESULT_LAST_SPAWNED, typeof(MonaVariablesBody));
+
+                _variables.GetVariable(MonaBrainConstants.RESULT_MOVE_DIRECTION, typeof(MonaVariablesVector2));
+                _variables.GetVariable(MonaBrainConstants.RESULT_MOUSE_DIRECTION, typeof(MonaVariablesVector2));
+
+                _variables.GetVariable(MonaBrainConstants.RESULT_HIT_TARGET, typeof(MonaVariablesBody));
+                _variables.GetVariable(MonaBrainConstants.RESULT_HIT_POINT, typeof(MonaVariablesVector3));
+                _variables.GetVariable(MonaBrainConstants.RESULT_HIT_NORMAL, typeof(MonaVariablesVector3));
+
+                _variables.GetVariable(MonaBrainConstants.RESULT_STATE, typeof(MonaVariablesString));
+                _variables.GetVariable(MonaBrainConstants.ON_STARTING, typeof(MonaVariablesBool));
+
+                if (HasAnimationTiles())
+                {
+                    _variables.GetVariable(MonaBrainConstants.TRIGGER, typeof(MonaVariablesString));
+                    _variables.GetVariable(MonaBrainConstants.TRIGGER_1, typeof(MonaVariablesString));
+                    _variables.GetVariable(MonaBrainConstants.ANIMATION_SPEED, typeof(MonaVariablesFloat));
+                }
             }
 
             _profilerCacheReserved.End();
@@ -389,43 +399,46 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             _profilerCacheReferences.Begin();
 
-            _gameObject = gameObject;
-            _runner = runner;
-
-            _body = gameObject.GetComponent<IMonaBody>();
-            _bodyParent = _body.Parent;
-            if (_body == null)
-                _body = gameObject.AddComponent<MonaBody>();
-
-            if (_variables == null)
+            if(!_preloaded)
             {
-                var variables = gameObject.GetComponents<MonaBrainVariablesBehaviour>();
-                if (index < variables.Length) _variables = variables[index];
-                else _variables = gameObject.AddComponent<MonaBrainVariablesBehaviour>().Variables;
+                _gameObject = gameObject;
+                _runner = runner;
 
-                if (_defaultVariables == null)
-                    _defaultVariables = new MonaBrainVariables();
+                _body = gameObject.GetComponent<IMonaBody>();
+                _bodyParent = _body.Parent;
+                if (_body == null)
+                    _body = gameObject.AddComponent<MonaBody>();
 
-                _variables.VariableList = _defaultVariables.VariableList;
-
-                _variables.SaveResetDefaults();
-
-                _variables.SetGameObject(_gameObject, this);
-            }
-
-            if (HasRigidbodyTiles())
-            {
-                if (_body.ActiveRigidbody == null)
+                if (_variables == null)
                 {
-                    Rigidbody parentRB = _body.Transform.GetComponentInParent<Rigidbody>();
-                    IMonaBody parentMB = parentRB != null ? parentRB.GetComponent<IMonaBody>() : null;
+                    var variables = gameObject.GetComponents<MonaBrainVariablesBehaviour>();
+                    if (index < variables.Length) _variables = variables[index];
+                    else _variables = gameObject.AddComponent<MonaBrainVariablesBehaviour>().Variables;
 
-                    if (parentRB == null || (parentRB != null && parentMB == null))
-                        _body.AddRigidbody();
+                    if (_defaultVariables == null)
+                        _defaultVariables = new MonaBrainVariables();
+
+                    _variables.VariableList = _defaultVariables.VariableList;
+
+                    _variables.SaveResetDefaults();
+
+                    _variables.SetGameObject(_gameObject, this);
                 }
 
-                if (((_body.ActiveRigidbody != null && !_body.ActiveRigidbody.isKinematic) || HasUsePhysicsTileSetToTrue()) && !_body.HasCollider())
-                    _body.AddCollider();
+                if (HasRigidbodyTiles())
+                {
+                    if (_body.ActiveRigidbody == null)
+                    {
+                        Rigidbody parentRB = _body.Transform.GetComponentInParent<Rigidbody>();
+                        IMonaBody parentMB = parentRB != null ? parentRB.GetComponent<IMonaBody>() : null;
+
+                        if (parentRB == null || (parentRB != null && parentMB == null))
+                            _body.AddRigidbody();
+                    }
+
+                    if (((_body.ActiveRigidbody != null && !_body.ActiveRigidbody.isKinematic) || HasUsePhysicsTileSetToTrue()) && !_body.HasCollider())
+                        _body.AddCollider();
+                }
             }
 
             MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), new MonaBrainSpawnedEvent(this));
@@ -450,6 +463,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             if (!HasAnimationTiles()) return;
             if (_root != null) return;
+            if(_preloaded) return;
 
             _profilerBuildRoot.Begin();
 
@@ -639,7 +653,13 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void AddEventDelegates()
         {
+            
             _profilerAddEventDelegates.Begin();
+
+            OnExecuteValueEvent = ExecuteValueEvent;
+            OnExecuteMessageEvent = ExecuteMessage;
+            OnExecuteTickEvent = ExecuteTickEvent;
+            OnExecuteTriggerEvent = ExecuteTriggerEvent;
 
             OnBodyParentChanged = HandleBodyParentChanged;
             MonaEventBus.Register<MonaBodyParentChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
@@ -667,13 +687,6 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             _profilerAddEventDelegates.End();
         }
 
-        private void AddHierarchyDelgates()
-        {
-            //if (_bodyParent != null && _body is IMonaBodyPart)
-              //  MonaEventBus.Register<MonaBroadcastMessageEvent>(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
-        }
-
-
         private void RemoveEventDelegates()
         {
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_PARENT_CHANGED_EVENT, _body), OnBodyParentChanged);
@@ -693,25 +706,23 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, _body), OnAnimationControllerChange);
         }
 
-        private void RemoveHierarchyDelegates()
-        {
-            //if (_bodyParent != null && _body is IMonaBodyPart)
-            //    MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _bodyParent), OnBroadcastMessage);
-        }
-
         static readonly ProfilerMarker _profilerPreloadPages = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(PreloadPages)}.{nameof(Preload)}");
 
         private void PreloadPages()
         {
             _profilerPreloadPages.Begin();
 
-            CorePage.SetActive(true);
-            CorePage.Preload(this);
-            for (var i = 0; i < StatePages.Count; i++)
-                StatePages[i].Preload(this);
-            if (StatePages.Count > 0)
-                BrainState = StatePages[0].Name;
-            _activeStatePage = null;
+                   CorePage.SetActive(true);
+
+                    CorePage.Preload(this);
+                    for (var i = 0; i < StatePages.Count; i++)
+                        StatePages[i].Preload(this);
+
+
+                    if (StatePages.Count > 0)
+                        BrainState = StatePages[0].Name;
+                
+                _activeStatePage = null;
 
             _profilerPreloadPages.End();
         }
@@ -754,24 +765,23 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleBodyParentChanged(MonaBodyParentChangedEvent evt)
         {
-            RemoveHierarchyDelegates();
             _bodyParent = _body.Parent;
-            AddHierarchyDelgates();
         }
 
         private Action<InstructionEvent> OnExecuteTickEvent;
         private Action<InstructionEvent> OnExecuteTriggerEvent;
         private Action<InstructionEvent> OnExecuteValueEvent;
         private Action<InstructionEvent> OnExecuteMessageEvent;
+        private Action<InstructionEvent> OnExecuteStateEvent;
 
         private void HandleMonaBrainTick(InstructionEvent evt)
         {
-            if (OnExecuteTickEvent == null) OnExecuteTickEvent = ExecuteTickEvent;
             _runner.WaitFrame(_index, OnExecuteTickEvent, evt, LoggingEnabled);
         }
 
         private void ExecuteTickEvent(InstructionEvent evt)
         {
+            if(!_began) return;
             _profilerMonaTickEvent.Begin();
             if (evt.Type == InstructionEventTypes.Start) _profilerStart.Begin();
             if (evt.Type == InstructionEventTypes.Tick) _profilerTick.Begin();
@@ -790,7 +800,6 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if (!_began) return;
             if (evt.TriggerType == MonaTriggerType.OnFieldOfViewChanged)
             {
-                if (OnExecuteTriggerEvent == null) OnExecuteTriggerEvent = ExecuteTriggerEvent;
                 _runner.WaitFrame(_index, OnExecuteTriggerEvent, evt, LoggingEnabled);
             }
             else
@@ -814,11 +823,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         {
             if (!_began) return;
 
-            if (evt.Name == MonaBrainConstants.RESULT_STATE) return;
-            if (evt.Name.StartsWith("__")) return;
-
             var nevt = new InstructionEvent(evt.Name, evt.Value);
-            if (OnExecuteValueEvent == null) OnExecuteValueEvent = ExecuteValueEvent;
             _runner.WaitFrame(_index, OnExecuteValueEvent, nevt, LoggingEnabled);
         }
 
@@ -833,8 +838,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleBroadcastMessage(InstructionEvent evt)
         {
+            if (!_began) return;
             //Debug.Log($"{nameof(HandleBroadcastMessage)} '{evt.Message}' received by ({Name}) on frame {Time.frameCount}");
-            if (OnExecuteMessageEvent == null) OnExecuteMessageEvent = ExecuteMessage;
             _runner.WaitFrame(_index, OnExecuteMessageEvent, evt, LoggingEnabled);
         }
 
@@ -873,7 +878,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleStatePropertyChanged(string value)
         {
-            if (!_began) return;
+            if (!_began)
+                return;
+
             _profilerStateChanged.Begin();
             if (_activeStatePage == null || value != _activeStatePage.Name)
             {
@@ -901,8 +908,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
                 if (StatePages[i].Name == value || (string.IsNullOrEmpty(value) && i == 0))
                 {
-                    StatePages[i].SetActive(true);
                     _activeStatePage = StatePages[i];
+                    StatePages[i].SetActive(true);
                 }
                 else
                 {
@@ -938,8 +945,12 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             CorePage.Unload(destroy);
             for (var i = 0; i < _statePages.Count; i++)
                 _statePages[i].Unload(destroy);
-            RemoveEventDelegates();
-            RemoveHierarchyDelegates();
+                
+            if(destroy)
+            {
+                RemoveEventDelegates();
+            }
+
             _began = false;
 
             //if(_root != null && (MonoBehaviour)_root.GetComponent<IMonaAnimationController>() != null)

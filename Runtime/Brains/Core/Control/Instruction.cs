@@ -75,6 +75,8 @@ namespace Mona.SDK.Brains.Core.Control
         private bool _hasAnimationTile;
         private bool _hasOnMessageTile;
 
+        private EventHook _brainEventHook;
+
         public IInstructionTile CurrentTile {
             get
             {
@@ -104,7 +106,10 @@ namespace Mona.SDK.Brains.Core.Control
         {
 
             if (_instructionTickEvent == default)
+            {
                 _instructionTickEvent = new InstructionEvent(InstructionEventTypes.Tick, this);
+                _brainEventHook = new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, brain);
+            }
 
             _unloaded = false;
             _brain = brain;
@@ -336,24 +341,6 @@ namespace Mona.SDK.Brains.Core.Control
             return _result;
         }
 
-        static readonly ProfilerMarker _profilerHasConditional = new ProfilerMarker($"MonaBrains.{nameof(Instruction)}.{nameof(HasConditional)}");
-        static readonly ProfilerMarker _profilerHasTickAfter = new ProfilerMarker($"MonaBrains.{nameof(Instruction)}.{nameof(HasTickAfter)}");
-        static readonly ProfilerMarker _profilerHasAnimation = new ProfilerMarker($"MonaBrains.{nameof(Instruction)}.{nameof(HasAnimationTiles)}");
-
-        private void StartProfile()
-        {
-            if (HasTickAfter()) _profilerHasTickAfter.Begin();
-            if (HasConditional()) _profilerHasConditional.Begin();
-            if (HasAnimationTiles()) _profilerHasAnimation.Begin();
-        }
-
-        private void EndProfile()
-        {
-            if (HasAnimationTiles()) _profilerHasAnimation.End();
-            if (HasConditional()) _profilerHasConditional.End();
-            if (HasTickAfter()) _profilerHasTickAfter.End();
-        }
-
         public void Execute(InstructionEventTypes eventType, InstructionEvent evt = default)
         {
             //Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction received event {eventType}", _brain.Body.ActiveTransform.gameObject);
@@ -361,13 +348,10 @@ namespace Mona.SDK.Brains.Core.Control
             if (_paused) return;
             if (_muted) return;
 
-            StartProfile();
-
             if (_result == InstructionTileResult.WaitingForAuthority)
             {
                 if (eventType != InstructionEventTypes.Authority)
                 {
-                    EndProfile();
                     return;
                 }
             }
@@ -381,14 +365,11 @@ namespace Mona.SDK.Brains.Core.Control
                     Debug.Log($"tick while runnin' {_result}");
                     MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick));
                 }*/
-
-                EndProfile();
                 return;
             }
 
             if (_instructionTiles.Count == 0)
             {
-                EndProfile();
                 return;
             }
 
@@ -402,13 +383,10 @@ namespace Mona.SDK.Brains.Core.Control
             else if (result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
             {
                 //if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
-                MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), _instructionTickEvent);
+                MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
             }
 
             ClearInputs();
-
-            EndProfile();
-
         }
 
         private void ClearInputs()
@@ -556,9 +534,10 @@ namespace Mona.SDK.Brains.Core.Control
         {
             if (tile.Muted) return InstructionTileResult.Success;
             //Debug.Log($"{nameof(ExecuteTile)} instruction #{_page.Instructions.IndexOf(this)}, tile #{InstructionTiles.IndexOf(tile)} {tile.Name} current result {_result}", _brain.Body.Transform.gameObject);
+        
             if (_brain.Body.HasControl())
                 _brain.Variables.Set(_progressTile, (float)InstructionTiles.IndexOf(tile));
-
+        
             return tile.Do();
         }
 
@@ -632,6 +611,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
             else
             {
+                if (_firstActionIndex == 0) tile = InstructionTiles[1];
                 ExecuteActionTile(tile);
             }
         }
@@ -676,14 +656,15 @@ namespace Mona.SDK.Brains.Core.Control
             if (_paused) return;
             if (_muted) return;
 
-            if (tile == null)
+            if (object.ReferenceEquals(tile, null))
             {
                 _result = InstructionTileResult.Success;
                 _brain.Variables.Set(_progressTile, -1f);
                 if (!HasConditional() || HasTickAfter())
                 {
                     //if(HasTickAfter()) Debug.Log($"TICK IT success {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
-                    MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), _instructionTickEvent);
+             
+                    MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
                 }
             }
             else
@@ -695,11 +676,12 @@ namespace Mona.SDK.Brains.Core.Control
                     //Debug.Log($"{nameof(ExecuteActionTile)} immediately execute next tile {tile.NextExecutionTile} {_result}");
                     ExecuteActionTile(tile.NextExecutionTile);
                 }
-                else if (_result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
+                if (_result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
                 {
                     //if (HasTickAfter() && _brain.LoggingEnabled) Debug.Log($"TICK IT failure {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
-                    MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), _instructionTickEvent);
+                    MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
                 }
+                
             }
         }
 

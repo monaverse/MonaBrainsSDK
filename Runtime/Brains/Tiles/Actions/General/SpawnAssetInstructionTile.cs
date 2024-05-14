@@ -38,12 +38,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             return new List<IMonaBodyAssetItem>() { (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset) };
         }
 
+        IMonaBodyAssetItem _lastAsset;
+        string _lastAssetName;
+
         protected override IMonaBodyAssetItem GetAsset()
         {
             if (!string.IsNullOrEmpty(_monaAssetName))
                 _monaAsset = _brain.Variables.GetString(_monaAssetName);
 
-            return (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset);
+            if(_lastAssetName != _monaAsset)
+                _lastAsset = (IMonaBodyAssetItem)_brain.GetMonaAsset(_monaAsset);
+
+            _lastAssetName = _monaAsset;
+
+            return _lastAsset;
         }
     }
 }

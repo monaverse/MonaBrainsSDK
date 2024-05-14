@@ -132,18 +132,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         }
 
 
-        public override void SetThenCallback(InstructionTileCallback thenCallback)
+        public override void SetThenCallback(IInstructionTile tile, Func<InstructionTileCallback, InstructionTileResult> thenCallback)
         {
             if (_thenCallback.ActionCallback == null)
             {
-                _instructionCallback = thenCallback;
-                _thenCallback = new InstructionTileCallback();
+                _instructionCallback.Tile = tile;
+                _instructionCallback.ActionCallback = thenCallback;
                 _thenCallback.Tile = this;
                 _thenCallback.ActionCallback = ExecuteActionCallback;
             }
         }
 
-        private InstructionTileCallback _instructionCallback;
+        private InstructionTileCallback _instructionCallback = new InstructionTileCallback();
         private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
         {
             if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);

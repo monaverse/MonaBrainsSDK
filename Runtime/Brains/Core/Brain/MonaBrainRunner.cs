@@ -271,19 +271,19 @@ namespace Mona.SDK.Brains.Core.Brain
         }
 
         private List<WaitFrameQueueItem> _waitQueue = new List<WaitFrameQueueItem>();
-        private List<Dictionary<InstructionEventTypes, WaitFrameQueueItem>> _wait = new List<Dictionary<InstructionEventTypes, WaitFrameQueueItem>>();
+        private List<Dictionary<InstructionEventTypes, WaitFrameQueueItem>> _wait = new List<Dictionary<InstructionEventTypes, WaitFrameQueueItem>>(20);
         private List<Dictionary<IInstruction, WaitFrameQueueItem>> _waitForNextBrainTick = new List<Dictionary<IInstruction, WaitFrameQueueItem>>();
 
-        private HashSet<int> _layersSet = new HashSet<int>();
-        private List<int> _layers = new List<int>();
+        private HashSet<int> _layersSet = new HashSet<int>(20);
+        private List<int> _layers = new List<int>(20);
 
-        private HashSet<InstructionEventTypes> _typesSet = new HashSet<InstructionEventTypes>();
-        private List<InstructionEventTypes> _types = new List<InstructionEventTypes>();
+        private HashSet<InstructionEventTypes> _typesSet = new HashSet<InstructionEventTypes>(100);
+        private List<InstructionEventTypes> _types = new List<InstructionEventTypes>(100);
 
-        private HashSet<IInstruction> _instructionsSet = new HashSet<IInstruction>();
-        private List<IInstruction> _instructions = new List<IInstruction>();
+        private HashSet<IInstruction> _instructionsSet = new HashSet<IInstruction>(100);
+        private List<IInstruction> _instructions = new List<IInstruction>(100);
         
-        private List<List<WaitFrameQueueItem>> _waitInactiveQueue = new List<List<WaitFrameQueueItem>>();
+        private List<List<WaitFrameQueueItem>> _waitInactiveQueue = new List<List<WaitFrameQueueItem>>(20);
 
         private IEnumerator WaitFrameCallback(Action callback)
         {
@@ -296,45 +296,56 @@ namespace Mona.SDK.Brains.Core.Brain
         private bool _debug;
 
         static readonly ProfilerMarker _processWaitFrame = new ProfilerMarker("MonaBrains.WaitFrame");
+        static readonly ProfilerMarker _processWaitFrameQueue = new ProfilerMarker("MonaBrains.WaitFrame.queue");
+        static readonly ProfilerMarker _processWaitFrameQueueLayer = new ProfilerMarker("MonaBrains.WaitFrame.queue.layer");
+        static readonly ProfilerMarker _processWaitFrameQueueTick = new ProfilerMarker("MonaBrains.WaitFrame.queue.tick");
+        static readonly ProfilerMarker _processWaitFrameQueueWait = new ProfilerMarker("MonaBrains.WaitFrame.queue.wait");
 
         public void WaitFrame(int index, Action<InstructionEvent> callback, InstructionEvent evt, bool debug = false)
         {
+            _processWaitFrame.Begin();
+            _processWaitFrameQueue.Begin();
+                _debug = debug;
 
-            _debug = debug;
-
-            var instruction = evt.Instruction;
-            var type = evt.Type;
+                var instruction = evt.Instruction;
+                var type = evt.Type;
 
             //Debug.Log($"{nameof(WaitFrame)} WAIT WaitFrame {index}, evt: {evt} {Time.frameCount}");
-            if (!_layersSet.Contains(index))
-            {
-                _layersSet.Add(index);
-                _layers.Add(index);
-            }
-
-            if (!_typesSet.Contains(type))
-            {
-                _typesSet.Add(type);
-                _types.Add(type);
-            }
-
-            var wait = _wait[index];
-            var waitForNextBrainTick = _waitForNextBrainTick[index];
-
-            if (type == InstructionEventTypes.Tick)
-            {
-                if (!_instructionsSet.Contains(instruction))
+            _processWaitFrameQueueLayer.Begin();
+                if (!_layersSet.Contains(index))
                 {
-                    _instructionsSet.Add(instruction);
-                    _instructions.Add(instruction);
+                    _layersSet.Add(index);
+                    _layers.Add(index);
                 }
 
-                if (!waitForNextBrainTick.ContainsKey(instruction))
-                    waitForNextBrainTick.Add(instruction, new WaitFrameQueueItem(-1));
-            }
+                if (!_typesSet.Contains(type))
+                {
+                    _typesSet.Add(type);
+                    _types.Add(type);
+                }
+            _processWaitFrameQueueLayer.End();
 
-            if (!wait.ContainsKey(type))
-                wait.Add(type, new WaitFrameQueueItem(-1));
+                var wait = _wait[index];
+                var waitForNextBrainTick = _waitForNextBrainTick[index];
+
+                if (type == InstructionEventTypes.Tick)
+                {
+                _processWaitFrameQueueTick.Begin();
+                    if (!_instructionsSet.Contains(instruction))
+                    {
+                        _instructionsSet.Add(instruction);
+                        _instructions.Add(instruction);
+                    }
+
+                    if (!waitForNextBrainTick.ContainsKey(instruction))
+                        waitForNextBrainTick.Add(instruction, new WaitFrameQueueItem(-1));
+                _processWaitFrameQueueTick.End();
+                }
+            _processWaitFrameQueueWait.Begin();
+                if (!wait.ContainsKey(type))
+                    wait.Add(type, new WaitFrameQueueItem(-1));
+            _processWaitFrameQueueWait.End();
+            _processWaitFrameQueue.End();
 
             if (gameObject.activeSelf && gameObject.activeInHierarchy)
             {
@@ -357,11 +368,12 @@ namespace Mona.SDK.Brains.Core.Brain
                         wait[type] = new WaitFrameQueueItem(index, callback, evt, Time.frameCount);
                     _waitFrameRequested = true;
                 }
-
             }
             else
+            {
                 _waitInactiveQueue[index].Add(new WaitFrameQueueItem(index, callback, evt, Time.frameCount));
-
+            }
+            _processWaitFrame.End();
         }
 
         private void ClearWaitFrameQueue(int index)
@@ -392,11 +404,10 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void HandleMonaTick(MonaTickEvent evt)
         {
-            _processWaitFrame.Begin();
             if (_beginBrainsAfterFrame > 0 && Time.frameCount - _beginBrainsAfterFrame > 0)
             {
                 _beginBrainsAfterFrame = 0;
-                BeginBrains();                
+                BeginBrains();             
                 return;
             }
 
@@ -485,8 +496,6 @@ namespace Mona.SDK.Brains.Core.Brain
                 //MonaEventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
                 //OnMonaTick = null;
             }
-
-            _processWaitFrame.End();
         }
 
         private void AddHotReloadDelegates()
@@ -534,13 +543,13 @@ namespace Mona.SDK.Brains.Core.Brain
                     var instance = (IMonaBrain)Instantiate(_brainGraphs[i]);
                     if (instance != null)
                     {
-                        _wait.Add(new Dictionary<InstructionEventTypes, WaitFrameQueueItem>());
-                        _waitForNextBrainTick.Add(new Dictionary<IInstruction, WaitFrameQueueItem>());
+                        _wait.Add(new Dictionary<InstructionEventTypes, WaitFrameQueueItem>(10));
+                        _waitForNextBrainTick.Add(new Dictionary<IInstruction, WaitFrameQueueItem>(20));
                         instance.Guid = _brainGraphs[i].Guid;
                         instance.ListenGuid = Guid.NewGuid().ToString();
                         instance.LoggingEnabled = _brainGraphs[i].LoggingEnabled;
                         instance.Preload(gameObject, this, i);
-                        _waitInactiveQueue.Add(new List<WaitFrameQueueItem>());
+                        _waitInactiveQueue.Add(new List<WaitFrameQueueItem>(10));
                         _brainInstances.Add(instance);
                     }
                 }
@@ -572,7 +581,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private void HandleDisableOnLoad()
         {
             if (!gameObject.activeInHierarchy) return;
-           //    PreloadBrains();
+            PreloadBrains();
         }
 
         private void HandleStarted()

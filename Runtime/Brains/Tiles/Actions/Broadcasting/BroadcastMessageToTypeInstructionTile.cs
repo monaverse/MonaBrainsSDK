@@ -218,7 +218,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
             for (var i = 0; i < children.Count; i++)
             {
-                if (children[i] == null)
+                if (children[i] == null || !children[i].GetActive())
                     continue;
 
                 BroadcastMessage(_brain, _message, children[i]);
@@ -232,7 +232,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
 
             for (int i = 0; i < spawned.Count; i++)
             {
-                if (spawned[i] == null)
+                if (spawned[i] == null || !spawned[i].GetActive())
                     continue;
 
                 if (SendToAllAttached)

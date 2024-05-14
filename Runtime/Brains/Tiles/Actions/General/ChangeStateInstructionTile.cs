@@ -8,6 +8,7 @@ using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.State.Structs;
 using Unity.Profiling;
+using Mona.SDK.Brains.Core.Control;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -33,9 +34,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public ChangeStateInstructionTile() { }
 
-        public void Preload(IMonaBrain brain)
+        public void Preload(IMonaBrain brain, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brain;
+            _instruction = instruction;
         }
 
         public IMonaBody GetBodyToControl()
@@ -49,9 +51,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (!string.IsNullOrEmpty(_stateValueName))
                 _changeState = _brain.Variables.GetString(_stateValueName);
 
+            _instruction.Result = InstructionTileResult.Success; //hack to make sure that instructions that loop back on themselves don't fail
             _brain.BrainState = _changeState;
             //if(_brain.LoggingEnabled)
-            //Debug.Log($"{nameof(ChangeStateInstructionTile)} state: {_changeState}", _brain.Body.Transform.gameObject);
             _profilerDo.End();
             return Complete(InstructionTileResult.Success);
         }

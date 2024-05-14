@@ -2,7 +2,7 @@
 
 namespace Mona.SDK.Brains.Tiles.Actions.General.Interfaces
 {
-    public interface IChangeStateInstructionTile : IInstructionTileWithPreload
+    public interface IChangeStateInstructionTile : IInstructionTileWithPreloadAndPageAndInstruction
     {
         string State { get; set; }
     }

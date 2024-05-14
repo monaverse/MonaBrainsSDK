@@ -20,6 +20,8 @@ namespace Mona.SDK.Brains.Core.State
 
         private Dictionary<string, Vector3> _internalVariables = new Dictionary<string, Vector3>();
 
+        private EventHook _eventHook;
+
         public MonaBrainVariables(GameObject gameObject = null, IMonaBrain brain = null) : base(gameObject)
         {
             _brain = brain;
@@ -35,6 +37,7 @@ namespace Mona.SDK.Brains.Core.State
         {
             SetGameObject(gameObject);
             _brain = brain;
+            _eventHook = new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain);
         }
 
         public void Set(string name, IMonaBrain value)
@@ -69,7 +72,9 @@ namespace Mona.SDK.Brains.Core.State
         protected override void FireValueEvent(string variableName, IMonaVariablesValue value)
         {
             base.FireValueEvent(variableName, value);
-            MonaEventBus.Trigger<MonaValueChangedEvent>(new EventHook(MonaCoreConstants.VALUE_CHANGED_EVENT, _brain), new MonaValueChangedEvent(variableName, value));
+            if (variableName == MonaBrainConstants.RESULT_STATE) return;
+            if (variableName.StartsWith("__")) return;
+            MonaEventBus.Trigger<MonaValueChangedEvent>(_eventHook, new MonaValueChangedEvent(variableName, value));
         }
     }
 }
