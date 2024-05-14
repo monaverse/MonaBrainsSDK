@@ -20,8 +20,7 @@ namespace Mona.SDK.Brains.Core.Tiles
         IInstructionTile NextExecutionTile { get; set; }
         
         InstructionTileCallback ThenCallback { get; }
-        void SetThenCallback(InstructionTileCallback thenCallback);
-
+        void SetThenCallback(IInstructionTile tile, Func<InstructionTileCallback, InstructionTileResult> callback);
         InstructionTileResult Do();
         void Unload(bool destroy = false);
     }

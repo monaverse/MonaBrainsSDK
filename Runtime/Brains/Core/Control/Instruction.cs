@@ -148,7 +148,7 @@ namespace Mona.SDK.Brains.Core.Control
 
                 if (tile is IInputInstructionTile)
                     _hasInputTile = true;
-
+                    
                 if (tile is IActionInstructionTile)
                 {
                     if (_firstActionIndex == -1)
@@ -322,13 +322,12 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
+        private Func<InstructionTileCallback, InstructionTileResult> _executeCallbackDelegate;
         private void PreloadActionTile(IInstructionTile tile)
         {
-            var callback = new InstructionTileCallback();
-                callback.Tile = tile;
-                callback.ActionCallback = ExecuteCallback;
-
-            tile.SetThenCallback(callback);         
+            if(_executeCallbackDelegate == null)
+                _executeCallbackDelegate = ExecuteCallback;
+            tile.SetThenCallback(tile, _executeCallbackDelegate);         
         }
 
         private InstructionTileResult ExecuteCallback(InstructionTileCallback callback)

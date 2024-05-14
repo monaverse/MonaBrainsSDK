@@ -42,12 +42,16 @@ namespace Mona.SDK.Brains.Core.Tiles
         protected IInstructionTile _nextTile;
         public IInstructionTile NextExecutionTile { get => _nextTile; set => _nextTile = value; }
 
-        protected InstructionTileCallback _thenCallback;
+        protected InstructionTileCallback _thenCallback = new InstructionTileCallback();
         public InstructionTileCallback ThenCallback => _thenCallback;
-        public virtual void SetThenCallback(InstructionTileCallback thenCallback)
+        
+        public virtual void SetThenCallback(IInstructionTile tile, Func<InstructionTileCallback, InstructionTileResult> thenCallback)
         {
             if (_thenCallback.ActionCallback == null)
-                _thenCallback = thenCallback;
+            {
+                _thenCallback.Tile = tile;
+                _thenCallback.ActionCallback = thenCallback;
+            }
         }
         
         public InstructionTileResult Complete(InstructionTileResult result, bool invokeCallback)
