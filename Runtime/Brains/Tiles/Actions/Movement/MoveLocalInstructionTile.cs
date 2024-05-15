@@ -25,7 +25,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
     [Serializable]
     public class MoveLocalInstructionTile : InstructionTile, IMoveLocalInstructionTile, IActionInstructionTile, 
         IPauseableInstructionTile, IActivateInstructionTile, INeedAuthorityInstructionTile,
-        IProgressInstructionTile
+        IProgressInstructionTile, ITickAfterInstructionTile
     {
         public override Type TileType => typeof(MoveLocalInstructionTile);
 
