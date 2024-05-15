@@ -12,7 +12,7 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnNumberEqualInstructionTile : InstructionTile, IInstructionTileWithPreload, IOnValueInstructionTile, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile
+    public class OnNumberEqualInstructionTile : InstructionTile, IInstructionTileWithPreload, IOnValueInstructionTile, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile, ITickAfterInstructionTile
     {
         public const string ID = "OnNumberEqual";
         public const string NAME = "Number Equal To";

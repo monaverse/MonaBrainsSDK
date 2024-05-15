@@ -11,7 +11,7 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
-    public class CopyBodyValueInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class CopyBodyValueInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload, ITickAfterInstructionTile
     {
         public const string ID = "CopyBodyValue";
         public const string NAME = "Copy Body Value";

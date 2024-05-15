@@ -366,19 +366,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 switch (_variableType)
                 {
                     case VariableUsageType.Number:
-                        brainVariables.Set(_targetVariable, _myNumber);
+                        brainVariables.Set(_targetVariable, _myNumber, true, false);
                         break;
                     case VariableUsageType.String:
-                        brainVariables.Set(_targetVariable, _myString);
+                        brainVariables.Set(_targetVariable, _myString, true, false);
                         break;
                     case VariableUsageType.Boolean:
-                        brainVariables.Set(_targetVariable, _myBool);
+                        brainVariables.Set(_targetVariable, _myBool, true, false);
                         break;
                     case VariableUsageType.Vector2:
-                        brainVariables.Set(_targetVariable, _myVector2);
+                        brainVariables.Set(_targetVariable, _myVector2, true, false);
                         break;
                     case VariableUsageType.Vector3:
-                        brainVariables.Set(_targetVariable, _myVector3);
+                        brainVariables.Set(_targetVariable, _myVector3, true, false);
                         break;
                     default:
                         markerGet.Begin();
