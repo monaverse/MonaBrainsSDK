@@ -444,7 +444,7 @@ namespace Mona.SDK.Brains.Core.Control
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Tick:
-                        if (_brain.Body.HasControl() && (tile is IActionInstructionTile || tile is ITickAfterInstructionTile) && (evt.Instruction == this))
+                        if (_brain.Body.HasControl() && (tile is IActionInstructionTile || HasTickAfter()) && (evt.Instruction == this))
                         {
                             //_result = InstructionTileResult.Running;
                             //Debug.Log($"execute tick");
