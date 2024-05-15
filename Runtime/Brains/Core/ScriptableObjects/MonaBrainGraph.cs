@@ -338,6 +338,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 _preloaded = true;
             }
 
+            //Debug.Log($"{nameof(Preload)} {Name}", gameObject);
+
             _profilerPreload.End();
         }
 
@@ -390,6 +392,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 }
             }
 
+            _variables.CacheVariableNames();
+            _defaultVariables.CacheVariableNames();
+
             _profilerCacheReserved.End();
         }
 
@@ -419,6 +424,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                         _defaultVariables = new MonaBrainVariables();
 
                     _variables.VariableList = _defaultVariables.VariableList;
+                    _variables.CacheVariableNames();
+                    _defaultVariables.CacheVariableNames();
 
                     _variables.SaveResetDefaults();
 
@@ -733,7 +740,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             SetActiveStatePage(BrainState);
             //if (LoggingEnabled)
-            //    Debug.Log($"{nameof(Begin)} brain on Body {_body.ActiveTransform.name}", _body.ActiveTransform);
+            //Debug.Log($"{nameof(Begin)} brain on Body {Name}", _body.Transform.gameObject);
 
             _variables.Set(MonaBrainConstants.ON_STARTING, true, false);
             ExecuteCorePageInstructions(InstructionEventTypes.Start);
@@ -958,6 +965,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             RemoveMonaAssetsFromNetwork();
             ResetBrainVariables();
+
+            //if(_body.Transform != null)
+            //    Debug.Log($"{nameof(Unload)} brain on Body {Name}", _body.Transform.gameObject);
         }
 
         private void ResetBrainVariables()
