@@ -337,7 +337,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         static readonly ProfilerMarker _profileModifyValueOnBrains = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.{nameof(ModifyValueOnBrains)}");
 
-        static readonly ProfilerMarker marker = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.Value");
+
+        static readonly ProfilerMarker markerGet = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.Get");
+        static readonly ProfilerMarker markerSet = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.Set");
+
 
         private void ModifyValueOnBrains(IMonaVariablesValue myValue, IMonaBody body)
         {
@@ -378,25 +381,27 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                         brainVariables.Set(_targetVariable, _myVector3);
                         break;
                     default:
-                    marker.Begin();
+                        markerGet.Begin();
                         var targetValue = brainVariables.GetVariable(_targetVariable);
                         if (targetValue == null)
                         {
-                            marker.End();
+                            markerGet.End();
                             continue;
                         }
+                        markerGet.End();
 
+                        markerSet.Begin();
                         if (targetValue is IMonaVariablesStringValue)
                             brainVariables.Set(_targetVariable, _brain.Variables.GetValueAsString(_myVariable), false);
                         else if (targetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesFloatValue)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetFloat(myValue.Name), false);
+                            brainVariables.Set(_targetVariable, _brain.Variables.GetFloat(_myVariable), false);
                         else if (targetValue is IMonaVariablesBoolValue && myValue is IMonaVariablesBoolValue)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetBool(myValue.Name), false);
+                            brainVariables.Set(_targetVariable, _brain.Variables.GetBool(_myVariable), false);
                         else if (targetValue is IMonaVariablesVector2Value && myValue is IMonaVariablesVector2Value)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector2(myValue.Name), false);
+                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector2(_myVariable), false);
                         else if (targetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector3(myValue.Name), false);
-                    marker.End();
+                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector3(_myVariable), false);
+                        markerSet.End();
                         break;
                 }
             }
