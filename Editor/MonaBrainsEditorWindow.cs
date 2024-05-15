@@ -15,6 +15,8 @@ using System;
 
 using UnityEditor;
 using Mona.SDK.Brains.Core.Control;
+using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
+using Mona.SDK.Brains.Tiles.Actions.Broadcasting;
 
 namespace Mona.SDK.Brains.UIEditors
 {
@@ -378,10 +380,55 @@ namespace Mona.SDK.Brains.UIEditors
                     {
                         if (_globalRunner != null && _globalRunner.PlayerBrainGraphs.Contains(x)) return true;
                         if (_runner != null && _runner.BrainGraphs.Contains(x)) return true;
-                        if (x.name.ToLower().Contains(evt.newValue.ToLower())) return true;
-                        if (x.Name.ToLower().Contains(evt.newValue.ToLower())) return true;
-                        if (x.CorePage.Instructions.Find(x => x.InstructionTiles.Find(t => t.Name.ToLower().Contains(evt.newValue.ToLower())) != null) != null) return true;
-                        if (x.StatePages.Find(s => s.Instructions.Find(x => x.InstructionTiles.Find(t => t.Name.ToLower().Contains(evt.newValue.ToLower())) != null) != null) != null) return true;
+                        if (evt.newValue.StartsWith("m:"))
+                        {
+                            var value = evt.newValue.Replace("m:", "");
+                            Debug.Log($"find messages {value}");
+                            if (x.CorePage.Instructions.Find(x =>
+                            {
+                                //if (x.InstructionTiles.Find(t => (t is IOnMessageInstructionTile && ((IOnMessageInstructionTile)t).Message.ToLower().Contains(value.ToLower()) != null)) != null) return true;
+                                if (x.InstructionTiles.Find(t => (t is BroadcastMessageToTypeInstructionTile && ((BroadcastMessageToTypeInstructionTile)t).Message.ToLower().Contains(value.ToLower()))) != null) return true;
+                                return false;
+                            }) != null) return true;
+                            if (x.StatePages.Find(s => s.Instructions.Find(x =>
+                            {
+                                //if (x.InstructionTiles.Find(t => (t is IOnMessageInstructionTile && ((IOnMessageInstructionTile)t).Message.ToLower().Contains(value.ToLower()) != null)) != null) return true;
+                                if (x.InstructionTiles.Find(t => (t is BroadcastMessageToTypeInstructionTile && ((BroadcastMessageToTypeInstructionTile)t).Message.ToLower().Contains(value.ToLower()))) != null) return true;
+                                return false;
+                            }) != null) != null) return true;
+                        }
+                        else if (evt.newValue.StartsWith("on:"))
+                        {
+                            var value = evt.newValue.Replace("on:", "");
+                            Debug.Log($"find on messages {value}");
+                            if (x.CorePage.Instructions.Find(x =>
+                            {
+                                if (x.InstructionTiles.Find(t => (t is IOnMessageInstructionTile && ((IOnMessageInstructionTile)t).Message.ToLower().Contains(value.ToLower()))) != null) return true;
+                                return false;
+                            }) != null) return true;
+                            if (x.StatePages.Find(s => s.Instructions.Find(x =>
+                            {
+                                if (x.InstructionTiles.Find(t => (t is IOnMessageInstructionTile && ((IOnMessageInstructionTile)t).Message.ToLower().Contains(value.ToLower()))) != null) return true;
+                                return false;
+                            }) != null) != null) return true;
+                        }
+                        else
+                        {
+                            if (x.name.ToLower().Contains(evt.newValue.ToLower())) return true;
+                            if (x.Name.ToLower().Contains(evt.newValue.ToLower())) return true;
+                            var value = evt.newValue.Replace("m:", "");
+                            if (x.CorePage.Instructions.Find(x =>
+                            {
+                                if (x.InstructionTiles.Find(t => t.Name.ToLower().Contains(value.ToLower())) != null) return true;
+                                return false;
+                            }) != null) return true;
+                            if (x.StatePages.Find(s => s.Instructions.Find(x =>
+                            {
+                                if (x.InstructionTiles.Find(t => t.Name.ToLower().Contains(value.ToLower())) != null) return true;
+                                return false;
+                            }) != null) != null) return true;
+                        }
+
                         if (x.HasMonaTag(evt.newValue)) return true;
                         return false;
                     });
