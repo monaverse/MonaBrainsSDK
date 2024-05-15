@@ -170,14 +170,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         _pool.Add(prefabId, new List<IMonaBody>());
 
                     _pool[prefabId].Add(child);
-                    child.OnDisabled += HandleBodyDisabled;
-                    if (disable)
-                        child.SetActive(false);
-                    else
-                        child.SetActive(true);
+                    ((MonaBodyBase)child).PrefabId = prefabId;
+                    child.OnBodyDisabled += HandleBodyDisabled;
+                    if(disable)
+                        child.SetDisableOnLoad(true);
                 }
 
-                ((MonaBodyBase)child).PrefabId = prefabId;
                 ((MonaBodyBase)child).MakeUnique(_brain.Player.PlayerId, true);
                 MonaEventBus.Trigger<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), new MonaBodyInstantiatedEvent(child));
             }
@@ -384,13 +382,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             //if(_brain.LoggingEnabled) //
             //Debug.Log($"{nameof(Unload)} spawn asset instruction tile unload");
             base.Unload();
+            
             for (var i = 0; i < _equipmentInstances.Count; i++)
             {
                 var instance = _equipmentInstances[i];
                 if (instance == null) continue;
                 if (destroy)
                 {
-                    instance.OnDisabled -= HandleBodyDisabled;
+                    instance.OnBodyDisabled -= HandleBodyDisabled;
                     if (instance.Transform != null && instance.Transform.gameObject != null)
                         instance.Destroy();
                 }
