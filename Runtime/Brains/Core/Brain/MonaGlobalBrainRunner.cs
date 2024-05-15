@@ -187,11 +187,6 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             SetupEasyUIGlobalRunner();
             CacheCamera();
-
-#if (!OLYMPIA)
-            IMonaNetworkSpawner mockSpawner = null;
-            MonaEventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT), new NetworkSpawnerStartedEvent(mockSpawner));
-#endif
         }
 
         private void CacheCamera()
