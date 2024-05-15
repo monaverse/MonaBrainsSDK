@@ -169,10 +169,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     if (!_pool.ContainsKey(prefabId))
                         _pool.Add(prefabId, new List<IMonaBody>());
 
-                    _pool[prefabId].Add(child);
                     ((MonaBodyBase)child).PrefabId = prefabId;
                     child.OnBodyDisabled += HandleBodyDisabled;
-                    if(disable)
+                    if (disable)
                         child.SetDisableOnLoad(true);
                 }
 
@@ -315,9 +314,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             //Debug.Log($"{nameof(SpawnInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
 
-            poolItem.SetActive(true);
-            poolItem.SetVisible(false);
-
             if (poolItem.ActiveRigidbody != null)
                 poolItem.ActiveRigidbody.WakeUp();
 
@@ -327,6 +323,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
 
             poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
+
+            poolItem.SetActive(true);
+            poolItem.SetVisible(false);
 
             var childBrains = poolItem.Transform.GetComponentsInChildren<IMonaBrainRunner>();
             for (var i = 0; i < childBrains.Length; i++)
