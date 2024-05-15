@@ -662,7 +662,7 @@ namespace Mona.SDK.Brains.Core.Brain
             for (var i = 0; i < _transformDefaults.Count; i++)
             {
                 var d = _transformDefaults[i];
-                if (d.Body.ActiveRigidbody == null || d.Body.ActiveTransform.gameObject == null) continue;
+                if (d.Body.ActiveTransform == null || d.Body.ActiveRigidbody == null || d.Body.ActiveTransform.gameObject == null) continue;
                 d.Body.ActiveTransform.SetParent(d.Parent);
 
                 if (d.Parent != null)
