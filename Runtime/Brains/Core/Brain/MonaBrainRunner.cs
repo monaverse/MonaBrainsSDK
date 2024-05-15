@@ -208,6 +208,7 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             EnsureGlobalRunnerExists();
             CacheComponents();
+            InitVariableCache();
             AddHotReloadDelegates();
             DetectRigidbody();
             LoadUrl();
@@ -233,7 +234,7 @@ namespace Mona.SDK.Brains.Core.Brain
         }
 
         static readonly ProfilerMarker _restartBrains = new ProfilerMarker("MonaBrains.RestartBrains");
-        private void OnEnable()
+        private void HandleEnabled()
         {
             _restartBrains.Begin();
             if (_began)
@@ -241,7 +242,7 @@ namespace Mona.SDK.Brains.Core.Brain
             _restartBrains.End();
         }
 
-        private void OnDisable()
+        private void HandleDisabled()
         {
             if(_began)
                 UnloadBrains();
@@ -259,6 +260,8 @@ namespace Mona.SDK.Brains.Core.Brain
                 _body = gameObject.AddComponent<MonaBody>();
             _body.OnDisableOnLoad += HandleDisableOnLoad;
             _body.OnStarted += HandleStarted;
+            _body.OnEnabled += HandleEnabled;
+            _body.OnDisabled += HandleDisabled;
             _body.OnResumed += HandleResumed;
             _body.OnPaused += HandlePaused;
             CacheTransforms();
@@ -347,7 +350,7 @@ namespace Mona.SDK.Brains.Core.Brain
             _processWaitFrameQueueWait.End();
             _processWaitFrameQueue.End();
 
-            if (gameObject.activeSelf && gameObject.activeInHierarchy)
+            if (gameObject.activeInHierarchy)
             {
                 if (type == InstructionEventTypes.Trigger || type == InstructionEventTypes.Message)
                 {
@@ -404,12 +407,12 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void HandleMonaTick(MonaTickEvent evt)
         {
-            if (_beginBrainsAfterFrame > 0 && Time.frameCount - _beginBrainsAfterFrame > 0)
+            /*if (_beginBrainsAfterFrame > 0 && Time.frameCount - _beginBrainsAfterFrame > 0)
             {
                 _beginBrainsAfterFrame = 0;
                 BeginBrains();             
                 return;
-            }
+            }*/
 
             if (!_began) return;
 
@@ -498,6 +501,12 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
+        private void InitVariableCache()
+        {
+            for(var i = 0;i < BrainGraphs.Count; i++)
+                BrainGraphs[i]?.DefaultVariables.CacheVariableNames();
+        }
+
         private void AddHotReloadDelegates()
         {
             OnHotReload = HandleHotReload;
@@ -573,14 +582,14 @@ namespace Mona.SDK.Brains.Core.Brain
         public void StartBrains(bool force = false)
         {
             if (force) _began = false;
-            //Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(StartBrains)} start brains from external source", _body.Transform.gameObject);
+            //Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(StartBrains)} start brains {gameObject.name}", gameObject);
 
             HandleStarted();
         }
 
         private void HandleDisableOnLoad()
         {
-            if (!gameObject.activeInHierarchy) return;
+            //Debug.Log($"{nameof(HandleDisableOnLoad)} {gameObject.name}", gameObject);
             PreloadBrains();
         }
 
@@ -589,8 +598,6 @@ namespace Mona.SDK.Brains.Core.Brain
             if (_began) return;
             //Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(HandleStarted)} start brains {_body.Transform.name} active? {gameObject.activeInHierarchy}", _body.Transform.gameObject);
 
-            if (!gameObject.activeInHierarchy) return;
-            
             PreloadBrains();
 
             if (OnMonaTick == null)
@@ -600,7 +607,8 @@ namespace Mona.SDK.Brains.Core.Brain
             }
 
             _began = true;
-            _beginBrainsAfterFrame = Time.frameCount;
+            //_beginBrainsAfterFrame = Time.frameCount;
+            BeginBrains();
         }
 
         private void HandleResumed()
@@ -645,7 +653,8 @@ namespace Mona.SDK.Brains.Core.Brain
         private void BeginBrainsAgain()
         {
             _began = true;
-            _beginBrainsAfterFrame = Time.frameCount;
+            //_beginBrainsAfterFrame = Time.frameCount;
+            BeginBrains();
         }            
 
         public void ResetTransforms()
