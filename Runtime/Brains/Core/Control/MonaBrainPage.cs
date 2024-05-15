@@ -110,6 +110,9 @@ namespace Mona.SDK.Brains.Core.Control
         {
             for (var i = 0; i < Instructions.Count;i++)
             {
+                if (!_isActive)
+                    break;
+
                 var instruction = Instructions[i];
                 instruction.Execute(eventType, evt);
             }
