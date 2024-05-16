@@ -49,12 +49,13 @@ namespace Mona.SDK.Brains.EasyUI
 
             _objectUIs = new List<EasyUIObjectWorldSpaceDefinitions>();
             _displayableVariables = new Dictionary<IMonaVariablesValue, MonaBrainGraph>();
+
+            _globalBrainRunner = MonaGlobalBrainRunner.Instance;
+            _globalBrainRunner.OnBrainsChanged += HandleBrainsChanged;
         }
 
         private void Start()
         {
-            _globalBrainRunner = MonaGlobalBrainRunner.Instance;
-            _globalBrainRunner.OnStarted += HandleGlobalBrainRunnerStarted;
             SetupScreenUI();
             HandleBrainsChanged();
         }
@@ -87,15 +88,8 @@ namespace Mona.SDK.Brains.EasyUI
         {
             if (_globalBrainRunner != null)
             {
-                _globalBrainRunner.OnStarted -= HandleGlobalBrainRunnerStarted;
                 _globalBrainRunner.OnBrainsChanged -= HandleBrainsChanged;
             }
-        }
-
-        private void HandleGlobalBrainRunnerStarted()
-        {
-            _globalBrainRunner.OnBrainsChanged += HandleBrainsChanged;
-            HandleBrainsChanged();
         }
 
         private void HandleBrainsChanged()
