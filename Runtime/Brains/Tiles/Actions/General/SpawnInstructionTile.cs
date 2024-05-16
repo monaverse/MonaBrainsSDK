@@ -192,7 +192,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     if (disable)
                     {
                         child.SetDisableOnLoad(true);
-                        Debug.Log($"{nameof(child.SetDisableOnLoad)}", child.Transform.gameObject);
+                        //Debug.Log($"{nameof(child.SetDisableOnLoad)}", child.Transform.gameObject);
                     }
                 }
 
