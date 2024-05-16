@@ -15,6 +15,8 @@ using Mona.SDK.Core.Body;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.Utils;
+using UnityEngine.UI;
+using TMPro;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -30,17 +32,38 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public virtual MoveDirectionType DirectionType => MoveDirectionType.Forward;
 
+        [SerializeField] private MonaBrainTargetColorType _target = MonaBrainTargetColorType.ThisBodyOnly;
+        [BrainPropertyEnum(true)] public MonaBrainTargetColorType Target { get => _target; set => _target = value; }
+
+        [SerializeField] private string _targetTag;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.Tag)]
+        [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
+
         [SerializeField] private Color _color = Color.white;
         [BrainProperty(true)] public Color Color { get => _color; set => _color = value; }
 
         [SerializeField] private float _duration = 1f;
         [SerializeField] private string _durationValueName = null;
 
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.ThisBodyOnly)]
         [BrainProperty(false)] public float Duration { get => _duration; set => _duration = value; }
         [BrainPropertyValueName("Duration", typeof(IMonaVariablesFloatValue))] public string DurationValueName { get => _durationValueName; set => _durationValueName = value; }
 
         [SerializeField] private EasingType _easing = EasingType.EaseInOut;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.ThisBodyOnly)]
         [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
+
+        [SerializeField] private bool _includeAttached = false;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.Tag)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.MessageSender)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.OnConditionTarget)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.OnHitTarget)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.MySpawner)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.LastSpawnedByMe)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.AllSpawnedByMe)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.MyPoolPreviouslySpawned)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTargetColorType.MyPoolNextSpawned)]
+        [BrainProperty(false)] public bool IncludeAttached { get => _includeAttached; set => _includeAttached = value; }
 
         private Vector3 _direction;
 
@@ -103,6 +126,36 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             _brain.Variables.GetFloat(_progressName);
 
             UpdateActive();
+        }
+
+        private bool ModifyAllAttached
+        {
+            get
+            {
+                switch (_target)
+                {
+                    case MonaBrainTargetColorType.Self:
+                        return false;
+                    case MonaBrainTargetColorType.GlobalFog:
+                        return false;
+                    case MonaBrainTargetColorType.GlobalShadows:
+                        return false;
+                    case MonaBrainTargetColorType.GlobalAmbience:
+                        return false;
+                    case MonaBrainTargetColorType.CameraBackground:
+                        return false;
+                    case MonaBrainTargetColorType.Parent:
+                        return false;
+                    case MonaBrainTargetColorType.Parents:
+                        return false;
+                    case MonaBrainTargetColorType.Children:
+                        return false;
+                    case MonaBrainTargetColorType.ThisBodyOnly:
+                        return false;
+                    default:
+                        return _includeAttached;
+                }
+            }
         }
 
         public void SetActive(bool active)
@@ -211,17 +264,50 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             return Do();
         }
 
-        private void SetColor(Color c)
+        private void SetColor(Color c, IMonaBody body)
         {
-            if(_brain.Body.Renderers.Length > 0)
+            if(body.Renderers.Length > 0)
             {
                 _brain.Body.SetColor(_color, true);
+                return;
             }
-            else if(_lights.Length > 0)
+
+            Light light = body.Transform.GetComponent<Light>();
+
+            if (light != null)
             {
-                for (var i = 0; i < _lights.Length; i++)
-                    _lights[i].color = c;
+                light.color = c;
+                return;
             }
+
+            Image image = body.Transform.GetComponent<Image>();
+
+            if (image != null)
+            {
+                image.color = c;
+                return;
+            }
+
+            Text text = body.Transform.GetComponent<Text>();
+
+            if (text != null)
+            {
+                text.color = c;
+                return;
+            }
+
+            TMP_Text tmpText = body.Transform.GetComponent<TMP_Text>();
+
+            if (tmpText != null)
+            {
+                text.color = c;
+                return;
+            }
+            //else if(_lights.Length > 0)
+            //{
+            //    for (var i = 0; i < _lights.Length; i++)
+            //        _lights[i].color = c;
+            //}
         }
 
         public override InstructionTileResult Do()
@@ -229,9 +315,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (!string.IsNullOrEmpty(_durationValueName))
                 _duration = _brain.Variables.GetFloat(_durationValueName);
 
-            if (_duration == 0)
+            if (_target != MonaBrainTargetColorType.ThisBodyOnly || _duration == 0)
             {
-                SetColor(_color);
+                SetColorOnTarget();
                 return Complete(InstructionTileResult.Success);
             }
 
@@ -291,12 +377,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             {
                 if(Progress >= 1f)
                 {
-                    SetColor(_end);
+                    SetColor(_end, _brain.Body);
                     StopMoving();
                 }
                 else
                 {
-                    SetColor(Color.Lerp(_start, _end, Evaluate(Progress)));
+                    SetColor(Color.Lerp(_start, _end, Evaluate(Progress)), _brain.Body);
                 }
                 Progress += deltaTime / _duration;
             }
@@ -306,6 +392,145 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             _movingState = MovingStateType.Stopped;
             Complete(InstructionTileResult.Success, true);
+        }
+
+        private void SetColorOnTarget()
+        {
+            switch (_target)
+            {
+                case MonaBrainTargetColorType.Tag:
+                    SetColorOnTag();
+                    break;
+                case MonaBrainTargetColorType.Self:
+                    SetColorOnWholeEntity(_brain.Body);
+                    break;
+                case MonaBrainTargetColorType.GlobalFog:
+                    RenderSettings.fogColor = _color;
+                    break;
+                case MonaBrainTargetColorType.GlobalShadows:
+                    RenderSettings.subtractiveShadowColor = _color;
+                    break;
+                case MonaBrainTargetColorType.GlobalAmbience:
+                    RenderSettings.ambientSkyColor = _color;
+                    break;
+                case MonaBrainTargetColorType.Parents:
+                    SetColorOnParents(_brain.Body);
+                    break;
+                case MonaBrainTargetColorType.Children:
+                    SetColorOnChildren(_brain.Body);
+                    break;
+                case MonaBrainTargetColorType.AllSpawnedByMe:
+                    SetColorOnAllSpawned();
+                    break;
+                default:
+                    IMonaBody targetBody = GetTarget();
+
+                    if (targetBody == null)
+                        break;
+
+                    if (ModifyAllAttached)
+                        SetColorOnWholeEntity(targetBody);
+                    else
+                        SetColor(_color, targetBody);
+                    break;
+            }
+        }
+
+        private IMonaBody GetTarget()
+        {
+            switch (_target)
+            {
+                case MonaBrainTargetColorType.Parent:
+                    return _brain.Body.Parent;
+                case MonaBrainTargetColorType.MessageSender:
+                    var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
+                    if (brain != null)
+                        return brain.Body;
+                    break;
+                case MonaBrainTargetColorType.OnConditionTarget:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
+                case MonaBrainTargetColorType.OnHitTarget:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
+                case MonaBrainTargetColorType.MySpawner:
+                    return _brain.Body.Spawner;
+                case MonaBrainTargetColorType.LastSpawnedByMe:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
+                case MonaBrainTargetColorType.MyPoolPreviouslySpawned:
+                    return _brain.Body.PoolBodyPrevious;
+                case MonaBrainTargetColorType.MyPoolNextSpawned:
+                    return _brain.Body.PoolBodyNext;
+            }
+            return null;
+        }
+
+        private void SetColorOnTag()
+        {
+            var tagBodies = MonaBody.FindByTag(_targetTag);
+
+            if (tagBodies.Count < 1)
+                return;
+
+            for (int i = 0; i < tagBodies.Count; i++)
+            {
+                if (tagBodies[i] == null)
+                    continue;
+
+                if (ModifyAllAttached)
+                    SetColorOnWholeEntity(tagBodies[i]);
+                else
+                    SetColor(_color, tagBodies[i]);
+            }
+        }
+
+        private void SetColorOnWholeEntity(IMonaBody body)
+        {
+            IMonaBody topBody = body;
+            while (topBody.Parent != null)
+                topBody = topBody.Parent;
+
+            SetColor(_color, topBody);
+            SetColorOnChildren(topBody);
+        }
+
+        private void SetColorOnParents(IMonaBody body)
+        {
+            IMonaBody parent = body.Parent;
+
+            if (parent == null)
+                return;
+
+            SetColor(_color, parent);
+            SetColorOnParents(parent);
+        }
+
+        private void SetColorOnChildren(IMonaBody body)
+        {
+            var children = body.Children();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i] == null)
+                    continue;
+
+                SetColor(_color, children[i]);
+                SetColorOnChildren(children[i]);
+            }
+        }
+
+        private void SetColorOnAllSpawned()
+        {
+            var spawned = _brain.SpawnedBodies;
+
+            for (int i = 0; i < spawned.Count; i++)
+            {
+                if (spawned[i] == null)
+                    continue;
+
+                if (ModifyAllAttached)
+                    SetColorOnWholeEntity(spawned[i]);
+                else
+                    SetColor(_color, spawned[i]);
+            }
         }
     }
 }
