@@ -51,13 +51,13 @@ namespace Mona.SDK.Brains.EasyUI
             _displayableVariables = new Dictionary<IMonaVariablesValue, MonaBrainGraph>();
 
             _globalBrainRunner = MonaGlobalBrainRunner.Instance;
-            _globalBrainRunner.OnBrainsChanged += HandleBrainsChanged;
+            _globalBrainRunner.OnBrainAddUIEvent += HandleAddBrain;
+            _globalBrainRunner.OnBrainRemoveUIEvent += HandleRemoveBrain;
         }
 
         private void Start()
         {
             SetupScreenUI();
-            HandleBrainsChanged();
         }
 
         private void SetupScreenUI()
@@ -88,26 +88,37 @@ namespace Mona.SDK.Brains.EasyUI
         {
             if (_globalBrainRunner != null)
             {
-                _globalBrainRunner.OnBrainsChanged -= HandleBrainsChanged;
+                _globalBrainRunner.OnBrainAddUIEvent -= HandleAddBrain;
+                _globalBrainRunner.OnBrainRemoveUIEvent -= HandleRemoveBrain;
             }
         }
 
-        private void HandleBrainsChanged()
+        private void HandleAddBrain(IMonaBrain brain)
         {
-            GetVariablesFromBrains();
+            GetDisplayReadyVariables((MonaBrainGraph)brain);
             SetupUIElements();
         }
 
-        private void GetVariablesFromBrains()
+        private void HandleRemoveBrain(IMonaBrain brain)
         {
-            if (!_globalBrainRunner)
-            {
-                _globalBrainRunner = MonaGlobalBrainRunner.Instance;
-                return;
-            }
+            RemoveDisplayReadyVariables((MonaBrainGraph)brain);
+            SetupUIElements();
+        }
 
-            foreach (MonaBrainGraph brainGraph in _globalBrainRunner.Brains)
-                GetDisplayReadyVariables(brainGraph);
+        private void RemoveDisplayReadyVariables(MonaBrainGraph brainGraph)
+        {
+            foreach (IMonaVariablesValue variable in brainGraph.DefaultVariables.VariableList)
+            {
+                if (variable.GetType() != typeof(MonaVariablesFloat) && !_displayableVariables.ContainsKey(variable))
+                    continue;
+
+                if (((IEasyUINumericalDisplay)variable).AllowUIDisplay)
+                {
+                    if (_displayableVariables.ContainsKey(variable))
+                        _displayableVariables.Remove(variable);
+                }
+
+            }
         }
 
         private void GetDisplayReadyVariables(MonaBrainGraph brainGraph)

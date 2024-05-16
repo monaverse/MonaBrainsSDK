@@ -331,6 +331,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             BuildRoot();
             SetupAnimation(null);
             PreloadPages();
+            AddVariablesUI();
 
             if(!_preloaded)
             {
@@ -341,6 +342,19 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             //Debug.Log($"{nameof(Preload)} {Name}", gameObject);
 
             _profilerPreload.End();
+        }
+
+        private bool _hasUI;
+        private void AddVariablesUI()
+        {
+            _hasUI = DefaultVariables.HasUI();
+            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_ADD_UI), new MonaBrainAddUIEvent(this));
+        }
+
+        private void RemoveVariablesUI()
+        {
+            if(_hasUI)
+                MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_REMOVE_UI), new MonaBrainAddUIEvent(this));
         }
 
         static readonly ProfilerMarker _profilerCacheChildMonaAssets = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(CacheChildMonaAssets)}.{nameof(Preload)}");

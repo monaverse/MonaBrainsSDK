@@ -25,7 +25,8 @@ namespace Mona.SDK.Brains.Core.Brain
     public partial class MonaGlobalBrainRunner : MonoBehaviour, IMonaBrainPlayer
     {
         public Action OnStarted = delegate { };
-        public Action OnBrainsChanged = delegate { };
+        public Action<IMonaBrain> OnBrainAddUIEvent = delegate { };
+        public Action<IMonaBrain> OnBrainRemoveUIEvent = delegate { };
 
         public MonaNetworkSettings _NetworkSettings = new MonaNetworkSettings();
 
@@ -45,6 +46,8 @@ namespace Mona.SDK.Brains.Core.Brain
         private Action<MonaBrainSpawnedEvent> OnBrainSpawned;
         private Action<MonaBrainDestroyedEvent> OnBrainDestroyed;
         private Action<MonaPlayerJoinedEvent> OnMonaPlayerJoined;
+        private Action<MonaBrainAddUIEvent> OnBrainAddUI;
+        private Action<MonaBrainRemoveUIEvent> OnBrainRemoveUI;
 
         private bool _playerJoined;
 
@@ -160,9 +163,13 @@ namespace Mona.SDK.Brains.Core.Brain
                 OnBrainDestroyed = HandleBrainDestroyed;
                 OnMonaPlayerJoined = HandleMonaPlayerJoined;
                 OnMonaBodyInstantiated = HandleMonaBodyInstantiated;
+                OnBrainAddUI = HandleBrainAddUI;
+                OnBrainRemoveUI = HandleBrainRemoveUI;
 
                 MonaEventBus.Register<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), OnMonaBodyInstantiated);
                 MonaEventBus.Register<MonaBrainSpawnedEvent>(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
+                MonaEventBus.Register<MonaBrainAddUIEvent>(new EventHook(MonaBrainConstants.BRAIN_ADD_UI), OnBrainAddUI);
+                MonaEventBus.Register<MonaBrainRemoveUIEvent>(new EventHook(MonaBrainConstants.BRAIN_REMOVE_UI), OnBrainRemoveUI);
                 MonaEventBus.Register<MonaBrainDestroyedEvent>(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
                 MonaEventBus.Register<MonaPlayerJoinedEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
 
@@ -206,8 +213,20 @@ namespace Mona.SDK.Brains.Core.Brain
             MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_SPAWNED_EVENT), OnBrainSpawned);
             MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), OnBrainDestroyed);
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.ON_PLAYER_JOINED_EVENT), OnMonaPlayerJoined);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_ADD_UI), OnBrainAddUI);
+            MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BRAIN_REMOVE_UI), OnBrainRemoveUI);
         }
-        
+
+        private void HandleBrainAddUI(MonaBrainAddUIEvent evt)
+        {
+            OnBrainAddUIEvent?.Invoke(evt.Brain);
+        }
+
+        private void HandleBrainRemoveUI(MonaBrainRemoveUIEvent evt)
+        {
+            OnBrainRemoveUIEvent?.Invoke(evt.Brain);
+        }
+
         private void HandleMonaBodyInstantiated(MonaBodyInstantiatedEvent evt)
         {
 #if (!OLYMPIA)
@@ -237,7 +256,6 @@ namespace Mona.SDK.Brains.Core.Brain
 
             evt.Brain.SetMonaBrainPlayer(this);
 
-            OnBrainsChanged?.Invoke();
         }
 
         private void HandleBrainDestroyed(MonaBrainDestroyedEvent evt)
@@ -247,7 +265,6 @@ namespace Mona.SDK.Brains.Core.Brain
             if (_brains.Contains(evt.Brain))
                 _brains.Remove(evt.Brain);
 
-            OnBrainsChanged?.Invoke();
         }
 
         private void HandleMonaPlayerJoined(MonaPlayerJoinedEvent evt)

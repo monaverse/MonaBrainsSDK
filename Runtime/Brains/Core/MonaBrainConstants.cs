@@ -28,6 +28,8 @@
         public const string BRAIN_SPAWNED_EVENT = "OnMonaBrainSpawnedEvent";
         public const string BRAIN_DESTROYED_EVENT = "OnMonaBrainDestroyedEvent";
         public const string BRAIN_RELOAD_EVENT = "OnMonaBrainReloadEvent";
+        public const string BRAIN_ADD_UI = "OnMonaBrainAddUIEvent";
+        public const string BRAIN_REMOVE_UI = "OnBrainRemoveUIEvent";
 
         public const string CORE_PAGE_TICK_EVENT = "OnMonaCorePageTickEvent";
         public const string STATE_PAGE_TICK_EVENT = "OnMonaStatePageTickEvent";

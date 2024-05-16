@@ -52,5 +52,6 @@ namespace Mona.SDK.Brains.Core.State
         public Vector3 GetInternalVector3(string variableName) => _variables.GetInternalVector3(variableName);
         public void SaveResetDefaults() => _variables.SaveResetDefaults();
         public void CacheVariableNames() => _variables.CacheVariableNames();
+        public bool HasUI() => _variables.HasUI();
     }
 }
