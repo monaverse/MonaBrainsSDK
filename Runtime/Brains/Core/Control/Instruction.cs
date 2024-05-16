@@ -111,6 +111,7 @@ namespace Mona.SDK.Brains.Core.Control
                 _brainEventHook = new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, brain);
             }
 
+            _result = InstructionTileResult.Success;
             _unloaded = false;
             _brain = brain;
             _page = page;

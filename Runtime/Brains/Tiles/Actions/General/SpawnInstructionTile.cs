@@ -109,6 +109,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public SpawnInstructionTile() { }
 
+        public override void SetThenCallback(IInstructionTile tile, Func<InstructionTileCallback, InstructionTileResult> thenCallback)
+        {
+            if (_thenCallback.ActionCallback == null)
+            {
+                _instructionCallback.Tile = tile;
+                _instructionCallback.ActionCallback = thenCallback;
+                _thenCallback.Tile = this;
+                _thenCallback.ActionCallback = ExecuteActionCallback;
+            }
+        }
+
+        private InstructionTileCallback _instructionCallback = new InstructionTileCallback();
+        private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
+        {
+            if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
+            return InstructionTileResult.Success;
+        }
+
         public void Preload(IMonaBrain brainInstance) 
         {
             _profilerPreload.Begin();
@@ -172,7 +190,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     ((MonaBodyBase)child).PrefabId = prefabId;
                     child.OnBodyDisabled += HandleBodyDisabled;
                     if (disable)
+                    {
                         child.SetDisableOnLoad(true);
+                        Debug.Log($"{nameof(child.SetDisableOnLoad)}", child.Transform.gameObject);
+                    }
                 }
 
                 ((MonaBodyBase)child).MakeUnique(_brain.Player.PlayerId, true);
@@ -182,6 +203,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void HandleBodyDisabled(IMonaBody body)
         {
+            body.OnAfterEnabled -= HandleAfterEnabled;
+
             if (_brain.SpawnedBodies.Contains(body))
                 _brain.SpawnedBodies.Remove(body);
 
@@ -189,6 +212,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 body.Destroy();
             else
             {
+                //Debug.Log($"{nameof(HandleBodyDisabled)} return to pool", body.Transform.gameObject);
                 if (!_pool[((MonaBodyBase)body).PrefabId].Contains(body))
                     _pool[((MonaBodyBase)body).PrefabId].Add(body);
             }
@@ -268,7 +292,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 for (var i = 0; i < poolCount; i++)
                     EnableSpawn(i);
                 _profilerDo.End();
-                return InstructionTileResult.Success;
+                return InstructionTileResult.Running;
             }
             else
             {
@@ -324,6 +348,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
 
+            poolItem.OnAfterEnabled -= HandleAfterEnabled;
+            poolItem.OnAfterEnabled += HandleAfterEnabled;
+
             poolItem.SetActive(true);
             poolItem.SetVisible(false);
 
@@ -345,8 +372,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
 
             //Debug.Log($"{nameof(SpawnInstructionTile)} SPAWN COMPLETE: {poolItem}", poolItem.Transform.gameObject);
-            return Complete(InstructionTileResult.Success);
+            return Complete(InstructionTileResult.Running);
 
+        }
+
+        private void HandleAfterEnabled(IMonaBody body)
+        {
+            body.OnAfterEnabled -= HandleAfterEnabled;
+            Debug.Log($"{nameof(HandleAfterEnabled)} ready ", body.Transform.gameObject);
+            Complete(InstructionTileResult.Success, true);
         }
 
         private void SetSpawnerReferenceOnSpawned(IMonaBody spawned, IMonaBody previouslySpawnedBody)
@@ -389,6 +423,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 if (destroy)
                 {
                     instance.OnBodyDisabled -= HandleBodyDisabled;
+                    instance.OnAfterEnabled -= HandleAfterEnabled;
                     if (instance.Transform != null && instance.Transform.gameObject != null)
                         instance.Destroy();
                 }

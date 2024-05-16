@@ -191,7 +191,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 return;
             }
 
-            if(monaBody.GetActive() != _setActive)
+            //Debug.Log($"{nameof(SetActivationState)} {_brain.Name} {_setActive} {gameObject.activeInHierarchy} {gameObject.activeSelf}", gameObject);
+            //if(monaBody.GetActive() != _setActive)
                 monaBody.SetActive(_setActive);
 
             if (!_setActive)
