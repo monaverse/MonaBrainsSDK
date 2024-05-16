@@ -379,7 +379,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private void HandleAfterEnabled(IMonaBody body)
         {
             body.OnAfterEnabled -= HandleAfterEnabled;
-            Debug.Log($"{nameof(HandleAfterEnabled)} ready ", body.Transform.gameObject);
+            //Debug.Log($"{nameof(HandleAfterEnabled)} ready ", body.Transform.gameObject);
             Complete(InstructionTileResult.Success, true);
         }
 
