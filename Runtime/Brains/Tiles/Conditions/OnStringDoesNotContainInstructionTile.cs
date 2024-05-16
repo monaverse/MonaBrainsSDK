@@ -12,7 +12,7 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnStringDoesNotContainInstructionTile : InstructionTile, IInstructionTileWithPreload, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile
+    public class OnStringDoesNotContainInstructionTile : InstructionTile, IInstructionTileWithPreload, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile, IOnStartInstructionTile, ITickAfterInstructionTile
     {
         public const string ID = "OnStringDoesNotContain";
         public const string NAME = "String Does Not Contain";

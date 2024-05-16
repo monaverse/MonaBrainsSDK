@@ -295,13 +295,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         private Dictionary<string, Material> _cachedMaterials = new Dictionary<string, Material>();
         private void LoadMaterial(IMonaBody body, Material material, bool sharedMaterial)
         {
-            if (!_cachedMaterials.ContainsKey(_monaAssetName) || _cachedMaterials[_monaAssetName] == null)
-                _cachedMaterials[_monaAssetName] = (Material)GameObject.Instantiate(_materialAsset.Value);
+            //if (_assetToUse == MonaAssetGroupType.DefinedAsset && (!_cachedMaterials.ContainsKey(_monaAsset) || _cachedMaterials[_monaAsset] == null))
+            //{
+            //    _cachedMaterials[_monaAsset] = (Material)GameObject.Instantiate(_materialAsset.Value);
+            //    material = _cachedMaterials[_monaAsset];
+            //}
 
             if (sharedMaterial)
                 body.SetBodyMaterial(material, true);
             else
-                body.SetBodyMaterial(_cachedMaterials[_monaAssetName]);
+                body.SetBodyMaterial(material);
         }
 
         private void OperateOnTextures(IMonaBody body, bool storeTextures)

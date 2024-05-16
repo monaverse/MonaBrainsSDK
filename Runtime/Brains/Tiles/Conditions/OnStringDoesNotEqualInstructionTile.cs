@@ -12,7 +12,7 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnStringDoesNotEqualInstructionTile : InstructionTile, IInstructionTileWithPreload, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile
+    public class OnStringDoesNotEqualInstructionTile : InstructionTile, IInstructionTileWithPreload, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile, IOnStartInstructionTile, ITickAfterInstructionTile
     {
         public const string ID = "OnStringDoesNotEqual";
         public const string NAME = "String != Equal";
