@@ -171,7 +171,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
         }
 
-        protected void Spawn(string prefabId, MonaBody monaBody, bool disable = true)
+        protected IMonaBody Spawn(string prefabId, MonaBody monaBody, bool disable = true)
         {
             var body = (IMonaBody)GameObject.Instantiate(monaBody, Vector3.up*10000f, Quaternion.identity);
 
@@ -199,6 +199,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 ((MonaBodyBase)child).MakeUnique(_brain.Player.PlayerId, true);
                 MonaEventBus.Trigger<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), new MonaBodyInstantiatedEvent(child));
             }
+            return body;
         }
 
         private void HandleBodyDisabled(IMonaBody body)
@@ -316,7 +317,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 return Complete(InstructionTileResult.Failure);
 
             if (_pool[nextItem.PrefabId].Count == 0)
-                Spawn(nextItem.PrefabId, nextItem.Value, disable: false);
+            {
+                _pool[nextItem.PrefabId].Add(Spawn(nextItem.PrefabId, nextItem.Value, disable: false));
+            }
 
             var poolItem = _pool[nextItem.PrefabId][0];
             _pool[nextItem.PrefabId].RemoveAt(0);

@@ -105,7 +105,14 @@ namespace Mona.SDK.Brains.Core.Utils
 
         public void Load(string url, bool importAnimation, Action<GameObject> callback, int poolSize = 1, bool returnToPool = false)
         {
-            Debug.Log($"{nameof(Load)} VRM: {url}");
+            Debug.Log($"{nameof(Load)} GLB URL: {url}");
+
+            if (string.IsNullOrEmpty(url))
+            {
+                Debug.LogError($"{nameof(BrainsGlbLoader)}.{nameof(Load)} url is empty");
+                callback?.Invoke(null);
+                return;
+            }
 
             var instance = GetFromPool(url);
             if (instance == null)

@@ -487,28 +487,28 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         //thank you gpt!
         private Dictionary<HumanBodyBones, string[]> _boneSynonyms = new Dictionary<HumanBodyBones, string[]> {
-            { HumanBodyBones.Hips, new string[] { "Hips" } },
-            { HumanBodyBones.LeftUpperLeg, new string[] { "LeftUpperLeg", "UpperLeg.L", "Upper_Leg.L", "L_UpperLeg" } },
-            { HumanBodyBones.RightUpperLeg, new string[] { "RightUpperLeg", "UpperLeg.R", "Upper_Leg.R", "R_UpperLeg" } },
-            { HumanBodyBones.LeftLowerLeg, new string[] { "LeftLowerLeg", "LowerLeg.L", "Lower_Leg.L", "L_LowerLeg" } },
-            { HumanBodyBones.RightLowerLeg, new string[] { "RightLowerLeg", "LowerLeg.R", "Lower_Leg.R", "R_LowerLeg" } },
-            { HumanBodyBones.LeftFoot, new string[] { "LeftFoot", "Foot.L", "L_Foot" } },
-            { HumanBodyBones.RightFoot, new string[] { "RightFoot", "Foot.R", "R_Foot" } },
-            { HumanBodyBones.Spine, new string[] { "Spine" } },
-            { HumanBodyBones.Chest, new string[] { "Chest" } },
-            { HumanBodyBones.UpperChest, new string[] { "UpperChest" } },
-            { HumanBodyBones.Neck, new string[] { "Neck" } },
-            { HumanBodyBones.Head, new string[] { "Head" } },
-            { HumanBodyBones.LeftShoulder, new string[] { "LeftShoulder", "Shoulder.L", "ShoulderLeft", "Shoulder_Left", "L_Shoulder" } },
-            { HumanBodyBones.RightShoulder, new string[] { "RightShoulder", "Shoulder.R", "ShoulderRight", "Shoulder_Right", "R_Shoulder" } },
-            { HumanBodyBones.LeftUpperArm, new string[] { "LeftUpperArm", "UpperArm.L", "Upper_Arm.L", "UpperArmLeft", "UpperArm_Left", "Upper_Arm_Left", "L_UpperArm" } },
-            { HumanBodyBones.RightUpperArm, new string[] { "RightUpperArm", "UpperArm.R", "Upper_Arm.R", "UpperArmRight", "UpperArm_Right", "Upper_Arm_Right", "R_UpperArm" } },
-            { HumanBodyBones.LeftLowerArm, new string[] { "LeftLowerArm", "LowerArm.L", "Lower_Arm.L", "LowerArmLeft", "LowerArm_Left", "Lower_Arm_Left", "L_LowerArm" } },
-            { HumanBodyBones.RightLowerArm, new string[] { "RightLowerArm", "LowerArm.R", "Lower_Arm.R", "LowerArmRight", "LowerArm_Right", "Lower_Arm_Right", "R_LowerArm" } },
-            { HumanBodyBones.LeftHand, new string[] { "LeftHand", "Hand.L", "Left_Hand", "Hand_Left", "L_Hand" } },
-            { HumanBodyBones.RightHand, new string[] { "RightHand", "Hand.R", "Right_Hand", "Hand_Right", "R_Hand" } },
-            { HumanBodyBones.LeftToes, new string[] { "LeftToes", "Toes.L", "Left_Toes", "Toes_Left", "L_Toes" } },
-            { HumanBodyBones.RightToes, new string[] { "RightToes", "Toes.R", "Right_Toes", "Toes_Right", "R_Toes" } },
+            { HumanBodyBones.Hips, new string[] { "Hips", "mixamorig:Hips" } },
+            { HumanBodyBones.LeftUpperLeg, new string[] { "LeftUpperLeg", "UpperLeg.L", "Upper_Leg.L", "L_UpperLeg", "mixamorig:LeftUpLeg" } },
+            { HumanBodyBones.RightUpperLeg, new string[] { "RightUpperLeg", "UpperLeg.R", "Upper_Leg.R", "R_UpperLeg", "mixamorig:RightUpLeg" } },
+            { HumanBodyBones.LeftLowerLeg, new string[] { "LeftLowerLeg", "LowerLeg.L", "Lower_Leg.L", "L_LowerLeg", "mixamorig:LeftLeg" } },
+            { HumanBodyBones.RightLowerLeg, new string[] { "RightLowerLeg", "LowerLeg.R", "Lower_Leg.R", "R_LowerLeg", "mixamorig:RightLeg" } },
+            { HumanBodyBones.LeftFoot, new string[] { "LeftFoot", "Foot.L", "L_Foot", "mixamorig:LeftFoot" } },
+            { HumanBodyBones.RightFoot, new string[] { "RightFoot", "Foot.R", "R_Foot", "mixamorig:RightFoot" } },
+            { HumanBodyBones.Spine, new string[] { "Spine", "mixamorig:Spine" } },
+            { HumanBodyBones.Chest, new string[] { "Chest", "mixamorig:Spine1" } },
+            { HumanBodyBones.UpperChest, new string[] { "UpperChest", "mixamorig:Spine2" } },
+            { HumanBodyBones.Neck, new string[] { "Neck", "mixamorig:Neck" } },
+            { HumanBodyBones.Head, new string[] { "Head", "mixamorig:Head" } },
+            { HumanBodyBones.LeftShoulder, new string[] { "LeftShoulder", "Shoulder.L", "ShoulderLeft", "Shoulder_Left", "L_Shoulder", "mixamorig:LeftShoulder" } },
+            { HumanBodyBones.RightShoulder, new string[] { "RightShoulder", "Shoulder.R", "ShoulderRight", "Shoulder_Right", "R_Shoulder", "mixamorig:RightShoulder" } },
+            { HumanBodyBones.LeftUpperArm, new string[] { "LeftUpperArm", "UpperArm.L", "Upper_Arm.L", "UpperArmLeft", "UpperArm_Left", "Upper_Arm_Left", "L_UpperArm", "mixamorig:LeftArm" } },
+            { HumanBodyBones.RightUpperArm, new string[] { "RightUpperArm", "UpperArm.R", "Upper_Arm.R", "UpperArmRight", "UpperArm_Right", "Upper_Arm_Right", "R_UpperArm", "mixamorig:RightArm" } },
+            { HumanBodyBones.LeftLowerArm, new string[] { "LeftLowerArm", "LowerArm.L", "Lower_Arm.L", "LowerArmLeft", "LowerArm_Left", "Lower_Arm_Left", "L_LowerArm", "mixamorig:LeftForeArm" } },
+            { HumanBodyBones.RightLowerArm, new string[] { "RightLowerArm", "LowerArm.R", "Lower_Arm.R", "LowerArmRight", "LowerArm_Right", "Lower_Arm_Right", "R_LowerArm", "mixamorig:RightForeArm" } },
+            { HumanBodyBones.LeftHand, new string[] { "LeftHand", "Hand.L", "Left_Hand", "Hand_Left", "L_Hand", "mixamorig:LeftHand" } },
+            { HumanBodyBones.RightHand, new string[] { "RightHand", "Hand.R", "Right_Hand", "Hand_Right", "R_Hand", "mixamorig:RightHand" } },
+            { HumanBodyBones.LeftToes, new string[] { "LeftToes", "Toes.L", "Left_Toes", "Toes_Left", "L_Toes", "mixamorig:LeftToeBase" } },
+            { HumanBodyBones.RightToes, new string[] { "RightToes", "Toes.R", "Right_Toes", "Toes_Right", "R_Toes", "mixamorig:RightToeBase" } },
             { HumanBodyBones.LeftEye, new string[] { "LeftEye", "Eye.L", "Left_Eye", "Toes_Eye", "L_Eye" } },
             { HumanBodyBones.RightEye, new string[] { "RightEye", "Eye.R", "Right_Eye", "Toes_Eye", "R_Eye" } },
             { HumanBodyBones.Jaw, new string[] { "Jaw" } },
@@ -518,12 +518,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             { HumanBodyBones.RightThumbIntermediate, new string[] { "RightThumbIntermediate", "ThumbIntermediate.R", "ThumbIntermediate.Right", "Thumb_Intermediate_Right", "R_ThumbIntermediate" } },
             { HumanBodyBones.LeftThumbDistal, new string[] { "LeftThumbDistal", "ThumbDistal.L", "ThumbDistal.Left", "Thumb_Distal_Left", "L_ThumbDistal" } },
             { HumanBodyBones.RightThumbDistal, new string[] { "RightThumbDistal", "ThumbDistal.R", "ThumbDistal.Right", "Thumb_Distal_Right", "R_ThumbDistal" } },
-            { HumanBodyBones.LeftIndexProximal, new string[] { "LeftIndexProximal", "IndexProximal.L", "IndexProximal.Left", "Index_Proximal_Left", "L_IndexProximal" } },
-            { HumanBodyBones.RightIndexProximal, new string[] { "RightIndexProximal", "IndexProximal.R", "IndexProximal.Right", "Index_Proximal_Right", "R_IndexProximal" } },
-            { HumanBodyBones.LeftIndexIntermediate, new string[] { "LeftIndexIntermediate", "IndexIntermediate.L", "IndexIntermediate.Left", "Index_Intermediate_Left", "L_IndexIntermediate" } },
-            { HumanBodyBones.RightIndexIntermediate, new string[] { "RightIndexIntermediate", "IndexIntermediate.R", "IndexIntermediate.Right", "Index_Intermediate_Right", "R_IndexIntermediate" } },
-            { HumanBodyBones.LeftIndexDistal, new string[] { "LeftIndexDistal", "IndexDistal.L", "IndexDistal.Left", "Index_Distal_Left", "L_IndexDistal" } },
-            { HumanBodyBones.RightIndexDistal, new string[] { "RightIndexDistal", "IndexDistal.R", "IndexDistal.Right", "Index_Distal_Right", "R_IndexDistal" } },
+            { HumanBodyBones.LeftIndexProximal, new string[] { "LeftIndexProximal", "IndexProximal.L", "IndexProximal.Left", "Index_Proximal_Left", "L_IndexProximal", "mixamorig:LeftHandIndex2" } },
+            { HumanBodyBones.RightIndexProximal, new string[] { "RightIndexProximal", "IndexProximal.R", "IndexProximal.Right", "Index_Proximal_Right", "R_IndexProximal", "mixamorig:RightHandIndex2" } },
+            { HumanBodyBones.LeftIndexIntermediate, new string[] { "LeftIndexIntermediate", "IndexIntermediate.L", "IndexIntermediate.Left", "Index_Intermediate_Left", "L_IndexIntermediate", "mixamorig:LeftHandIndex1" } },
+            { HumanBodyBones.RightIndexIntermediate, new string[] { "RightIndexIntermediate", "IndexIntermediate.R", "IndexIntermediate.Right", "Index_Intermediate_Right", "R_IndexIntermediate", "mixamorig:RightHandIndex1" } },
+            { HumanBodyBones.LeftIndexDistal, new string[] { "LeftIndexDistal", "IndexDistal.L", "IndexDistal.Left", "Index_Distal_Left", "L_IndexDistal", "mixamorig:LeftHandIndex3" } },
+            { HumanBodyBones.RightIndexDistal, new string[] { "RightIndexDistal", "IndexDistal.R", "IndexDistal.Right", "Index_Distal_Right", "R_IndexDistal", "mixamorig:RightHandIndex3" } },
             { HumanBodyBones.LeftMiddleProximal, new string[] { "LeftMiddleProximal", "MiddleProximal.L", "MiddleProximal.Left", "Middle_Proximal_Left", "L_MiddleProximal" } },
             { HumanBodyBones.RightMiddleProximal, new string[] { "RightMiddleProximal", "MiddleProximal.R", "MiddleProximal.Right", "Middle_Proximal_Right", "R_MiddleProximal" } },
             { HumanBodyBones.LeftMiddleIntermediate, new string[] { "LeftMiddleIntermediate", "MiddleIntermediate.L", "MiddleIntermediate.Left", "Middle_Intermediate_Left", "L_MiddleIntermediate" } },
@@ -558,6 +558,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     foreach (int bone in bones)
                     {
                         var syns = _boneSynonyms[(HumanBodyBones)bone];
+                        var found = false;
                         for (var i = 0; i < syns.Length; i++)
                         {
                             var syn = syns[i];
@@ -565,16 +566,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                             if (t != null)
                             {
                                 skeleton[(HumanBodyBones)bone] = t;
+                                found = true;
                                 break;
                             }
-                            else
+                        }
+                        if(!found)
+                        { 
+                            var t = transforms.Find(x => x.name.ContainsInsensitive(syns[0]));
+                            if (t != null)
                             {
-                                t = transforms.Find(x => x.name.ContainsInsensitive(syn));
-                                if (t != null)
-                                {
-                                    skeleton[(HumanBodyBones)bone] = t;
-                                    break;
-                                }
+                                skeleton[(HumanBodyBones)bone] = t;
                             }
                         }
                     }
