@@ -23,9 +23,9 @@ MonoBehaviour:
     - rid: 5012747694246461579
       type: {class: OwnsTokenInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OwnsToken
+        _name: Owns Token
+        _category: Blockchain
         _muted: 0
         _contractAddress: 
         _contractAddressValueName: 

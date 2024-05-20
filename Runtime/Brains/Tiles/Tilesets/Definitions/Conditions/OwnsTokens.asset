@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 5156608443998797841
   _id: OwnsTokens
-  _name: Token Ownership
+  _name: Filter Tokens
   _category: Blockchain
   references:
     version: 2
@@ -29,8 +29,18 @@ MonoBehaviour:
         _muted: 0
         _ownsTokens: 1
         _ownsTokensName: 
-        _tokenFilter: 0
-        _traitFilter: 0
+        _filterOperation: 0
+        _predicateType: 5
+        _tokenType: 0
+        _tokenName: 
         _traitName: 
         _traitValue: 
         _traitValueName: 
+        _byCollection: 
+        _byContract: 
+        _byTokenId: 
+        _byTokenMin: 0
+        _byTokenMax: 0
+        _positionType: 0
+        _byIndexValue: 0
+        _byIndexValueName: 

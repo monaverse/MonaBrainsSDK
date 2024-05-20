@@ -5,7 +5,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Enums
         IncludeAll = 0,
         OnlyAvatars = 1,
         OnlyObjects = 2,
-        OnlySaces = 3,
+        OnlySpaces = 3,
         OnlyAvatarsAndObjects = 4
     }
 }
