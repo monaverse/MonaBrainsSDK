@@ -1,6 +1,6 @@
 {
   "name": "com.monaverse.brainssdk",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "displayName": "Mona Brains SDK",
   "description": "The Mona Brains SDK allows non-coders to build multi-player interactive games on the Mona web platform.",
   "unity": "2022.3",
@@ -19,12 +19,12 @@
     "com.unity.modules.uielements": "1.0.0",
     "com.unity.textmeshpro": "3.0.6",
     "com.unity.inputsystem": "1.6.3",
-    "com.monaverse.coresdk": "0.7.0",
+    "com.monaverse.coresdk": "0.8.0",
     "com.vrmc.gltf": "0.114.0",
     "com.vrmc.univrm": "0.114.0",
     "com.vrmc.vrm": "0.114.0",
     "com.vrmc.vrmshaders": "0.114.0",
-    "com.monaverse.unitygltf": "0.2.0"
+    "com.monaverse.unitygltf": "0.3.0"
   },
   "keywords": [
     "visual scripting",
