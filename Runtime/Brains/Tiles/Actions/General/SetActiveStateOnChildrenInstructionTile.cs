@@ -205,7 +205,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             {
                 var childBrains = monaBody.Children();
                 for (var i = 0; i < childBrains.Count; i++)
-                    childBrains[i].Transform.GetComponent<IMonaBrainRunner>().CacheTransforms();
+                {
+                    var runner = childBrains[i].Transform.GetComponent<IMonaBrainRunner>();
+                    if(runner != null)
+                        runner.CacheTransforms();
+                }
             }
         }
     }

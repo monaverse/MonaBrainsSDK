@@ -24,8 +24,10 @@ using Mona.SDK.Core.Assets;
 using Mona.SDK.Core.Utils;
 using System.Threading.Tasks;
 using System.IO.Compression;
+using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
 
-namespace Mona.SDK.Brains.Tiles.Actions.Character
+namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 {
     [Serializable]
     public class ChangeSpaceInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile, IAnimationInstructionTile
@@ -44,18 +46,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
-        [SerializeField] private bool _useUri = false;
-        [BrainProperty(false)] public bool UseUrl { get => _useUri; set => _useUri = value; }
-
-        [SerializeField] private string _monaAsset = null;
-        [BrainPropertyShow("UseUrl", false)]
-        [BrainPropertyMonaAsset(typeof(IMonaAvatarAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
-
-        [SerializeField] private string _monaAssetName = null;
-        [BrainPropertyValueName(nameof(MonaAsset), typeof(IMonaVariablesStringValue))] public string MonaAssetName { get => _monaAssetName; set => _monaAssetName = value; }
-
         [SerializeField] private string _assetUri = null;
-        [BrainPropertyShow("UseUrl", true)]
         [BrainProperty(true)]
         public string AssetUrl { get => _assetUri; set => _assetUri = value; }
 
@@ -123,6 +114,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
+
+            _sceneLoadedFlags = new Dictionary<string, bool>();
+            _sceneLoadedFlags[MonaBrainConstants.SCENE_SPACE] = false;
 
             SetupAnimation();
         }
@@ -383,95 +377,60 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
                 if (!string.IsNullOrEmpty(_assetUrlName))
                     _assetUri = _brain.Variables.GetString(_assetUrlName);
-
-                if (!string.IsNullOrEmpty(_assetUri))
+                                
+                _avatarAsset = (IMonaAvatarAssetItem)(new MonaAvatarAsset()
                 {
-                    _avatarAsset = (IMonaAvatarAssetItem)(new MonaAvatarAsset()
-                    {
-                        Url = _assetUri
-                    });
-                }
-                else
+                    Url = _assetUri
+                });
+                
+                if (!string.IsNullOrEmpty(_avatarAsset.Url))
                 {
-                    if (!string.IsNullOrEmpty(_monaAssetName))
-                        _monaAsset = _brain.Variables.GetString(_monaAssetName);
-
-                    _avatarAsset = (IMonaAvatarAssetItem)_brain.GetMonaAsset(_monaAsset);
-                }
-
-                if (_avatarAsset.Value != null)
-                {
-                    var avatar = GameObject.Instantiate(_avatarAsset.Value);
-                    var animator = avatar.GetComponent<Animator>();
-                    if (animator == null)
-                        animator = avatar.AddComponent<Animator>();
-                    LoadAvatar(animator, body, avatar.gameObject);
-                    return Complete(InstructionTileResult.Success);
-                }
-                else if (!string.IsNullOrEmpty(_avatarAsset.Url))
-                {
-                    LoadAvatarAtUrl(_avatarAsset.Url, body);
+                    LoadSpace(_avatarAsset.Url, body);
                     return Complete(InstructionTileResult.Running);
                 }
             }
             return InstructionTileResult.Failure;
         }
 
-        private async void LoadSpace(string url)
+        private async void LoadSpace(string url, IMonaBody body)
         {
             Debug.Log($"{nameof(LoadSpace)}.{nameof(LoadSpace)} - Loading Space...");
 
-            
-           // await UnloadLoadedScenesAsync();
+            await UnloadLoadedScenesAsync();
 
-            //_animatorProxy.ClearObjects();
+            var scenesLoadedSuccessfully = await LoadScenes(url);
 
-            var scenesLoadedSuccessfully = await LoadScenes();
+            var scene = GameObject.Find(MonaBrainConstants.SCENE_SPACE);
 
-            //Core.SpaceLoaded = scenesLoadedSuccessfully;
 
-            /*if (!scenesLoadedSuccessfully)
+            if(scene != null)
             {
-                _sendOnSpaceLoadFailedUseCase.Send(loadSpaceRequest.SpaceId);
-                return;
+                scene.transform.localPosition = _offset;
+                scene.transform.localRotation = Quaternion.Euler(_eulerAngles);
+                Debug.Log($"{nameof(LoadSpace)} loaded {url}", scene);
             }
-
-            LoadSpawnPoint(loadSpaceRequest.SpawnType, loadSpaceRequest.SpawnCollider);
-
-            _loadSessionUseCase.Handle();
-
-            _eventBus.Fire(new LoadArtifactsRequestEvent());
-
-            await _joinSessionBehavior.JoinOrCreateSession(
-                spaceId: loadSpaceRequest.SpaceId,
-                hangoutId: loadSpaceRequest.HangoutId,
-                maxConcurrentUsers: loadSpaceRequest.MaxConcurrentUsers);
-
-            Util.DisableComponents(FindObjectsOfType<PostProcessVolume>(), new string[] { "PostprocessVolume" });
-
-            LoadPlatforms();
-            LoadGlbFromQueryString();
-
-            _sendOnSpaceLoadedUseCase.Handle(loadSpaceRequest.SpaceId);
-            */
+            else
+            {
+                Debug.Log($"{nameof(LoadSpace)} could not load scene {url}");
+            }
         }
 
-        private async Task<bool> LoadScenes()
+        private Dictionary<string, bool> _sceneLoadedFlags = new Dictionary<string, bool>();
+        private async Task<bool> LoadScenes(string spaceUrl)
         {
-            /*await Task.WhenAll(
-                LoadScene(Core.TargetSpaceUrl, MonaConstants.SCENE_SPACE),
-                LoadScene(Core.TargetPortalsUrl, MonaConstants.SCENE_PORTALS),
-                LoadScene(Core.TargetArtifactsUrl, MonaConstants.SCENE_ARTIFACTS)
-            );
+            await LoadScene(spaceUrl, MonaBrainConstants.SCENE_SPACE);
 
-            if (_sceneLoadedFlags[MonaConstants.SCENE_SPACE] && _sceneLoadedFlags[MonaConstants.SCENE_PORTALS] && _sceneLoadedFlags[MonaConstants.SCENE_ARTIFACTS])
+            if (_sceneLoadedFlags[MonaBrainConstants.SCENE_SPACE])
             {
-                Debug.Log($"{nameof(SpaceLoadPresenter)}.{nameof(LoadScenes)} - All Scenes Loaded!");
-                SceneManager.SetActiveScene(SceneManager.GetSceneByName(MonaConstants.SCENE_SPACE));
+                Debug.Log($"{nameof(LoadScenes)} - All Scenes Loaded!");
+                SceneManager.SetActiveScene(SceneManager.GetSceneByName(MonaBrainConstants.SCENE_SPACE));
+
+
+
                 return true;
             }
-            Debug.Log($"{nameof(SpaceLoadPresenter)}.{nameof(LoadScenes)} - A scene failed to load - Space Scene: {_sceneLoadedFlags[MonaConstants.SCENE_SPACE]}, Artifact Scene: {_sceneLoadedFlags[MonaConstants.SCENE_PORTALS]}, Portal Scene: {_sceneLoadedFlags[MonaConstants.SCENE_ARTIFACTS]}");
-            */
+
+            Debug.Log($"{nameof(LoadScenes)} - A scene failed to load - Space Scene: {_sceneLoadedFlags[MonaBrainConstants.SCENE_SPACE]}");//, Artifact Scene: {_sceneLoadedFlags[MonaConstants.SCENE_PORTALS]}, Portal Scene: {_sceneLoadedFlags[MonaConstants.SCENE_ARTIFACTS]}");
             return false;
         }
 
@@ -481,24 +440,77 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             if (bundle != null) await LoadAssetBundleAsync(bundle, sceneName);
         }
 
+
+        public async Task<UnityWebRequest> SendWebRequestAsync(UnityWebRequest unityWebRequest)
+        {
+            var isComplete = false;
+
+            var coroutine = SendWebRequestCoroutine(unityWebRequest);
+            RunCoroutine(coroutine, () => isComplete = true);
+
+            while (!isComplete && !unityWebRequest.isDone)
+                await Task.Yield();
+
+            return unityWebRequest;
+        }
+
+        public IEnumerator SendWebRequestCoroutine(UnityWebRequest unityWebRequest)
+        {
+            yield return unityWebRequest.SendWebRequest();
+        }
+
+        private CoroutineRunnerBehaviour _coroutineRunnerBehaviour;
+
+        public Coroutine RunCoroutine(IEnumerator coroutine, Action onComplete)
+        {
+            if (_coroutineRunnerBehaviour != null)
+                return _coroutineRunnerBehaviour.Run(coroutine, onComplete);
+
+            var coroutineRunnerGameObject = new GameObject("~CoroutineRunner+" + Guid.NewGuid());
+            var coroutineRunnerBehaviour = coroutineRunnerGameObject.GetComponent<CoroutineRunnerBehaviour>();
+
+            if (coroutineRunnerBehaviour == null)
+                coroutineRunnerBehaviour = coroutineRunnerGameObject.AddComponent<CoroutineRunnerBehaviour>();
+
+            _coroutineRunnerBehaviour = coroutineRunnerBehaviour;
+
+            GameObject.DontDestroyOnLoad(_coroutineRunnerBehaviour);
+
+            _coroutineRunnerBehaviour.gameObject.hideFlags = HideFlags.HideInHierarchy;
+
+            return _coroutineRunnerBehaviour.Run(coroutine, onComplete);
+        }
+
+        private sealed class CoroutineRunnerBehaviour : MonoBehaviour
+        {
+            private IEnumerator Coroutine(IEnumerator coroutine, Action onComplete)
+            {
+                yield return StartCoroutine(coroutine);
+                onComplete?.Invoke();
+            }
+
+            public Coroutine Run(IEnumerator coroutine, Action onComplete)
+            {
+                return StartCoroutine(Coroutine(coroutine, onComplete));
+            }
+        }
+
         private async Task<AssetBundle> DownloadBundleAsync(string assetBundleUrl, string sceneName)
         {
-            //Debug.Log($"{nameof(SpaceLoadPresenter)}.{nameof(DownloadBundleAsync)} - Downloading Bundle ({sceneName}): {assetBundleUrl}");
-            /*
+            Debug.Log($"{nameof(DownloadBundleAsync)} - Downloading Bundle ({sceneName}): {assetBundleUrl}");
+
 #if !UNITY_WEBGL
-            await UniTask.WaitUntil(() => Caching.ready);
+            while (!Caching.ready) await Task.Delay(100);
 #endif
             using (var request = UnityWebRequestAssetBundle.GetAssetBundle(assetBundleUrl))
             {
-                await request.SendWebRequest();
+                await SendWebRequestAsync(request);
 
                 while (!request.isDone)
                 {
-                    await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
-                    _sendOnSceneDownloadProgressUseCase.Send(sceneName, (int)(request.downloadProgress * 100));
+                    await Task.Delay(TimeSpan.FromSeconds(0.5f));
+                    Debug.Log($"downloading... {(int)(request.downloadProgress * 100)}");
                 }
-
-                _sendOnSceneDownloadProgressUseCase.Send(sceneName, (int)(request.downloadProgress * 100));
 
                 if (request.result == UnityWebRequest.Result.Success)
                 {
@@ -506,188 +518,43 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 }
                 else
                 {
-                    var ex = $"{nameof(SpaceLoadPresenter)}.{nameof(DownloadBundleAsync)} - Failed to download {sceneName} from {assetBundleUrl}, Error:{request.error}, Response Code:{request.responseCode}";
-                    if (request.error != null) SentrySdk.CaptureException(new Exception(ex));
+                    var ex = $"{nameof(DownloadBundleAsync)} - Failed to download {sceneName} from {assetBundleUrl}, Error:{request.error}, Response Code:{request.responseCode}";
                     Debug.LogError(ex);
                 }
-            }*/
+            }
             return null;
         }
 
         private async Task LoadAssetBundleAsync(AssetBundle bundle, string sceneName)
         {
-            /*Debug.Log($"{nameof(SpaceLoadPresenter)}.{nameof(LoadAssetBundleAsync)} - Loading Scene {sceneName} from Bundle");
+            Debug.Log($"{nameof(LoadAssetBundleAsync)} - Loading Scene {sceneName} from Bundle");
 
             var task = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-            await new WaitUntil(() => task.isDone);
+
+            while (!task.isDone) await Task.Delay(100);
 
             _sceneLoadedFlags[sceneName] = true;
 
-            bundle.Unload(false);*/
+            bundle.Unload(false);
         }
 
-        private GameObject _avatarLoader;
-        private void LoadAvatarAtUrl(string url, IMonaBody body)
+        private async Task UnloadLoadedScenesAsync()
         {
-            if (_avatarLoader == null)
-                _avatarLoader = new GameObject("AvatarLoader");
-
-            var loader = _avatarLoader.GetComponent<BrainsGlbLoader>();
-            if (loader == null)
-                loader = _avatarLoader.AddComponent<BrainsGlbLoader>();
-
-            loader.Load(url, false, (avatar) =>
+            if (_sceneLoadedFlags[MonaBrainConstants.SCENE_SPACE])
             {
-                if (avatar != null)
-                {
-                    var animator = avatar.GetComponent<Animator>();
-                    if (animator == null)
-                        animator = avatar.AddComponent<Animator>();
-                    LoadAvatar(animator, body, avatar);
-                }
-                Complete(InstructionTileResult.Success, true);
-            });
-        }
+                var task = SceneManager.UnloadSceneAsync(MonaBrainConstants.SCENE_SPACE);
 
-        private void LoadAvatar(Animator animator, IMonaBody body, GameObject avatarGameObject)
-        {
-            _avatarInstance = animator;
-            var root = body.Transform.Find("Root");
+                while (!task.isDone) await Task.Delay(100);
 
-            for (var i = 0; i < root.childCount; i++)
-                GameObject.DestroyImmediate(root.GetChild(i).gameObject);
-
-            avatarGameObject.transform.position = Vector3.zero;
-            avatarGameObject.transform.rotation = Quaternion.identity;
-            avatarGameObject.transform.localScale = Vector3.one;
-
-            avatarGameObject.transform.SetParent(root);
-
-            var parent = body;
-            while (parent != null)
-            {
-                parent.CacheRenderers();
-                parent = parent.Parent;
+                _sceneLoadedFlags[MonaBrainConstants.SCENE_SPACE] = false;
             }
-
-            if (_monaAnimationController != null)
-            {
-
-                _monaAnimationController.SetAnimator(_avatarInstance);
-
-                var parts = new List<IMonaBodyPart>(_avatarInstance.transform.GetComponentsInChildren<IMonaBodyPart>());
-                var transforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
-
-                var boneMappings = _avatarInstance.GetComponent<VRMHumanoidDescription>();
-                if (boneMappings != null)
-                {
-                    var avatarTransforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
-
-                    AvatarDescription description = boneMappings.GetDescription(out bool isCreated);
-                    var avatar = description.ToHumanDescription(_avatarInstance.transform);
-
-                    for (var i = 0; i < avatar.human.Length; i++)
-                    {
-                        var tag = avatar.human[i].humanName;
-                        if (_brain.MonaTagSource.HasTag(tag))
-                        {
-                            var part = parts.Find(x => x.HasMonaTag(tag));
-                            if (part == null)
-                            {
-                                var t = transforms.Find(x => x.name == avatar.human[i].boneName);
-                                if (t != null)
-                                {
-                                    var newPart = t.AddComponent<MonaBodyPart>();
-                                    newPart.AddTag(tag);
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    for (var i = 0; i < (int)HumanBodyBones.LastBone; i++)
-                    {
-                        var tag = ((HumanBodyBones)i).ToString();
-                        if (_brain.MonaTagSource.HasTag(tag))
-                        {
-                            var part = parts.Find(x => x.HasMonaTag(tag));
-                            if (part == null)
-                            {
-                                var t = transforms.Find(x => x.name == tag);
-                                if (t != null)
-                                {
-                                    var newPart = t.AddComponent<MonaBodyPart>();
-                                    newPart.AddTag(tag);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                while (body != null)
-                {
-                    MonaEventBus.Trigger<MonaBodyAnimationControllerChangeEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGE_EVENT, body), new MonaBodyAnimationControllerChangeEvent(_avatarInstance));
-                    body = body.Parent;
-                }
-            }
-
-            avatarGameObject.transform.localScale = Vector3.one;
-            avatarGameObject.transform.localPosition = _offset;
-            avatarGameObject.transform.localRotation = Quaternion.Euler(_eulerAngles);
-
-            root.localScale = _scale;
-
-            var bounds = GetBounds(_avatarInstance.gameObject);
-            var extents = bounds.extents * 2f;
-            var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
-            var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
-            var scale = maxScale / max;
-
-            root.localScale = _scale * scale;
-
-            Debug.Log($"{_avatarInstance} {_offset} scale {_scale} {avatarGameObject.transform.position} brain body {_brain.Body.Transform.position}");
-
-        }
-
-        private Bounds GetBounds(GameObject go)
-        {
-            Bounds bounds;
-            Renderer childRender;
-            bounds = GetRenderBounds(go);
-            if (bounds.extents.x == 0)
-            {
-                bounds = new Bounds(go.transform.position, Vector3.zero);
-                foreach (Transform child in go.transform)
-                {
-                    childRender = child.GetComponent<Renderer>();
-                    if (childRender)
-                    {
-                        bounds.Encapsulate(childRender.bounds);
-                    }
-                    else
-                    {
-                        bounds.Encapsulate(GetBounds(child.gameObject));
-                    }
-                }
-            }
-            return bounds;
-        }
-
-        private Bounds GetRenderBounds(GameObject go)
-        {
-            Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
-            Renderer render = go.GetComponent<Renderer>();
-            if (render != null)
-            {
-                return render.bounds;
-            }
-            return bounds;
         }
 
         public override void Unload(bool destroy = false)
         {
             base.Unload();
+
+            UnloadLoadedScenesAsync();
 
             MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
 

@@ -99,6 +99,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private Action<MonaWalletConnectedEvent> OnWalletConnected;
         private Action<MonaWalletConnectedEvent> OnWalletDisconnected;
+        private Action<MonaWalletTokenSelectedEvent> OnTokenSelected;
 
         static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(OwnsTokensInstructionTile)}.{nameof(Do)}");
         static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(OwnsTokensInstructionTile)}.{nameof(Preload)}");
@@ -118,17 +119,22 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                     OnWalletDisconnected = HandleWalletDisconneccted;
                     MonaEventBus.Register<MonaWalletConnectedEvent>(new EventHook(MonaBrainConstants.WALLET_DISCONNECTED_EVENT), OnWalletDisconnected);
+
+                    OnTokenSelected = HandleTokenSelected;
+                    MonaEventBus.Register<MonaWalletTokenSelectedEvent>(new EventHook(MonaBrainConstants.WALLET_TOKEN_SELECTED_EVENT), OnTokenSelected);
                 }
 
-                FetchTokens();
             }
             _profilerPreload.End();
         }
 
+        private void HandleTokenSelected(MonaWalletTokenSelectedEvent evt)
+        {
+        }
+
         private void HandleWalletConnected(MonaWalletConnectedEvent evt)
         {
-            if (_instruction.Muted) return;
-            FetchTokens();
+         
         }
 
         private void HandleWalletDisconneccted(MonaWalletConnectedEvent evt)
@@ -149,6 +155,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private async void FetchTokens()
         {
+            if (_instruction.Muted)
+            {
+                _TokensFound = true;
+                return;
+            }
+            else
+                _TokensFound = false;
+
             var block = MonaGlobalBrainRunner.Instance.Blockchain;
             List<Token> tokens = new List<Token>();
                         
@@ -273,7 +287,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     tokens = tokens.FindAll(x =>
                     {
                         var tokenId = float.Parse(x.Nft.TokenId);
-                        if (tokenId > _byTokenMin && tokenId <= _byTokenMax)
+                        if (tokenId >= _byTokenMin && tokenId <= _byTokenMax)
                             return true;
                         return false;
                     });
@@ -281,11 +295,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
 
             FilterAndForwardTokens(tokens);
-            _TokensFound = tokens.Count > 0;
-            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} tokens found {_TokensFound} {tokens.Count}", _brain.Body.Transform.gameObject);
+            _TokensFound = _instruction.Tokens.Count > 0;
+            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} tokens found {_tokenType} {_TokensFound} {tokens.Count}", _brain.Body.Transform.gameObject);
 
             //Debug.Log($"{nameof(OwnsTokensInstructionTile)} {nameof(FetchTokens)} tokens: {_TokensFound}");
-            TriggerRefresh();
         }
 
         private void TriggerRefresh()
@@ -306,9 +319,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 }
             }
-
-            if (firstFilter == this)
-                _instruction.Tokens.Clear();
 
             if (_instruction.Tokens.Count == 0)
             {
@@ -376,11 +386,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             }
 
-            Debug.Log($"{nameof(OwnsTokenInstructionTile)} {_predicateType}");
-
+            Debug.Log($"{nameof(OwnsTokenInstructionTile)} {_predicateType} count {_instruction.Tokens.Count}");
+            /*
             for (var i = 0; i < _instruction.Tokens.Count; i++)
                 Debug.Log($"{nameof(OwnsTokenInstructionTile)} found token {_instruction.Tokens[i].Nft.Metadata.Name} - tokenid: {_instruction.Tokens[i].Nft.TokenId} - contract: {_instruction.Tokens[i].Contract}");
-
+            */
             return _instruction.Tokens;
         }
 
@@ -389,6 +399,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (!string.IsNullOrEmpty(_ownsTokensName))
                 _ownsTokens = _brain.Variables.GetBool(_ownsTokensName);
 
+            FetchTokens();
             //Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_TokensFound}");
 
             //Debug.Log($"{nameof(OwnsTokensInstructionTile)} DO: tokens found {_TokensFound} {_instruction.Tokens.Count}", _brain.Body.Transform.gameObject);

@@ -135,5 +135,7 @@
         public const string TAG_WAYPOINT = "Waypoint";
 
         public static readonly int AVATAR_MAXIMUM_FILESIZE_MB = 16;
+
+        public const string SCENE_SPACE = "Space";
     }
 }

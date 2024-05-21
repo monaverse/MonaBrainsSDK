@@ -83,7 +83,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             FilterAndForwardTokens(evt.Token);
                 
-            Debug.Log($"{nameof(OnSelectTokenInstructionTile)} {nameof(HandleTokenSelected)} token: {evt.Token}");
+            //Debug.Log($"{nameof(OnSelectTokenInstructionTile)} {nameof(HandleTokenSelected)} token: {evt.Token}");
             TriggerRefresh();
         }
 
@@ -128,6 +128,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (_selectedToken)
             {
                 _selectedToken = false;
+                //Debug.Log($"{nameof(OnSelectTokenInstructionTile)}");
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);

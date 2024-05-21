@@ -2,8 +2,7 @@
 {
     public enum MonaBrainTokenResultType
     {
-        AvatarUrl=0,
-        ObjectUrl=1,
+        AssetUrl=0,
         TraitValue=2
     }
 }

@@ -469,10 +469,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                         animator = avatar.AddComponent<Animator>();
                         //animator.applyRootMotion = true;
                     }
-                    ParseHumanoid(avatar, animator);
+                    var skeleton = ParseHumanoid(avatar, animator);
                     try
                     {
-                        LoadAvatar(animator, body, avatar);
+                        LoadAvatar(animator, body, avatar, skeleton);
                         body.SkinId = url;
                         body.Skin = avatar;
                     }
@@ -545,7 +545,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             { HumanBodyBones.LastBone, new string[] { "LastBone" } }
         };
 
-        private void ParseHumanoid(GameObject avatar, Animator animator)
+        private Dictionary<HumanBodyBones, Transform> ParseHumanoid(GameObject avatar, Animator animator)
         {
             if(animator.avatar == null)
             {
@@ -583,7 +583,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 catch(Exception e)
                 {
                     Debug.LogError($"{nameof(ParseHumanoid)} {e.Message}");
-                    return;
+                    return null;
                 }
 
                 if (skeleton.ContainsKey(HumanBodyBones.Hips) &&
@@ -597,14 +597,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 {
 
                     var description = AvatarDescription.Create(skeleton).ToHumanDescription(avatar.transform);
+                    description.upperLegTwist = 1;
                     var avatarInst = AvatarBuilder.BuildHumanAvatar(avatar, description);
 
                     animator.avatar = avatarInst;
                 }
+
+                return skeleton;
             }
+            return null;
         }
 
-        private void LoadAvatar(Animator animator, IMonaBody body, GameObject avatarGameObject)
+        private void LoadAvatar(Animator animator, IMonaBody body, GameObject avatarGameObject, Dictionary<HumanBodyBones, Transform> skeleton = null)
         {
             _avatarInstance = animator;
             var root = body.Transform.Find("Root");
@@ -670,6 +674,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                                     var newPart = t.AddComponent<MonaBodyPart>();
                                     newPart.AddTag(tag);
                                 }
+                            }
+                        }
+                    }
+                }
+                else if(skeleton != null)
+                {
+                    foreach(var pair in skeleton)
+                    {
+                        var tag = ((HumanBodyBones)pair.Key).ToString();
+                        if (_brain.MonaTagSource.HasTag(tag))
+                        {
+                            var part = parts.Find(x => x.HasMonaTag(tag));
+                            if (part == null)
+                            {
+                                var t = pair.Value;
+                                var newPart = t.AddComponent<MonaBodyPart>();
+                                newPart.AddTag(tag);
                             }
                         }
                     }
