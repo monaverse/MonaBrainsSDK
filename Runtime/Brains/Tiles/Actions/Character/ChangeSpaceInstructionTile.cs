@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using System.IO.Compression;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
+using Mona.SDK.Brains.ThirdParty.Redcode.Awaiting;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 {
@@ -500,15 +501,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             Debug.Log($"{nameof(DownloadBundleAsync)} - Downloading Bundle ({sceneName}): {assetBundleUrl}");
 
 #if !UNITY_WEBGL
-            while (!Caching.ready) await Task.Delay(100);
+            while (!Caching.ready) await new WaitForSeconds(.1f);
 #endif
             using (var request = UnityWebRequestAssetBundle.GetAssetBundle(assetBundleUrl))
             {
+                request.SetRequestHeader("Access-Control-Allow-Origin", "*");
+
                 await SendWebRequestAsync(request);
 
                 while (!request.isDone)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(0.5f));
+                    await new WaitForSeconds(.5f);
                     Debug.Log($"downloading... {(int)(request.downloadProgress * 100)}");
                 }
 
@@ -531,7 +534,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
             var task = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
 
-            while (!task.isDone) await Task.Delay(100);
+            while (!task.isDone) await new WaitForSeconds(.1f);
 
             _sceneLoadedFlags[sceneName] = true;
 
@@ -544,7 +547,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             {
                 var task = SceneManager.UnloadSceneAsync(MonaBrainConstants.SCENE_SPACE);
 
-                while (!task.isDone) await Task.Delay(100);
+                while (!task.isDone) await new WaitForSeconds(.1f);
 
                 _sceneLoadedFlags[MonaBrainConstants.SCENE_SPACE] = false;
             }
