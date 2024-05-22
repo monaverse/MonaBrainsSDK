@@ -27,6 +27,7 @@ using System.IO.Compression;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using Mona.SDK.Brains.ThirdParty.Redcode.Awaiting;
+using Mona.SDK.Brains.Actions.Visuals.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 {
@@ -40,15 +41,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         public bool IsAnimationTile => false;
 
-        [SerializeField] private MonaBrainBroadcastType _target = MonaBrainBroadcastType.Self;
-        [BrainPropertyEnum(true)] public MonaBrainBroadcastType Target { get => _target; set => _target = value; }
-
-        [SerializeField] private string _targetTag;
-        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
-        [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
+        [SerializeField] private MonaChangeSpaceType _spaceType = MonaChangeSpaceType.ReplaceSpaces;
+        [BrainPropertyEnum(true)] public MonaChangeSpaceType SpaceType { get => _spaceType; set => _spaceType = value; }
 
         [SerializeField] private string _assetUri = null;
         [BrainProperty(true)]
+        [BrainPropertyShow(nameof(SpaceType), (int)MonaChangeSpaceType.ReplaceSpaces)]
+        [BrainPropertyShow(nameof(SpaceType), (int)MonaChangeSpaceType.AddSpace)]
         public string AssetUrl { get => _assetUri; set => _assetUri = value; }
 
         [SerializeField] private string _assetUrlName = null;
@@ -57,49 +56,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
         [BrainProperty(false)]
+        [BrainPropertyShow(nameof(SpaceType), (int)MonaChangeSpaceType.ReplaceSpaces)]
+        [BrainPropertyShow(nameof(SpaceType), (int)MonaChangeSpaceType.AddSpace)]
         public Vector3 Offset { get => _offset; set => _offset = value; }
 
         [SerializeField]
         private Vector3 _eulerAngles = Vector3.zero;
         [BrainProperty(false)]
+        [BrainPropertyShow(nameof(SpaceType), (int)MonaChangeSpaceType.ReplaceSpaces)]
+        [BrainPropertyShow(nameof(SpaceType), (int)MonaChangeSpaceType.AddSpace)]
         public Vector3 Rotation { get => _eulerAngles; set => _eulerAngles = value; }
 
         [SerializeField]
         private Vector3 _scale = Vector3.one;
         [BrainProperty(false)]
+        [BrainPropertyShow(nameof(SpaceType), (int)MonaChangeSpaceType.ReplaceSpaces)]
+        [BrainPropertyShow(nameof(SpaceType), (int)MonaChangeSpaceType.AddSpace)]
         public Vector3 Scale { get => _scale; set => _scale = value; }
-
-        [SerializeField] private bool _includeAttached = true;
-        [SerializeField] private string _includeAttachedName;
-        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
-        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MessageSender)]
-        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.OnConditionTarget)]
-        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.OnHitTarget)]
-        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MySpawner)]
-        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.LastSpawnedByMe)]
-        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.AllSpawnedByMe)]
-        [BrainProperty(false)] public bool IncludeAttached { get => _includeAttached; set => _includeAttached = value; }
-        [BrainPropertyValueName("IncludeAttached", typeof(IMonaVariablesBoolValue))] public string IncludeAttachedName { get => _includeAttachedName; set => _includeAttachedName = value; }
-
-        private bool ModifyAllAttached
-        {
-            get
-            {
-                switch (_target)
-                {
-                    case MonaBrainBroadcastType.Self:
-                        return false;
-                    case MonaBrainBroadcastType.Parent:
-                        return false;
-                    case MonaBrainBroadcastType.Children:
-                        return false;
-                    case MonaBrainBroadcastType.ThisBodyOnly:
-                        return false;
-                    default:
-                        return _includeAttached;
-                }
-            }
-        }
 
         private IMonaBrain _brain;
         private Transform _root;
@@ -118,132 +91,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
             _sceneLoadedFlags = new Dictionary<string, bool>();
             _sceneLoadedFlags[MonaBrainConstants.SCENE_SPACE] = false;
-
-            SetupAnimation();
-        }
-
-        private void HandleAnimationControllerChanged(MonaBodyAnimationControllerChangedEvent evt)
-        {
-            SetupAnimation();
-        }
-
-        private void SetupAnimation()
-        {
-            switch (_target)
-            {
-                case MonaBrainBroadcastType.Tag:
-                    SetupOnTag();
-                    break;
-                case MonaBrainBroadcastType.Self:
-                    SetupAnimation(_brain.Body);
-                    break;
-                case MonaBrainBroadcastType.Children:
-                    SetupOnChildren(_brain.Body);
-                    break;
-                case MonaBrainBroadcastType.ThisBodyOnly:
-                    SetupAnimation(_brain.Body);
-                    break;
-                case MonaBrainBroadcastType.AllSpawnedByMe:
-                    SetupOnAllSpawned();
-                    break;
-                default:
-                    IMonaBody targetBody = GetTarget();
-
-                    if (targetBody == null)
-                        break;
-
-                    //if (ModifyAllAttached)
-                    //    SetupOnWholeEntity(targetBody);
-                    //else
-                        SetupAnimation(targetBody);
-                    break;
-            }
-
-        }
-
-        private void SetupOnTag()
-        {
-            var tagBodies = MonaBody.FindByTag(_targetTag);
-
-            if (tagBodies.Count < 1)
-                return;
-
-            for (int i = 0; i < tagBodies.Count; i++)
-            {
-                if (tagBodies[i] == null)
-                    continue;
-
-                //if (ModifyAllAttached)
-                //    ModifyOnWholeEntity(tagBodies[i]);
-                //else
-                SetupAnimation(tagBodies[i]);
-            }
-        }
-
-        private void SetupOnWholeEntity(IMonaBody body)
-        {
-            IMonaBody topBody = body;
-            while (topBody.Parent != null)
-                topBody = topBody.Parent;
-
-            ChangeSpace(topBody);
-            SetupAnimation(topBody);
-        }
-
-        private void SetupOnChildren(IMonaBody body)
-        {
-            var children = body.Children();
-
-            for (int i = 0; i < children.Count; i++)
-            {
-                if (children[i] == null)
-                    continue;
-
-                ChangeSpace(children[i]);
-                SetupAnimation(children[i]);
-            }
-        }
-
-        private void SetupOnAllSpawned()
-        {
-            var spawned = _brain.SpawnedBodies;
-
-            for (int i = 0; i < spawned.Count; i++)
-            {
-                if (spawned[i] == null)
-                    continue;
-
-                if (ModifyAllAttached)
-                    SetupAnimation(spawned[i]);
-                else
-                    ChangeSpace(spawned[i]);
-            }
-        }
-
-        private void SetupAnimation(IMonaBody body)
-        {
-            OnAnimationControllerChanged = HandleAnimationControllerChanged;
-            MonaEventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, body), OnAnimationControllerChanged);
-
-            if (body.Transform.Find("Root") != null)
-                _monaAnimationController = body.Transform.Find("Root").GetComponent<IMonaAnimationController>();
-            else
-            {
-                var children = body.Children();
-                for (var i = 0; i < children.Count; i++)
-                {
-                    var root = children[i].Transform.Find("Root");
-                    if (root != null)
-                    {
-                        _monaAnimationController = root.GetComponent<IMonaAnimationController>();
-                        if (_monaAnimationController != null) break;
-                    }
-                }
-            }
-
-            if (_monaAnimationController != null)
-                _avatarInstance = _monaAnimationController.Animator;
-
         }
 
         public IMonaBody GetBodyToControl()
@@ -253,156 +100,54 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         public override InstructionTileResult Do()
         {
-            switch (_target)
-            {
-                case MonaBrainBroadcastType.Tag:
-                    ModifyOnTag();
-                    break;
-                case MonaBrainBroadcastType.Self:
-                    ChangeSpace(_brain.Body);
-                    break;
-                case MonaBrainBroadcastType.Children:
-                    ModifyOnChildren(_brain.Body);
-                    break;
-                case MonaBrainBroadcastType.ThisBodyOnly:
-                    ChangeSpace(_brain.Body);
-                    break;
-                case MonaBrainBroadcastType.AllSpawnedByMe:
-                    ModifyOnAllSpawned();
-                    break;
-                default:
-                    IMonaBody targetBody = GetTarget();
-
-                    if (targetBody == null)
-                        break;
-
-                    //if (ModifyAllAttached)
-                    //    ModifyOnWholeEntity(targetBody);
-                    //else
-                        ChangeSpace(targetBody);
-
-                    break;
-            }
-
-            return Complete(InstructionTileResult.Success);
-        }
-
-        private void ModifyOnTag()
-        {
-            var tagBodies = MonaBody.FindByTag(_targetTag);
-
-            if (tagBodies.Count < 1)
-                return;
-
-            for (int i = 0; i < tagBodies.Count; i++)
-            {
-                if (tagBodies[i] == null)
-                    continue;
-
-                //if (ModifyAllAttached)
-                //    ModifyOnWholeEntity(tagBodies[i]);
-                //else
-                    ChangeSpace(tagBodies[i]);
-            }
-        }
-
-        private void ModifyOnWholeEntity(IMonaBody body)
-        {
-            IMonaBody topBody = body;
-            while (topBody.Parent != null)
-                topBody = topBody.Parent;
-
-            ChangeSpace(topBody);
-            ModifyOnChildren(topBody);
-        }
-
-        private void ModifyOnChildren(IMonaBody body)
-        {
-            var children = body.Children();
-
-            for (int i = 0; i < children.Count; i++)
-            {
-                if (children[i] == null)
-                    continue;
-
-                ChangeSpace(children[i]);
-                ModifyOnChildren(children[i]);
-            }
-        }
-
-        private void ModifyOnAllSpawned()
-        {
-            var spawned = _brain.SpawnedBodies;
-
-            for (int i = 0; i < spawned.Count; i++)
-            {
-                if (spawned[i] == null)
-                    continue;
-
-                if (ModifyAllAttached)
-                    ModifyOnWholeEntity(spawned[i]);
-                else
-                    ChangeSpace(spawned[i]);
-            }
-        }
-
-        private IMonaBody GetTarget()
-        {
-            switch (_target)
-            {
-                case MonaBrainBroadcastType.Parent:
-                    return _brain.Body.Parent;
-                case MonaBrainBroadcastType.MessageSender:
-                    var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
-                    if (brain != null)
-                        return brain.Body;
-                    break;
-                case MonaBrainBroadcastType.OnConditionTarget:
-                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
-                case MonaBrainBroadcastType.OnHitTarget:
-                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
-                case MonaBrainBroadcastType.MySpawner:
-                    return _brain.Body.Spawner;
-                case MonaBrainBroadcastType.LastSpawnedByMe:
-                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
-            }
-            return null;
+            return ChangeSpace(_brain.Body);
         }
 
         private InstructionTileResult ChangeSpace(IMonaBody body)
         {
             if (body != null)
             {
-                if (_brain.HasPlayerTag(body.MonaTags))
-                    _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
-
-                if (!string.IsNullOrEmpty(_assetUrlName))
-                    _assetUri = _brain.Variables.GetString(_assetUrlName);
-                                
-                _avatarAsset = (IMonaAvatarAssetItem)(new MonaAvatarAsset()
+                if (_spaceType == MonaChangeSpaceType.RemoveSpaces)
                 {
-                    Url = _assetUri
-                });
-                
-                if (!string.IsNullOrEmpty(_avatarAsset.Url))
-                {
-                    LoadSpace(_avatarAsset.Url, body);
+                    RemoveSpaces();
                     return Complete(InstructionTileResult.Running);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(_assetUrlName))
+                        _assetUri = _brain.Variables.GetString(_assetUrlName);
+
+                    _avatarAsset = (IMonaAvatarAssetItem)(new MonaAvatarAsset()
+                    {
+                        Url = _assetUri
+                    });
+
+                    if (!string.IsNullOrEmpty(_avatarAsset.Url))
+                    {
+                        LoadSpace(_avatarAsset.Url, body);
+                        return Complete(InstructionTileResult.Running);
+                    }
                 }
             }
             return InstructionTileResult.Failure;
+        }
+
+        private async void RemoveSpaces()
+        {
+            await UnloadLoadedScenesAsync();
+            Complete(InstructionTileResult.Success, true);
         }
 
         private async void LoadSpace(string url, IMonaBody body)
         {
             Debug.Log($"{nameof(LoadSpace)}.{nameof(LoadSpace)} - Loading Space...");
 
-            await UnloadLoadedScenesAsync();
+            if(_spaceType == MonaChangeSpaceType.ReplaceSpaces)
+                await UnloadLoadedScenesAsync();
 
             var scenesLoadedSuccessfully = await LoadScenes(url);
 
             var scene = GameObject.Find(MonaBrainConstants.SCENE_SPACE);
-
 
             if(scene != null)
             {
@@ -414,6 +159,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             {
                 Debug.Log($"{nameof(LoadSpace)} could not load scene {url}");
             }
+
+            Complete(InstructionTileResult.Success, true);
         }
 
         private Dictionary<string, bool> _sceneLoadedFlags = new Dictionary<string, bool>();
@@ -425,8 +172,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             {
                 Debug.Log($"{nameof(LoadScenes)} - All Scenes Loaded!");
                 SceneManager.SetActiveScene(SceneManager.GetSceneByName(MonaBrainConstants.SCENE_SPACE));
-
-
 
                 return true;
             }
@@ -441,12 +186,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             if (bundle != null) await LoadAssetBundleAsync(bundle, sceneName);
         }
 
-
         public async Task<UnityWebRequest> SendWebRequestAsync(UnityWebRequest unityWebRequest)
         {
             var isComplete = false;
 
             var coroutine = SendWebRequestCoroutine(unityWebRequest);
+
             RunCoroutine(coroutine, () => isComplete = true);
 
             while (!isComplete && !unityWebRequest.isDone)
@@ -466,7 +211,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         {
             if (_coroutineRunnerBehaviour != null)
                 return _coroutineRunnerBehaviour.Run(coroutine, onComplete);
-
+            
             var coroutineRunnerGameObject = new GameObject("~CoroutineRunner+" + Guid.NewGuid());
             var coroutineRunnerBehaviour = coroutineRunnerGameObject.GetComponent<CoroutineRunnerBehaviour>();
 
@@ -532,6 +277,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         {
             Debug.Log($"{nameof(LoadAssetBundleAsync)} - Loading Scene {sceneName} from Bundle");
 
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
+            SceneManager.sceneLoaded += HandleSceneLoaded;
+
             var task = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
 
             while (!task.isDone) await new WaitForSeconds(.1f);
@@ -541,13 +289,31 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             bundle.Unload(false);
         }
 
+        private List<Scene> _loadedScenes = new List<Scene>();
+
+        private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            _loadedScenes.Add(scene);
+            Debug.Log("OnSceneLoaded: " + scene.name);
+            Debug.Log(mode);
+
+            MonaEventBus.Trigger<MonaChangeSpaceEvent>(new EventHook(MonaCoreConstants.ON_CHANGE_SPACE_EVENT), new MonaChangeSpaceEvent(scene));
+        }
+
         private async Task UnloadLoadedScenesAsync()
         {
             if (_sceneLoadedFlags[MonaBrainConstants.SCENE_SPACE])
             {
-                var task = SceneManager.UnloadSceneAsync(MonaBrainConstants.SCENE_SPACE);
+                for (var i = _loadedScenes.Count-1; i >= 0; i--)
+                {
+                    var scene = _loadedScenes[i];
 
-                while (!task.isDone) await new WaitForSeconds(.1f);
+                    var task = SceneManager.UnloadSceneAsync(scene);
+
+                    while (!task.isDone) await new WaitForSeconds(.1f);
+
+                    _loadedScenes.RemoveAt(i);
+                }
 
                 _sceneLoadedFlags[MonaBrainConstants.SCENE_SPACE] = false;
             }

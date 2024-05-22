@@ -107,6 +107,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 case VectorChangeType.Invert:
                     _brain.Variables.Set(nameOfVariableToSet, value * -1f);
                     break;
+                case VectorChangeType.RoundClosest:
+                    value.x = Mathf.Round(value.x);
+                    value.y = Mathf.Round(value.y);
+                    value.z = Mathf.Round(value.z);
+                    _brain.Variables.Set(nameOfVariableToSet, value);
+                    break;
+                case VectorChangeType.RoundUp:
+                    value.x = Mathf.Ceil(value.x);
+                    value.y = Mathf.Ceil(value.y);
+                    value.z = Mathf.Ceil(value.z);
+                    _brain.Variables.Set(nameOfVariableToSet, value);
+                    break;
+                case VectorChangeType.RoundDown:
+                    value.x = Mathf.Floor(value.x);
+                    value.y = Mathf.Floor(value.y);
+                    value.z = Mathf.Floor(value.z);
+                    _brain.Variables.Set(nameOfVariableToSet, value);
+                    break;
             }
 
             return Complete(InstructionTileResult.Success);

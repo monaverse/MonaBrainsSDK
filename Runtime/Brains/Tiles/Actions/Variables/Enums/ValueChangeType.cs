@@ -40,6 +40,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables.Enums
         Divide = 4,
         Normalize = 10,
         Reflect = 20,
-        Invert = 30
+        Invert = 30,
+        RoundClosest = 40,
+        RoundUp = 50,
+        RoundDown = 60
     }
 }

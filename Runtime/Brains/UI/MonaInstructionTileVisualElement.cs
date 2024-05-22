@@ -972,7 +972,15 @@ namespace Mona.SDK.Brains.UIElements
 
         private List<string> GetVariableList(Type type)
         {
-            return _brain.DefaultVariables.VariableList.FindAll(x => type.IsAssignableFrom(_brain.DefaultVariables.GetVariable(x.Name).GetType())).ConvertAll<string>(x => x.Name);
+            try
+            {
+                return _brain.DefaultVariables.VariableList.FindAll(x => type.IsAssignableFrom(_brain.DefaultVariables.GetVariable(x.Name).GetType())).ConvertAll<string>(x => x.Name);
+            }
+            catch(Exception e)
+            {
+                Debug.LogError($"{nameof(GetVariableList)} {e.Message}");
+                return new List<string>();
+            }
         }
 
         private Button CreateBindButton()
