@@ -85,4 +85,10 @@ namespace Mona.SDK.Brains.Core.Enums
         MyPoolPreviouslySpawned = 100,
         MyPoolNextSpawned = 110
     }
+
+    public enum MonaBrainTargetLayoutType
+    {
+        Tag = 0,
+        ThisBodyOnly = 35
+    }
 }
