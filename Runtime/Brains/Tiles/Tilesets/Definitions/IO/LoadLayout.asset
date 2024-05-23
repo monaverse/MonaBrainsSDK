@@ -27,10 +27,12 @@ MonoBehaviour:
         _name: Load Layout
         _category: File Storage
         _muted: 0
-        _target: 0
+        _target: 5
         _targetTag: Default
-        _optionalIdentifier: 
-        _optionalIdentifierName: 
+        _uniqueKey: 
+        _uniqueKeyName: 
         _saveSlot: 0
         _saveSlotName: 
+        _addUniqueKey: 0
+        _forceSameBody: 0
         _saveSlotUsage: 0

@@ -143,6 +143,10 @@
 
         public const string TAG_EDITABLE = "Editable";
         public const string TAG_LAYOUT = "Layout";
+        public const string TAG_SCENE_SPACE = "SceneSpace";
+
+        public const string TAG_PAUSABLE = "Pausable";
+        public const string TAG_UNPAUSABLE = "Unpausable";
 
         public static readonly int AVATAR_MAXIMUM_FILESIZE_MB = 16;
 

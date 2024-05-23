@@ -108,6 +108,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
             new MonaTagItem(MonaBrainConstants.TAG_EDITABLE, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_LAYOUT, false, false),
+            new MonaTagItem(MonaBrainConstants.TAG_SCENE_SPACE, false, false),
+
+            new MonaTagItem(MonaBrainConstants.TAG_PAUSABLE, false, false),
+            new MonaTagItem(MonaBrainConstants.TAG_UNPAUSABLE, false, false),
 
             new MonaTagItem(HumanBodyBones.Head.ToString(), true, false),
 

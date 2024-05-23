@@ -18,6 +18,25 @@ namespace Mona.SDK.Brains.Core.Enums
         MyPoolNextSpawned = 110
     }
 
+    public enum MonaBrainPausableTargetType
+    {
+        Tag = 0,
+        All = 5,
+        Self = 10,
+        Parent = 20,
+        Parents = 24,
+        Children = 30,
+        ThisBodyOnly = 35,
+        MessageSender = 40,
+        OnConditionTarget = 50,
+        OnHitTarget = 60,
+        MySpawner = 70,
+        LastSpawnedByMe = 80,
+        AllSpawnedByMe = 90,
+        MyPoolPreviouslySpawned = 100,
+        MyPoolNextSpawned = 110
+    }
+
     public enum MonaBrainTransformType
     {
         Tag = 0,

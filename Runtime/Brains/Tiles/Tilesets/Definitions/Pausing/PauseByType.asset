@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b7fc5b856e514163b8102f1f30f8deb, type: 3}
+  m_Name: PauseByType
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 6017384683200315424
+  _id: PauseByType
+  _name: Pause Body
+  _category: Pause / Resume
+  references:
+    version: 2
+    RefIds:
+    - rid: 6017384683200315424
+      type: {class: PauseByTypeInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: PauseByType
+        _name: Pause Body
+        _category: Pause / Resume
+        _muted: 0
+        _target: 0
+        _targetTag: Pausable
+        _exclude: 10
+        _excludeTag: Unpausable
+        _myHandling: 0
+        _targetAttached: 1
+        _targetAttachedName: 
+        _excludeAttached: 1
+        _excludeAttachedName: 
