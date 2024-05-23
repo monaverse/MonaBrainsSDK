@@ -65,15 +65,20 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             new MonaTagItem(MonaBrainConstants.TAG_CHAIR, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_PICTURE, false, false),
 
+            new MonaTagItem(MonaBrainConstants.TAG_SPAWNPOINT, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_SPAWNER, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_SPAWNED_OBJECT, false, false),
 
             new MonaTagItem(MonaBrainConstants.TAG_COLLECTIBLE, false, false),
+            new MonaTagItem(MonaBrainConstants.TAG_DESTRUCTIBLE, false, false),
+            new MonaTagItem(MonaBrainConstants.TAG_BUTTON, false, false),
+            new MonaTagItem(MonaBrainConstants.TAG_SWITCH, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_KEYITEM, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_COIN, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_KEY, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_HEART, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_POWERUP, false, false),
+            new MonaTagItem(MonaBrainConstants.TAG_POWERDOWN, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_TREASURE, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_INVENTORYITEM, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_FOOD, false, false),
@@ -84,6 +89,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             new MonaTagItem(MonaBrainConstants.TAG_GROUND, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_WATER, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_HAZARD, false, false),
+            new MonaTagItem(MonaBrainConstants.TAG_BARRIER, false, false),
+            new MonaTagItem(MonaBrainConstants.TAG_KILLZONE, false, false),
 
             new MonaTagItem(MonaBrainConstants.TAG_LAVA, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_FIRE, false, false),
@@ -98,6 +105,9 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             new MonaTagItem(MonaBrainConstants.TAG_GOAL, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_CHECKPOINT, false, false),
             new MonaTagItem(MonaBrainConstants.TAG_WAYPOINT, false, false),
+
+            new MonaTagItem(MonaBrainConstants.TAG_EDITABLE, false, false),
+            new MonaTagItem(MonaBrainConstants.TAG_LAYOUT, false, false),
 
             new MonaTagItem(HumanBodyBones.Head.ToString(), true, false),
 

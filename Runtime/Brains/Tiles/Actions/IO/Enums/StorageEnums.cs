@@ -27,4 +27,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         ThisBrain = 0,
         CustomBrainName = 10
     }
+
+    public enum UsageType
+    {
+        None,
+        Defined
+    }
+
+    public enum DefinedBodyType
+    {
+        None,
+        UseDurableID,
+        UseLocalID
+    }
 }

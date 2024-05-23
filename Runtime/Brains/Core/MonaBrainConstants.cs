@@ -102,14 +102,19 @@
         public const string TAG_CHAIR = "Chair";
         public const string TAG_PICTURE = "Picture";
 
+        public const string TAG_SPAWNPOINT = "SpawnPoint";
         public const string TAG_SPAWNER = "Spawner";
         public const string TAG_SPAWNED_OBJECT = "SpawnedObject";
         public const string TAG_COLLECTIBLE = "Collectible";
+        public const string TAG_DESTRUCTIBLE = "Destructible";
+        public const string TAG_BUTTON = "Button";
+        public const string TAG_SWITCH = "Switch";
         public const string TAG_KEYITEM = "KeyItem";
         public const string TAG_COIN = "Coin";
         public const string TAG_KEY = "Key";
         public const string TAG_HEART = "Heart";
         public const string TAG_POWERUP = "PowerUp";
+        public const string TAG_POWERDOWN = "PowerDown";
         public const string TAG_TREASURE = "Treasure";
         public const string TAG_INVENTORYITEM = "InventoryItem";
         public const string TAG_FOOD = "Food";
@@ -120,6 +125,8 @@
         public const string TAG_GROUND = "Ground";
         public const string TAG_WATER = "Water";
         public const string TAG_HAZARD = "Hazard";
+        public const string TAG_BARRIER = "Barrier";
+        public const string TAG_KILLZONE = "Killzone";
         public const string TAG_LAVA = "Lava";
         public const string TAG_FIRE = "Fire";
         public const string TAG_ICE = "Ice";
@@ -133,6 +140,9 @@
         public const string TAG_GOAL = "Goal";
         public const string TAG_CHECKPOINT = "Checkpoint";
         public const string TAG_WAYPOINT = "Waypoint";
+
+        public const string TAG_EDITABLE = "Editable";
+        public const string TAG_LAYOUT = "Layout";
 
         public static readonly int AVATAR_MAXIMUM_FILESIZE_MB = 16;
 
