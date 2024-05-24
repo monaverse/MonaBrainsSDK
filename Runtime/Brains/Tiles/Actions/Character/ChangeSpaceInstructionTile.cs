@@ -250,8 +250,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 #endif
             using (var request = UnityWebRequestAssetBundle.GetAssetBundle(assetBundleUrl))
             {
-                request.SetRequestHeader("Access-Control-Allow-Origin", "*");
-
                 await SendWebRequestAsync(request);
 
                 while (!request.isDone)

@@ -82,6 +82,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyValueName("Scale", typeof(IMonaVariablesVector3Value))]
         public string[] ScaleName { get => _scaleName; set => _scaleName = value; }
 
+        [SerializeField] private bool _hidden;
+        [BrainProperty(false)] public bool Hidden { get => _hidden; set => _hidden = value; }
+
         [SerializeField] private bool _spawnOnEmpty;
         [BrainProperty(false)] public bool SpawnOnEmpty { get => _spawnOnEmpty; set => _spawnOnEmpty = value; }
 
@@ -194,6 +197,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         child.SetDisableOnLoad(true);
                         //Debug.Log($"{nameof(child.SetDisableOnLoad)}", child.Transform.gameObject);
                     }
+                    if (_hidden)
+                        child.SetVisible(false);
                 }
 
                 ((MonaBodyBase)child).MakeUnique(_brain.Player.PlayerId, true);

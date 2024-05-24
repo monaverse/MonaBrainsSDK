@@ -43,6 +43,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Position)]
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Forward)]
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.ChildIndex)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.SiblingIndex)]
         [BrainPropertyEnum(false)] public TargetVariableType TargetType { get => _targetType; set => _targetType = value; }
 
         [SerializeField] string _targetValue;
@@ -115,7 +116,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             get
             {
-                if (_source != MonaBodyValueType.ChildIndex && _source != MonaBodyValueType.ChildCount)
+                if (_source != MonaBodyValueType.ChildIndex && _source != MonaBodyValueType.ChildCount && _source != MonaBodyValueType.SiblingIndex)
                 {
                     if (TargetType == TargetVariableType.Number && _source != MonaBodyValueType.Velocity)
                         return UIDisplayType.Show;
@@ -159,6 +160,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     SetVariable(body.ActiveTransform.forward); break;
                 case MonaBodyValueType.ChildIndex:
                     SetVariable((float)body.ChildIndex); break;
+                case MonaBodyValueType.SiblingIndex:
+                    SetVariable((float)body.ActiveTransform.GetSiblingIndex()); break;
                 case MonaBodyValueType.ChildCount:
                     SetVariable((float)body.Transform.childCount); break;
                 default:

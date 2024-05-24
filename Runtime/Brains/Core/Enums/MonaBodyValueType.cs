@@ -11,6 +11,7 @@
         Velocity = 12,
         Forward = 14,
         ChildIndex = 16,
+        SiblingIndex = 17,
         ChildCount = 18
     }
 }

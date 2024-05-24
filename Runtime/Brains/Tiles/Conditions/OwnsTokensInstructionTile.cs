@@ -386,7 +386,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             }
 
-            Debug.Log($"{nameof(OwnsTokenInstructionTile)} {_predicateType} count {_instruction.Tokens.Count}");
+            Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_predicateType} count {_instruction.Tokens.Count}");
             /*
             for (var i = 0; i < _instruction.Tokens.Count; i++)
                 Debug.Log($"{nameof(OwnsTokenInstructionTile)} found token {_instruction.Tokens[i].Nft.Metadata.Name} - tokenid: {_instruction.Tokens[i].Nft.TokenId} - contract: {_instruction.Tokens[i].Contract}");

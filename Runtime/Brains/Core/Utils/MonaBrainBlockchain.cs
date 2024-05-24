@@ -27,18 +27,8 @@ namespace Mona.SDK.Brains.Core.Utils
 
         public virtual void SetWalletAddress(string address) => _walletAddress = address;
 
-        [SerializeField]
-        protected List<RegisteredContract> _contracts = new List<RegisteredContract>();
-        public List<RegisteredContract> Contracts { get => _contracts; }
-
         protected bool _walletConnected;
         public bool WalletConnected { get => _walletConnected; set => _walletConnected = value; }
-
-        public virtual void RegisterContract(string address, int tokenCount = -1, string tokenType = "ERC1155")
-        {
-            if (_contracts.Find(x => x.Address == address) == null)
-                _contracts.Add(new RegisteredContract() { Address = address, TokenCount = tokenCount, TokenType = tokenType });
-        }
 
         public virtual Task<Token> OwnsToken(string collectionAddress, string tokenId)
         {
@@ -51,31 +41,6 @@ namespace Mona.SDK.Brains.Core.Utils
         }
 
         public virtual Task<List<Token>> OwnsTokens()
-        {
-            return null;
-        }
-
-        public virtual Task<List<Token>> OwnsTokensWithAvatar()
-        {
-            return null;
-        }
-
-        public virtual Task<List<Token>> OwnsTokensWithArtifact()
-        {
-            return null;
-        }
-
-        public virtual Task<List<Token>> OwnsTokensWithTexture()
-        {
-            return null;
-        }
-
-        public virtual Task<List<Token>> OwnsTokensWithTrait(string trait, string value)
-        {
-            return null;
-        }
-
-        public virtual Task<List<Token>> OwnsTokensWithTrait(string trait, float value)
         {
             return null;
         }
