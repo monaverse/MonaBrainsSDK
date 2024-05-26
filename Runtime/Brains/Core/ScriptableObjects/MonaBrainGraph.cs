@@ -451,9 +451,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                     if (_body.ActiveRigidbody == null)
                     {
                         Rigidbody parentRB = _body.Transform.GetComponentInParent<Rigidbody>();
-                        IMonaBody parentMB = parentRB != null ? parentRB.GetComponent<IMonaBody>() : null;
+                        IMonaBody parentMB = _body.Transform.GetComponentInParent<IMonaBody>();
+                        IMonaBrainRunner parentRunner = parentMB != null ? parentMB.Transform.GetComponent<IMonaBrainRunner>() : null;
 
-                        if (parentRB == null || (parentRB != null && parentMB == null))
+                        if (parentRB == null || (parentRunner != null && !(parentMB.SyncType == MonaBodyNetworkSyncType.NetworkRigidbody || parentRunner.HasRigidbodyTiles())))
                             _body.AddRigidbody();
                     }
 

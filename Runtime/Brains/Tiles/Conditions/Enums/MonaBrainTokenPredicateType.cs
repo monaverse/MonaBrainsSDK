@@ -8,6 +8,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Enums
         Name=10,
         NameContains=15,
         NameStartsWith=16,
+        DescriptionContains=17,
         Token =20,
         TokenRange=21,
         Contract=25,

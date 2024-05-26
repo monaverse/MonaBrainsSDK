@@ -80,7 +80,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private bool Raycast(Ray ray)
         {
-            var targetRayLayer = 1 << 8 | 1 << LayerMask.NameToLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER);
+            var targetRayLayer = 1 << 8 | 1 << LayerMask.NameToLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER) | 1 << LayerMask.NameToLayer("Ignore Raycast");
             targetRayLayer = ~targetRayLayer;
 
             RaycastHit hit;
@@ -90,7 +90,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (Physics.Raycast(ray.origin, ray.direction, out hit, _distance, targetRayLayer))
             {
                 //if (_brain.LoggingEnabled)
-                   // Debug.Log($"{nameof(OnSelectInstructionTile)} {hit.point} {hit.collider}");
+                    Debug.Log($"{nameof(OnSelectInstructionTile)} HIT: {hit.point} {hit.collider}");
 
                 var body = hit.collider.GetComponentInParent<IMonaBody>();
                 if (_brain.LoggingEnabled && body != null)

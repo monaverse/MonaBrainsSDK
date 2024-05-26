@@ -18,6 +18,8 @@ namespace Mona.SDK.Brains.Core.Brain
         bool RequiresAnimator { get; }
         bool LegacyMonaPlatforms { get; }
 
+        bool HasRigidbodyTiles();
+
         void WaitFrame(int brainIndex, Action<InstructionEvent> callback, InstructionEvent evt, bool debug);
 
         List<MonaBrainGraph> BrainGraphs { get; }

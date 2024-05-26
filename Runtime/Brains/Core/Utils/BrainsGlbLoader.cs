@@ -10,6 +10,7 @@ using UnityGLTF.Loader;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Utils.Structs;
 using System.Runtime.ExceptionServices;
+using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Core.Utils
 {
@@ -208,6 +209,9 @@ namespace Mona.SDK.Brains.Core.Utils
 
                                     if (obj == null)
                                         throw (info.SourceException);
+
+                                    if (obj.transform.childCount == 1 && obj.transform.GetChild(0).GetComponent<IMonaBody>() != null)
+                                        obj = obj.transform.GetChild(0).gameObject;
 
                                     Used[url].Add(obj);
 

@@ -64,7 +64,14 @@ namespace Mona.SDK.Brains.Core.Brain
         private List<string> _brainUrls = new List<string>();
         public List<string> BrainUrls => _brainUrls;
 
-        public IMonaBody Body => _body;
+        public IMonaBody Body {
+            get
+            {
+                if (_body == null)
+                    _body = transform.GetComponent<IMonaBody>();
+                return _body;
+            }
+        }
 
         public void SetBrainGraphs(List<MonaBrainGraph> graphs)
         {
@@ -188,6 +195,16 @@ namespace Mona.SDK.Brains.Core.Brain
             return false;
         }
 
+        public bool HasRigidbodyTiles()
+        {
+            for (var i = 0; i < _brainGraphs.Count; i++)
+            {
+                if (_brainGraphs[i] != null && _brainGraphs[i].HasRigidbodyTiles())
+                    return true;
+            }
+            return false;
+        }
+
         private Action<MonaStateAuthorityChangedEvent> OnStateAuthorityChanged;
 
         public bool RequiresAnimator
@@ -206,13 +223,14 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void Awake()
         {
+            _brainInstances.Clear();
             EnsureGlobalRunnerExists();
             CacheComponents();
             InitVariableCache();
             AddHotReloadDelegates();
             DetectRigidbody();
             LoadUrl();
-            //Debug.Log($"{nameof(MonaBrainRunner)} {nameof(Awake)}");
+            //Debug.Log($"{nameof(MonaBrainRunner)} {nameof(Awake)} {gameObject.name}", gameObject);
         }
 
         private void LoadUrl()
@@ -223,13 +241,14 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void DetectRigidbody()
         {
-            for(var i = 0;i < BrainGraphs.Count; i++)
+            if(HasRigidbodyTiles())
             {
-                if(BrainGraphs[i] != null && BrainGraphs[i].HasRigidbodyTiles())
-                {
+                Rigidbody parentRB = _body.Transform.GetComponentInParent<Rigidbody>();
+                IMonaBody parentMB = _body.Transform.GetComponentInParent<IMonaBody>();
+                IMonaBrainRunner parentRunner = parentMB != null ? parentMB.Transform.GetComponent<IMonaBrainRunner>() : null;
+
+                if (parentRB == null || (parentRunner != null && !(parentMB.SyncType == MonaBodyNetworkSyncType.NetworkRigidbody || parentRunner.HasRigidbodyTiles())))
                     _body.AddRigidbody();
-                    break;
-                }
             }
         }
 
@@ -688,7 +707,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void UnloadBrains(bool destroy = false)
         {
-            ResetTransforms();
+            if(!destroy)
+                ResetTransforms();
             //_began = false;
             //if(_body.Transform != null)
             //    Debug.Log($"{nameof(UnloadBrains)} {_body.Transform.name}", _body.Transform.gameObject);

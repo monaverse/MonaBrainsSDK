@@ -49,6 +49,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.NameStartsWith)]
         [BrainProperty(true)] public string TokenName { get => _tokenName; set => _tokenName = value; }
 
+        [SerializeField] protected string _tokenDescription;
+        [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.DescriptionContains)]
+        [BrainProperty(true)] public string TokenDescription { get => _tokenDescription; set => _tokenDescription = value; }
+
         [SerializeField] protected string _traitName;
         [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.HasTrait)]
         [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.TraitValue)]
@@ -255,6 +259,15 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                         return false;
                     });
                     break;
+                case MonaBrainTokenPredicateType.DescriptionContains:
+
+                    tokens = tokens.FindAll(x =>
+                    {
+                        if (x.Description.ToLower().StartsWith(_tokenDescription.ToLower()))
+                            return true;
+                        return false;
+                    });
+                    break;
                 case MonaBrainTokenPredicateType.Collection:
 
                     tokens = tokens.FindAll(x =>
@@ -386,7 +399,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             }
 
-            Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_predicateType} count {_instruction.Tokens.Count}");
+            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_predicateType} count {_instruction.Tokens.Count}");
             /*
             for (var i = 0; i < _instruction.Tokens.Count; i++)
                 Debug.Log($"{nameof(OwnsTokenInstructionTile)} found token {_instruction.Tokens[i].Nft.Metadata.Name} - tokenid: {_instruction.Tokens[i].Nft.TokenId} - contract: {_instruction.Tokens[i].Contract}");

@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Core.Utils;
 using Unity.Profiling;
+using Mona.SDK.Brains.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -135,6 +136,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             _profilerPreload.Begin();
             _brain = brainInstance;
             _defaultParent = GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform;
+
+            if (_glbLoader == null)
+                _glbLoader = new GameObject("GlbLoader");
+
+            _urlLoader = _glbLoader.GetComponent<BrainsGlbLoader>();
+            if (_urlLoader == null)
+                _urlLoader = _glbLoader.AddComponent<BrainsGlbLoader>();
+
             SetupSpawnable();
             _profilerPreload.End();
         }
@@ -169,10 +178,55 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
                 for (var j = 0; j < poolCount; j++)
                 {
-                    Spawn(item.PrefabId, item.Value);
+                    if (!string.IsNullOrEmpty(item.Url))
+                        Spawn(item.PrefabId, item.Url);
+                    else
+                        Spawn(item.PrefabId, item.Value);
                 }
             }
         }
+
+        protected void Spawn(string prefabId, string url, bool disable = true, Action<GameObject> callback = null)
+        {
+            _urlLoader.Load(url, false, (glb) =>
+            {
+                if (glb != null)
+                {
+                    glb.SetActive(true);
+                    var body = glb.GetComponent<IMonaBody>();
+                    var bodies = glb.GetComponentsInChildren<IMonaBody>();
+                    for (var j = 0; j < bodies.Length; j++)
+                    {
+                        var child = bodies[j];
+                        if (child == body)
+                        {
+                            child.Transform.SetParent(_defaultParent);
+                            _equipmentInstances.Add(child);
+
+                            if (!_pool.ContainsKey(prefabId))
+                                _pool.Add(prefabId, new List<IMonaBody>());
+
+                            ((MonaBodyBase)child).PrefabId = prefabId;
+                            child.OnBodyDisabled += HandleBodyDisabled;
+                            if (disable)
+                            {
+                                child.SetDisableOnLoad(true);
+                                //Debug.Log($"{nameof(child.SetDisableOnLoad)}", child.Transform.gameObject);
+                            }
+                            if (_hidden)
+                                child.SetVisible(false);
+                        }
+
+                        ((MonaBodyBase)child).MakeUnique(_brain.Player.PlayerId, true);
+                        MonaEventBus.Trigger<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), new MonaBodyInstantiatedEvent(child));
+                    }
+                }
+                callback?.Invoke(glb);
+            }, (int)_poolCount);
+        }
+
+        private GameObject _glbLoader;
+        private BrainsGlbLoader _urlLoader;
 
         protected IMonaBody Spawn(string prefabId, MonaBody monaBody, bool disable = true)
         {
@@ -308,7 +362,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         }
 
         private InstructionTileResult EnableSpawn(int index)
-        { 
+        {
             var body = GetBody();
             var nextItem = GetAsset();
 
@@ -323,12 +377,37 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             if (_pool[nextItem.PrefabId].Count == 0)
             {
-                _pool[nextItem.PrefabId].Add(Spawn(nextItem.PrefabId, nextItem.Value, disable: false));
+                if (!string.IsNullOrEmpty(nextItem.Url))
+                {
+                    Spawn(nextItem.PrefabId, nextItem.Url, disable: false, (GameObject spawn) =>
+                    {
+                        if (spawn == null) return;
+
+                        var poolItem = spawn.GetComponent<IMonaBody>();
+
+                        if (poolItem == null)
+                            poolItem = spawn.AddComponent<MonaBody>();
+                        
+                        ContinueEnableSpawn(body, poolItem, index);
+                    });
+                    return InstructionTileResult.Running;
+                }
+                else
+                {
+                    _pool[nextItem.PrefabId].Add(Spawn(nextItem.PrefabId, nextItem.Value, disable: false));
+                }
+
             }
 
             var poolItem = _pool[nextItem.PrefabId][0];
             _pool[nextItem.PrefabId].RemoveAt(0);
 
+            ContinueEnableSpawn(body, poolItem, index);
+            return InstructionTileResult.Running;
+        }
+
+        private InstructionTileResult ContinueEnableSpawn(IMonaBody body, IMonaBody poolItem, int index)
+        { 
             poolItem.ChildIndex = index;
             poolItem.SetScale(_scale, true);
 
@@ -349,7 +428,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (poolItem.ActiveRigidbody != null)
                 poolItem.ActiveRigidbody.WakeUp();
 
-            poolItem.Transform.SetParent(_spawnAsChild ? _brain.Body.Transform : _defaultParent);
+            if (_spawnAsChild)
+                poolItem.SetTransformParent(body.Transform);
+            else
+                poolItem.SetTransformParent(_defaultParent);
 
             Vector3 position = body.GetPosition() + body.GetRotation() * offset;
             Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
@@ -380,6 +462,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
 
             //Debug.Log($"{nameof(SpawnInstructionTile)} SPAWN COMPLETE: {poolItem}", poolItem.Transform.gameObject);
+
+            MonaEventBus.Trigger<MonaChangeSpawnEvent>(new EventHook(MonaCoreConstants.ON_CHANGE_SPAWN_EVENT), new MonaChangeSpawnEvent(poolItem));
+
             return Complete(InstructionTileResult.Running);
 
         }

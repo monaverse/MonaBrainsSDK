@@ -48,13 +48,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             _brain = brainInstance;
             
-            if (_collider == null)
+            if (_collider == null || _gameObject != _brain.GameObject)
             {
                 var colliders = _brain.GameObject.GetComponents<ColliderTriggerBehaviour>();
                 var found = false;
                 for (var i = 0; i < colliders.Length; i++)
                 {
-                    if (colliders[i].MonaTag == _tag && colliders[i].Brain == _brain)
+                    if (colliders[i].MonaTag == _tag && (colliders[i].Brain == null || colliders[i].Brain == _brain))
                     {
                         _collider = colliders[i];
                         found = true;
@@ -65,16 +65,16 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 if (!found)
                 {
                     _collider = _brain.GameObject.AddComponent<ColliderTriggerBehaviour>();
-                    _collider.SetBrain(_brain);
-                    _collider.SetPage(page);
                     _collider.SetMonaTag(_tag);
                     _collider.SetLocalPlayerOnly(PlayerTriggered);
                 }
             }
 
-            SetActive(true);
+            _gameObject = _brain.GameObject;
+            _collider.SetPage(page);
+            _collider.SetBrain(_brain);
 
-            _brain.Body.AddRigidbody();
+            SetActive(true);
 
             _profilerDo.End();
         }

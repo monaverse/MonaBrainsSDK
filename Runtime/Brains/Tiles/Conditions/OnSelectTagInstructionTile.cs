@@ -74,7 +74,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private bool Raycast(Ray ray)
         {
-            var targetRayLayer = 1 << 8 | 1 << LayerMask.NameToLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER);
+            var targetRayLayer = 1 << 8 | 1 << LayerMask.NameToLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER) | 1 << LayerMask.NameToLayer("Ignore Raycast");
             targetRayLayer = ~targetRayLayer;
 
             RaycastHit hit;

@@ -21,7 +21,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         private Collider _collider;
         private IMonaBrain _brain;
         private IMonaBrainPage _page;
-        private string _monaTag;
+        [SerializeField] private string _monaTag;
         private Dictionary<IMonaBody, bool> _bodiesIndex = new Dictionary<IMonaBody, bool>();
         private List<IMonaBody> _bodies = new List<IMonaBody>();
         private List<IMonaBody> _bodiesThatLeft = new List<IMonaBody>();
@@ -45,6 +45,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private void Awake()
         {
+            _brain = null;
+
             var colliders = gameObject.GetComponentsInChildren<Collider>(true);
             var found = false;
             for(var i = 0;i < colliders.Length; i++)
