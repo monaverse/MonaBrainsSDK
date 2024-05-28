@@ -18,6 +18,18 @@ namespace Mona.SDK.Brains.Core.Enums
         MyPoolNextSpawned = 110
     }
 
+    public enum MonaBrainHovererTargetType
+    {
+        Tag = 0,
+        MousePointer = 12,
+        WorldPosition = 13,
+        MySpawner = 70,
+        LastSpawnedByMe = 80,
+        AllSpawnedByMe = 90,
+        MyPoolPreviouslySpawned = 100,
+        MyPoolNextSpawned = 110
+    }
+
     public enum MonaBrainPausableTargetType
     {
         Tag = 0,

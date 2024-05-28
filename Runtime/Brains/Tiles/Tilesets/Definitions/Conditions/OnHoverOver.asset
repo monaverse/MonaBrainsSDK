@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 437d7a92e42114bfbb13122cada08195, type: 3}
+  m_Name: OnHoverOver
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 6017384683200315734
+  _id: OnHoverOver
+  _name: On Screen Hover
+  _category: Input
+  references:
+    version: 2
+    RefIds:
+    - rid: 6017384683200315734
+      type: {class: OnHoverOverInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: OnHoverOver
+        _name: On Screen Hover
+        _category: Input
+        _muted: 0
+        _target: 10
+        _targetTag: Player
+        _hoverer: 12
+        _hovererTag: Default
+        _worldPosition: {x: 0, y: 0, z: 0}
+        _worldPositionName: []
+        _distance: 100
+        _distanceValueName: 
