@@ -59,6 +59,9 @@ namespace Mona.SDK.Brains.Core.Brain
         private Camera _playerCamera;
         private int _playerId;
 
+        private List<IMonaTags> _monaTags = new List<IMonaTags>();
+        public List<IMonaTags> MonaTags => _monaTags;
+
         public Camera SceneCamera
         {
             get
@@ -254,8 +257,21 @@ namespace Mona.SDK.Brains.Core.Brain
             if (!_brains.Contains(evt.Brain))
                 _brains.Add(evt.Brain);
 
+            if (evt.Brain.MonaTagSource != null && !_monaTags.Contains(evt.Brain.MonaTagSource))
+                _monaTags.Add(evt.Brain.MonaTagSource);
+
             evt.Brain.SetMonaBrainPlayer(this);
 
+        }
+
+        public IMonaTagItem GetTag(string tag)
+        {
+            for(var i = 0;i < _monaTags.Count;i++)
+            {
+                if (_monaTags[i].HasTag(tag))
+                    return _monaTags[i].GetTag(tag);
+            }
+            return null;
         }
 
         private void HandleBrainDestroyed(MonaBrainDestroyedEvent evt)

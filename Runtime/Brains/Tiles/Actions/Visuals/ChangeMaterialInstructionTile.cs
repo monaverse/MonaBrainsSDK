@@ -114,7 +114,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             }
         }
 
-        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeMaterialInstructionTile)}.{nameof(Do)}");
+        //static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeMaterialInstructionTile)}.{nameof(Do)}");
 
         public override InstructionTileResult Do()
         {

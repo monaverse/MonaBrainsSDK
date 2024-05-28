@@ -25,7 +25,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] private string _tag;
         [BrainPropertyMonaTag(true)] public string MonaTag { get => _tag; set => _tag = value; }
 
-        public bool PlayerTriggered => _brain.HasPlayerTag() || _brain.MonaTagSource.GetTag(_tag).IsPlayerTag;
+        public bool PlayerTriggered => _brain.HasPlayerTag();
 
         private IMonaBrain _brain;
         private ColliderTriggerBehaviour _collider;

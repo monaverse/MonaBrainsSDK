@@ -250,7 +250,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 //Debug.Log($"ApplyTorque to Body {body.ActiveTransform.name} {InputMoveDirection} {_direction} {_direction.normalized * _force}", body.ActiveTransform.gameObject);
 
                 body.ApplyTorque(_direction.normalized * _torque, ForceMode.Impulse, true);
-                if(!body.ActiveRigidbody.isKinematic)
+                body.ActiveRigidbody.maxAngularVelocity = _maxSpeed;
+                if (!body.ActiveRigidbody.isKinematic)
                     body.ActiveRigidbody.angularVelocity = Vector3.ClampMagnitude(body.ActiveRigidbody.angularVelocity, _maxSpeed);
                 StopPushing();
             }
@@ -290,9 +291,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 body.SetKinematic(false, true);
 
                 //if (_brain.LoggingEnabled)
-                //    Debug.Log($"ApplyTorque to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _force * deltaTime}", body.ActiveTransform.gameObject);
+                    Debug.Log($"ApplyTorque to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _torque} {body.ActiveRigidbody.angularVelocity.magnitude}", body.ActiveTransform.gameObject);
 
                 body.ApplyTorque(_direction.normalized * _torque, ForceMode.Impulse, true);
+                body.ActiveRigidbody.maxAngularVelocity = _maxSpeed;
                 if(!body.ActiveRigidbody.isKinematic)
                     body.ActiveRigidbody.angularVelocity = Vector3.ClampMagnitude(body.ActiveRigidbody.angularVelocity, _maxSpeed);
 

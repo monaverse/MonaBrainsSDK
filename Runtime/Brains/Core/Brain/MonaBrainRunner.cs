@@ -252,13 +252,13 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
-        static readonly ProfilerMarker _restartBrains = new ProfilerMarker("MonaBrains.RestartBrains");
+        //static readonly ProfilerMarker _restartBrains = new ProfilerMarker("MonaBrains.RestartBrains");
         private void HandleEnabled()
         {
-            _restartBrains.Begin();
+            //_restartBrains.Begin();
             if (_began)
                 RestartBrains();
-            _restartBrains.End();
+            //_restartBrains.End();
         }
 
         private void HandleDisabled()
@@ -317,23 +317,23 @@ namespace Mona.SDK.Brains.Core.Brain
         private bool _waitFrameRequested;
         private bool _debug;
 
-        static readonly ProfilerMarker _processWaitFrame = new ProfilerMarker("MonaBrains.WaitFrame");
+        /*static readonly ProfilerMarker _processWaitFrame = new ProfilerMarker("MonaBrains.WaitFrame");
         static readonly ProfilerMarker _processWaitFrameQueue = new ProfilerMarker("MonaBrains.WaitFrame.queue");
         static readonly ProfilerMarker _processWaitFrameQueueLayer = new ProfilerMarker("MonaBrains.WaitFrame.queue.layer");
         static readonly ProfilerMarker _processWaitFrameQueueTick = new ProfilerMarker("MonaBrains.WaitFrame.queue.tick");
-        static readonly ProfilerMarker _processWaitFrameQueueWait = new ProfilerMarker("MonaBrains.WaitFrame.queue.wait");
+        static readonly ProfilerMarker _processWaitFrameQueueWait = new ProfilerMarker("MonaBrains.WaitFrame.queue.wait");*/
 
         public void WaitFrame(int index, Action<InstructionEvent> callback, InstructionEvent evt, bool debug = false)
         {
-            _processWaitFrame.Begin();
-            _processWaitFrameQueue.Begin();
+            //_processWaitFrame.Begin();
+            //_processWaitFrameQueue.Begin();
                 _debug = debug;
 
                 var instruction = evt.Instruction;
                 var type = evt.Type;
 
             //Debug.Log($"{nameof(WaitFrame)} WAIT WaitFrame {index}, evt: {evt} {Time.frameCount}");
-            _processWaitFrameQueueLayer.Begin();
+            //_processWaitFrameQueueLayer.Begin();
                 if (!_layersSet.Contains(index))
                 {
                     _layersSet.Add(index);
@@ -345,14 +345,14 @@ namespace Mona.SDK.Brains.Core.Brain
                     _typesSet.Add(type);
                     _types.Add(type);
                 }
-            _processWaitFrameQueueLayer.End();
+            //_processWaitFrameQueueLayer.End();
 
                 var wait = _wait[index];
                 var waitForNextBrainTick = _waitForNextBrainTick[index];
 
                 if (type == InstructionEventTypes.Tick)
                 {
-                _processWaitFrameQueueTick.Begin();
+                //_processWaitFrameQueueTick.Begin();
                     if (!_instructionsSet.Contains(instruction))
                     {
                         _instructionsSet.Add(instruction);
@@ -361,13 +361,13 @@ namespace Mona.SDK.Brains.Core.Brain
 
                     if (!waitForNextBrainTick.ContainsKey(instruction))
                         waitForNextBrainTick.Add(instruction, new WaitFrameQueueItem(-1));
-                _processWaitFrameQueueTick.End();
+                //_processWaitFrameQueueTick.End();
                 }
-            _processWaitFrameQueueWait.Begin();
+            //_processWaitFrameQueueWait.Begin();
                 if (!wait.ContainsKey(type))
                     wait.Add(type, new WaitFrameQueueItem(-1));
-            _processWaitFrameQueueWait.End();
-            _processWaitFrameQueue.End();
+            //_processWaitFrameQueueWait.End();
+            //_processWaitFrameQueue.End();
 
             if (gameObject.activeInHierarchy)
             {
@@ -395,7 +395,7 @@ namespace Mona.SDK.Brains.Core.Brain
             {
                 _waitInactiveQueue[index].Add(new WaitFrameQueueItem(index, callback, evt, Time.frameCount));
             }
-            _processWaitFrame.End();
+            //_processWaitFrame.End();
         }
 
         private void ClearWaitFrameQueue(int index)

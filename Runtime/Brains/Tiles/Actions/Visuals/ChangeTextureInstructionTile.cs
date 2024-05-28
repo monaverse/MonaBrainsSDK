@@ -45,15 +45,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         public ChangeTextureInstructionTile() { }
 
-        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeTextureInstructionTile)}.{nameof(Do)}");
-        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(ChangeTextureInstructionTile)}.{nameof(Preload)}");
+        //static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeTextureInstructionTile)}.{nameof(Do)}");
+        //static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(ChangeTextureInstructionTile)}.{nameof(Preload)}");
 
         public void Preload(IMonaBrain brainInstance)
         {
-            _profilerPreload.Begin();
+            //_profilerPreload.Begin();
             _brain = brainInstance;
             SetupTexture();
-            _profilerPreload.End();
+            //_profilerPreload.End();
         }
 
         private void SetupTexture()

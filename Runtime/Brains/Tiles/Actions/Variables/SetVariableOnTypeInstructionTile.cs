@@ -136,14 +136,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             return _runnerCache[body];
         }
 
-        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.{nameof(Do)}");
+        //static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.{nameof(Do)}");
 
         public override InstructionTileResult Do()
         {
             if (_brain == null || (_variableType == VariableUsageType.Any && string.IsNullOrEmpty(_myVariable)))
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-            _profilerDo.Begin();
+            //_profilerDo.Begin();
 
             var myValue = _brain.Variables.GetVariable(_myVariable);
 
@@ -199,7 +199,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     break;
             }
 
-            _profilerDo.End();
+            //_profilerDo.End();
             return Complete(InstructionTileResult.Success);
         }
 

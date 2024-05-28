@@ -36,8 +36,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         public bool IsAnimationTile => _target == MonaBrainBroadcastType.Self;
 
-        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeAvatarInstructionTile)}.{nameof(Do)}");
-        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(ChangeAvatarInstructionTile)}.{nameof(Preload)}");
+        //static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeAvatarInstructionTile)}.{nameof(Do)}");
+        //static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(ChangeAvatarInstructionTile)}.{nameof(Preload)}");
 
 
         [SerializeField] private MonaBrainBroadcastType _target = MonaBrainBroadcastType.Self;
@@ -136,7 +136,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         public void Preload(IMonaBrain brainInstance)
         {
-            _profilerPreload.Begin();
+            ///_profilerPreload.Begin();
 
             _brain = brainInstance;
 
@@ -149,7 +149,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             SetupAnimation();
 
-            _profilerPreload.End();
+            //_profilerPreload.End();
         }
 
         private void HandleAnimationControllerChanged(MonaBodyAnimationControllerChangedEvent evt)
@@ -283,7 +283,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         public override InstructionTileResult Do()
         {
-            _profilerDo.Begin();
+            //_profilerDo.Begin();
             switch (_target)
             {
                 case MonaBrainBroadcastType.Tag:
@@ -315,7 +315,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     break;
             }
 
-            _profilerDo.End();
+            //_profilerDo.End();
             return Complete(InstructionTileResult.Success);
         }
 

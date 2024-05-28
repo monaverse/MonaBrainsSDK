@@ -31,7 +31,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainProperty(true)] public float Distance { get => _distance; set => _distance = value; }
         [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValue { get => _distanceValueName; set => _distanceValueName = value; }
 
-        public bool PlayerTriggered => _brain.HasPlayerTag() || _brain.MonaTagSource.GetTag(_tag).IsPlayerTag;
+        public bool PlayerTriggered => _brain.HasPlayerTag();
 
         private IMonaBrain _brain;
         private SphereColliderTriggerBehaviour _collider;

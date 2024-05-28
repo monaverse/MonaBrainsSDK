@@ -36,7 +36,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainProperty(false)] public float FieldOfView { get => _fieldOfView; set => _fieldOfView = value; }
         [BrainPropertyValueName("FieldOfView", typeof(IMonaVariablesFloatValue))] public string FieldOfViewValueName { get => _fieldOfViewValueName; set => _fieldOfViewValueName = value; }
 
-        public bool PlayerTriggered => _brain.HasPlayerTag() || _brain.MonaTagSource.GetTag(_tag).IsPlayerTag;
+        public bool PlayerTriggered => _brain.HasPlayerTag();
 
         private IMonaBrain _brain;
         private SphereColliderTriggerBehaviour _collider;

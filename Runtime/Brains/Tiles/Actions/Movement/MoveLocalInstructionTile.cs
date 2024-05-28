@@ -118,7 +118,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public virtual void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
-            _profilerPreload.Begin();
+            //_profilerPreload.Begin();
 
             _brain = brainInstance;
             _instruction = instruction;
@@ -145,7 +145,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             }
 
             _preloaded = true;
-            _profilerPreload.End();
+            //_profilerPreload.End();
         }
 
         private void HandleAnimationControllerChanged(MonaBodyAnimationControllerChangedEvent evt)
@@ -298,13 +298,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private float _cooldown;
         private bool _coolingDown;
 
-        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(MoveLocalInstructionTile)}.{nameof(Do)}");
-        static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(MoveLocalInstructionTile)}.{nameof(Preload)}");
-        static readonly ProfilerMarker _profilerFixedTick = new ProfilerMarker($"MonaBrains.{nameof(MoveLocalInstructionTile)}.{nameof(HandleFixedTick)}");
+        //static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(MoveLocalInstructionTile)}.{nameof(Do)}");
+        //static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(MoveLocalInstructionTile)}.{nameof(Preload)}");
+        //static readonly ProfilerMarker _profilerFixedTick = new ProfilerMarker($"MonaBrains.{nameof(MoveLocalInstructionTile)}.{nameof(HandleFixedTick)}");
 
         public override InstructionTileResult Do()
         {
-            _profilerDo.Begin();
+            //_profilerDo.Begin();
 
             UpdateInput();
 
@@ -336,7 +336,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             _movingState = MovingStateType.Moving;
 
-            _profilerDo.End();
+            //_profilerDo.End();
             return Complete(InstructionTileResult.Running);
         }
 
@@ -344,7 +344,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (InstantMovement && _movingState == MovingStateType.Stopped) return;
 
-            _profilerFixedTick.Begin();
+            //_profilerFixedTick.Begin();
 
             UpdateInput();
 
@@ -373,7 +373,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 StopMoving();
             }
 
-            _profilerFixedTick.End();
+            //_profilerFixedTick.End();
 
         }
 

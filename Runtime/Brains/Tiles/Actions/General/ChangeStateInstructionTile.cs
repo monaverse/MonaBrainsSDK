@@ -30,7 +30,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private IMonaBrain _brain;
 
 
-        static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeStateInstructionTile)}.{nameof(Do)}");
+        //static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeStateInstructionTile)}.{nameof(Do)}");
 
         public ChangeStateInstructionTile() { }
 
@@ -47,14 +47,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override InstructionTileResult Do()
         {
-            _profilerDo.Begin();
+            //_profilerDo.Begin();
             if (!string.IsNullOrEmpty(_stateValueName))
                 _changeState = _brain.Variables.GetString(_stateValueName);
 
             _instruction.Result = InstructionTileResult.Success; //hack to make sure that instructions that loop back on themselves don't fail
             _brain.BrainState = _changeState;
             //if(_brain.LoggingEnabled)
-            _profilerDo.End();
+            //_profilerDo.End();
             return Complete(InstructionTileResult.Success);
         }
     }
