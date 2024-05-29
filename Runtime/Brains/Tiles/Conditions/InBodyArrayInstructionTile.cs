@@ -13,7 +13,7 @@ using Mona.SDK.Core.Body;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class InBodyArrayInstructionTile : InstructionTile, IInstructionTileWithPreload, IOnValueChangedInstructionTile, IConditionInstructionTile, IStartableInstructionTile, IOnStartInstructionTile, ITickAfterInstructionTile
+    public class InBodyArrayInstructionTile : InstructionTile, IInstructionTileWithPreload, IConditionInstructionTile, IStartableInstructionTile, IOnStartInstructionTile, ITickAfterInstructionTile
     {
         public const string ID = "InBodyArray";
         public const string NAME = "In Body Array";
@@ -22,18 +22,18 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private IMonaVariablesBodyArrayValue _value;
 
-        [SerializeField] private string _valueName;
-        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string ValueName { get => _valueName; set => _valueName = value; }
-
         [SerializeField] private MonaBrainBroadcastType _target = MonaBrainBroadcastType.Tag;
         [BrainPropertyEnum(true)] public MonaBrainBroadcastType Target { get => _target; set => _target = value; }
-
-        [SerializeField] private BodyArrayOperatorType _operator = BodyArrayOperatorType.Contains;
-        [BrainPropertyEnum(true)] public BodyArrayOperatorType Operator { get => _operator; set => _operator = value; }
 
         [SerializeField] private string _targetTag;
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
+
+        [SerializeField] private BodyArrayOperatorType _operator = BodyArrayOperatorType.ContainedIn;
+        [BrainPropertyEnum(true)] public BodyArrayOperatorType Operator { get => _operator; set => _operator = value; }
+
+        [SerializeField] private string _valueName;
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string BodyArray { get => _valueName; set => _valueName = value; }
 
         [SerializeField] private BodyArrayFilterType _filter = BodyArrayFilterType.Any;
         [BrainPropertyEnum(false)] public BodyArrayFilterType Filter { get => _filter; set => _filter = value; }
@@ -311,7 +311,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaBrainBroadcastType.OnConditionTarget:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
-                case MonaBrainBroadcastType.OnHitTarget:
+                case MonaBrainBroadcastType.OnSelectTarget:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
                 case MonaBrainBroadcastType.MySpawner:
                     return _brain.Body.Spawner;
@@ -328,7 +328,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private bool InBodyArrayValueOnBody(IMonaVariablesValue myValue, IMonaBody target)
         {
             var value = ((IMonaVariablesBodyArrayValue)myValue).Value;
-            if(_operator == BodyArrayOperatorType.Contains)
+            if(_operator == BodyArrayOperatorType.ContainedIn)
             {
                 if (value.Contains(target))
                     return true;

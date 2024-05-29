@@ -39,7 +39,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.Children)]
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.MessageSender)]
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.OnConditionTarget)]
-        [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.OnHitTarget)]
+        [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.OnSelectTarget)]
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.MySpawner)]
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.LastSpawnedByMe)]
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.AllSpawnedByMe)]
@@ -52,7 +52,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(Target), (int)MonaBrainPausableTargetType.Tag)]
         [BrainPropertyShow(nameof(Target), (int)MonaBrainPausableTargetType.MessageSender)]
         [BrainPropertyShow(nameof(Target), (int)MonaBrainPausableTargetType.OnConditionTarget)]
-        [BrainPropertyShow(nameof(Target), (int)MonaBrainPausableTargetType.OnHitTarget)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainPausableTargetType.OnSelectTarget)]
         [BrainPropertyShow(nameof(Target), (int)MonaBrainPausableTargetType.MySpawner)]
         [BrainPropertyShow(nameof(Target), (int)MonaBrainPausableTargetType.LastSpawnedByMe)]
         [BrainPropertyShow(nameof(Target), (int)MonaBrainPausableTargetType.AllSpawnedByMe)]
@@ -66,7 +66,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.Tag)]
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.MessageSender)]
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.OnConditionTarget)]
-        [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.OnHitTarget)]
+        [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.OnSelectTarget)]
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.MySpawner)]
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.LastSpawnedByMe)]
         [BrainPropertyShow(nameof(Exclude), (int)MonaBrainPausableTargetType.AllSpawnedByMe)]
@@ -276,7 +276,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     break;
                 case MonaBrainPausableTargetType.OnConditionTarget:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
-                case MonaBrainPausableTargetType.OnHitTarget:
+                case MonaBrainPausableTargetType.OnSelectTarget:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
                 case MonaBrainPausableTargetType.MySpawner:
                     return _brain.Body.Spawner;

@@ -42,7 +42,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.MessageSender)]
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.OnConditionTarget)]
-        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.OnHitTarget)]
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.OnSelectTarget)]
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.MySpawner)]
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.LastSpawnedByMe)]
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.AllSpawnedByMe)]
@@ -288,7 +288,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                     break;
                 case MonaBrainBroadcastType.OnConditionTarget:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
-                case MonaBrainBroadcastType.OnHitTarget:
+                case MonaBrainBroadcastType.OnSelectTarget:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
                 case MonaBrainBroadcastType.MySpawner:
                     return _brain.Body.Spawner;

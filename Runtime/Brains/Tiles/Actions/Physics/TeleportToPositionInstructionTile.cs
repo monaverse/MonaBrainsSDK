@@ -153,7 +153,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             {
                 case MonaBrainTransformType.Tag: return _brain.Body.GetClosestTag(_targetTag);
                 case MonaBrainTransformType.OnConditionTarget: return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
-                case MonaBrainTransformType.OnHitTarget: return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
+                case MonaBrainTransformType.OnSelectTarget: return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
                 case MonaBrainTransformType.MySpawner: return _brain.Body.Spawner;
                 case MonaBrainTransformType.LastSpawnedByMe: return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
                 case MonaBrainTransformType.MyPoolPreviouslySpawned: return _brain.Body.PoolBodyPrevious;

@@ -95,7 +95,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaBrainBroadcastType.OnConditionTarget:
                     return IsHoveredOver(_brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET));
-                case MonaBrainBroadcastType.OnHitTarget:
+                case MonaBrainBroadcastType.OnSelectTarget:
                     return IsHoveredOver(_brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET));
                 case MonaBrainBroadcastType.MySpawner:
                     return IsHoveredOver(_brain.Body.Spawner);

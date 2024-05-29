@@ -202,7 +202,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     break;
                 case MonaBrainBroadcastType.OnConditionTarget:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
-                case MonaBrainBroadcastType.OnHitTarget:
+                case MonaBrainBroadcastType.OnSelectTarget:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
                 case MonaBrainBroadcastType.MySpawner:
                     return _brain.Body.Spawner;
