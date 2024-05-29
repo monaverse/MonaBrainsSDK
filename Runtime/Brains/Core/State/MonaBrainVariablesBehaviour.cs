@@ -28,6 +28,7 @@ namespace Mona.SDK.Brains.Core.State
         public void SetGameObject(GameObject gameObject, IMonaBrain brain) => _variables.SetGameObject(gameObject, brain);
         public IMonaVariablesValue CreateVariable(string variableName, Type type, int i) => _variables.CreateVariable(variableName, type, i);
         public IMonaBody GetBody(string variableName, bool createIfNotFound = true) => _variables.GetBody(variableName);
+        public List<IMonaBody> GetBodyArray(string variableName, bool createIfNotFound = true) => _variables.GetBodyArray(variableName);
         public IMonaBrain GetBrain(string variableName) => _variables.GetBrain(variableName);
         public bool GetBool(string variableName, bool createIfNotFound = true) => _variables.GetBool(variableName);
         public float GetFloat(string variableName, bool createIfNotFound = true) => _variables.GetFloat(variableName);
@@ -45,6 +46,7 @@ namespace Mona.SDK.Brains.Core.State
         public void Set(string variableName, string value, bool isNetworked, bool createIfNotFound = true) => _variables.Set(variableName, value, isNetworked);
         public void Set(string variableName, float value, bool isNetworked, bool createIfNotFound = true) => _variables.Set(variableName, value, isNetworked);
         public void Set(string variableName, IMonaBody value, bool createIfNotFound = true) => _variables.Set(variableName, value);
+        public void Set(string variableName, List<IMonaBody> value, bool createIfNotFound = true) => _variables.Set(variableName, value);
         public void Set(string variableName, IMonaBrain value) => _variables.Set(variableName, value);
         public void Set(string variableName, Vector2 value, bool isNetworked, bool createIfNotFound = true) => _variables.Set(variableName, value, isNetworked);
         public void Set(string variableName, Vector3 value, bool isNetworked, bool createIfNotFound = true) => _variables.Set(variableName, value, isNetworked);

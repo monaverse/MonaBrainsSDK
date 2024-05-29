@@ -259,41 +259,42 @@ namespace Mona.SDK.Brains.UIElements
 
             Action CheckVisibleChange = () =>
             {
-                foreach (var pair in showAttributes)
+                foreach (var showAttribute in showAttributes)
                 {
                     // fieldDictionary[pair.Key].style.display = DisplayStyle.Flex; 
-                    for (var i = 0; i < pair.Value.Count; i++)
+                    for (var i = 0; i < showAttribute.Value.Count; i++)
                     {
+                        showAttribute.Value[i].Show = false;
                         if (i == 0)
                         {
-                            if (pair.Value.FindAll(x => x is BrainPropertyShowLabel).Count < pair.Value.Count)
+                            if (showAttribute.Value.FindAll(x => x is BrainPropertyShowLabel).Count < showAttribute.Value.Count)
                             {
-                                fieldDictionary[pair.Key].style.display = DisplayStyle.None;
+                                fieldDictionary[showAttribute.Key].style.display = DisplayStyle.None;
 
-                                if (targetFieldVisible.ContainsKey(pair.Key))
-                                    targetFieldDictionary[pair.Key].style.display = DisplayStyle.None;
+                                if (targetFieldVisible.ContainsKey(showAttribute.Key))
+                                    targetFieldDictionary[showAttribute.Key].style.display = DisplayStyle.None;
 
-                                if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
-                                    buttonDictionary[pair.Key].style.display = DisplayStyle.None;
+                                if (buttonDictionary.ContainsKey(showAttribute.Key) && buttonDictionary[showAttribute.Key] != null)
+                                    buttonDictionary[showAttribute.Key].style.display = DisplayStyle.None;
                             }
 
-                            var field = fieldDictionary[pair.Key];
+                            var field = fieldDictionary[showAttribute.Key];
                             var prop = (new List<PropertyInfo>(field.GetType().GetProperties())).Find(x => x.Name == "labelElement");
                             if (prop != null)
                             {
                                 var label = (Label)prop.GetValue(field);
-                                label.text = pair.Key;
+                                label.text = showAttribute.Key;
                             }
                         }
 
 
-                        if (pair.Value[i] is BrainPropertyShowLabel)
+                        if (showAttribute.Value[i] is BrainPropertyShowLabel)
                         {
-                            var labelAttribute = (BrainPropertyShowLabel)pair.Value[i];
-                            var otherProperty = _tile.GetType().GetProperty(pair.Value[i].Name);
-                            if (((int)otherProperty.GetValue(_tile)) == pair.Value[i].Value)
+                            var labelAttribute = (BrainPropertyShowLabel)showAttribute.Value[i];
+                            var showAttributeProperty = _tile.GetType().GetProperty(showAttribute.Value[i].Name);
+                            if (((int)showAttributeProperty.GetValue(_tile)) == showAttribute.Value[i].Value)
                             {
-                                var field2 = fieldDictionary[pair.Key];
+                                var field2 = fieldDictionary[showAttribute.Key];
                                 var prop2 = (new List<PropertyInfo>(field2.GetType().GetProperties())).Find(x => x.Name == "labelElement");
                                 if (prop2 != null)
                                 {
@@ -301,63 +302,102 @@ namespace Mona.SDK.Brains.UIElements
                                     label.text = labelAttribute.Label;
                                 }
                             }
-                            if (pair.Value.FindAll(x => x is BrainPropertyShowLabel).Count == pair.Value.Count)
+                            if (showAttribute.Value.FindAll(x => x is BrainPropertyShowLabel).Count == showAttribute.Value.Count)
                             {
-                                if (targetFieldVisible.ContainsKey(pair.Key))
+                                showAttribute.Value[i].Show = true;
+                                if (targetFieldVisible.ContainsKey(showAttribute.Key))
                                 {
-                                    if (targetFieldVisible[pair.Key])
+                                    if (targetFieldVisible[showAttribute.Key])
                                     {
-                                        fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
-                                        targetFieldDictionary[pair.Key].style.display = DisplayStyle.None;
+                                        fieldDictionary[showAttribute.Key].style.display = DisplayStyle.Flex;
+                                        targetFieldDictionary[showAttribute.Key].style.display = DisplayStyle.None;
                                     }
                                     else
                                     {
-                                        fieldDictionary[pair.Key].style.display = DisplayStyle.None;
-                                        targetFieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                        fieldDictionary[showAttribute.Key].style.display = DisplayStyle.None;
+                                        targetFieldDictionary[showAttribute.Key].style.display = DisplayStyle.Flex;
                                     }
                                 }
                                 else
-                                    fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                    fieldDictionary[showAttribute.Key].style.display = DisplayStyle.Flex;
 
-                                if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
-                                    buttonDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                if (buttonDictionary.ContainsKey(showAttribute.Key) && buttonDictionary[showAttribute.Key] != null)
+                                    buttonDictionary[showAttribute.Key].style.display = DisplayStyle.Flex;
                             }
                         }
                         else
                         {
-                            var otherProperty = _tile.GetType().GetProperty(pair.Value[i].Name);
+                            var otherProperty = _tile.GetType().GetProperty(showAttribute.Value[i].Name);
                             if(otherProperty == null)
                             {
-                                Debug.LogError($"{nameof(CheckVisibleChange)} cannot find property {pair.Value[i].Name}");
+                                Debug.LogError($"{nameof(CheckVisibleChange)} cannot find property {showAttribute.Value[i].Name}");
                             }
                             if (
-                                (!pair.Value[i].UseBoolValue && ((int)otherProperty.GetValue(_tile)) == pair.Value[i].Value)
-                                || (pair.Value[i].UseBoolValue && ((bool)otherProperty.GetValue(_tile)) == pair.Value[i].BoolValue)
+                                (!showAttribute.Value[i].UseBoolValue && ((int)otherProperty.GetValue(_tile)) == showAttribute.Value[i].Value)
+                                || (showAttribute.Value[i].UseBoolValue && ((bool)otherProperty.GetValue(_tile)) == showAttribute.Value[i].BoolValue)
                                 )
                             {
-                                if (targetFieldVisible.ContainsKey(pair.Key))
+                                showAttribute.Value[i].Show = true;
+                                if (targetFieldVisible.ContainsKey(showAttribute.Key))
                                 {
-                                    if (targetFieldVisible[pair.Key])
+                                    if (targetFieldVisible[showAttribute.Key])
                                     {
-                                        fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
-                                        targetFieldDictionary[pair.Key].style.display = DisplayStyle.None;
+                                        fieldDictionary[showAttribute.Key].style.display = DisplayStyle.Flex;
+                                        targetFieldDictionary[showAttribute.Key].style.display = DisplayStyle.None;
                                     }
                                     else
                                     {
-                                        fieldDictionary[pair.Key].style.display = DisplayStyle.None;
-                                        targetFieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                        fieldDictionary[showAttribute.Key].style.display = DisplayStyle.None;
+                                        targetFieldDictionary[showAttribute.Key].style.display = DisplayStyle.Flex;
                                     }
                                 }
                                 else
-                                    fieldDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                    fieldDictionary[showAttribute.Key].style.display = DisplayStyle.Flex;
 
-                                if (buttonDictionary.ContainsKey(pair.Key) && buttonDictionary[pair.Key] != null)
-                                    buttonDictionary[pair.Key].style.display = DisplayStyle.Flex;
+                                if (buttonDictionary.ContainsKey(showAttribute.Key) && buttonDictionary[showAttribute.Key] != null)
+                                    buttonDictionary[showAttribute.Key].style.display = DisplayStyle.Flex;
                             }
 
                         }
                     }
                 }
+
+                foreach (var showAttribute in showAttributes)
+                {
+                    /* loop through each unique key of all the show attributes on this property.
+                     * if any of them are valid, then mark the field to be visible.
+                     * if the name values on the collections of attributes are different, then we need to treat it like an AND
+                     * if Type == 0 and Action == 1 but Type of 0 should hide the field, then hide the field
+                     */
+                    var visible = new Dictionary<string, bool>();
+                    for (var i = 0; i < showAttribute.Value.Count; i++)
+                    {
+                        var name = showAttribute.Value[i].Name;
+                        if (!visible.ContainsKey(name))
+                            visible[name] = false;
+
+                        if (showAttribute.Value[i].Show)
+                        {
+                            visible[name] = true;
+                        }
+                    }
+
+                    foreach(var pair in visible)
+                    {
+                        if(!pair.Value)
+                        {
+                            fieldDictionary[showAttribute.Key].style.display = DisplayStyle.None;
+
+                            if (targetFieldVisible.ContainsKey(showAttribute.Key))
+                                targetFieldDictionary[showAttribute.Key].style.display = DisplayStyle.None;
+
+                            if (buttonDictionary.ContainsKey(showAttribute.Key) && buttonDictionary[showAttribute.Key] != null)
+                                buttonDictionary[showAttribute.Key].style.display = DisplayStyle.None;
+                            break;
+                        }
+                    }
+                }
+
             };
 
             for (var i = 0; i < properties.Count; i++)

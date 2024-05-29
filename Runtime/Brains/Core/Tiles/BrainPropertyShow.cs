@@ -10,6 +10,8 @@ namespace Mona.SDK.Brains.Core
         public bool BoolValue;
         public bool UseBoolValue;
 
+        public bool Show;
+
         public BrainPropertyShow(string name, int value) 
         {
             Name = name;
