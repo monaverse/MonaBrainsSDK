@@ -27,7 +27,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         [BrainProperty(false)] public float Distance { get => _distance; set => _distance = value; }
         [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
-        
+
+        [SerializeField] private bool _allowParent;
+        [BrainProperty(false)] public bool AllowParent { get => _allowParent; set => _allowParent = value; }
+
         protected override MonaInputState GetInputState() => MonaInputState.Pressed;
 
         public override void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
@@ -85,7 +88,27 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 if (_brain.LoggingEnabled && body != null)
                     Debug.Log($"{nameof(OnSelectTagInstructionTile)} selected body {body.ActiveTransform.name} {_monaTag} {body.HasMonaTag(_monaTag)}", body.ActiveTransform.gameObject);
 
-                if (body != null && body.HasMonaTag(_monaTag))
+                var foundBody = false;
+
+                if(!_allowParent)
+                {
+                    foundBody = body.HasMonaTag(_monaTag);
+                }
+                else
+                {
+                    var parent = body;
+                    while (parent != null)
+                    {
+                        if (parent.HasMonaTag(_monaTag))
+                        {
+                            foundBody = true;
+                            break;
+                        }
+                        parent = parent.Parent;
+                    }
+                }
+
+                if (body != null && foundBody)
                 {
                     if (_brain.LoggingEnabled)
                         Debug.Log($"{nameof(OnSelectTagInstructionTile)} clicked body with tag {_monaTag} {body.ActiveTransform.name} {(body.GetPosition() - _brain.Body.GetPosition()).normalized}", body.ActiveTransform.gameObject);

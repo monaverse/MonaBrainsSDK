@@ -409,7 +409,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private InstructionTileResult ContinueEnableSpawn(IMonaBody body, IMonaBody poolItem, int index)
         { 
             poolItem.ChildIndex = index;
-            poolItem.SetScale(_scale, true);
 
             var offset = _offset;
             if (HasVector3Values(_offsetName))
@@ -436,6 +435,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             Vector3 position = body.GetPosition() + body.GetRotation() * offset;
             Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
 
+            poolItem.SetScale(scale, true);
             poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
 
             poolItem.OnAfterEnabled -= HandleAfterEnabled;

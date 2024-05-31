@@ -28,6 +28,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
+        [SerializeField] private string _bodyArray;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MyBodyArray)]
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string BodyArray { get => _bodyArray; set => _bodyArray = value; }
+
         [SerializeField] private string _myVariable;
         [BrainPropertyShow(nameof(VariableType), (int)VariableUsageType.Any)]
         [BrainPropertyValue(typeof(IMonaVariablesValue))] public string MyVariable { get => _myVariable; set => _myVariable = value; }
@@ -185,6 +189,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 case MonaBrainBroadcastType.AllSpawnedByMe:
                     ModifyOnAllSpawned(myValue);
                     break;
+                case MonaBrainBroadcastType.MyBodyArray:
+                    ModifyValueOnBodyArray(myValue, _brain);
+                    break;
                 default:
                     IMonaBody targetBody = GetTarget();
 
@@ -201,6 +208,31 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
             //_profilerDo.End();
             return Complete(InstructionTileResult.Success);
+        }
+
+        private void ModifyValueOnBodyArray(IMonaVariablesValue myValue, IMonaBrain brain)
+        {
+            var bodyArray = brain.Variables.GetBodyArray(_bodyArray);
+
+            for (var i = 0; i < bodyArray.Count; i++)
+            {
+                if (ModifyAllAttached)
+                    ModifyOnWholeEntity(myValue, bodyArray[i]);
+                else
+                {
+                    var runner = GetCachedRunner(bodyArray[i]);
+                    if (runner != null)
+                    {
+                        for (var j = 0; j < runner.BrainInstances.Count; j++)
+                        {
+                            if (ModifyAllAttached)
+                                ModifyOnWholeEntity(myValue, runner.BrainInstances[j].Body);
+                            else
+                                ModifyValueOnBrains(myValue, runner.BrainInstances[j].Body);
+                        }
+                    }
+                }
+            }
         }
 
         static readonly ProfilerMarker _profileModifyOnTag = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.{nameof(ModifyOnTag)}");
