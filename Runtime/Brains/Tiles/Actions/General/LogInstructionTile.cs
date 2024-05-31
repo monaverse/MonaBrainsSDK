@@ -21,10 +21,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private string _message;
         [SerializeField] private string _messageValueName;
 
+        [SerializeField] private string _prefix;
+        [BrainProperty] public string Prefix { get => _prefix; set => _prefix = value; }
+
         [BrainProperty] public string Message { get => _message; set => _message = value; }
         [BrainPropertyValueName("Message", typeof(IMonaVariablesValue))] public string MessageValueName { get => _messageValueName; set => _messageValueName = value; }
 
-        private const string _variableLog = "Variable: '{0}' = '{1}'";
+        private const string _variableLog = "{0} Variable: '{1}' = '{2}'";
 
         public LogInstructionTile() { }
 
@@ -40,14 +43,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (!string.IsNullOrEmpty(_messageValueName))
             {
                 var variable = _brain.Variables.GetVariable(_messageValueName);
-                if (variable is IMonaVariablesStringValue) _message = string.Format(_variableLog, _messageValueName, ((IMonaVariablesStringValue)variable).Value);
-                if (variable is IMonaVariablesFloatValue) _message = string.Format(_variableLog, _messageValueName, ((IMonaVariablesFloatValue)variable).Value.ToString());
-                if (variable is IMonaVariablesBoolValue) _message = string.Format(_variableLog, _messageValueName, ((IMonaVariablesBoolValue)variable).Value.ToString());
-                if (variable is IMonaVariablesVector2Value) _message = string.Format(_variableLog, _messageValueName, ((IMonaVariablesVector2Value)variable).Value.ToString());
-                if (variable is IMonaVariablesVector3Value) _message = string.Format(_variableLog, _messageValueName, ((IMonaVariablesVector3Value)variable).Value.ToString());
+                if (variable is IMonaVariablesStringValue) _message = string.Format(_variableLog, _prefix, _messageValueName, ((IMonaVariablesStringValue)variable).Value);
+                if (variable is IMonaVariablesFloatValue) _message = string.Format(_variableLog, _prefix, _messageValueName, ((IMonaVariablesFloatValue)variable).Value.ToString());
+                if (variable is IMonaVariablesBoolValue) _message = string.Format(_variableLog, _prefix, _messageValueName, ((IMonaVariablesBoolValue)variable).Value.ToString());
+                if (variable is IMonaVariablesVector2Value) _message = string.Format(_variableLog, _prefix, _messageValueName, ((IMonaVariablesVector2Value)variable).Value.ToString());
+                if (variable is IMonaVariablesVector3Value) _message = string.Format(_variableLog, _prefix, _messageValueName, ((IMonaVariablesVector3Value)variable).Value.ToString());
+                Debug.Log(_message, _brain.Body.Transform.gameObject);
             }
-
-            Debug.Log(_message);
+            else
+            {
+                Debug.Log(_prefix + ":" + _message, _brain.Body.Transform.gameObject);
+            }
             return Complete(InstructionTileResult.Success);
         }
     }
