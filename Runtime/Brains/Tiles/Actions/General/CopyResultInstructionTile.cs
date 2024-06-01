@@ -8,6 +8,8 @@ using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Core.Utils.Enums;
+using System.Collections.Generic;
+using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -41,6 +43,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             {
                 case MonaBrainResultType.OnConditionTarget:
                     _brain.Variables.Set(_targetValue, _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET)); break;
+                case MonaBrainResultType.OnConditionBodies:
+                    var list = new List<IMonaBody>();
+                        list.AddRange(_instruction.InstructionBodies);
+                    _brain.Variables.Set(_targetValue, list);
+                    break;
                 case MonaBrainResultType.OnMessageSender:
                     _brain.Variables.Set(_targetValue, _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER)); break;
                 case MonaBrainResultType.OnInputMoveDirection:
@@ -71,77 +78,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 case MonaBrainResultType.LastMoveDirection:
                     _brain.Variables.Set(_targetValue, _brain.Variables.GetInternalVector3(MonaBrainConstants.LAST_MOVE_DIRECTION));
                     break;
-                case MonaBrainResultType.LastTokenAvatar:
-                    if (_instruction.Tokens.Count > 0)
-                    {
-                        for (var i = 0; i < _instruction.Tokens.Count; i++)
-                        {
-                            var token = _instruction.Tokens[i];
-                            _brain.Variables.Set(_targetValue, token.AssetUrl);
-                        }
-                    }
-                    break;
-                case MonaBrainResultType.LastTokenObject:
-                    if (_instruction.Tokens.Count > 0)
-                    {
-                        for (var i = 0; i < _instruction.Tokens.Count; i++)
-                        {
-                            var token = _instruction.Tokens[i];
-                            _brain.Variables.Set(_targetValue, token.AssetUrl);
-                        }
-                    }
-                    break;
-                case MonaBrainResultType.LastTokenTexture:
-                    if (_instruction.Tokens.Count > 0)
-                    {
-                        for (var i = 0; i < _instruction.Tokens.Count; i++)
-                        {
-                            var token = _instruction.Tokens[i];
-                            _brain.Variables.Set(_targetValue, token.AssetUrl);
-                        }
-                    }
-                    break;
-                case MonaBrainResultType.LastTokenAvatarCount:
-                    if (_instruction.Tokens.Count > 0)
-                    {
-                        var count = 0;
-                        for (var i = 0; i < _instruction.Tokens.Count; i++)
-                        {
-                            var token = _instruction.Tokens[i];
-                            var isAvatar = token.AssetType == TokenAssetType.Avatar;
-                            if (isAvatar)
-                                count++;
-                        }
-                        _brain.Variables.Set(_targetValue, (float)count);
-                    }
-                    break;
-                case MonaBrainResultType.LastTokenObjectCount:
-                    if (_instruction.Tokens.Count > 0)
-                    {
-                        var count = 0;
-                        for (var i = 0; i < _instruction.Tokens.Count; i++)
-                        {
-                            var token = _instruction.Tokens[i];
-                            var isObject = token.AssetType == TokenAssetType.Artifact;
-                            if (isObject)
-                                count++;
-                        }
-                        _brain.Variables.Set(_targetValue, (float)count);
-                    }
-                    break;
-                case MonaBrainResultType.LastTokenTextureCount:
-                    if (_instruction.Tokens.Count > 0)
-                    {
-                        var count = 0;
-                        for (var i = 0; i < _instruction.Tokens.Count; i++)
-                        {
-                            var token = _instruction.Tokens[i];
-                            var isTexture = token.AssetType == TokenAssetType.Texture;
-                            if (isTexture)
-                                count++;
-                        }
-                        _brain.Variables.Set(_targetValue, (float)count);
-                    }
+                case MonaBrainResultType.MousePosition:
+                    _brain.Variables.Set(_targetValue, _instruction.InstructionInput.Mouse);
                     break;
                 default: break;
             }

@@ -17,7 +17,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     [Serializable]
     public class OnCanSeeInstructionTile : InstructionTile, ITriggerInstructionTile, IOnNearInstructionTile,
         IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IActivateInstructionTile,
-        IPauseableInstructionTile, IRigidbodyInstructionTile, ITickAfterInstructionTile
+        IPauseableInstructionTile, IRigidbodyInstructionTile, ITickAfterInstructionTile, IOnBodyFilterInstructionTile
     {
         public const string ID = "OnCanSee";
         public const string NAME = "Can See";
@@ -52,7 +52,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             _brain = brainInstance;
             _instruction = instruction;
 
-            _firstTile = _instruction.InstructionTiles.IndexOf(this) == 0;
+            _firstTile = _instruction.InstructionTiles.FindAll(x => x is IOnBodyFilterInstructionTile).IndexOf(this) == 0;
 
             if (_collider == null)
             {

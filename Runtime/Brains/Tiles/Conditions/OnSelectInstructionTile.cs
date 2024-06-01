@@ -90,7 +90,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (Physics.Raycast(ray.origin, ray.direction, out hit, _distance, targetRayLayer))
             {
                 //if (_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(OnSelectInstructionTile)} HIT: {hit.point} {hit.collider}");
+                    //Debug.Log($"{nameof(OnSelectInstructionTile)} HIT: {hit.point} {hit.collider}");
 
                 var body = hit.collider.GetComponentInParent<IMonaBody>();
                 if (_brain.LoggingEnabled && body != null)

@@ -433,6 +433,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                             brainVariables.Set(_targetVariable, _brain.Variables.GetVector2(_myVariable), false);
                         else if (targetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
                             brainVariables.Set(_targetVariable, _brain.Variables.GetVector3(_myVariable), false);
+                        else if (targetValue is IMonaVariablesBodyArrayValue && myValue is IMonaVariablesBodyArrayValue)
+                        {
+                            var list = new List<IMonaBody>();
+                                list.AddRange(_brain.Variables.GetBodyArray(_myVariable));
+                            brainVariables.Set(_targetVariable, list, false);
+                        }
                         markerSet.End();
                         break;
                 }

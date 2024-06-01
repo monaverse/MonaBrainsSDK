@@ -152,6 +152,8 @@ namespace Mona.SDK.Brains.Core.Brain
             JoystickDeadZone = trueDeadZone;
         }
 
+        private Vector2 _mouse = Vector2.zero;
+
         public MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState = MonaInputState.Pressed)
         {
             if (_player == null) return default;
@@ -163,12 +165,11 @@ namespace Mona.SDK.Brains.Core.Brain
                 Vector2 value = Vector2.zero;
                 if (Touch.activeTouches.Count > 0)
                 {
-                    if(!_wasTouching)
+                    if (!_wasTouching)
                     {
                         _wasTouching = true;
                         _startTouchTime = Time.time;
-                        _startTouchPosition = Touch.activeTouches[0].screenPosition;
-                        
+                        _startTouchPosition = Touch.activeTouches[0].screenPosition;                        
                     }
                     _lastTouchPosition = Touch.activeTouches[0].screenPosition;
                     value = _lastTouchPosition - _startTouchPosition;
@@ -201,7 +202,6 @@ namespace Mona.SDK.Brains.Core.Brain
                         {
                             ProcessButton(MonaInputType.Action, _inputs.Player.Action);
                         }
-
                     }
                     else
                     {
@@ -234,24 +234,25 @@ namespace Mona.SDK.Brains.Core.Brain
                         _activeKeyListeners[i].State = MonaInputState.None;
                 }
 
-                Vector2 mouse = Vector2.zero;
                 if (Mouse.current != null)
-                    mouse = Mouse.current.position.ReadValue();
+                    _mouse = Mouse.current.position.ReadValue();
 
                 if (Touch.activeTouches.Count > 0)
                 {
-                    mouse = Touch.activeTouches[0].screenPosition;
+                    _mouse = Touch.activeTouches[0].screenPosition;
                     //Debug.Log($"screen position {mouse} mouse: {Mouse.current.position.ReadValue()}");
                 }
-                else if(_wasTouching)
+                else if (_wasTouching)
                 {
-                    mouse = _lastTouchPosition;
-                    _lastTouchPosition = Vector2.zero;
+                    _mouse = _lastTouchPosition;
+                    _lastTouchPosition = Vector2.zero;                 
                     _wasTouching = false;
-                }
+                }                
+
+                //Debug.Log($"{nameof(ProcessInput)} {_mouse} {_buttons[MonaInputType.Action]}");
 
                 if (_player.PlayerCamera != null)
-                    _ray = _player.PlayerCamera.ScreenPointToRay(new Vector3(mouse.x, mouse.y, 0f));
+                    _ray = _player.PlayerCamera.ScreenPointToRay(new Vector3(_mouse.x, _mouse.y, 0f));
                 else
                     _ray = default;
 
@@ -312,6 +313,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 LookValue = _lookValue,
                 Origin = Vector3.zero,
                 Direction = Vector3.zero,
+                Mouse = _mouse,
                 Ray = _ray
             };
         }

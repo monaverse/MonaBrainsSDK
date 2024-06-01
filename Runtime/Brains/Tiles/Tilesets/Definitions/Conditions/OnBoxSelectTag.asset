@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e6a64e846ea49d1860648bf167e2ef, type: 3}
+  m_Name: OnBoxSelectTag
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 5156609103371436409
+  _id: OnBoxSelectTag
+  _name: Box Select Tag
+  _category: Input
+  references:
+    version: 2
+    RefIds:
+    - rid: 5156609103371436409
+      type: {class: OnBoxSelectTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
+        _muted: 0
+        _tl: {x: 0, y: 0}
+        _tlValueName: 
+        _br: {x: 0, y: 0}
+        _brValueName: 
+        _monaTag: 
+        _distance: 100
+        _distanceValueName: 
+        _allowParent: 0

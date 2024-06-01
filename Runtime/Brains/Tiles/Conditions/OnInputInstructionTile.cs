@@ -174,7 +174,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, _inputType, GetInputState());
             if (localInput.GetButton(_inputType) == _inputState)
             {
-                //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_inputState}");
+                //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_inputState} {localInput.Mouse}");
                 SetLocalInput(localInput);
             }
         }

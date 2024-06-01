@@ -55,7 +55,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             if (localInput.GetButton(MonaInputType.Action) == GetInputState())
             {
-                Debug.Log($"{nameof(Raycast)} {localInput.Ray.origin} {localInput.Ray.direction}");
+                //Debug.Log($"{nameof(Raycast)} {localInput.Ray.origin} {localInput.Ray.direction}");
                 SetLocalInput(localInput);
             }
         }

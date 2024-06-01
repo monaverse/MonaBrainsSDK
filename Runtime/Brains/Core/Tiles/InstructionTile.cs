@@ -127,17 +127,17 @@ namespace Mona.SDK.Brains.Core.Tiles
 
         protected Vector3 GetVector2Value(IMonaBrain brain, string[] values)
         {
-            var vector3 = new Vector3();
+            var vector2 = new Vector2();
             if (!string.IsNullOrEmpty(values[0]))
-                vector3 = brain.Variables.GetVector3(values[0]);
+                vector2 = brain.Variables.GetVector2(values[0]);
 
             if (!string.IsNullOrEmpty(values[1]))
-                vector3.x = brain.Variables.GetFloat(values[1]);
+                vector2.x = brain.Variables.GetFloat(values[1]);
 
             if (!string.IsNullOrEmpty(values[2]))
-                vector3.y = brain.Variables.GetFloat(values[2]);
+                vector2.y = brain.Variables.GetFloat(values[2]);
 
-            return vector3;
+            return vector2;
         }
 
         protected IInstruction _instruction;
@@ -201,7 +201,7 @@ namespace Mona.SDK.Brains.Core.Tiles
                 }
             }
 
-            //Debug.Log($"{nameof(FilterBodiesOnInstruction)} index {_instruction.InstructionTiles.IndexOf(this)} {_bodies.Count}");
+            Debug.Log($"{nameof(FilterBodiesOnInstruction)} index {_instruction.InstructionTiles.IndexOf(this)} {_bodies.Count}");
             _instruction.InstructionBodies = _bodies;
         }
 

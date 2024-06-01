@@ -591,9 +591,10 @@ namespace Mona.SDK.Brains.UIElements
                 }
                 else if (property.PropertyType == typeof(Vector2))
                 {
+                    fieldContainer.style.minWidth = 150;
                     var field = new Vector2Field();
-                    field.style.width = 120;
                     field.style.flexDirection = FlexDirection.Column;
+                    field.style.minWidth = 130;
                     field.labelElement.style.color = _textColor;
                     field.labelElement.style.unityFontStyleAndWeight = FontStyle.Bold;
                     field.style.color = Color.black;

@@ -16,7 +16,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     [Serializable]
     public class OnFarInstructionTile : InstructionTile, ITriggerInstructionTile, IOnFarInstructionTile, 
         IConditionInstructionTile, IOnStartInstructionTile, IStartableInstructionTile, IActivateInstructionTile,
-        IPauseableInstructionTile, IPlayerTriggeredConditional, ITickAfterInstructionTile, IRigidbodyInstructionTile
+        IPauseableInstructionTile, IPlayerTriggeredConditional, ITickAfterInstructionTile, IRigidbodyInstructionTile,
+        IOnBodyFilterInstructionTile
     {
         public const string ID = "OnFar";
         public const string NAME = "Far";
@@ -48,7 +49,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             _brain = brainInstance;
             _instruction = instruction;
 
-            _firstTile = _instruction.InstructionTiles.IndexOf(this) == 0;
+            _firstTile = _instruction.InstructionTiles.FindAll(x => x is IOnBodyFilterInstructionTile).IndexOf(this) == 0;
 
             if (_collider == null)
             {

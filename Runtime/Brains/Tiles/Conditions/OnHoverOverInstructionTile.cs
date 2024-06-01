@@ -197,7 +197,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private bool MouseIsOver(IMonaBody targetBody)
         {
             RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            var pos = Vector3.zero;
+            if (Mouse.current != null)
+                pos = Mouse.current.position.ReadValue();
+
+            Ray ray = MonaGlobalBrainRunner.Instance.PlayerCamera.ScreenPointToRay(pos);
 
             if (Physics.Raycast(ray, out hit, _distance))
             {
