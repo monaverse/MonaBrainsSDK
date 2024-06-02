@@ -34,6 +34,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public string DefaultIPFSGateway;
 
+        public bool NetworkingEnabled;
+
         public IMonaNetworkSettings NetworkSettings => _NetworkSettings;
 
         private List<IMonaBrain> _brains = new List<IMonaBrain>();
@@ -53,6 +55,9 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private IMonaBrainBlockchain _blockchain;
         public IMonaBrainBlockchain Blockchain => _blockchain;
+
+        private IMonaNetworkSpawner _networkSpawner;
+        public IMonaNetworkSpawner NetworkSpawner { get => _networkSpawner; set => _networkSpawner = value; }
 
         private IMonaBody _playerBody;
         private IMonaBody _playerCameraBody;
@@ -233,8 +238,8 @@ namespace Mona.SDK.Brains.Core.Brain
         private void HandleMonaBodyInstantiated(MonaBodyInstantiatedEvent evt)
         {
 #if (!OLYMPIA)
-            IMonaNetworkSpawner mockSpawner = null;
-            MonaEventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT, evt.Body), new NetworkSpawnerStartedEvent(mockSpawner));
+            if(NetworkSettings.NetworkType == MonaNetworkType.None)
+                MonaEventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT, evt.Body), new NetworkSpawnerStartedEvent(null));
 #endif
         }
 

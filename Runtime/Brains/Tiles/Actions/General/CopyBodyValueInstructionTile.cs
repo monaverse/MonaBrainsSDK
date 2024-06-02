@@ -71,6 +71,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 {
                     case MonaBodyValueType.ChildCount:
                         return TargetVariableType.Number;
+                    case MonaBodyValueType.PlayerId:
+                        return TargetVariableType.Number;
+                    case MonaBodyValueType.ClientId:
+                        return TargetVariableType.Number;
+                    case MonaBodyValueType.PlayerName:
+                        return TargetVariableType.String;
                 }
 
                 return _targetType;
@@ -164,6 +170,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     SetVariable((float)body.ActiveTransform.GetSiblingIndex()); break;
                 case MonaBodyValueType.ChildCount:
                     SetVariable((float)body.Transform.childCount); break;
+                case MonaBodyValueType.PlayerId:
+                    SetVariable((float)body.PlayerId); break;
+                case MonaBodyValueType.ClientId:
+                    SetVariable((float)body.ClientId); break;
+                case MonaBodyValueType.PlayerName:
+                    SetVariable(body.PlayerName); break;
+
                 default:
                     SetVariable(body.GetPosition()); break;
             }
@@ -229,6 +242,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         _brain.Variables.Set(_targetString, result.ToString());
                     else
                         _brain.Variables.Set(_targetString, GetAxisValue(result).ToString());
+                    break;
+            }
+        }
+
+        private void SetVariable(string result)
+        {
+            switch (TrueTargetType)
+            {
+                case TargetVariableType.String:
+                    _brain.Variables.Set(_targetString, result);
                     break;
             }
         }

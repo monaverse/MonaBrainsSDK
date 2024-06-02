@@ -379,6 +379,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 }
                 else if (type == InstructionEventTypes.Tick)
                 {
+                    //Debug.Log($"add to tick queue {index} {Time.frameCount} {evt.Type}");
                     var waitForNextBrainTickInstruction = waitForNextBrainTick[instruction];
                     if (waitForNextBrainTickInstruction.Index == -1)
                         _waitForNextBrainTick[index][instruction] = new WaitFrameQueueItem(index, callback, evt, Time.frameCount);
@@ -393,6 +394,7 @@ namespace Mona.SDK.Brains.Core.Brain
             }
             else
             {
+                //Debug.Log($"add to inactive queue {index} {Time.frameCount} {evt.Type}");
                 _waitInactiveQueue[index].Add(new WaitFrameQueueItem(index, callback, evt, Time.frameCount));
             }
             //_processWaitFrame.End();
@@ -403,7 +405,7 @@ namespace Mona.SDK.Brains.Core.Brain
             while(_waitInactiveQueue[index].Count > 0)
             {
                 var item = _waitInactiveQueue[index][0];
-                //Debug.Log($"{nameof(ClearWaitFrameQueue)} {item.Type}");
+                //Debug.Log($"{nameof(ClearWaitFrameQueue)} {index} {Time.frameCount}");
                 if (item.Evt.Type == InstructionEventTypes.Tick)
                 {
                     _waitForNextBrainTick[index][item.Evt.Instruction] = item;
@@ -467,12 +469,12 @@ namespace Mona.SDK.Brains.Core.Brain
                 {
                     if (_waitForNextBrainTick.Count <= _layers[i] || !_waitForNextBrainTick[_layers[i]].ContainsKey(_instructions[j]))
                     {
-                        //Debug.Log($"can't find event type {_layers[i]} {_types[j]}");
+                        //Debug.Log($"can't find event type {_layers[i]} {_types[j]} {j} {Time.frameCount}");
                         continue;
                     }
                     var item = _waitForNextBrainTick[_layers[i]][_instructions[j]];
                    // if (_debug)
-                    //    Debug.Log($"{nameof(MonaBrainRunner)} WAIT INSTRUCTION TICK LATER {item.Index}, type {item.Type}, evt: {((MonaBrainTickEvent)item.Evt).Instruction.InstructionTiles[0]} {Time.frameCount} {item.ShouldExecute()}");
+                        //Debug.Log($"{nameof(MonaBrainRunner)} WAIT INSTRUCTION TICK LATER {item.Index}, evt: {(item.Evt).Instruction.InstructionTiles[0]} {Time.frameCount} {item.ShouldExecute()}");
 
                     if (item.Index >= 0)
                     {
@@ -547,7 +549,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void PreloadBrains()
         {
-            //Debug.Log($"{nameof(PreloadBrains)} {_body.Transform.name}", _body.Transform.gameObject);
+            Debug.Log($"{nameof(PreloadBrains)} {_body.Transform.name}", _body.Transform.gameObject);
             _body.InitializeTags();
 
             for (var i = 0; i < _wait.Count; i++)

@@ -12,6 +12,9 @@
         Forward = 14,
         ChildIndex = 16,
         SiblingIndex = 17,
-        ChildCount = 18
+        ChildCount = 18,
+        PlayerId = 19,
+        ClientId = 20,
+        PlayerName = 21
     }
 }

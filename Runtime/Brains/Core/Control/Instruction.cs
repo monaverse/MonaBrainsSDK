@@ -383,7 +383,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
             else if (result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
             {
-                //if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
+                if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
                 MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
             }
 
@@ -663,7 +663,8 @@ namespace Mona.SDK.Brains.Core.Control
                 _brain.Variables.Set(_progressTile, -1f);
                 if (!HasConditional() || HasTickAfter())
                 {
-                    //if(HasTickAfter()) Debug.Log($"TICK IT success {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
+                    //if(HasTickAfter())
+                    //    Debug.Log($"TICK IT success {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
              
                     MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
                 }
@@ -679,7 +680,8 @@ namespace Mona.SDK.Brains.Core.Control
                 }
                 if (_result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
                 {
-                    //if (HasTickAfter() && _brain.LoggingEnabled) Debug.Log($"TICK IT failure {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
+                    //if (HasTickAfter() && _brain.LoggingEnabled)
+                    //    Debug.Log($"TICK IT failure {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
                     MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
                 }
                 

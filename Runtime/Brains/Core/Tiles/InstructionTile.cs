@@ -201,7 +201,7 @@ namespace Mona.SDK.Brains.Core.Tiles
                 }
             }
 
-            Debug.Log($"{nameof(FilterBodiesOnInstruction)} index {_instruction.InstructionTiles.IndexOf(this)} {_bodies.Count}");
+            //Debug.Log($"{nameof(FilterBodiesOnInstruction)} index {_instruction.InstructionTiles.IndexOf(this)} {_bodies.Count}");
             _instruction.InstructionBodies = _bodies;
         }
 
