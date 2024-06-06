@@ -16,15 +16,16 @@ MonoBehaviour:
     rid: 711704382740103169
   _id: GotoPortal
   _name: Goto Portal
-  _category: General
+  _category: Monaverse
   references:
     version: 2
     RefIds:
     - rid: 711704382740103169
       type: {class: GotoPortalInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: GotoPortal
+        _name: Goto Portal
+        _category: Monaverse
+        _muted: 0
         _portalName: 
         _portalNameValueName: 

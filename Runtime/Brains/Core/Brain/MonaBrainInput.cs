@@ -22,6 +22,18 @@ namespace Mona.SDK.Brains.Core.Brain
         public List<IInputInstructionTile> Tiles = new List<IInputInstructionTile>();
     }
 
+    public class MouseState
+    {
+        public Vector2 Axis = Vector2.zero;
+        public Vector2 Scroll = Vector2.zero;
+        public int ClickCount = 0;
+        public MonaInputState LeftButtonState = MonaInputState.None;
+        public MonaInputState RightButtonState = MonaInputState.None;
+        public MonaInputState MiddleButtonState = MonaInputState.None;
+        public MonaInputState BackButtonState = MonaInputState.None;
+        public MonaInputState ForwardButtonState = MonaInputState.None;
+    }
+
     public class MonaBrainInput : MonoBehaviour, IMonaBrainInput
     {
         private Inputs _inputs;
@@ -39,6 +51,7 @@ namespace Mona.SDK.Brains.Core.Brain
         }
 
         private PlayerInput _playerInput;
+        private MouseState _mouseState = new MouseState();
         private List<IInputInstructionTile> _activeListeners = new List<IInputInstructionTile>();
         private List<KeyState> _activeKeyListeners = new List<KeyState>();
         private IMonaBrainPlayer _player;
@@ -80,7 +93,6 @@ namespace Mona.SDK.Brains.Core.Brain
                 _activeListeners.Add(tile);
             }
             UpdateActive();
-
         }
 
         public void StopListening(IInputInstructionTile tile)
@@ -154,6 +166,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private float _startTouchTime;
         private Vector2 _startTouchPosition;
         private Vector2 _lastTouchPosition;
+        private Vector2 _mousePosition = Vector2.zero;
 
         public float GestureTimeout = 0f;
         public float JoystickSize = 500f;
@@ -166,12 +179,10 @@ namespace Mona.SDK.Brains.Core.Brain
             JoystickDeadZone = trueDeadZone;
         }
 
-        private Vector2 _mouse = Vector2.zero;
-
         public MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState = MonaInputState.Pressed)
         {
             if (_player == null) return default;
-                        
+
             if (_lastFrame != Time.frameCount)
             {
                 _lastFrame = Time.frameCount;
@@ -249,16 +260,16 @@ namespace Mona.SDK.Brains.Core.Brain
                 }
 
                 if (Mouse.current != null)
-                    _mouse = Mouse.current.position.ReadValue();
+                    _mousePosition = Mouse.current.position.ReadValue();
 
                 if (Touch.activeTouches.Count > 0)
                 {
-                    _mouse = Touch.activeTouches[0].screenPosition;
+                    _mousePosition = Touch.activeTouches[0].screenPosition;
                     //Debug.Log($"screen position {mouse} mouse: {Mouse.current.position.ReadValue()}");
                 }
                 else if (_wasTouching)
                 {
-                    _mouse = _lastTouchPosition;
+                    _mousePosition = _lastTouchPosition;
                     _lastTouchPosition = Vector2.zero;                 
                     _wasTouching = false;
                 }                
@@ -266,7 +277,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 //Debug.Log($"{nameof(ProcessInput)} {_mouse} {_buttons[MonaInputType.Action]}");
 
                 if (_player.PlayerCamera != null)
-                    _ray = _player.PlayerCamera.ScreenPointToRay(new Vector3(_mouse.x, _mouse.y, 0f));
+                    _ray = _player.PlayerCamera.ScreenPointToRay(new Vector3(_mousePosition.x, _mousePosition.y, 0f));
                 else
                     _ray = default;
 
@@ -327,7 +338,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 LookValue = _lookValue,
                 Origin = Vector3.zero,
                 Direction = Vector3.zero,
-                Mouse = _mouse,
+                MousePosition = _mousePosition,
                 Ray = _ray
             };
         }
@@ -361,16 +372,73 @@ namespace Mona.SDK.Brains.Core.Brain
                 state.State = MonaInputState.None;
         }
 
+        public MouseState ProcessMouse()
+        {
+            Mouse mouse;
+            if (Mouse.current == null)
+            {
+                mouse = InputSystem.AddDevice<Mouse>("Mobile");
+                InputSystem.EnableDevice(mouse);
+            }
+            else
+                mouse = Mouse.current;
+
+            _mouseState.Axis = mouse.delta.value;
+            _mouseState.Scroll = mouse.scroll.value;
+            _mouseState.ClickCount = mouse.clickCount.value;
+
+            if (mouse.leftButton.wasPressedThisFrame)
+                _mouseState.LeftButtonState = MonaInputState.Pressed;
+            else if (mouse.leftButton.wasReleasedThisFrame)
+                _mouseState.LeftButtonState = MonaInputState.Up;
+            else if (mouse.leftButton.isPressed)
+                _mouseState.LeftButtonState = MonaInputState.Held;
+            else
+                _mouseState.LeftButtonState = MonaInputState.None;
+
+            if (mouse.rightButton.wasPressedThisFrame)
+                _mouseState.RightButtonState = MonaInputState.Pressed;
+            else if (mouse.rightButton.wasReleasedThisFrame)
+                _mouseState.RightButtonState = MonaInputState.Up;
+            else if (mouse.rightButton.isPressed)
+                _mouseState.RightButtonState = MonaInputState.Held;
+            else
+                _mouseState.RightButtonState = MonaInputState.None;
+
+            if (mouse.middleButton.wasPressedThisFrame)
+                _mouseState.MiddleButtonState = MonaInputState.Pressed;
+            else if (mouse.middleButton.wasReleasedThisFrame)
+                _mouseState.MiddleButtonState = MonaInputState.Up;
+            else if (mouse.middleButton.isPressed)
+                _mouseState.MiddleButtonState = MonaInputState.Held;
+            else
+                _mouseState.MiddleButtonState = MonaInputState.None;
+
+            if (mouse.backButton.wasPressedThisFrame)
+                _mouseState.BackButtonState = MonaInputState.Pressed;
+            else if (mouse.backButton.wasReleasedThisFrame)
+                _mouseState.BackButtonState = MonaInputState.Up;
+            else if (mouse.backButton.isPressed)
+                _mouseState.BackButtonState = MonaInputState.Held;
+            else
+                _mouseState.BackButtonState = MonaInputState.None;
+
+            if (mouse.forwardButton.wasPressedThisFrame)
+                _mouseState.ForwardButtonState = MonaInputState.Pressed;
+            else if (mouse.forwardButton.wasReleasedThisFrame)
+                _mouseState.ForwardButtonState = MonaInputState.Up;
+            else if (mouse.forwardButton.isPressed)
+                _mouseState.ForwardButtonState = MonaInputState.Held;
+            else
+                _mouseState.ForwardButtonState = MonaInputState.None;
+
+            return _mouseState;
+        }
+
         protected void ProcessAxis(MonaInputType type, Vector2 value, float deadZone)
         {
             if (type == MonaInputType.Move)
-            {
-                if (_externalMoveSet)
-                    value = _externalMove;
-                _externalMoveSet = false;
-
                 _moveValue = value;
-            }
             else if (type == MonaInputType.Look)
                 _lookValue = value;
 
@@ -385,13 +453,7 @@ namespace Mona.SDK.Brains.Core.Brain
             var value = action.ReadValue<Vector2>();
 
             if (type == MonaInputType.Move)
-            {
-                if (_externalMoveSet)
-                    value = _externalMove;
-                _externalMoveSet = false;
-
                 _moveValue = value;
-            }
             else if (type == MonaInputType.Look)
                 _lookValue = value;
 

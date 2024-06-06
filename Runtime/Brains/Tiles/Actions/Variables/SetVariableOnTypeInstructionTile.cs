@@ -164,7 +164,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 _myBool = _brain.Variables.GetBool(_myBoolName);
 
             if (HasVector2Values(_myVector2Name))
-                _myVector2 = GetVector3Value(_brain, _myVector2Name);
+                _myVector2 = GetVector2Value(_brain, _myVector2Name);
 
             if (HasVector3Values(_myVector3Name))
                 _myVector3 = GetVector3Value(_brain, _myVector3Name);

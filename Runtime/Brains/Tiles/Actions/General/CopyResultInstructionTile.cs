@@ -79,7 +79,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     _brain.Variables.Set(_targetValue, _brain.Variables.GetInternalVector3(MonaBrainConstants.LAST_MOVE_DIRECTION));
                     break;
                 case MonaBrainResultType.MousePosition:
-                    _brain.Variables.Set(_targetValue, _instruction.InstructionInput.Mouse);
+                    _brain.Variables.Set(_targetValue, _instruction.InstructionInput.MousePosition);
                     break;
                 default: break;
             }

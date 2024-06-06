@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 1609534979567518296
   _id: ChangeShaderColor
   _name: Shader Color
-  _category: Audio / Visual
+  _category: Visuals
   references:
     version: 2
     RefIds:
@@ -25,10 +25,10 @@ MonoBehaviour:
       data:
         _id: ChangeShaderColor
         _name: Shader Color
-        _category: Audio / Visual
+        _category: Visuals
+        _muted: 0
         _propertyName: _main
         _duration: 1
         _durationValueName: 
         _easing: 1
         _value: {r: 1, g: 1, b: 1, a: 1}
-        _valueName: 

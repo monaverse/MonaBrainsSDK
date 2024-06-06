@@ -43,6 +43,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainProperty(true)] public Vector3 WorldPosition { get => _worldPosition; set => _worldPosition = value; }
         [BrainPropertyValueName("MyVector3", typeof(IMonaVariablesVector3Value))] public string[] WorldPositionName { get => _worldPositionName; set => _worldPositionName = value; }
 
+        [SerializeField] private bool _negate;
+        [BrainProperty(true)] public bool Negate { get => _negate; set => _negate = value; }
+
         [SerializeField] private float _distance = 100f;
         [SerializeField] private string _distanceValueName;
         [BrainPropertyShow(nameof(Hoverer), (int)MonaBrainHovererTargetType.MousePointer)]
@@ -66,7 +69,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (!string.IsNullOrEmpty(_distanceValueName))
                 _distance = _brain.Variables.GetFloat(_distanceValueName);
 
-            if (TargetIsHoveredOver())
+            bool targetIsHoveredOver = TargetIsHoveredOver();
+            bool success = (targetIsHoveredOver && !_negate) || (!targetIsHoveredOver && _negate);
+
+            if (success)
                 return Complete(InstructionTileResult.Success);
 
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);
@@ -206,7 +212,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (Physics.Raycast(ray, out hit, _distance))
             {
                 if (hit.transform == targetBody.Transform)
+                {
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_TARGET, targetBody);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
                     return true;
+                }
+                    
             }
 
             return false;
@@ -234,7 +246,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (targetBody == null || occluderBody == null)
                 return false;
 
-            return OccluderIsInFront(targetBody, occluderBody) && BodiesOverlap(targetBody, occluderBody);
+            bool bodyIsOver = OccluderIsInFront(targetBody, occluderBody) && BodiesOverlap(targetBody, occluderBody);
+
+            if (bodyIsOver)
+                _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_TARGET, targetBody);
+
+            return bodyIsOver;
         }
 
         private bool BodiesOverlap(IMonaBody targetBody, IMonaBody occluderBody)

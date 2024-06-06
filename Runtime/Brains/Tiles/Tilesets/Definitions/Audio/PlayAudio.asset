@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540113065968576
   _id: PlayAudio
   _name: Play Audio
-  _category: Audio / Visual
+  _category: Audio
   references:
     version: 2
     RefIds:
@@ -25,5 +25,16 @@ MonoBehaviour:
       data:
         _id: PlayAudio
         _name: Play Audio
-        _category: Audio / Visual
+        _category: Audio
+        _muted: 0
         _monaAsset: 
+        _volume: 1
+        _volumeName: 
+        _pitch: 1
+        _pitchName: 
+        _allowInterruption: 1
+        _allowInterruptionName: 
+        _loopAudio: 0
+        _loopAudioName: 
+        _wait: 0
+        _waitName: 

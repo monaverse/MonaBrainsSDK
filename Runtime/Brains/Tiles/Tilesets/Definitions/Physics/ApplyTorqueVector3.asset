@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 5156608922757628673
   _id: ApplyTorqueVector3
   _name: Apply Torque Vector3
-  _category: Physics
+  _category: Forces
   references:
     version: 2
     RefIds:
@@ -24,8 +24,8 @@ MonoBehaviour:
       type: {class: ApplyTorqueVector3InstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ApplyTorqueVector3
-        _name: Apply Force Vector3
-        _category: Physics
+        _name: Apply Torque Vector3
+        _category: Forces
         _muted: 0
         _torque: 1
         _torqueValueName: 

@@ -16,19 +16,19 @@ MonoBehaviour:
     rid: 5156608991121900337
   _id: ChangeBodyArrayValue
   _name: Change Body Array
-  _category: Values
+  _category: Body Array
   references:
     version: 2
     RefIds:
     - rid: 5156608991121900337
       type: {class: ChangeBodyArrayInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Variables, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: ChangeBodyArrayValue
+        _name: Change Body Array
+        _category: Body Array
         _muted: 0
         _action: 1
         _target: 0
         _targetTag: 
-        _valueName: 
+        _bodyArray: 
         _modifyAllAttached: 0

@@ -16,17 +16,17 @@ MonoBehaviour:
     rid: 1609534979567518298
   _id: ChangeShaderFloat
   _name: Shader Float
-  _category: Audio / Visual
+  _category: Visuals
   references:
     version: 2
     RefIds:
     - rid: 1609534979567518298
       type: {class: ChangeShaderFloatInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Visuals, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
-        _color: {r: 1, g: 1, b: 1, a: 1}
+        _id: ChangeShaderFloat
+        _name: Shader Float
+        _category: Visuals
+        _muted: 0
         _propertyName: _main
         _duration: 1
         _durationValueName: 

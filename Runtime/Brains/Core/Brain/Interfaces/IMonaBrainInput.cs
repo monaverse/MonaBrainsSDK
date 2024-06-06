@@ -9,6 +9,7 @@ namespace Mona.SDK.Brains.Core.Brain.Interfaces
     public interface IMonaBrainInput
     {
         MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState);
+        MouseState ProcessMouse();
         void StartListening(IInputInstructionTile tile);
         void StopListening(IInputInstructionTile tile);
         int StartListeningForKey(Key key, IInputInstructionTile tile);

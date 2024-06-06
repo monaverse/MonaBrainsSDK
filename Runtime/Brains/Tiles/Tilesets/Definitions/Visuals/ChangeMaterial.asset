@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 1609534979567518165
   _id: ChangeMaterial
   _name: Change Material
-  _category: Audio / Visual
+  _category: Visuals
   references:
     version: 2
     RefIds:
@@ -25,12 +25,17 @@ MonoBehaviour:
       data:
         _id: ChangeMaterial
         _name: Change Material
-        _category: Audio / Visual
+        _category: Visuals
         _muted: 0
         _target: 35
         _targetTag: 
         _monaAsset: 
         _monaAssetName: 
+        _monaAssetGroup: 
+        _monaAssetProviderName: 
+        _atIndex: 0
+        _atIndexName: 
+        _assetToUse: 0
         _includeAttached: 0
         _sharedMaterial: 0
         _preserveTexture: 0

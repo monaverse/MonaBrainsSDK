@@ -16,20 +16,20 @@ MonoBehaviour:
     rid: 1609534979567518300
   _id: ChangeShaderVector
   _name: Shader Vector
-  _category: Audio / Visual
+  _category: Visuals
   references:
     version: 2
     RefIds:
     - rid: 1609534979567518300
       type: {class: ChangeShaderVectorInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Visuals, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
-        _color: {r: 1, g: 1, b: 1, a: 1}
+        _id: ChangeShaderVector
+        _name: Shader Vector
+        _category: Visuals
+        _muted: 0
         _propertyName: _main
         _duration: 1
         _durationValueName: 
         _easing: 1
         _value: {x: 0, y: 0, z: 0}
-        _valueName: 
+        _valueName: []

@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540276382466707
   _id: ChangeAvatar
   _name: Change Avatar/Skin
-  _category: Audio / Visual
+  _category: Visuals
   references:
     version: 2
     RefIds:
@@ -25,11 +25,13 @@ MonoBehaviour:
       data:
         _id: ChangeAvatar
         _name: Change Avatar/Skin
-        _category: Audio / Visual
+        _category: Visuals
         _muted: 0
         _target: 10
         _targetTag: 
         _useUri: 0
+        _importAnimation: 0
+        _reuseController: 1
         _monaAsset: 
         _monaAssetName: 
         _assetUri: 
@@ -37,5 +39,6 @@ MonoBehaviour:
         _offset: {x: 0, y: 0, z: 0}
         _eulerAngles: {x: 0, y: 0, z: 0}
         _scale: {x: 1, y: 1, z: 1}
+        _poolSize: 1
         _includeAttached: 1
         _includeAttachedName: 

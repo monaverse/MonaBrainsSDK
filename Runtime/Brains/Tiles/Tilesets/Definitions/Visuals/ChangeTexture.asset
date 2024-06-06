@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 1609534979567518225
   _id: ChangeTexture
   _name: Change Texture
-  _category: Audio / Visual
+  _category: Visuals
   references:
     version: 2
     RefIds:
@@ -25,7 +25,8 @@ MonoBehaviour:
       data:
         _id: ChangeTexture
         _name: Change Texture
-        _category: Audio / Visual
+        _category: Visuals
+        _muted: 0
         _monaAsset: 
         _textureSlot: _mainTex
         _sharedMaterial: 0

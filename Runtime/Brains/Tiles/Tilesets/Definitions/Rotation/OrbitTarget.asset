@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b17b264b7bb754e19bca5668439dc9d7, type: 3}
+  m_Name: OrbitTarget
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 6017384818355208295
+  _id: OrbitTarget
+  _name: Orbit Target
+  _category: Adv Rotation
+  references:
+    version: 2
+    RefIds:
+    - rid: 6017384818355208295
+      type: {class: OrbitTargetInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: OrbitTarget
+        _name: Orbit Target
+        _category: Adv Rotation
+        _muted: 0
+        _target: 14
+        _targetTag: 
+        _targetPosition: {x: 0, y: 0, z: 0}
+        _targetPositionName:
+        - 
+        - 
+        - 
+        - 
+        _speed: 10
+        _speedName: 
+        _direction: 2
+        _device: 0
+        _directionVector: {x: 0, y: 0}
+        _directionVectorName: []
+        _inputAxis: 0
+        _invertXInput: 0
+        _invertXInputName: 
+        _invertYInput: 1
+        _invertYInputName: 
+        _faceTarget: 1
+        _faceTargetName: 

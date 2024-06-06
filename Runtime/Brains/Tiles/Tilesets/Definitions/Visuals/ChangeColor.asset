@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164610271543464
   _id: ChangeColor
   _name: Change Color
-  _category: Audio / Visual
+  _category: Visuals
   references:
     version: 2
     RefIds:
@@ -25,8 +25,12 @@ MonoBehaviour:
       data:
         _id: ChangeColor
         _name: Change Color
-        _category: Audio / Visual
+        _category: Visuals
+        _muted: 0
+        _target: 35
+        _targetTag: 
         _color: {r: 1, g: 1, b: 1, a: 1}
         _duration: 1
         _durationValueName: 
         _easing: 1
+        _includeAttached: 0

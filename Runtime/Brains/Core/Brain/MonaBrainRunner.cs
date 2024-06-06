@@ -64,6 +64,9 @@ namespace Mona.SDK.Brains.Core.Brain
         private List<string> _brainUrls = new List<string>();
         public List<string> BrainUrls => _brainUrls;
 
+        private List<MonaBrainGraph> _brainGraphsToRemove = new List<MonaBrainGraph>();
+        private List<IMonaBrain> _brainInstancesToRemove = new List<IMonaBrain>();
+
         public IMonaBody Body {
             get
             {
@@ -140,6 +143,44 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             if (!_brainGraphs.Contains(graph))
                 _brainGraphs.Add(graph);
+        }
+
+        public void RemoveBrainGraph(MonaBrainGraph graph)
+        {
+            if (_brainGraphs.Contains(graph))
+                _brainGraphs.Remove(graph);
+
+            RemoveBrainGraph(graph.Name);
+        }
+
+        public void RemoveBrainGraph(string nameString, bool includeGraphsContainingNameString = false)
+        {
+            _brainGraphsToRemove.Clear();
+            _brainInstancesToRemove.Clear();
+
+            for (int i = 0; i < _brainGraphs.Count; i++)
+            {
+                if ((includeGraphsContainingNameString && _brainGraphs[i].Name.Contains(nameString)) || (!includeGraphsContainingNameString && _brainGraphs[i].Name == nameString))
+                    _brainGraphsToRemove.Add(_brainGraphs[i]);    
+            }
+
+            for (int i = 0; i < _brainInstances.Count; i++)
+            {
+                if ((includeGraphsContainingNameString && _brainInstances[i].Name.Contains(nameString)) || (!includeGraphsContainingNameString && _brainInstances[i].Name == nameString))
+                    _brainInstancesToRemove.Add(_brainInstances[i]);
+            }
+
+            for (int i = 0; i < _brainGraphsToRemove.Count; i++)
+                _brainGraphs.Remove(_brainGraphsToRemove[i]);
+
+            for (int i = 0; i < _brainInstancesToRemove.Count; i++)
+                _brainInstances.Remove(_brainInstancesToRemove[i]);
+        }
+
+        public void RemoveAllBrainGraphs()
+        {
+            _brainGraphs.Clear();
+            _brainInstances.Clear();
         }
 
         private List<IMonaBrain> _brainInstances = new List<IMonaBrain>();
@@ -549,7 +590,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void PreloadBrains()
         {
-            Debug.Log($"{nameof(PreloadBrains)} {_body.Transform.name}", _body.Transform.gameObject);
+            //Debug.Log($"{nameof(PreloadBrains)} {_body.Transform.name}", _body.Transform.gameObject);
             _body.InitializeTags();
 
             for (var i = 0; i < _wait.Count; i++)
@@ -661,7 +702,7 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
-        private void RestartBrains()
+        public void RestartBrains()
         {
             //Debug.Log($"Restart Brains {_body.Transform.name}", _body.Transform.gameObject);
             _began = false;

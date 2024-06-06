@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540420870733836
   _id: FaceForward
-  _name: Face Forward
+  _name: Face Toward Input
   _category: Adv Rotation
   references:
     version: 2
@@ -24,8 +24,9 @@ MonoBehaviour:
       type: {class: FaceForwardInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: FaceForward
-        _name: Face Forward
+        _name: Face Toward Input
         _category: Adv Rotation
+        _muted: 0
         _angle: 90
         _angleValueName: 
         _mode: 0

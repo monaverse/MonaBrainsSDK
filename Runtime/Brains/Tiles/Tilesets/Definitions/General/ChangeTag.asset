@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 06cc3e23675b38f4c98135aa6db0e386, type: 3}
-  m_Name: AddTag
+  m_Name: ChangeTag
   m_EditorClassIdentifier: 
   _tile:
     rid: 3250164677034377237
   _id: AddTag
-  _name: Add Tag
+  _name: Add / Remove Tag
   _category: General
   references:
     version: 2
@@ -24,6 +24,12 @@ MonoBehaviour:
       type: {class: AddTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: AddTag
-        _name: Add Tag
+        _name: Add / Remove Tag
         _category: General
+        _muted: 0
+        _target: 35
+        _targetTag: 
+        _addOrRemove: 0
         _tag: Default
+        _includeAttached: 1
+        _includeAttachedName: 
