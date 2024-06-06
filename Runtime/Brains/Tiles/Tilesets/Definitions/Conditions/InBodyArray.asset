@@ -16,20 +16,20 @@ MonoBehaviour:
     rid: 5156609055003771210
   _id: InBodyArray
   _name: In Body Array
-  _category: Values
+  _category: Body Array
   references:
     version: 2
     RefIds:
     - rid: 5156609055003771210
       type: {class: InBodyArrayInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: InBodyArray
+        _name: In Body Array
+        _category: Body Array
         _muted: 0
-        _valueName: 
         _target: 0
         _targetTag: 
         _operator: 0
+        _valueName: 
         _filter: 0
         _searchAllAttached: 0

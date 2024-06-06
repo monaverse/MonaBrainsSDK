@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6017384862577066232
   _id: IsDevice
   _name: On Device Platform
-  _category: Platform
+  _category: General
   references:
     version: 2
     RefIds:
@@ -25,7 +25,7 @@ MonoBehaviour:
       data:
         _id: IsDevice
         _name: On Device Platform
-        _category: Platform
+        _category: General
         _muted: 0
         _device: 10
         _operatingSystem: 120
