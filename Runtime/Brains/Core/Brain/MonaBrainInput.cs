@@ -25,6 +25,19 @@ namespace Mona.SDK.Brains.Core.Brain
     public class MonaBrainInput : MonoBehaviour, IMonaBrainInput
     {
         private Inputs _inputs;
+        public Inputs Inputs => _inputs;
+
+        private Vector2 _externalMove;
+        public bool _externalMoveSet = false;
+        public Vector2 ExternalMove { 
+            get => _externalMove; 
+            set
+            {
+                _externalMoveSet = true;
+                _externalMove = value;
+            } 
+        }
+
         private PlayerInput _playerInput;
         private List<IInputInstructionTile> _activeListeners = new List<IInputInstructionTile>();
         private List<KeyState> _activeKeyListeners = new List<KeyState>();
@@ -67,6 +80,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 _activeListeners.Add(tile);
             }
             UpdateActive();
+
         }
 
         public void StopListening(IInputInstructionTile tile)
@@ -157,7 +171,7 @@ namespace Mona.SDK.Brains.Core.Brain
         public MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState = MonaInputState.Pressed)
         {
             if (_player == null) return default;
-
+                        
             if (_lastFrame != Time.frameCount)
             {
                 _lastFrame = Time.frameCount;
@@ -350,7 +364,13 @@ namespace Mona.SDK.Brains.Core.Brain
         protected void ProcessAxis(MonaInputType type, Vector2 value, float deadZone)
         {
             if (type == MonaInputType.Move)
+            {
+                if (_externalMoveSet)
+                    value = _externalMove;
+                _externalMoveSet = false;
+
                 _moveValue = value;
+            }
             else if (type == MonaInputType.Look)
                 _lookValue = value;
 
@@ -365,7 +385,13 @@ namespace Mona.SDK.Brains.Core.Brain
             var value = action.ReadValue<Vector2>();
 
             if (type == MonaInputType.Move)
+            {
+                if (_externalMoveSet)
+                    value = _externalMove;
+                _externalMoveSet = false;
+
                 _moveValue = value;
+            }
             else if (type == MonaInputType.Look)
                 _lookValue = value;
 

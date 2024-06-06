@@ -26,7 +26,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     }
 
     [Serializable]
-    public class OnSelectTokenInstructionTile : InstructionTile, IInstructionTileWithPreloadAndPageAndInstruction, IConditionInstructionTile, IStartableInstructionTile, IBlockchainInstructionTile
+    public class OnSelectTokenInstructionTile : InstructionTile, IInstructionTileWithPreloadAndPageAndInstruction, IConditionInstructionTile, IStartableInstructionTile, IBlockchainInstructionTile, IBlockchainTokenFilterInstructionTile
     {
         public const string ID = "OnSelectToken";
         public const string NAME = "Select Token";
@@ -104,22 +104,36 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private List<Token> FilterAndForwardTokens(Token token)
         {
-            if (_instruction.BlockchainTiles[0] == this)
+            IBlockchainTokenFilterInstructionTile firstFilter = null;
+            for (var i = 0; i < _instruction.BlockchainTiles.Count; i++)
+            {
+                if (_instruction.BlockchainTiles[i] is IBlockchainTokenFilterInstructionTile)
+                {
+                    firstFilter = (IBlockchainTokenFilterInstructionTile)_instruction.BlockchainTiles[i];
+                    break;
+                }
+            }
+
+            if (firstFilter == this)
                 _instruction.Tokens.Clear();
 
             if (_instruction.Tokens.Count == 0)
             {
-                if (_instruction.BlockchainTiles[0] == this)
+                if (firstFilter == this)
                 {
                     _instruction.Tokens.Add(token);
                 }
             }
             else
             {
-                var filtered = _instruction.Tokens.FindAll(x => x.Equals(token));
+                var filtered = _instruction.Tokens.FindAll(x =>
+                {
+                    return x.Equals(token);
+                });
                 _instruction.Tokens = filtered;
-
             }
+
+            Debug.Log($"{nameof(OnSelectInstructionTile)} tokens: {_instruction.Tokens.Count}");
             return _instruction.Tokens;
         }
 

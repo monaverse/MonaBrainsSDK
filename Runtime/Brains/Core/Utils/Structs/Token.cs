@@ -6,6 +6,7 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
 {
     public struct Token
     {
+        public string Id;
         public string Contract;
         public string Accessibility;
         public string ActiveVersion;
@@ -33,6 +34,17 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
         public string SubCollectionId;
         public Dictionary<string, object> Traits;
         public TokenAssetType AssetType;
-        public string AssetUrl;         
+        public string AssetUrl;
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Token)) return false;
+            return base.Equals(obj);
+        }
+
+        public bool Equals(Token other)
+        {
+            return Id == other.Id;
+        }
     }
 }

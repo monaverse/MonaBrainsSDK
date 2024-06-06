@@ -83,6 +83,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyValueName("Scale", typeof(IMonaVariablesVector3Value))]
         public string[] ScaleName { get => _scaleName; set => _scaleName = value; }
 
+        [SerializeField] private bool _scaleToFit;
+        [BrainProperty(false)] public bool ScaleToFit { get => _scaleToFit; set => _scaleToFit = value; }
+
         [SerializeField] private bool _hidden;
         [BrainProperty(false)] public bool Hidden { get => _hidden; set => _hidden = value; }
 
@@ -427,16 +430,39 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (poolItem.ActiveRigidbody != null)
                 poolItem.ActiveRigidbody.WakeUp();
 
+            Transform parent;
+
             if (_spawnAsChild)
-                poolItem.SetTransformParent(body.Transform);
+                parent = body.Transform;
             else
-                poolItem.SetTransformParent(_defaultParent);
+                parent = _defaultParent;
+
+            poolItem.SetTransformParent(parent);
 
             Vector3 position = body.GetPosition() + body.GetRotation() * offset;
             Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
 
-            poolItem.SetScale(scale, true);
+
+            var bounds = GetBounds(poolItem.Transform.gameObject);
+            var extents = bounds.extents * 2f;
+            var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
+            var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
+            var containScale = maxScale / max;
+
+            if(_scaleToFit)
+                poolItem.SetScale(_scale * containScale);
+            else
+                poolItem.SetScale(scale, true);
+
+            var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
+
+
+            float newScale = Mathf.Max(Mathf.Max(poolItem.Transform.localScale.x, poolItem.Transform.localScale.y), poolItem.Transform.localScale.z);
+            poolItem.Transform.localPosition = (poolItem.Transform.InverseTransformDirection(_offset) - offsetY) * newScale;
+
             poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
+
+            poolItem.SetPosition(position);
 
             poolItem.OnAfterEnabled -= HandleAfterEnabled;
             poolItem.OnAfterEnabled += HandleAfterEnabled;
@@ -467,6 +493,41 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             return Complete(InstructionTileResult.Running);
 
+        }
+
+        private Bounds GetBounds(GameObject go)
+        {
+            Bounds bounds;
+            Renderer childRender;
+            bounds = GetRenderBounds(go);
+            if (bounds.extents.x == 0)
+            {
+                bounds = new Bounds(go.transform.position, Vector3.zero);
+                foreach (Transform child in go.transform)
+                {
+                    childRender = child.GetComponent<Renderer>();
+                    if (childRender)
+                    {
+                        bounds.Encapsulate(childRender.bounds);
+                    }
+                    else
+                    {
+                        bounds.Encapsulate(GetBounds(child.gameObject));
+                    }
+                }
+            }
+            return bounds;
+        }
+
+        private Bounds GetRenderBounds(GameObject go)
+        {
+            Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
+            Renderer render = go.GetComponent<Renderer>();
+            if (render != null)
+            {
+                return render.bounds;
+            }
+            return bounds;
         }
 
         private void HandleAfterEnabled(IMonaBody body)
