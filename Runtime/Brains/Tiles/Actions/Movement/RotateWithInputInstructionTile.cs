@@ -94,6 +94,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public RotateWithInputInstructionTile() { }
 
+        private bool UsePointer
+        {
+            get
+            {
+                switch (_device)
+                {
+                    case OrbitInputDeviceType.GenericPointer:
+                    case OrbitInputDeviceType.Mouse:
+                    case OrbitInputDeviceType.TouchScreen:
+                        return true;
+                }
+                return false;
+            }
+        }
+
         public enum MovementSnapType
         {
             NoSnap = 0,
@@ -389,7 +404,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (SnapType == MovementSnapType.NoSnap)
             {
-                inputVector *= _device == OrbitInputDeviceType.Mouse ? _speed * 0.1f : _speed * _deltaTime;
+                inputVector *= UsePointer ? _speed : _speed * _deltaTime;
             }
             else
             {
