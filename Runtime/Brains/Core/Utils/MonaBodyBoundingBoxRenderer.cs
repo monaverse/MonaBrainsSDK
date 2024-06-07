@@ -86,7 +86,7 @@ namespace Mona.SDK.Brains.Core.Utils
             });
         }
 
-        Bounds GetBounds()
+        private Bounds GetBounds()
         {
             Bounds bounds = new Bounds(_parent.position, Vector3.zero);
 

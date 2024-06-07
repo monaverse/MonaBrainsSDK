@@ -23,13 +23,16 @@ MonoBehaviour:
     - rid: 6017384830349869296
       type: {class: MoveWithInputInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: MoveWithInput
+        _name: Move With Input
+        _category: Adv Movement
         _muted: 0
         _target: 10
         _targetTag: Player
+        _bodyArray: 
         _device: 30
+        _directionVector: {x: 0, y: 0}
+        _directionVectorName: []
         _moveAlong: 1
         _range: 30
         _rangeName: 
@@ -39,3 +42,5 @@ MonoBehaviour:
         _snapIntervalName: 
         _speed: 10
         _speedName: 
+        _placeOnSurface: 1
+        _placeOnSurfaceName: 

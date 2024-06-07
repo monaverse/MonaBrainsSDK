@@ -64,36 +64,37 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         [SerializeField] private float _speed = 10f;
         [SerializeField] private string _speedName;
-        [BrainPropertyShow(nameof(SnapType), (int)MovementSnapType.NoSnap)]
+        [BrainPropertyShow(nameof(DisplaySpeed), (int)DisplayField.Display)]
         [BrainProperty(false)] public float Speed { get => _speed; set => _speed = value; }
         [BrainPropertyValueName("Speed", typeof(IMonaVariablesFloatValue))] public string SpeedName { get => _speedName; set => _speedName = value; }
+
+        [SerializeField] private bool _placeOnSurface = false;
+        [SerializeField] private string _placeOnSurfaceName;
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.Mouse)]
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.GenericPointer)]
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.TouchScreen)]
+        [BrainProperty(false)] public bool PlaceOnSurface { get => _placeOnSurface; set => _placeOnSurface = value; }
+        [BrainPropertyValueName("PlaceOnSurface", typeof(IMonaVariablesBoolValue))] public string PlaceOnSurfaceName { get => _placeOnSurfaceName; set => _placeOnSurfaceName = value; }
 
         private float _previousTime = 0;
         private float _lastGamepadMoveTime = 0f;
         private float _deltaTime;
-        private IMonaBrain _brain;
+        private string _ignoreRaycastLayer = "Ignore Raycast";
+        private Vector3 _pointerPosition = Vector3.zero;
+        private Vector3 _closestBodyPositionToPointer = Vector3.zero;
+        private LayerMask _placementLayerMask;
         private Camera _mainCamera;
+        private IMonaBrain _brain;
+        private IMonaBody _closestBodyToPointer = null;
         private IMonaBrainInput _brainInput;
+        private List<LayerMask> _bodyLayers = new List<LayerMask>();
         private List<IMonaBody> _targetBodies = new List<IMonaBody>();
 
         public MoveWithInputInstructionTile() { }
 
         public MovementSnapType SnapType => _gridSnapUnits > 0 ? MovementSnapType.SnapToGrid : MovementSnapType.NoSnap;
 
-        private bool UseMover
-        {
-            get
-            {
-                switch (_device)
-                {
-                    case PlayerInputDeviceType.GenericMovement:
-                    case PlayerInputDeviceType.DigitalPad:
-                    case PlayerInputDeviceType.LeftAnalogStick:
-                        return true;
-                }
-                return false;
-            }
-        }
+        public DisplayField DisplaySpeed => SnapType == MovementSnapType.NoSnap && !UsePointer ? DisplayField.Display : DisplayField.Hide;
 
         private bool UsePointer
         {
@@ -114,6 +115,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             NoSnap = 0,
             SnapToGrid = 1
+        }
+
+        public enum DisplayField
+        {
+            Hide = 0,
+            Display = 1
         }
 
         public enum MovementMode
@@ -145,13 +152,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _instruction = instruction;
             _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();
 
-            //if (_device != OrbitInputDeviceType.Vector2)
+            int ignoreRaycastLayer = LayerMask.NameToLayer(_ignoreRaycastLayer);
+            _placementLayerMask = ~(1 << ignoreRaycastLayer);
+
+            if (_device != PlayerInputDeviceType.Vector2)
                 _brainInput.StartListening(this);
         }
 
         public override void Unload(bool destroyed = false)
         {
-            //if (_device != OrbitInputDeviceType.Vector2)
+            if (_device != PlayerInputDeviceType.Vector2)
                 _brainInput.StopListening(this);
         }
 
@@ -187,73 +197,95 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (!string.IsNullOrEmpty(_speedName))
                 _speed = _brain.Variables.GetFloat(_speedName);
 
+            if (!string.IsNullOrEmpty(_placeOnSurfaceName))
+                _placeOnSurface = _brain.Variables.GetBool(_placeOnSurfaceName);
+
             _deltaTime = GetAndUpdateDeltaTime();
+
+            if (_range <= 0)
+                _range = Mathf.Infinity;
 
             SetTargetBodies();
 
-            Vector3 moveVector = UsePointer ? Vector3.zero : GetGamepadMovement();
+            if (_targetBodies.Count < 1)
+                return Complete(InstructionTileResult.Success);
 
-            for (int i = 0; i < _targetBodies.Count; i++)
+            Vector3 moveVector = UsePointer ? Vector3.zero : GetGamepadMovement();
+                
+
+            if (UsePointer)
             {
-                switch (_device)
+                switch(_device)
                 {
                     case PlayerInputDeviceType.GenericPointer:
                         if (UnityEngine.Input.touchCount > 0)
-                            SetAllBodiesWithTouch();
+                        {
+                            Touch justTouch = UnityEngine.Input.GetTouch(0);
+                            _pointerPosition = justTouch.position;
+                        }
                         else
-                            SetAllBodiesWithMouse();
+                        {
+                            _pointerPosition = UnityEngine.Input.mousePosition;
+                        }
                         break;
                     case PlayerInputDeviceType.Mouse:
-                        SetAllBodiesWithMouse();
+                        _pointerPosition = UnityEngine.Input.mousePosition;
                         break;
                     case PlayerInputDeviceType.TouchScreen:
-                        SetAllBodiesWithTouch();
-                        break;
-                    default:
-                        SetAllBodiesWithVector(moveVector);
+                        if (UnityEngine.Input.touchCount > 0)
+                        {
+                            Touch justTouch = UnityEngine.Input.GetTouch(0);
+                            _pointerPosition = justTouch.position;
+                        }
+                        else
+                        {
+                            return Complete(InstructionTileResult.Success);
+                        }
                         break;
                 }
+
+                SetClosestBodyToPointer();
+
+                if (_closestBodyToPointer != null)
+                    SetBodyToPointerPosition(_closestBodyToPointer);
+            }
+
+            for (int i = 0; i < _targetBodies.Count; i++)
+            {
+                if (UsePointer) SetPointerBodyOffsets(_targetBodies[i]);
+                else ApplyGamepadInput(_targetBodies[i], moveVector);
             }
 
             return Complete(InstructionTileResult.Success);
         }
 
-        private void SetAllBodiesWithMouse()
+        private void SetPointerBodyOffsets(IMonaBody body)
         {
-            for (int i = 0; i < _targetBodies.Count; i++)
-                SetBodyToMousePosition(_targetBodies[i]);
-        }
-
-        private void SetBodyToMousePosition(IMonaBody body)
-        {
-            if (body == null) return;
-            Vector3 pointerWorldPosition = GetPointerWorldPosition(body, UnityEngine.Input.mousePosition);
-            Vector3 offset = GetPointerBodyOffset(body, pointerWorldPosition);
-            ApplyPointerInput(body, offset, pointerWorldPosition);
-        }
-
-        private void SetAllBodiesWithTouch()
-        {
-            if (UnityEngine.Input.touchCount < 1)
+            if (_closestBodyToPointer == null || body == _closestBodyToPointer)
                 return;
 
-            for (int i = 0; i < _targetBodies.Count; i++)
-                SetBodyToTouchPosition(_targetBodies[i]);
+            Vector3 offset = body.GetPosition() - _closestBodyPositionToPointer;
+            Vector3 newPosition = _closestBodyToPointer.GetPosition() + offset;
+
+            body.TeleportPosition(newPosition);
         }
 
-        private void SetBodyToTouchPosition(IMonaBody body)
+        private void SetBodyToPointerPosition(IMonaBody body)
         {
             if (body == null) return;
 
-            Touch touch = UnityEngine.Input.GetTouch(0);
-            Vector3 pointerWorldPosition = GetPointerWorldPosition(body, touch.position);
-            Vector3 offset = GetPointerBodyOffset(body, pointerWorldPosition);
+            if (_placeOnSurface && TryPlaceBodyAtPointerPosition(body, _pointerPosition))
+                return;
+
+            Vector3 pointerWorldPosition = GetPointerWorldPosition(body, _pointerPosition);
+            Vector3 offset = GetPointerBodyOffset(body.GetPosition(), pointerWorldPosition);
             ApplyPointerInput(body, offset, pointerWorldPosition);
         }
 
-        private Vector3 GetPointerBodyOffset(IMonaBody body, Vector3 pointerWorldPosition)
+        private Vector3 GetPointerBodyOffset(Vector3 bodyPosition, Vector3 pointerWorldPosition)
         {
-            return body.GetPosition() - pointerWorldPosition;
+            Vector3 offset = bodyPosition - pointerWorldPosition;
+            return offset;
         }
 
         private Vector3 GetPointerWorldPosition(IMonaBody body, Vector3 screenPosition)
@@ -300,10 +332,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void ApplyPointerInput(IMonaBody body, Vector3 offset, Vector3 pointerWorldPosition)
         {
-            Vector3 pointerPosition = SnapToGrid(pointerWorldPosition); // + offset);
-
+            
+            Vector3 pointerPosition = SnapToGrid(pointerWorldPosition);
             Vector3 newPosition = body.GetPosition();
-
             switch (_moveAlong)
             {
                 case MovementMode.XY:
@@ -334,10 +365,107 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             body.TeleportPosition(newPosition);
         }
 
-        private void SetAllBodiesWithVector(Vector3 move)
+        private bool TryPlaceBodyAtPointerPosition(IMonaBody body, Vector3 pointerPosition)
         {
-            for (int i = 0; i < _targetBodies.Count; i++)
-                ApplyGamepadInput(_targetBodies[i], move);
+            _bodyLayers.Clear();
+            SetOriginalBodyLayers(body);
+            SetBodyLayer(body, LayerMask.NameToLayer(_ignoreRaycastLayer));
+
+            Ray ray = _mainCamera.ScreenPointToRay(pointerPosition);
+            RaycastHit hit;
+
+            if (UnityEngine.Physics.Raycast(ray, out hit, _range, _placementLayerMask))
+            {
+                Vector3 hitPoint = hit.point;
+                Vector3 hitNormal = hit.normal;
+
+                Bounds bounds = GetBodyBounds(body);
+                float offsetDistance = CalculateOffsetDistance(bounds, hitNormal);
+                Vector3 newPosition = SnapToGrid(hitPoint + hitNormal * offsetDistance);
+
+                if (SnapType == MovementSnapType.SnapToGrid && UnityEngine.Physics.CheckBox(newPosition, bounds.extents, body.GetRotation()))
+                {
+                    Vector3 direction = hitNormal.normalized;
+                    newPosition = SnapToGrid(hitPoint + direction * _gridSnapUnits);
+                }
+
+                body.TeleportPosition(newPosition);
+            }
+            else
+            {
+                ResetOriginalBodyLayers(body);
+                return false;
+            }
+
+            ResetOriginalBodyLayers(body);
+            return true;
+        }
+
+        private void SetOriginalBodyLayers(IMonaBody body)
+        {
+            Transform[] tfs = body.Transform.GetComponentsInChildren<Transform>();
+
+            for (int i = 0; i < tfs.Length; i++)
+                _bodyLayers.Add(tfs[i].gameObject.layer);
+        }
+
+        private void ResetOriginalBodyLayers(IMonaBody body)
+        {
+            Transform[] tfs = body.Transform.GetComponentsInChildren<Transform>();
+
+            if (tfs.Length > _bodyLayers.Count)
+                return;
+
+            for (int i = 0; i < tfs.Length; i++)
+                tfs[i].gameObject.layer = _bodyLayers[i];
+
+        }
+
+        private void SetBodyLayer(IMonaBody body, LayerMask layer)
+        {
+            Transform[] tfs = body.Transform.GetComponentsInChildren<Transform>();
+
+            for (int i = 0; i < tfs.Length; i++)
+                tfs[i].gameObject.layer = layer;
+        }
+
+        private Bounds GetBodyBounds(IMonaBody body)
+        {
+            Bounds bounds = new Bounds(body.GetPosition(), Vector3.zero);
+
+            Renderer[] renderers = body.Transform.GetComponentsInChildren<Renderer>();
+
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i].GetComponent<LineRenderer>() == null)
+                    bounds.Encapsulate(renderers[i].bounds);
+            }
+
+            return bounds;
+        }
+
+        private float CalculateOffsetDistance(Bounds bounds, Vector3 normal)
+        {
+            // Calculate the distance from the center to the furthest point in the direction of the normal
+            float maxDistance = 0f;
+            Vector3[] points = new Vector3[8];
+
+            points[0] = bounds.center + new Vector3(bounds.extents.x, bounds.extents.y, bounds.extents.z);
+            points[1] = bounds.center + new Vector3(-bounds.extents.x, bounds.extents.y, bounds.extents.z);
+            points[2] = bounds.center + new Vector3(bounds.extents.x, -bounds.extents.y, bounds.extents.z);
+            points[3] = bounds.center + new Vector3(bounds.extents.x, bounds.extents.y, -bounds.extents.z);
+            points[4] = bounds.center + new Vector3(-bounds.extents.x, -bounds.extents.y, bounds.extents.z);
+            points[5] = bounds.center + new Vector3(-bounds.extents.x, bounds.extents.y, -bounds.extents.z);
+            points[6] = bounds.center + new Vector3(bounds.extents.x, -bounds.extents.y, -bounds.extents.z);
+            points[7] = bounds.center + new Vector3(-bounds.extents.x, -bounds.extents.y, -bounds.extents.z);
+
+            foreach (Vector3 point in points)
+            {
+                float distance = Vector3.Dot(point - bounds.center, normal);
+                maxDistance = Mathf.Max(maxDistance, distance);
+            }
+
+            return maxDistance;
         }
 
         private Vector3 GetGamepadMovement()
@@ -538,6 +666,29 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MonaBrainTransformTargetType.MyBodyArray:
                     _targetBodies.AddRange(_brain.Variables.GetBodyArray(_bodyArray));
                     break;
+            }
+        }
+
+        private void SetClosestBodyToPointer()
+        {
+            _closestBodyToPointer = null;
+            float closestDistance = float.MaxValue;
+
+            for (int i = 0; i < _targetBodies.Count; i++)
+            {
+                if (_targetBodies[i] == null)
+                    continue;
+
+                Vector3 bodyPosition = _targetBodies[i].GetPosition();
+                Vector3 screenPosition = _mainCamera.WorldToScreenPoint(bodyPosition);
+                float distance = Vector2.Distance(new Vector2(_pointerPosition.x, _pointerPosition.y), new Vector2(screenPosition.x, screenPosition.y));
+
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    _closestBodyToPointer = _targetBodies[i];
+                    _closestBodyPositionToPointer = bodyPosition;
+                }
             }
         }
     }
