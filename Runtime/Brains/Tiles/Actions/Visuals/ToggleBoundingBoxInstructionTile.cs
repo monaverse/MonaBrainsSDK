@@ -29,6 +29,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
+        [SerializeField] private string _bodyArray;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MyBodyArray)]
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string BodyArray { get => _bodyArray; set => _bodyArray = value; }
+
         [SerializeField] private bool _display = true;
         [SerializeField] private string _displayName;
         [BrainProperty(true)] public bool Display { get => _display; set => _display = value; }
@@ -155,6 +159,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
                 case MonaBrainBroadcastType.AllSpawnedByMe:
                     SetBoxOnAllSpawned();
                     break;
+                case MonaBrainBroadcastType.MyBodyArray:
+                    SetBoxOnBodyArray();
+                    break;
                 default:
                     IMonaBody targetBody = GetTarget();
 
@@ -267,6 +274,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
                     return _brain.Body.PoolBodyNext;
             }
             return null;
+        }
+
+        private void SetBoxOnBodyArray()
+        {
+            var bodyArray = _brain.Variables.GetBodyArray(_bodyArray);
+
+            for (var i = 0; i < bodyArray.Count; i++)
+            {
+                if (bodyArray[i] == null)
+                    continue;
+
+                if (ModifyAllAttached)
+                    SetBoxOnWholeEntity(bodyArray[i]);
+                else
+                    SetBoxOnBody(bodyArray[i]);
+            }
         }
 
         private void SetBoxOnTag()
