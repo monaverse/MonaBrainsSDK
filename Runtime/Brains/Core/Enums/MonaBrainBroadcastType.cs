@@ -33,7 +33,8 @@ namespace Mona.SDK.Brains.Core.Enums
         LastSpawnedByMe = 80,
         AllSpawnedByMe = 90,
         MyPoolPreviouslySpawned = 100,
-        MyPoolNextSpawned = 110
+        MyPoolNextSpawned = 110,
+        MyBodyArray = 120
     }
 
     public enum MonaBrainHovererTargetType

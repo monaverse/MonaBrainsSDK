@@ -27,6 +27,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyShow(nameof(Target), (int)MonaBrainTransformType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
+        [SerializeField] private string _bodyArray;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainTransformTargetType.MyBodyArray)]
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string BodyArray { get => _bodyArray; set => _bodyArray = value; }
+
         [SerializeField] private PlayerInputDeviceType _device = PlayerInputDeviceType.Mouse;
         [BrainPropertyEnum(true)] public PlayerInputDeviceType Device { get => _device; set => _device = value; }
 
@@ -530,6 +534,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MonaBrainTransformTargetType.MessageSender:
                     var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
                     if (brain != null) _targetBodies.Add(brain.Body);
+                    break;
+                case MonaBrainTransformTargetType.MyBodyArray:
+                    _targetBodies.AddRange(_brain.Variables.GetBodyArray(_bodyArray));
                     break;
             }
         }
