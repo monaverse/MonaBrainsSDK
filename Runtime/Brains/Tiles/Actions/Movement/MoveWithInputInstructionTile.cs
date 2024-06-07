@@ -6,12 +6,14 @@ using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Brains.Core.Brain.Interfaces;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class MoveWithInputInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class MoveWithInputInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction
     {
         public const string ID = "MoveWithInput";
         public const string NAME = "Move With Input";
@@ -28,11 +30,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private PlayerInputDeviceType _device = PlayerInputDeviceType.Mouse;
         [BrainPropertyEnum(true)] public PlayerInputDeviceType Device { get => _device; set => _device = value; }
 
+        [SerializeField] private Vector2 _directionVector;
+        [SerializeField] private string[] _directionVectorName;
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.Vector2)]
+        [BrainProperty(true)] public Vector2 DirectionVector { get => _directionVector; set => _directionVector = value; }
+        [BrainPropertyValueName("DirectionVector", typeof(IMonaVariablesVector2Value))] public string[] DirectionVectorName { get => _directionVectorName; set => _directionVectorName = value; }
+
         [SerializeField] private MovementMode _moveAlong = MovementMode.XZ;
         [BrainPropertyEnum(true)] public MovementMode MoveAlong { get => _moveAlong; set => _moveAlong = value; }
 
         [SerializeField] private float _range = 30f;
         [SerializeField] private string _rangeName;
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.Mouse)]
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.GenericPointer)]
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.TouchScreen)]
         [BrainProperty(false)] public float MaxDistance { get => _range; set => _range = value; }
         [BrainPropertyValueName("Range", typeof(IMonaVariablesFloatValue))] public string MaxDistanceName { get => _rangeName; set => _rangeName = value; }
 
@@ -54,17 +65,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyValueName("Speed", typeof(IMonaVariablesFloatValue))] public string SpeedName { get => _speedName; set => _speedName = value; }
 
         private float _previousTime = 0;
-        private float _deltaTime;
         private float _lastGamepadMoveTime = 0f;
+        private float _deltaTime;
         private IMonaBrain _brain;
         private Camera _mainCamera;
+        private IMonaBrainInput _brainInput;
         private List<IMonaBody> _targetBodies = new List<IMonaBody>();
 
         public MoveWithInputInstructionTile() { }
 
         public MovementSnapType SnapType => _gridSnapUnits > 0 ? MovementSnapType.SnapToGrid : MovementSnapType.NoSnap;
 
-        private bool UseGamepad
+        private bool UseMover
         {
             get
             {
@@ -75,7 +87,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     case PlayerInputDeviceType.LeftAnalogStick:
                         return true;
                 }
+                return false;
+            }
+        }
 
+        private bool UsePointer
+        {
+            get
+            {
+                switch (_device)
+                {
+                    case PlayerInputDeviceType.GenericPointer:
+                    case PlayerInputDeviceType.Mouse:
+                    case PlayerInputDeviceType.TouchScreen:
+                        return true;
+                }
                 return false;
             }
         }
@@ -106,11 +132,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             DigitalPad = 50,
             LeftAnalogStick = 60,
             RightAnalogStick = 70,
+            Vector2 = 80
         }
 
-        public void Preload(IMonaBrain brainInstance)
+        public virtual void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
+            _instruction = instruction;
+            _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();
+
+            //if (_device != OrbitInputDeviceType.Vector2)
+                _brainInput.StartListening(this);
+        }
+
+        public override void Unload(bool destroyed = false)
+        {
+            //if (_device != OrbitInputDeviceType.Vector2)
+                _brainInput.StopListening(this);
         }
 
         private float GetAndUpdateDeltaTime()
@@ -127,8 +165,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-            _mainCamera = Camera.main;
+            _mainCamera = MonaGlobalBrainRunner.Instance.SceneCamera;
             _targetBodies.Clear();
+
+            if (HasVector2Values(_directionVectorName))
+                _directionVector = GetVector2Value(_brain, _directionVectorName);
 
             if (!string.IsNullOrEmpty(_rangeName))
                 _range = _brain.Variables.GetFloat(_rangeName);
@@ -146,7 +187,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             SetTargetBodies();
 
-            Vector3 gamepadMovement = UseGamepad ? GetGamepadMovement() : Vector3.zero;
+            Vector3 moveVector = UsePointer ? Vector3.zero : GetGamepadMovement();
 
             for (int i = 0; i < _targetBodies.Count; i++)
             {
@@ -164,13 +205,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     case PlayerInputDeviceType.TouchScreen:
                         SetAllBodiesWithTouch();
                         break;
-                    case PlayerInputDeviceType.GenericMovement:
-                    case PlayerInputDeviceType.DigitalPad:
-                    case PlayerInputDeviceType.LeftAnalogStick:
-                        SetAllBodiesWithGamepad(gamepadMovement);
-                        break;
-                    case PlayerInputDeviceType.GenericLook:
-                    case PlayerInputDeviceType.RightAnalogStick:
+                    default:
+                        SetAllBodiesWithVector(moveVector);
                         break;
                 }
             }
@@ -211,12 +247,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             ApplyPointerInput(body, offset, pointerWorldPosition);
         }
 
-        private void SetAllBodiesWithGamepad(Vector3 move)
-        {
-            for (int i = 0; i < _targetBodies.Count; i++)
-                ApplyGamepadInput(_targetBodies[i], move);
-        }
-
         private Vector3 GetPointerBodyOffset(IMonaBody body, Vector3 pointerWorldPosition)
         {
             return body.GetPosition() - pointerWorldPosition;
@@ -232,89 +262,33 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case MovementMode.XY:
                     Plane planeXY = new Plane(Vector3.forward, new Vector3(0, 0, bodyPosition.z));
                     if (planeXY.Raycast(ray, out float distanceXY))
-                    {
                         return ray.GetPoint(distanceXY);
-                    }
                     break;
                 case MovementMode.XZ:
                     Plane planeXZ = new Plane(Vector3.up, new Vector3(0, bodyPosition.y, 0));
                     if (planeXZ.Raycast(ray, out float distanceXZ))
-                    {
                         return ray.GetPoint(distanceXZ);
-                    }
                     break;
                 case MovementMode.YZ:
                     Plane planeYZ = new Plane(Vector3.right, new Vector3(bodyPosition.x, 0, 0));
                     if (planeYZ.Raycast(ray, out float distanceYZ))
-                    {
                         return ray.GetPoint(distanceYZ);
-                    }
                     break;
                 case MovementMode.X:
                     Plane planeX = new Plane(Vector3.up, new Vector3(0, 0, bodyPosition.z));
                     if (planeX.Raycast(ray, out float distanceX))
-                    {
                         return ray.GetPoint(distanceX);
-                    }
                     break;
                 case MovementMode.Y:
                     Plane planeY = new Plane(Vector3.forward, new Vector3(bodyPosition.x, 0, 0));
                     if (planeY.Raycast(ray, out float distanceY))
-                    {
                         return ray.GetPoint(distanceY);
-                    }
                     break;
                 case MovementMode.Z:
                     Plane planeZ = new Plane(Vector3.up, new Vector3(0, bodyPosition.y, 0));
                     if (planeZ.Raycast(ray, out float distanceZ))
-                    {
                         return ray.GetPoint(distanceZ);
-                    }
                     break;
-            }
-
-            return Vector3.zero;
-        }
-
-        private Vector3 GetGamepadMovement()
-        {
-            if (SnapType == MovementSnapType.SnapToGrid && Time.time < _lastGamepadMoveTime + _snapInterval)
-                return Vector3.zero;
-
-            float horizontal = UnityEngine.Input.GetAxis("Horizontal");
-            float vertical = UnityEngine.Input.GetAxis("Vertical");
-
-            float threshold = 0.1f;
-
-            if (Mathf.Abs(horizontal) > threshold || Mathf.Abs(vertical) > threshold)
-            {
-                Vector3 move = Vector3.zero;
-                float moveMultiplier = SnapType == MovementSnapType.SnapToGrid ? _gridSnapUnits : _speed * _deltaTime;
-
-                switch (_moveAlong)
-                {
-                    case MovementMode.XY:
-                        move = _mainCamera.transform.TransformDirection(new Vector3(horizontal, vertical, 0)) * moveMultiplier;
-                        break;
-                    case MovementMode.XZ:
-                        move = _mainCamera.transform.TransformDirection(new Vector3(horizontal, 0, vertical)) * moveMultiplier;
-                        break;
-                    case MovementMode.YZ:
-                        move = _mainCamera.transform.TransformDirection(new Vector3(0, vertical, horizontal)) * moveMultiplier;
-                        break;
-                    case MovementMode.X:
-                        move = _mainCamera.transform.TransformDirection(new Vector3(horizontal, 0, 0)) * moveMultiplier;
-                        break;
-                    case MovementMode.Y:
-                        move = _mainCamera.transform.TransformDirection(new Vector3(0, vertical, 0)) * moveMultiplier;
-                        break;
-                    case MovementMode.Z:
-                        move = _mainCamera.transform.TransformDirection(new Vector3(0, 0, horizontal)) * moveMultiplier;
-                        break;
-                }
-
-                _lastGamepadMoveTime = Time.time;
-                return move;
             }
 
             return Vector3.zero;
@@ -354,6 +328,100 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             newPosition = SnapToGrid(newPosition);
             newPosition = ClampPositionToMaxDistance(newPosition);
             body.TeleportPosition(newPosition);
+        }
+
+        private void SetAllBodiesWithVector(Vector3 move)
+        {
+            for (int i = 0; i < _targetBodies.Count; i++)
+                ApplyGamepadInput(_targetBodies[i], move);
+        }
+
+        private Vector3 GetGamepadMovement()
+        {
+            if (SnapType == MovementSnapType.SnapToGrid && Time.time < _lastGamepadMoveTime + _snapInterval)
+                return Vector3.zero;
+
+            Vector3 cameraRight = _mainCamera.transform.right;
+            Vector3 cameraUp = _mainCamera.transform.up;
+            Vector3 cameraForward = _mainCamera.transform.forward;
+            Vector3 move = Vector3.zero;
+            Vector2 inputVector;
+
+            switch (_device)
+            {
+                case PlayerInputDeviceType.GenericLook:
+                case PlayerInputDeviceType.RightAnalogStick:
+                    inputVector = _brainInput.ProcessInput(false, SDK.Core.Input.Enums.MonaInputType.Look, SDK.Core.Input.Enums.MonaInputState.None).LookValue;
+                    break;
+                case PlayerInputDeviceType.Vector2:
+                    inputVector = _directionVector;
+                    break;
+                default:
+                    inputVector = _brainInput.ProcessInput(false, SDK.Core.Input.Enums.MonaInputType.Move, SDK.Core.Input.Enums.MonaInputState.None).MoveValue;
+                    break;
+            }
+
+            switch (_moveAlong)
+            {
+                case MovementMode.XY:
+                    cameraUp.z = 0;
+                    cameraUp.x = 0;
+                    cameraRight.y = 0;
+                    cameraRight.Normalize();
+                    cameraUp.Normalize();
+                    move = cameraUp * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+                case MovementMode.XZ:
+                    cameraForward.y = 0;
+                    cameraRight.y = 0;
+                    cameraForward.Normalize();
+                    cameraRight.Normalize();
+                    move = cameraForward * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+                case MovementMode.YZ:
+                    cameraUp.z = 0;
+                    cameraUp.x = 0;
+                    cameraForward.y = 0;
+                    cameraForward.Normalize();
+                    cameraUp.Normalize();
+                    move = cameraUp * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraForward * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+                case MovementMode.X:
+                    cameraUp = Vector3.zero;
+                    cameraRight.y = 0;
+                    cameraRight.Normalize();
+                    move = cameraUp * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+                case MovementMode.Y:
+                    cameraUp.z = 0;
+                    cameraUp.x = 0;
+                    cameraRight = Vector3.zero;
+                    cameraUp.Normalize();
+                    move = cameraUp * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+                case MovementMode.Z:
+                    cameraForward.y = 0;
+                    cameraRight = Vector3.zero;
+                    cameraForward.Normalize();
+                    move = cameraForward * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+            }
+
+            _lastGamepadMoveTime = Time.time;
+            move *= SnapType == MovementSnapType.SnapToGrid ? _gridSnapUnits : _speed * _deltaTime;
+            return move;
         }
 
         private void ApplyGamepadInput(IMonaBody body, Vector3 move)

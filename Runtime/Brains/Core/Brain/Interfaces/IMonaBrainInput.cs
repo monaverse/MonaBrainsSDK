@@ -10,8 +10,8 @@ namespace Mona.SDK.Brains.Core.Brain.Interfaces
     {
         MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState);
         MouseState ProcessMouse();
-        void StartListening(IInputInstructionTile tile);
-        void StopListening(IInputInstructionTile tile);
+        void StartListening(IInstructionTile tile);
+        void StopListening(IInstructionTile tile);
         int StartListeningForKey(Key key, IInputInstructionTile tile);
         void StopListeningForKey(Key key, IInputInstructionTile tile);
         void SetTouchJoystickSettings(float gestureTimeout, float trueJoystickSize, float trueDeadZone);

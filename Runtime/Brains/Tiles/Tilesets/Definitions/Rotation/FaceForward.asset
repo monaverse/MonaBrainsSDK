@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 6317540420870733836
   _id: FaceForward
-  _name: Face Toward Input
+  _name: Face Movement
   _category: Adv Rotation
   references:
     version: 2

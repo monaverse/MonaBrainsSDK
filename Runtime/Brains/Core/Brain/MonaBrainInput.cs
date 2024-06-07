@@ -52,7 +52,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private PlayerInput _playerInput;
         private MouseState _mouseState = new MouseState();
-        private List<IInputInstructionTile> _activeListeners = new List<IInputInstructionTile>();
+        private List<IInstructionTile> _activeListeners = new List<IInstructionTile>();
         private List<KeyState> _activeKeyListeners = new List<KeyState>();
         private IMonaBrainPlayer _player;
 
@@ -85,7 +85,7 @@ namespace Mona.SDK.Brains.Core.Brain
             _player = player;
         }
 
-        public void StartListening(IInputInstructionTile tile)
+        public void StartListening(IInstructionTile tile)
         {
             if (!_activeListeners.Contains(tile))
             {
@@ -95,7 +95,7 @@ namespace Mona.SDK.Brains.Core.Brain
             UpdateActive();
         }
 
-        public void StopListening(IInputInstructionTile tile)
+        public void StopListening(IInstructionTile tile)
         {
             if (_activeListeners.Contains(tile))
             {

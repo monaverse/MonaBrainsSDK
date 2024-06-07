@@ -8,11 +8,12 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Brains.Core.Brain.Interfaces;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
     [Serializable]
-    public class RotateWithInputInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction
+    public class RotateWithInputInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreloadAndPageAndInstruction, ITickAfterInstructionTile
     {
         public const string ID = "RotateWithInput";
         public const string NAME = "Rotate With Input";
@@ -33,7 +34,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private string[] _directionVectorName;
         [BrainPropertyShow(nameof(Device), (int)OrbitInputDeviceType.Vector2)]
         [BrainProperty(true)] public Vector2 DirectionVector { get => _directionVector; set => _directionVector = value; }
-        [BrainPropertyValueName("MyVector2", typeof(IMonaVariablesVector2Value))] public string[] DirectionVectorName { get => _directionVectorName; set => _directionVectorName = value; }
+        [BrainPropertyValueName("DirectionVector", typeof(IMonaVariablesVector2Value))] public string[] DirectionVectorName { get => _directionVectorName; set => _directionVectorName = value; }
 
         [SerializeField] private float _speed = 90f;
         [SerializeField] private string _speedName;
@@ -82,7 +83,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private float _lastGamepadMoveTime = 0;
         private float _deltaTime;
         private IMonaBrain _brain;
-
+        private IMonaBrainInput _brainInput;
         private List<IMonaBody> _targetBodies = new List<IMonaBody>();
 
         public MovementSnapType SnapType => _angleSnap > 0 ? MovementSnapType.AngleSnap : MovementSnapType.NoSnap;
@@ -149,6 +150,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             _brain = brainInstance;
             _instruction = instruction;
+            _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();
+
+            if (_device != OrbitInputDeviceType.Vector2)
+                _brainInput.StartListening(this);
+        }
+
+        public override void Unload(bool destroyed = false)
+        {
+            if (_device != OrbitInputDeviceType.Vector2)
+                _brainInput.StopListening(this);
         }
 
         float GetAndUpdateDeltaTime()
@@ -164,6 +175,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            if (HasVector2Values(_directionVectorName))
+                _directionVector = GetVector2Value(_brain, _directionVectorName);
 
             if (!string.IsNullOrEmpty(_speedName))
                 _speed = _brain.Variables.GetFloat(_speedName);
@@ -341,12 +355,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     break;
                 case OrbitInputDeviceType.RightAnalogStick:
                 case OrbitInputDeviceType.GenericLook:
-                    inputVector = SetInputVector(_instruction.InstructionInput.LookValue);
+                    inputVector = SetInputVector(_brainInput.ProcessInput(false, SDK.Core.Input.Enums.MonaInputType.Look, SDK.Core.Input.Enums.MonaInputState.None).LookValue);
                     break;
                 case OrbitInputDeviceType.DigitalPad:
                 case OrbitInputDeviceType.LeftAnalogStick:
                 case OrbitInputDeviceType.GenericMovement:
-                    inputVector = GetMoveVector(); //SetInputVector(_instruction.InstructionInput.MoveValue);
+                    inputVector = SetInputVector(_brainInput.ProcessInput(false, SDK.Core.Input.Enums.MonaInputType.Move, SDK.Core.Input.Enums.MonaInputState.None).MoveValue);//GetMoveVector(); //SetInputVector(_instruction.InstructionInput.MoveValue);
                     break;
                 case OrbitInputDeviceType.Vector2:
                     inputVector = _directionVector;
@@ -392,16 +406,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             return SetInputVector(x, y);
         }
 
-        private Vector2 GetMoveVector()
-        {
-            float x = UnityEngine.Input.GetAxis("Horizontal");
-            float y = UnityEngine.Input.GetAxis("Vertical");
-            return SetInputVector(x, y);
-        }
-
         private Vector2 SetInputVector(Vector2 inputVector)
         {
-            return SetInputVector(inputVector);
+            return SetInputVector(inputVector.x, inputVector.y);
         }
 
         private Vector2 SetInputVector(float x, float y)
