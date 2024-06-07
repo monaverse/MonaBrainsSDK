@@ -30,12 +30,20 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
+        [SerializeField] private string _targetArray;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MyBodyArray)]
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string TargetArray { get => _targetArray; set => _targetArray = value; }
+
         [SerializeField] private MonaBrainHovererTargetType _hoverer = MonaBrainHovererTargetType.MousePointer;
         [BrainPropertyEnum(true)] public MonaBrainHovererTargetType Hoverer { get => _hoverer; set => _hoverer = value; }
 
         [SerializeField] private string _hovererTag = "Default";
         [BrainPropertyShow(nameof(Hoverer), (int)MonaBrainHovererTargetType.Tag)]
         [BrainPropertyMonaTag(true)] public string HovererTag { get => _hovererTag; set => _hovererTag = value; }
+
+        [SerializeField] private string _hovererArray;
+        [BrainPropertyShow(nameof(Hoverer), (int)MonaBrainHovererTargetType.MyBodyArray)]
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string HovererArray { get => _hovererArray; set => _hovererArray = value; }
 
         [SerializeField] private Vector3 _worldPosition;
         [SerializeField] private string[] _worldPositionName;
@@ -52,7 +60,44 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainProperty(false)] public float Distance { get => _distance; set => _distance = value; }
         [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
 
+        [SerializeField] private bool _includeAttached = true;
+        [SerializeField] private string _includeAttachedName;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MessageSender)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.OnConditionTarget)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.OnSelectTarget)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MySpawner)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.LastSpawnedByMe)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.AllSpawnedByMe)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MyPoolPreviouslySpawned)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MyPoolNextSpawned)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MyBodyArray)]
+        [BrainProperty(false)] public bool IncludeAttached { get => _includeAttached; set => _includeAttached = value; }
+        [BrainPropertyValueName("IncludeAttached", typeof(IMonaVariablesBoolValue))] public string IncludeAttachedName { get => _includeAttachedName; set => _includeAttachedName = value; }
+
         private const float _minBounds = 0.0001f;
+
+        private bool HoverAllAttached
+        {
+            get
+            {
+                switch (_target)
+                {
+                    case MonaBrainBroadcastType.Self:
+                        return false;
+                    case MonaBrainBroadcastType.Parent:
+                        return false;
+                    case MonaBrainBroadcastType.Parents:
+                        return false;
+                    case MonaBrainBroadcastType.Children:
+                        return false;
+                    case MonaBrainBroadcastType.ThisBodyOnly:
+                        return false;
+                    default:
+                        return _includeAttached;
+                }
+            }
+        }
 
         protected override MonaInputState GetInputState() => MonaInputState.Pressed;
 
@@ -97,23 +142,30 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 case MonaBrainBroadcastType.MessageSender:
                     var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
                     if (brain != null)
-                        return IsHoveredOver(brain.Body);
+                        return TargetIsHoveredOver(brain.Body);
                     break;
                 case MonaBrainBroadcastType.OnConditionTarget:
-                    return IsHoveredOver(_brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET));
+                    return TargetIsHoveredOver(_brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET));
                 case MonaBrainBroadcastType.OnSelectTarget:
-                    return IsHoveredOver(_brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET));
+                    return TargetIsHoveredOver(_brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET));
                 case MonaBrainBroadcastType.MySpawner:
-                    return IsHoveredOver(_brain.Body.Spawner);
+                    return TargetIsHoveredOver(_brain.Body.Spawner);
                 case MonaBrainBroadcastType.LastSpawnedByMe:
-                    return IsHoveredOver(_brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED));
+                    return TargetIsHoveredOver(_brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED));
                 case MonaBrainBroadcastType.MyPoolPreviouslySpawned:
-                    return IsHoveredOver(_brain.Body.PoolBodyPrevious);
+                    return TargetIsHoveredOver(_brain.Body.PoolBodyPrevious);
                 case MonaBrainBroadcastType.MyPoolNextSpawned:
-                    return IsHoveredOver(_brain.Body.PoolBodyNext);
+                    return TargetIsHoveredOver(_brain.Body.PoolBodyNext);
+                case MonaBrainBroadcastType.MyBodyArray:
+                    return BodyArrayIsHoveredOver();
             }
 
             return false;
+        }
+
+        private bool TargetIsHoveredOver(IMonaBody body)
+        {
+            return HoverAllAttached ? WholeTargetEntityIsHoveredOver(body) : IsHoveredOver(body);
         }
 
         private bool TargetTagIsHoveredOver()
@@ -123,12 +175,17 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (tagBodies.Count < 1)
                 return false;
 
+            bool hoverOverAll = HoverAllAttached;
+
             for (int i = 0; i < tagBodies.Count; i++)
             {
                 if (tagBodies[i] == null)
                     continue;
 
-                if (IsHoveredOver(tagBodies[i]))
+                if (!hoverOverAll && IsHoveredOver(tagBodies[i]))
+                    return true;
+
+                if (hoverOverAll && WholeTargetEntityIsHoveredOver(tagBodies[i]))
                     return true;
             }
 
@@ -170,6 +227,30 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     continue;
 
                 if (IsHoveredOver(children[i]) || TargetChildrenAreHoveredOver(children[i]))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool BodyArrayIsHoveredOver()
+        {
+            var bodyArray = _brain.Variables.GetBodyArray(_targetArray);
+
+            if (bodyArray.Count < 1)
+                return false;
+
+            bool hoverOverAll = HoverAllAttached;
+
+            for (int i = 0; i < bodyArray.Count; i++)
+            {
+                if (bodyArray[i] == null)
+                    continue;
+
+                if (!hoverOverAll && IsHoveredOver(bodyArray[i]))
+                    return true;
+
+                if (hoverOverAll && WholeTargetEntityIsHoveredOver(bodyArray[i]))
                     return true;
             }
 
@@ -238,6 +319,24 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     continue;
 
                 return BodyIsOver(targetBody, tagBodies[i]);
+            }
+
+            return false;
+        }
+
+        private bool TagArrayIsOver(IMonaBody targetBody)
+        {
+            var bodyArray = _brain.Variables.GetBodyArray(_targetArray);
+
+            if (bodyArray.Count < 1)
+                return false;
+
+            for (int i = 0; i < bodyArray.Count; i++)
+            {
+                if (bodyArray[i] == null)
+                    continue;
+
+                return BodyIsOver(targetBody, bodyArray[i]);
             }
 
             return false;
