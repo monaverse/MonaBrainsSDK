@@ -23,9 +23,9 @@ MonoBehaviour:
     - rid: 6017384255221138385
       type: {class: StoreValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.IO, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: StoreValue
+        _name: Store Value
+        _category: File Storage
         _muted: 0
         _keyName: 
         _keyNameString: 
@@ -34,5 +34,11 @@ MonoBehaviour:
         _brainNameType: 0
         _brainName: 
         _brainNameString: 
-        _saveNow: 0
+        _saveNow: 1
         _saveNowName: 
+        _uniqueKey: 
+        _uniqueKeyName: 
+        _saveSlot: 0
+        _saveSlotName: 
+        _addUniqueKey: 0
+        _saveSlotUsage: 0
