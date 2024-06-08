@@ -43,6 +43,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private MovementMode _moveAlong = MovementMode.XZ;
         [BrainPropertyEnum(true)] public MovementMode MoveAlong { get => _moveAlong; set => _moveAlong = value; }
 
+        [SerializeField] private MovementPlaneType _axisType = MovementPlaneType.ViewBasedPlaneLock;
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.GenericMovement)]
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.GenericLook)]
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.DigitalPad)]
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.LeftAnalogStick)]
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.RightAnalogStick)]
+        [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.Vector2)]
+        [BrainPropertyEnum(false)] public MovementPlaneType AxisType { get => _axisType; set => _axisType = value; }
+
         [SerializeField] private float _range = 30f;
         [SerializeField] private string _rangeName;
         [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.Mouse)]
@@ -65,6 +74,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private float _speed = 10f;
         [SerializeField] private string _speedName;
         [BrainPropertyShow(nameof(DisplaySpeed), (int)DisplayField.Display)]
+        [BrainPropertyShowLabel(nameof(DisplaySpeed), (int)DisplayField.Display, "Meters/Sec")]
         [BrainProperty(false)] public float Speed { get => _speed; set => _speed = value; }
         [BrainPropertyValueName("Speed", typeof(IMonaVariablesFloatValue))] public string SpeedName { get => _speedName; set => _speedName = value; }
 
@@ -146,6 +156,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             Vector2 = 80
         }
 
+        public enum MovementPlaneType
+        {
+            Local = 0,
+            World = 10,
+            ViewBasedPlaneLock = 20,
+            TrueCameraRelative = 30
+        }
+
         public virtual void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
@@ -211,7 +229,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return Complete(InstructionTileResult.Success);
 
             Vector3 moveVector = UsePointer ? Vector3.zero : GetGamepadMovement();
-                
 
             if (UsePointer)
             {
@@ -278,14 +295,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 return;
 
             Vector3 pointerWorldPosition = GetPointerWorldPosition(body, _pointerPosition);
-            Vector3 offset = GetPointerBodyOffset(body.GetPosition(), pointerWorldPosition);
-            ApplyPointerInput(body, offset, pointerWorldPosition);
-        }
-
-        private Vector3 GetPointerBodyOffset(Vector3 bodyPosition, Vector3 pointerWorldPosition)
-        {
-            Vector3 offset = bodyPosition - pointerWorldPosition;
-            return offset;
+            ApplyPointerInput(body, pointerWorldPosition);
         }
 
         private Vector3 GetPointerWorldPosition(IMonaBody body, Vector3 screenPosition)
@@ -330,7 +340,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             return Vector3.zero;
         }
 
-        private void ApplyPointerInput(IMonaBody body, Vector3 offset, Vector3 pointerWorldPosition)
+        private void ApplyPointerInput(IMonaBody body, Vector3 pointerWorldPosition)
         {
             
             Vector3 pointerPosition = SnapToGrid(pointerWorldPosition);
@@ -440,7 +450,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 if (renderers[i].GetComponent<LineRenderer>() == null)
                     bounds.Encapsulate(renderers[i].bounds);
             }
-
             return bounds;
         }
 
@@ -473,11 +482,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (SnapType == MovementSnapType.SnapToGrid && Time.time < _lastGamepadMoveTime + _snapInterval)
                 return Vector3.zero;
 
-            Vector3 cameraRight = _mainCamera.transform.right;
-            Vector3 cameraUp = _mainCamera.transform.up;
-            Vector3 cameraForward = _mainCamera.transform.forward;
-            Vector3 move = Vector3.zero;
             Vector2 inputVector;
+            Vector3 move = Vector3.zero;
 
             switch (_device)
             {
@@ -492,6 +498,53 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     inputVector = _brainInput.ProcessInput(false, SDK.Core.Input.Enums.MonaInputType.Move, SDK.Core.Input.Enums.MonaInputState.None).MoveValue;
                     break;
             }
+
+            switch (_axisType)
+            {
+                case MovementPlaneType.Local:
+                case MovementPlaneType.World:
+                    move = GetMovementVector(inputVector);
+                    break;
+                case MovementPlaneType.ViewBasedPlaneLock:
+                    move = GetPlaneLockedCameraRelativeMovement(inputVector);
+                    break;
+                case MovementPlaneType.TrueCameraRelative:
+                    move = GetTrueCameraRelativeMovement(inputVector);
+                    break;
+            }
+
+            _lastGamepadMoveTime = Time.time;
+            move *= SnapType == MovementSnapType.SnapToGrid ? _gridSnapUnits : _speed * _deltaTime;
+            return move;
+        }
+
+        private Vector3 GetMovementVector(Vector2 inputVector)
+        {
+            switch (_moveAlong)
+            {
+                case MovementMode.XY:
+                    return new Vector3(inputVector.x, inputVector.y, 0f);
+                case MovementMode.XZ:
+                    return new Vector3(inputVector.x, 0f, inputVector.y);
+                case MovementMode.YZ:
+                    return new Vector3(0f, inputVector.y, inputVector.x);
+                case MovementMode.X:
+                    return new Vector3(inputVector.x, 0f, 0f);
+                case MovementMode.Y:
+                    return new Vector3(0f, inputVector.y, 0f);
+                case MovementMode.Z:
+                    return new Vector3(0f, 0f, inputVector.x);
+            }
+
+            return Vector3.zero;
+        }
+
+        private Vector3 GetPlaneLockedCameraRelativeMovement(Vector2 inputVector)
+        {
+            Vector3 cameraRight = _mainCamera.transform.right;
+            Vector3 cameraUp = _mainCamera.transform.up;
+            Vector3 cameraForward = _mainCamera.transform.forward;
+            Vector3 move = Vector3.zero;
 
             switch (_moveAlong)
             {
@@ -551,20 +604,99 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     break;
             }
 
-            _lastGamepadMoveTime = Time.time;
-            move *= SnapType == MovementSnapType.SnapToGrid ? _gridSnapUnits : _speed * _deltaTime;
+            return move;
+        }
+
+        private Vector3 GetTrueCameraRelativeMovement(Vector2 inputVector)
+        {
+            Vector3 cameraRight = _mainCamera.transform.right;
+            Vector3 cameraUp = _mainCamera.transform.up;
+            Vector3 cameraForward = _mainCamera.transform.forward;
+            Vector3 move = Vector3.zero;
+
+            switch (_moveAlong)
+            {
+                case MovementMode.XY:
+                    cameraRight.y = 0;
+                    cameraRight.Normalize();
+                    cameraUp.Normalize();
+                    move = cameraUp * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+                case MovementMode.XZ:
+                    cameraRight.y = 0;
+                    cameraForward.Normalize();
+                    cameraRight.Normalize();
+                    move = cameraForward * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+                case MovementMode.YZ:
+                    cameraForward.Normalize();
+                    cameraUp.Normalize();
+                    move = cameraUp * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraForward * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+                case MovementMode.X:
+                    cameraUp = Vector3.zero;
+                    cameraRight.y = 0;
+                    cameraRight.Normalize();
+                    move = cameraUp * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+                case MovementMode.Y:
+                    cameraRight = Vector3.zero;
+                    cameraUp.Normalize();
+                    move = cameraUp * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+                case MovementMode.Z:
+                    cameraRight = Vector3.zero;
+                    cameraForward.Normalize();
+                    move = cameraForward * (Mathf.Approximately(inputVector.y, 0) ?
+                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                            0 : Mathf.Sign(inputVector.x));
+                    break;
+            }
+
             return move;
         }
 
         private void ApplyGamepadInput(IMonaBody body, Vector3 move)
         {
+            if (_axisType == MovementPlaneType.Local)
+                ApplyLocalMovementVector(body, move);
+            else
+                ApplyGlobalMovementVector(body, move);
+        }
+
+        private void ApplyGlobalMovementVector(IMonaBody body, Vector3 move)
+        {
             Vector3 bodyPosition = body.GetPosition();
             Vector3 newPosition = bodyPosition + move;
 
             newPosition = SnapToGrid(newPosition);
-            newPosition = ClampPositionToMaxDistance(newPosition);
 
-            body.TeleportPosition(newPosition);
+            Vector3 direction = newPosition - bodyPosition;
+            body.AddPosition(direction);
+        }
+
+        private void ApplyLocalMovementVector(IMonaBody body, Vector3 move)
+        {
+            Vector3 localPosition = body.Transform.localPosition;
+            Vector3 newPosition = localPosition + move;
+
+            Vector3 direction = newPosition - localPosition;
+            direction = body.Transform.TransformDirection(direction);
+
+            if (SnapType == MovementSnapType.SnapToGrid)
+                direction = direction.normalized * _gridSnapUnits;
+
+            body.AddPosition(direction);
         }
 
         private Vector3 ClampPositionToMaxDistance(Vector3 position)

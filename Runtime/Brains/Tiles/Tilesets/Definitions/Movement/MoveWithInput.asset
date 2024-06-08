@@ -30,13 +30,14 @@ MonoBehaviour:
         _target: 10
         _targetTag: Player
         _bodyArray: 
-        _device: 30
+        _device: 10
         _directionVector: {x: 0, y: 0}
         _directionVectorName: []
         _moveAlong: 1
+        _axisType: 20
         _range: 30
         _rangeName: 
-        _gridSnapUnits: 1
+        _gridSnapUnits: 0
         _gridSnapUnitsName: 
         _snapInterval: 0.1
         _snapIntervalName: 
