@@ -83,7 +83,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (MonaGlobalBrainRunner.Instance.Blockchain != null && MonaGlobalBrainRunner.Instance.Blockchain.WalletConnected)
             {
-                Debug.Log($"{nameof(OnWalletConnectedInstructionTile)} connected");
+                //Debug.Log($"{nameof(OnWalletConnectedInstructionTile)} connected");
                 return Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);

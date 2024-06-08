@@ -23,6 +23,7 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Core.Assets;
 using Mona.SDK.Core.Utils;
 using Unity.Profiling;
+using System.Threading.Tasks;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Character
 {
@@ -91,6 +92,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         [BrainProperty(false)]
         public int PoolSize { get => _poolSize; set => _poolSize = value; }
 
+        [SerializeField] private bool _scaleToFit = true;
+        [BrainProperty(false)] public bool ScaleToFit { get => _scaleToFit; set => _scaleToFit = value; }
+
+        [SerializeField] private bool _bottomPivot = true;
+        [BrainProperty(false)] public bool BottomPivot { get => _bottomPivot; set => _bottomPivot = value; }
+
+        [SerializeField] private bool _importLights;
+        [BrainProperty(false)] public bool ImportLights { get => _importLights; set => _importLights = value; }
+
         [SerializeField] private bool _includeAttached = true;
         [SerializeField] private string _includeAttachedName;
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
@@ -133,6 +143,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         private Action<MonaBodyAnimationControllerChangedEvent> OnAnimationControllerChanged;
 
         public ChangeAvatarInstructionTile() { }
+
+        public override void SetThenCallback(IInstructionTile tile, Func<InstructionTileCallback, InstructionTileResult> thenCallback)
+        {
+            if (_thenCallback.ActionCallback == null)
+            {
+                _instructionCallback.Tile = tile;
+                _instructionCallback.ActionCallback = thenCallback;
+                _thenCallback.Tile = this;
+                _thenCallback.ActionCallback = ExecuteActionCallback;
+            }
+        }
+
+        private InstructionTileCallback _instructionCallback = new InstructionTileCallback();
+        private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
+        {
+            if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
+            return InstructionTileResult.Success;
+        }
 
         public void Preload(IMonaBrain brainInstance)
         {
@@ -281,8 +309,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             return _brain.Body;
         }
 
+        private bool _shouldWait;
         public override InstructionTileResult Do()
         {
+            _shouldWait = true;
             //_profilerDo.Begin();
             switch (_target)
             {
@@ -316,7 +346,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             }
 
             //_profilerDo.End();
-            return Complete(InstructionTileResult.Success);
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} Running {_shouldWait}");
+            return Complete(_shouldWait ? InstructionTileResult.Running : InstructionTileResult.Success);
         }
 
         private void ModifyOnTag()
@@ -401,7 +432,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             return null;
         }
 
-        private InstructionTileResult ChangeAvatar(IMonaBody body)
+        private async void ChangeAvatar(IMonaBody body)
         {
             if (body != null)
             {
@@ -429,22 +460,70 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 if (_avatarAsset.Value != null)
                 {
                     var avatar = GameObject.Instantiate(_avatarAsset.Value);
+                    var avatarBody = avatar.GetComponent<IMonaBody>();
+
+                    var root = body.Transform.Find("Root");
+                    root.localScale = Vector3.one;
+                    avatar.transform.SetParent(root);
+                    avatar.transform.localPosition = Vector3.zero;
+
+                    var frame = Time.frameCount;
+                    if (avatarBody != null)
+                    {
+                        while (!avatarBody.Instantiated)
+                        {
+                            Debug.Log($"waiting to instantiate {avatarBody.Transform.name}");
+                            await Task.Yield();
+                        }
+                    }
+                    
+                    if(Time.frameCount == frame)
+                        _shouldWait = false;
+
+                    if (!_importLights)
+                    {
+                        var lights = avatar.transform.GetComponentsInChildren<Light>(true);
+                        for (var i = 0; i < lights.Length; i++)
+                            lights[i].gameObject.SetActive(false);
+                    }
+
+
                     var animator = avatar.GetComponent<Animator>();
                     if (animator == null)
-                    {
                         animator = avatar.AddComponent<Animator>();
-                        //animator.applyRootMotion = true;
+
+                    ParsedHumanoid parsed = new ParsedHumanoid();
+                    if (animator.avatar == null)
+                        parsed = ParseHumanoid(avatar);
+
+                    if (parsed.Avatar == null)
+                    {
+                        var pivot = new GameObject("Pivot");
+                        avatar.transform.SetParent(pivot.transform);
+                        avatar.transform.localScale = Vector3.one;
+                        avatar.transform.localPosition = Vector3.zero;
+                        avatar = pivot;
+
+                        var bounds = GetBounds(avatar);
+                        var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
+                        avatar.transform.localPosition = offsetY;
                     }
-                    LoadAvatar(animator, body, avatar.gameObject);
-                    return Complete(InstructionTileResult.Success);
+
+                    if (parsed.Avatar != null)
+                        animator.avatar = parsed.Avatar;
+
+                    LoadAvatar(animator, body, avatar);
+
+                    if(_shouldWait)
+                        Complete(InstructionTileResult.Success, true);
+
                 }
                 else if (!string.IsNullOrEmpty(_avatarAsset.Url))
                 {
                     LoadAvatarAtUrl(_avatarAsset.Url, body);
-                    return Complete(InstructionTileResult.Running);
                 }
             }
-            return InstructionTileResult.Failure;
+
         }
 
         private GameObject _avatarLoader;
@@ -454,25 +533,71 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             if (url == body.SkinId)
             {
                 Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatarAtUrl)} same url don't change {url}");
-                Complete(InstructionTileResult.Success, true);
+
+                var avatarBody = body.Skin.GetComponent<IMonaBody>();
+                _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SKIN, avatarBody);
+
+                _shouldWait = false;
                 return;
             }
 
-            _urlLoader.Load(url, _importAnimation, (avatar) =>
+            var frame = Time.frameCount;
+            _urlLoader.Load(url, _importAnimation, async (avatar) =>
             {
                 if (avatar != null)
                 {
+                    var bodies = avatar.GetComponentsInChildren<IMonaBody>();
+                    for(var i = 0;i < bodies.Length; i++)
+                    {
+                        if (bodies[i].GetActive() && !bodies[i].Instantiated)
+                        {
+                            Debug.Log($"waiting to instantiate {bodies[i].Transform.name}");
+                            await Task.Yield();
+                        }
+                    }
+
+                    Debug.Log($"READY TO GO {avatar.gameObject.name}");
                     avatar.SetActive(true);
+
+                    if (!_importLights)
+                    {
+                        var lights = avatar.transform.GetComponentsInChildren<Light>(true);
+                        for (var i = 0; i < lights.Length; i++)
+                            lights[i].gameObject.SetActive(false);
+                    }
+
+                    var rb = avatar.GetComponentInChildren<IMonaBody>(true);
+                    if (rb != null)
+                        rb.RemoveRigidbody();
+
+
                     var animator = avatar.GetComponent<Animator>();
                     if (animator == null)
-                    {
                         animator = avatar.AddComponent<Animator>();
-                        //animator.applyRootMotion = true;
+
+                    ParsedHumanoid parsed = new ParsedHumanoid();
+                    if (animator.avatar == null)
+                        parsed = ParseHumanoid(avatar);
+
+                    if (parsed.Avatar == null)
+                    {
+                        var pivot = new GameObject("Pivot");
+                        avatar.transform.SetParent(pivot.transform);
+                        avatar.transform.localScale = Vector3.one;
+                        avatar.transform.localPosition = Vector3.zero;
+                        avatar = pivot;
+
+                        var bounds = GetBounds(avatar);
+                        var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
+                        avatar.transform.localPosition = offsetY;
                     }
-                    var skeleton = ParseHumanoid(avatar, animator);
+
+                    if (parsed.Avatar != null)
+                        animator.avatar = parsed.Avatar;
+
                     try
                     {
-                        LoadAvatar(animator, body, avatar, skeleton);
+                        LoadAvatar(animator, body, avatar, parsed.Skeleton);
                         body.SkinId = url;
                         body.Skin = avatar;
                     }
@@ -481,7 +606,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                         Debug.LogError($"{nameof(LoadAvatarAtUrl)} {e.Message} {e.StackTrace}");
                     }
                 }
-                Complete(InstructionTileResult.Success, true);
+
+                if (Time.frameCount == frame)
+                    _shouldWait = false;
+                else
+                    Complete(InstructionTileResult.Success, true);
+
+                Debug.Log($"{nameof(ChangeAvatarInstructionTile)} Success");
             }, _poolSize);
         }
 
@@ -545,75 +676,79 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             { HumanBodyBones.LastBone, new string[] { "LastBone" } }
         };
 
-        private Dictionary<HumanBodyBones, Transform> ParseHumanoid(GameObject avatar, Animator animator)
+        private struct ParsedHumanoid
         {
-            if(animator.avatar == null)
-            {
-                var transforms = new List<Transform>(avatar.GetComponentsInChildren<Transform>());
-                var bones = Enum.GetValues(typeof(HumanBodyBones));
-                var skeleton = new Dictionary<HumanBodyBones, Transform>();
+            public Dictionary<HumanBodyBones, Transform> Skeleton;
+            public Avatar Avatar;
+        }
 
-                try
+        private ParsedHumanoid ParseHumanoid(GameObject avatar)
+        {
+
+            var transforms = new List<Transform>(avatar.GetComponentsInChildren<Transform>());
+            var bones = Enum.GetValues(typeof(HumanBodyBones));
+            var skeleton = new Dictionary<HumanBodyBones, Transform>();
+
+            try
+            {
+                foreach (int bone in bones)
                 {
-                    foreach (int bone in bones)
+                    var syns = _boneSynonyms[(HumanBodyBones)bone];
+                    var found = false;
+                    for (var i = 0; i < syns.Length; i++)
                     {
-                        var syns = _boneSynonyms[(HumanBodyBones)bone];
-                        var found = false;
-                        for (var i = 0; i < syns.Length; i++)
+                        var syn = syns[i];
+                        var t = transforms.Find(x => x.name.Equals(syn, StringComparison.OrdinalIgnoreCase));
+                        if (t != null)
                         {
-                            var syn = syns[i];
-                            var t = transforms.Find(x => x.name.Equals(syn, StringComparison.OrdinalIgnoreCase));
-                            if (t != null)
-                            {
-                                skeleton[(HumanBodyBones)bone] = t;
-                                found = true;
-                                break;
-                            }
+                            skeleton[(HumanBodyBones)bone] = t;
+                            found = true;
+                            break;
                         }
-                        if(!found)
-                        { 
-                            var t = transforms.Find(x => x.name.ContainsInsensitive(syns[0]));
-                            if (t != null)
-                            {
-                                skeleton[(HumanBodyBones)bone] = t;
-                            }
+                    }
+                    if (!found)
+                    {
+                        var t = transforms.Find(x => x.name.ContainsInsensitive(syns[0]));
+                        if (t != null)
+                        {
+                            skeleton[(HumanBodyBones)bone] = t;
                         }
                     }
                 }
-                catch(Exception e)
-                {
-                    Debug.LogError($"{nameof(ParseHumanoid)} {e.Message}");
-                    return null;
-                }
-
-                if (skeleton.ContainsKey(HumanBodyBones.Hips) &&
-                    (skeleton.ContainsKey(HumanBodyBones.LeftUpperLeg) ||
-                    skeleton.ContainsKey(HumanBodyBones.RightUpperLeg) ||
-                    skeleton.ContainsKey(HumanBodyBones.RightUpperArm) ||
-                    skeleton.ContainsKey(HumanBodyBones.LeftUpperArm)) &&
-                    skeleton.ContainsKey(HumanBodyBones.Head) &&
-                    skeleton.ContainsKey(HumanBodyBones.Spine))
-
-                {
-
-                    var description = AvatarDescription.Create(skeleton).ToHumanDescription(avatar.transform);
-                    description.upperLegTwist = 1;
-                    var avatarInst = AvatarBuilder.BuildHumanAvatar(avatar, description);
-
-                    animator.avatar = avatarInst;
-                }
-
-                return skeleton;
             }
-            return null;
+            catch (Exception e)
+            {
+                Debug.LogError($"{nameof(ParseHumanoid)} {e.Message}");
+                return default;
+            }
+
+            Avatar avatarInst = null;
+            if (skeleton.ContainsKey(HumanBodyBones.Hips) &&
+                (skeleton.ContainsKey(HumanBodyBones.LeftUpperLeg) ||
+                skeleton.ContainsKey(HumanBodyBones.RightUpperLeg) ||
+                skeleton.ContainsKey(HumanBodyBones.RightUpperArm) ||
+                skeleton.ContainsKey(HumanBodyBones.LeftUpperArm)) &&
+                skeleton.ContainsKey(HumanBodyBones.Head) &&
+                skeleton.ContainsKey(HumanBodyBones.Spine))
+
+            {
+
+                var description = AvatarDescription.Create(skeleton).ToHumanDescription(avatar.transform);
+                description.upperLegTwist = 1;
+                avatarInst = AvatarBuilder.BuildHumanAvatar(avatar, description);
+            }
+
+            return new ParsedHumanoid() { Avatar = avatarInst, Skeleton = skeleton };
+
         }
 
         private void LoadAvatar(Animator animator, IMonaBody body, GameObject avatarGameObject, Dictionary<HumanBodyBones, Transform> skeleton = null)
         {
             _avatarInstance = animator;
-            var root = body.Transform.Find("Root");
 
-            if(!string.IsNullOrEmpty(body.SkinId))
+            var root = body.Transform.Find("Root");
+            
+            if (!string.IsNullOrEmpty(body.SkinId))
             {
                 Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} skin id was loaded, return it to pool {body.SkinId}");
                 _urlLoader.ReturnToPool(body.SkinId, body.Skin);
@@ -629,12 +764,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 }
             }
 
+            var avatarBody = avatarGameObject.GetComponentInChildren<IMonaBody>();
+            _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SKIN, avatarBody);
+
+            root.localScale = Vector3.one;
+            root.localPosition = Vector3.zero;
+            root.localRotation = Quaternion.identity;
+
+            avatarGameObject.transform.SetParent(root);
+
             avatarGameObject.transform.position = Vector3.zero;
             avatarGameObject.transform.rotation = Quaternion.identity;
             avatarGameObject.transform.localScale = Vector3.one;
-
-            root.localScale = Vector3.one;
-            avatarGameObject.transform.SetParent(root);
 
             var parent = body;
             while (parent != null)
@@ -739,14 +880,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             Debug.Log($"{nameof(ChangeAvatarInstructionTile)} scale: {scale}");
             Debug.Log($"{nameof(ChangeAvatarInstructionTile)} yscale factor: {extents.y / max}");
             */
+
             avatarGameObject.transform.localScale = Vector3.one;
             avatarGameObject.transform.localPosition = Vector3.zero;
             avatarGameObject.transform.localRotation = Quaternion.Euler(_eulerAngles);
 
+            var childBrains = avatarGameObject.transform.GetComponentsInChildren<IMonaBrainRunner>();
+            for (var i = 0; i < childBrains.Length; i++)
+                childBrains[i].CacheTransforms();
+
             Debug.Log($"{nameof(ChangeAvatarInstructionTile)} localPosition: {avatarGameObject.transform.localPosition}");
 
-            root.localScale = _scale * scale;
-            root.localPosition = (root.InverseTransformDirection(_offset) - offsetY) * scale;
+            if (_scaleToFit)
+                root.localScale = _scale * scale;
+            else
+                root.localScale = _scale;
+
+            //if(_bottomPivot)
+                root.localPosition = (root.InverseTransformDirection(_offset) - offsetY) * scale;
                                        
             Debug.Log($"{_avatarInstance} {_offset} scale {_scale} {avatarGameObject.transform.position} brain body {_brain.Body.Transform.position}");
 

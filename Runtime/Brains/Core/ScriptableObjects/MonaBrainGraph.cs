@@ -387,6 +387,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 _variables.GetVariable(MonaBrainConstants.RESULT_SENDER, typeof(MonaVariablesBrain));
                 _variables.GetVariable(MonaBrainConstants.RESULT_TARGET, typeof(MonaVariablesBody));
                 _variables.GetVariable(MonaBrainConstants.RESULT_LAST_SPAWNED, typeof(MonaVariablesBody));
+                _variables.GetVariable(MonaBrainConstants.RESULT_LAST_SKIN, typeof(MonaVariablesBody));
 
                 _variables.GetVariable(MonaBrainConstants.RESULT_MOVE_DIRECTION, typeof(MonaVariablesVector2));
                 _variables.GetVariable(MonaBrainConstants.RESULT_MOUSE_DIRECTION, typeof(MonaVariablesVector2));

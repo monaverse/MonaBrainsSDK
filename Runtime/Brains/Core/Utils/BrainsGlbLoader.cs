@@ -168,8 +168,9 @@ namespace Mona.SDK.Brains.Core.Utils
                             {
                                 for (var i = 1; i < poolSize - 1; i++)
                                 {
-                                    var glbInstance = Instantiate(glb);
-                                    glbInstance.OnDestroyed += HandleDestroyed;
+                                    InstantiatedGLTFObject instantiated = glb.GetComponent<InstantiatedGLTFObject>();
+                                    var glbInstance = instantiated.Duplicate();
+                                    glbInstance.GetComponent<BrainsGlb>().OnDestroyed += HandleDestroyed;
                                     ReturnToPool(url, glbInstance.gameObject);
                                 }
                             }
@@ -184,34 +185,37 @@ namespace Mona.SDK.Brains.Core.Utils
                         {
                             Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} error loading VRM: {e.Message}");
                             System.IO.MemoryStream stream = new System.IO.MemoryStream(avatarData);
-                            GLTF.Schema.GLTFRoot gLTFRoot;
-                            GLTF.GLTFParser.ParseJson(stream, out gLTFRoot);
-
-                            var options = new ImportOptions()
-                            {
-                                DataLoader = new StreamLoader(stream),
-                                AnimationMethod = AnimationMethod.None
-                            };
-
-                            if (importAnimation)
-                            {
-                                options.AnimationMethod = AnimationMethod.MecanimHumanoid;
-                                options.AnimationLoopPose = true;
-                            }
-
+                            
                             try
                             {
-                                UnityGLTF.GLTFSceneImporter sceneImporter = new UnityGLTF.GLTFSceneImporter(gLTFRoot, stream, options);
 
-                                Action<GameObject, ExceptionDispatchInfo> OnImportComplete = (obj, info) =>
+                                var gltfComponent = gameObject.GetOrAddComponent<GLTFStreamComponent>();
+                                gltfComponent.GLTFStream = stream;
+                                gltfComponent.Collider = GLTFSceneImporter.ColliderType.None;
+                                gltfComponent.ImportNormals = GLTFImporterNormals.Import;
+                                gltfComponent.ImportTangents = GLTFImporterNormals.Import;
+
+                                if (importAnimation)
                                 {
-                                    Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(sceneImporter.LoadScene)} {obj == null}");
+                                    gltfComponent.AnimationMethod = AnimationMethod.MecanimHumanoid;
+                                    gltfComponent.AnimationLoopPose = true;
+                                }
+
+                                gltfComponent.OnImportComplete = (obj, info) =>
+                                {
+                                    Debug.Log($"{nameof(BrainsGlbLoader)} {obj == null}");
 
                                     if (obj == null)
                                         throw (info.SourceException);
 
                                     if (obj.transform.childCount == 1 && obj.transform.GetChild(0).GetComponent<IMonaBody>() != null)
+                                    {
+                                        InstantiatedGLTFObject instantiated = obj.GetComponent<InstantiatedGLTFObject>();
                                         obj = obj.transform.GetChild(0).gameObject;
+                                        obj.transform.parent = instantiated.transform.parent;
+                                        obj.AddComponent<InstantiatedGLTFObject>().CachedData = instantiated.CachedData;
+                                        DestroyImmediate(instantiated.gameObject);
+                                    }
 
                                     Used[url].Add(obj);
 
@@ -225,9 +229,10 @@ namespace Mona.SDK.Brains.Core.Utils
                                     {
                                         for (var i = 0; i < poolSize - 1; i++)
                                         {
-                                            Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(sceneImporter.LoadScene)} create new instance and pool");
-                                            var glbInstance = Instantiate(glb);
-                                            glbInstance.OnDestroyed += HandleDestroyed;
+                                            Debug.Log($"{nameof(BrainsGlbLoader)} create new instance and pool");
+                                            InstantiatedGLTFObject instantiated = glb.GetComponent<InstantiatedGLTFObject>();
+                                            var glbInstance = instantiated.Duplicate();
+                                            glbInstance.GetComponent<BrainsGlb>().OnDestroyed += HandleDestroyed;
                                             ReturnToPool(url, glbInstance.gameObject);
                                         }
                                     }
@@ -240,7 +245,7 @@ namespace Mona.SDK.Brains.Core.Utils
                                     callback?.Invoke(obj);
                                 };
 
-                                sceneImporter.LoadScene(-1, true, OnImportComplete);
+                                gltfComponent.Load();
                             }
                             catch(Exception e2)
                             {
@@ -259,7 +264,11 @@ namespace Mona.SDK.Brains.Core.Utils
                     if (inst != null)
                     {
                         Debug.Log($"{nameof(BrainsGlbLoader)} {nameof(Load)} instantiate from pool source {url}");
-                        callback?.Invoke(Instantiate(inst));
+                        InstantiatedGLTFObject instantiated = inst.GetComponent<InstantiatedGLTFObject>();
+                        if(instantiated != null)
+                            callback?.Invoke(instantiated.Duplicate().gameObject);
+                        else
+                            callback?.Invoke(Instantiate(inst));
                     }
                     else
                     {

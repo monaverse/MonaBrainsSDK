@@ -149,14 +149,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private async void SyncFetchTokens()
         { 
-            Debug.Log($"{nameof(HandleWalletConnected)} wallet connected");
+            //Debug.Log($"{nameof(HandleWalletConnected)} wallet connected");
             await FetchTokens();
-            Debug.Log($"{nameof(FetchTokens)} tokens fetched");
+            //Debug.Log($"{nameof(FetchTokens)} tokens fetched");
         }
 
         private void HandleWalletDisconneccted(MonaWalletConnectedEvent evt)
         {
-            Debug.Log($"{nameof(OwnsTokensInstructionTile)} tokens found set to false");
+            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} tokens found set to false");
             _TokensFound = false;
             TriggerRefresh();
         }
@@ -183,48 +183,53 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _TokensFound = false;
 
             var block = MonaGlobalBrainRunner.Instance.Blockchain;
-                      
-            _tokens = await block.OwnsTokens();
+
+            var tokens = await block.OwnsTokens();
+            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} owns tokens: {tokens.Count}");
+
+
+            _tokens.Clear();
+            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} clear");
 
             switch (_predicateType)
             {
                 case MonaBrainTokenPredicateType.TokenType:
 
-                    Debug.Log($"{nameof(FetchTokens)} {_tokenType}");
+                    //Debug.Log($"{nameof(FetchTokens)} {_tokenType}");
                     if (_tokenType == MonaBrainTokenFilterType.OnlyAvatars)
-                        _tokens = _tokens.FindAll(x =>
+                        _tokens = tokens.FindAll(x =>
                         {
                             if (x.AssetType == TokenAssetType.Avatar)
                                 return true;
                             return false;
                         });
                     else if (_tokenType == MonaBrainTokenFilterType.OnlyObjects)
-                        _tokens = _tokens.FindAll(x =>
+                        _tokens = tokens.FindAll(x =>
                         {
                             if(x.AssetType == TokenAssetType.Artifact)
                                 return true;
                             return false;
                         });
                     else if (_tokenType == MonaBrainTokenFilterType.OnlyAvatarsAndObjects)
-                        _tokens = _tokens.FindAll(x =>
+                        _tokens = tokens.FindAll(x =>
                         {
                             if (x.AssetType == TokenAssetType.Artifact || x.AssetType == TokenAssetType.Avatar)
                                 return true;
                             return false;
                         });
                     else if (_tokenType == MonaBrainTokenFilterType.OnlySpaces)
-                        _tokens = _tokens.FindAll(x =>
+                        _tokens = tokens.FindAll(x =>
                         {
                             if (x.AssetType == TokenAssetType.Space)
                                 return true;
                             return false;
                         });
 
-                    Debug.Log($"{nameof(FetchTokens)} {_tokens.Count}");
+                    Debug.Log($"{nameof(FetchTokens)} {tokens.Count}");
                     break;
                 case MonaBrainTokenPredicateType.HasTrait:
 
-                    _tokens = _tokens.FindAll(x =>
+                    _tokens = tokens.FindAll(x =>
                     {
                         if (x.Traits.ContainsKey(_traitName.ToLower())) return true;
                         return false;
@@ -236,7 +241,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     if (!string.IsNullOrEmpty(_traitValueName))
                         _traitValue = _brain.Variables.GetString(_traitValueName);
 
-                    _tokens = _tokens.FindAll(x =>
+                    _tokens = tokens.FindAll(x =>
                     {
                         if (x.Traits.ContainsKey(_traitName.ToLower()))
                         {
@@ -250,7 +255,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaBrainTokenPredicateType.Name:
 
-                    _tokens = _tokens.FindAll(x =>
+                    _tokens = tokens.FindAll(x =>
                     {
                         if (x.Nft.Metadata.Name.ToLower() == _tokenName.ToLower())
                             return true;
@@ -259,7 +264,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaBrainTokenPredicateType.NameContains:
 
-                    _tokens = _tokens.FindAll(x =>
+                    _tokens = tokens.FindAll(x =>
                     {
                         if (x.Nft.Metadata.Name.ToLower().Contains(_tokenName.ToLower()))
                             return true;
@@ -268,7 +273,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaBrainTokenPredicateType.NameStartsWith:
 
-                    _tokens = _tokens.FindAll(x =>
+                    _tokens = tokens.FindAll(x =>
                     {
                         if (x.Nft.Metadata.Name.ToLower().StartsWith(_tokenName.ToLower()))
                             return true;
@@ -277,7 +282,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaBrainTokenPredicateType.DescriptionContains:
 
-                    _tokens = _tokens.FindAll(x =>
+                    _tokens = tokens.FindAll(x =>
                     {
                         if (x.Description.ToLower().StartsWith(_tokenDescription.ToLower()))
                             return true;
@@ -286,7 +291,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaBrainTokenPredicateType.Collection:
 
-                    _tokens = _tokens.FindAll(x =>
+                    _tokens = tokens.FindAll(x =>
                     {
                         if (x.CollectionId == _byCollection)
                             return true;
@@ -295,7 +300,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaBrainTokenPredicateType.Contract:
 
-                    _tokens = _tokens.FindAll(x =>
+                    _tokens = tokens.FindAll(x =>
                     {
                         if (x.Contract == _byContract)
                             return true;
@@ -304,7 +309,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaBrainTokenPredicateType.Token:
 
-                    _tokens = _tokens.FindAll(x =>
+                    _tokens = tokens.FindAll(x =>
                     {
                         if (x.Nft.TokenId.ToLower() == _byTokenId.ToLower())
                             return true;
@@ -313,7 +318,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaBrainTokenPredicateType.TokenRange:
 
-                    _tokens = _tokens.FindAll(x =>
+                    _tokens = tokens.FindAll(x =>
                     {
                         var tokenId = float.Parse(x.Nft.TokenId);
                         if (tokenId >= _byTokenMin && tokenId <= _byTokenMax)
@@ -324,7 +329,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
 
             //Debug.Log($"{nameof(OwnsTokensInstructionTile)} tokens found {_tokenType} {_TokensFound} {tokens.Count}", _brain.Body.Transform.gameObject);
-
+            TriggerRefresh();
             //Debug.Log($"{nameof(OwnsTokensInstructionTile)} {nameof(FetchTokens)} tokens: {_TokensFound}");
         }
 
@@ -429,10 +434,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (!string.IsNullOrEmpty(_ownsTokensName))
                 _ownsTokens = _brain.Variables.GetBool(_ownsTokensName);
 
+            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} do {_tokens.Count} in this filter, {_instruction.Tokens.Count} entering this filter");
             FilterAndForwardTokens(_tokens);
             _TokensFound = _instruction.Tokens.Count > 0;
 
-            Debug.Log($"{nameof(OwnsTokensInstructionTile)} DO: tokens found {_TokensFound} {_instruction.Tokens.Count}", _brain.Body.Transform.gameObject);
+            //Debug.Log($"{nameof(OwnsTokensInstructionTile)} DO: tokens found {_TokensFound} {_instruction.Tokens.Count}", _brain.Body.Transform.gameObject);
             if (_TokensFound == _ownsTokens)
             {
                 Debug.Log($"{nameof(OwnsTokensInstructionTile)} {_TokensFound} {_instruction.Tokens.Count}");

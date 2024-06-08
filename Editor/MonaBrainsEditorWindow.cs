@@ -419,12 +419,12 @@ namespace Mona.SDK.Brains.UIEditors
                             var value = evt.newValue.Replace("m:", "");
                             if (x.CorePage.Instructions.Find(x =>
                             {
-                                if (x.InstructionTiles.Find(t => t.Name.ToLower().Contains(value.ToLower())) != null) return true;
+                                if (x.InstructionTiles != null && x.InstructionTiles.Find(t => t != null && t.Name != null && t.Name.ToLower().Contains(value.ToLower())) != null) return true;
                                 return false;
                             }) != null) return true;
                             if (x.StatePages.Find(s => s.Instructions.Find(x =>
                             {
-                                if (x.InstructionTiles.Find(t => t.Name.ToLower().Contains(value.ToLower())) != null) return true;
+                                if (x.InstructionTiles.Find(t => t != null && t.Name != null && t.Name.ToLower().Contains(value.ToLower())) != null) return true;
                                 return false;
                             }) != null) != null) return true;
                         }

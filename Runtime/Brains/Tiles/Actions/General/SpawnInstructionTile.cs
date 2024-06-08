@@ -86,6 +86,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private bool _scaleToFit;
         [BrainProperty(false)] public bool ScaleToFit { get => _scaleToFit; set => _scaleToFit = value; }
 
+        [SerializeField] private bool _bottomPivot;
+        [BrainProperty(false)] public bool BottomPivot { get => _bottomPivot; set => _bottomPivot = value; }
+
+        [SerializeField] private bool _importLights;
+        [BrainProperty(false)] public bool ImportLights { get => _importLights; set => _importLights = value; }
+
         [SerializeField] private bool _hidden;
         [BrainProperty(false)] public bool Hidden { get => _hidden; set => _hidden = value; }
 
@@ -196,6 +202,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 if (glb != null)
                 {
                     glb.SetActive(true);
+
+                    if (!_importLights)
+                    {
+                        var lights = glb.transform.GetComponentsInChildren<Light>(true);
+                        for (var i = 0; i < lights.Length; i++)
+                            lights[i].gameObject.SetActive(false);
+                    }
+
                     var body = glb.GetComponent<IMonaBody>();
                     var bodies = glb.GetComponentsInChildren<IMonaBody>();
                     for (var j = 0; j < bodies.Length; j++)
@@ -233,6 +247,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         protected IMonaBody Spawn(string prefabId, MonaBody monaBody, bool disable = true)
         {
+
+            if (!_importLights)
+            {
+                var lights = monaBody.Transform.GetComponentsInChildren<Light>(true);
+                for (var i = 0; i < lights.Length; i++)
+                    lights[i].gameObject.SetActive(false);
+            }
+
             var body = (IMonaBody)GameObject.Instantiate(monaBody, Vector3.up*10000f, Quaternion.identity);
 
             var bodies = body.Transform.GetComponentsInChildren<IMonaBody>();
@@ -454,11 +476,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             else
                 poolItem.SetScale(scale, true);
 
-            var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
-
-
-            float newScale = Mathf.Max(Mathf.Max(poolItem.Transform.localScale.x, poolItem.Transform.localScale.y), poolItem.Transform.localScale.z);
-            poolItem.Transform.localPosition = (poolItem.Transform.InverseTransformDirection(_offset) - offsetY) * newScale;
+            if (_bottomPivot)
+            {
+                var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
+                float newScale = Mathf.Max(Mathf.Max(poolItem.Transform.localScale.x, poolItem.Transform.localScale.y), poolItem.Transform.localScale.z);
+                poolItem.Transform.localPosition = (poolItem.Transform.InverseTransformDirection(_offset) - offsetY) * newScale;
+            }
 
             poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
 

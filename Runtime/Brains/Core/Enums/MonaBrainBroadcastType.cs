@@ -16,7 +16,8 @@ namespace Mona.SDK.Brains.Core.Enums
         AllSpawnedByMe = 90,
         MyPoolPreviouslySpawned = 100,
         MyPoolNextSpawned = 110,
-        MyBodyArray = 120
+        MyBodyArray = 120,
+        LastSkin = 130,
     }
 
     public enum MonaBrainTransformTargetType

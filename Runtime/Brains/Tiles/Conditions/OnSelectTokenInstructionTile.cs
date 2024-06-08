@@ -133,7 +133,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _instruction.Tokens = filtered;
             }
 
-            Debug.Log($"{nameof(OnSelectInstructionTile)} tokens: {_instruction.Tokens.Count}");
+            //Debug.Log($"{nameof(OnSelectInstructionTile)} tokens: {_instruction.Tokens.Count}");
             return _instruction.Tokens;
         }
 

@@ -58,7 +58,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.AllSpawnedByMe)]
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MyPoolPreviouslySpawned)]
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MyPoolNextSpawned)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.LastSkin)]
         [BrainProperty(false)] public bool IncludeAttached { get => _includeAttached; set => _includeAttached = value; }
+
+        [SerializeField] private bool _includeChildren = false;
+        [BrainProperty(false)] public bool IncludeChildren { get => _includeChildren; set => _includeChildren = value; }
 
         private IMonaBrain _brain;
         private List<MonaBrainGraph> _brainGraphsToAdd = new List<MonaBrainGraph>();
@@ -134,6 +138,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
         }
 
+        private bool ModifyAllChildren
+        {
+            get
+            {
+                return _includeChildren;
+            }
+        }
+
         public override InstructionTileResult Do()
         {
             if (_brain == null)
@@ -171,7 +183,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     if (targetBody == null)
                         break;
 
-                    if (ModifyAllAttached)
+                    if (ModifyAllChildren)
+                        SetBrainOnEntityAndChildren(targetBody);
+                    else if (ModifyAllAttached)
                         SetBrainOnWholeEntity(targetBody);
                     else
                         SetBrainOnBody(targetBody);
@@ -202,6 +216,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     return _brain.Body.Spawner;
                 case MonaBrainBroadcastType.LastSpawnedByMe:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
+                case MonaBrainBroadcastType.LastSkin:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SKIN);
                 case MonaBrainBroadcastType.MyPoolPreviouslySpawned:
                     return _brain.Body.PoolBodyPrevious;
                 case MonaBrainBroadcastType.MyPoolNextSpawned:
@@ -227,6 +243,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 else
                     SetBrainOnBody(tagBodies[i]);
             }
+        }
+
+        private void SetBrainOnEntityAndChildren(IMonaBody body)
+        {
+            IMonaBody topBody = body;
+
+            SetBrainOnBody(topBody);
+            SetBrainOnChildren(topBody);
         }
 
         private void SetBrainOnWholeEntity(IMonaBody body)
@@ -327,11 +351,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             for (int i = 0; i < _brainGraphsToAdd.Count; i++)
                 runner.AddBrainGraph((MonaBrainGraph)_brainGraphsToAdd[i]);
 
+            runner.BrainInstances.Clear();
             runner.RestartBrains();
         }
 
         private void RemoveBrains(MonaBrainRunner runner)
         {
+            Debug.Log($"{nameof(RemoveBrains)} {runner.Body.Transform.name}");
             switch (_brainsToRemove)
             {
                 case RemoveBrainType.ThisBrain:
@@ -363,22 +389,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             _availableBrainGraphs = MonaGlobalBrainRunner.Instance.PlayerBrainGraphs;
 
-            string[] guids = AssetDatabase.FindAssets("t:MonaBrainGraph", null);
-
-            foreach (string guid in guids)
+            var resourceGraphs = Resources.FindObjectsOfTypeAll<MonaBrainGraph>();
+            for (var i = 0; i < resourceGraphs.Length; i++)
             {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                var graph = (MonaBrainGraph)AssetDatabase.LoadAssetAtPath(path, typeof(MonaBrainGraph));
-
-                if (_availableBrainGraphs.Contains(graph))
+                if (_availableBrainGraphs.Contains(resourceGraphs[i]))
                     continue;
 
-                _availableBrainGraphs.Add(graph);
-
-                //var fileName = Path.GetFileName(path);
-                //graph.name = fileName.Substring(0, fileName.LastIndexOf("."));
-                //if (string.IsNullOrEmpty(graph.Name))
-                //    graph.Name = graph.name;
+                _availableBrainGraphs.Add(resourceGraphs[i]);
             }
 
             for (int i = 0; i < _availableBrainGraphs.Count; i++)

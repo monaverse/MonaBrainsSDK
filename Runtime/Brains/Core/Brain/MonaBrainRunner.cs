@@ -179,6 +179,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void RemoveAllBrainGraphs()
         {
+            UnloadBrains(true);
             _brainGraphs.Clear();
             _brainInstances.Clear();
         }
@@ -274,6 +275,11 @@ namespace Mona.SDK.Brains.Core.Brain
             //Debug.Log($"{nameof(MonaBrainRunner)} {nameof(Awake)} {gameObject.name}", gameObject);
         }
 
+        private void Start()
+        {
+            CacheTransforms();
+        }
+
         private void LoadUrl()
         {
             if(_brainUrls.Count > 0)
@@ -324,7 +330,6 @@ namespace Mona.SDK.Brains.Core.Brain
             _body.OnDisabled += HandleDisabled;
             _body.OnResumed += HandleResumed;
             _body.OnPaused += HandlePaused;
-            CacheTransforms();
         }
 
         public void CacheTransforms()
@@ -721,11 +726,20 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void ResetTransforms()
         {
+            if (!_began) return;
             for (var i = 0; i < _transformDefaults.Count; i++)
             {
                 var d = _transformDefaults[i];
                 if (d.Body.ActiveTransform == null || d.Body.ActiveRigidbody == null || d.Body.ActiveTransform.gameObject == null) continue;
-                d.Body.ActiveTransform.SetParent(d.Parent);
+
+                try
+                {
+                    d.Body.ActiveTransform.SetParent(d.Parent);
+                }
+                catch(Exception e)
+                {
+                    Debug.LogWarning($"{nameof(MonaBrainRunner)}.{nameof(ResetTransforms)} {e.Message}");
+                }
 
                 if (d.Parent != null)
                 {

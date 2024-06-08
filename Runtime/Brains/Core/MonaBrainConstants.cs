@@ -7,6 +7,7 @@
         public const string RESULT_SENDER = "__Sender";
         public const string RESULT_TARGET = "__Target";
         public const string RESULT_LAST_SPAWNED = "__LastSpawned";
+        public const string RESULT_LAST_SKIN = "__LastSkin";
         public const string RESULT_INDEX = "Index";
 
         public const string RESULT_MOVE_DIRECTION = "__MoveDirection";
