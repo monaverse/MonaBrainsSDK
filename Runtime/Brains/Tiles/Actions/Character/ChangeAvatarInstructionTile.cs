@@ -490,14 +490,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
 
                     var animator = avatar.GetComponent<Animator>();
-                    if (animator == null)
-                        animator = avatar.AddComponent<Animator>();
-
+                    
                     ParsedHumanoid parsed = new ParsedHumanoid();
-                    if (animator.avatar == null)
+                    if (animator == null || animator.avatar == null)
                         parsed = ParseHumanoid(avatar);
 
-                    if (animator.avatar == null && parsed.Avatar == null)
+                    if ((animator == null || animator.avatar == null) && parsed.Avatar == null)
                     {
                         var pivot = new GameObject("Pivot-Brains");
                         avatar.transform.SetParent(pivot.transform);
@@ -509,6 +507,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                         var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
                         avatar.transform.localPosition = offsetY;
                     }
+
+                    if (animator == null)
+                        animator = avatar.AddComponent<Animator>();
 
                     if (parsed.Avatar != null)
                         animator.avatar = parsed.Avatar;
@@ -573,14 +574,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
 
                     var animator = avatar.GetComponent<Animator>();
-                    if (animator == null)
-                        animator = avatar.AddComponent<Animator>();
 
                     ParsedHumanoid parsed = new ParsedHumanoid();
-                    if (animator.avatar == null)
+                    if (animator == null || animator.avatar == null)
                         parsed = ParseHumanoid(avatar);
 
-                    if (animator.avatar == null && parsed.Avatar == null)
+                    if ((animator == null || animator.avatar == null) && parsed.Avatar == null)
                     {
                         var pivot = new GameObject("Pivot-Brains");
                         avatar.transform.SetParent(pivot.transform);
@@ -592,6 +591,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                         var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
                         avatar.transform.localPosition = offsetY;
                     }
+
+                    if (animator == null)
+                        animator = avatar.AddComponent<Animator>();
 
                     if (parsed.Avatar != null)
                         animator.avatar = parsed.Avatar;
