@@ -24,6 +24,7 @@ using Mona.SDK.Core.Assets;
 using Mona.SDK.Core.Utils;
 using Unity.Profiling;
 using System.Threading.Tasks;
+using Mona.SDK.Brains.ThirdParty.Redcode.Awaiting;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Character
 {
@@ -496,9 +497,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     if (animator.avatar == null)
                         parsed = ParseHumanoid(avatar);
 
-                    if (parsed.Avatar == null)
+                    if (animator.avatar == null && parsed.Avatar == null)
                     {
-                        var pivot = new GameObject("Pivot");
+                        var pivot = new GameObject("Pivot-Brains");
                         avatar.transform.SetParent(pivot.transform);
                         avatar.transform.localScale = Vector3.one;
                         avatar.transform.localPosition = Vector3.zero;
@@ -579,9 +580,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     if (animator.avatar == null)
                         parsed = ParseHumanoid(avatar);
 
-                    if (parsed.Avatar == null)
+                    if (animator.avatar == null && parsed.Avatar == null)
                     {
-                        var pivot = new GameObject("Pivot");
+                        var pivot = new GameObject("Pivot-Brains");
                         avatar.transform.SetParent(pivot.transform);
                         avatar.transform.localScale = Vector3.one;
                         avatar.transform.localPosition = Vector3.zero;
@@ -605,6 +606,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     {
                         Debug.LogError($"{nameof(LoadAvatarAtUrl)} {e.Message} {e.StackTrace}");
                     }
+
                 }
 
                 if (Time.frameCount == frame)
@@ -747,7 +749,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             _avatarInstance = animator;
 
             var root = body.Transform.Find("Root");
-            
+
             if (!string.IsNullOrEmpty(body.SkinId))
             {
                 Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} skin id was loaded, return it to pool {body.SkinId}");
@@ -819,9 +821,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                         }
                     }
                 }
-                else if(skeleton != null)
+                else if (skeleton != null)
                 {
-                    foreach(var pair in skeleton)
+                    foreach (var pair in skeleton)
                     {
                         var tag = ((HumanBodyBones)pair.Key).ToString();
                         if (_brain.MonaTagSource.HasTag(tag))
@@ -864,11 +866,71 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 }
             }
 
+            RecalculateSize(avatarGameObject, root, animator.avatar != null);
+                                       
+            Debug.Log($"{_avatarInstance} {_offset} scale {_scale} {avatarGameObject.transform.position} brain body {_brain.Body.Transform.position}");
+
+            var playerId = _brain.Player.GetPlayerIdByBody(_brain.Body);
+            if(playerId > -1)
+                MonaEventBus.Trigger<MonaPlayerChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_CHANGE_AVATAR_EVENT), new MonaPlayerChangeAvatarEvent(playerId, _avatarInstance));
+            MonaEventBus.Trigger<MonaChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_CHANGE_AVATAR_EVENT), new MonaChangeAvatarEvent(_avatarInstance));
+
+        }
+
+        private void RecalculateSize(GameObject avatarGameObject, Transform root, bool isAvatar)
+        {
+
             var bounds = GetBounds(avatarGameObject.gameObject);
             var extents = bounds.extents * 2f;
-            var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
-            var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
-            var scale = maxScale / max;
+            var avatarFactor = isAvatar ? .2f : 1f;
+
+            extents.x *= avatarFactor;
+            extents.z *= avatarFactor;
+
+            Debug.Log($"extents: {extents} scale:{_scale}");
+
+            var boxScale = new Vector3(_scale.x / extents.x, _scale.y / extents.y, _scale.z / extents.z);
+            var index = 0;
+            var max = extents.x;
+            if (extents.y > max)
+            {
+                index = 1;
+                max = extents.y;
+            }
+            if (extents.z > max) index = 2;
+
+            var maxBoxScale = boxScale[index];
+            extents *= maxBoxScale;
+            Debug.Log($"extents: {extents} {maxBoxScale}");
+
+            var mostOverlap = -1;
+            var mostOverlapDistance = 0f;
+            for (var i = 0; i < 3; i++)
+            {
+                if (index != i)
+                {
+                    if (extents[i] > _scale[i])
+                    {
+                        var d = extents[i] - _scale[i];
+                        if (d > mostOverlapDistance)
+                        {
+                            mostOverlap = i;
+                            mostOverlapDistance = d;
+                        }
+                    }
+                }
+            }
+
+            if (mostOverlap > -1)
+                maxBoxScale *= _scale[mostOverlap] / extents[mostOverlap];
+
+            extents = bounds.extents * 2f * maxBoxScale;
+            Debug.Log($"extents: {extents} {maxBoxScale} orig {bounds.extents * 2f} d:{mostOverlapDistance} i:{mostOverlap}");
+            //var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
+            //var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
+            //var scale = maxScale / max;
+
+
 
             var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
             /*
@@ -892,19 +954,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             Debug.Log($"{nameof(ChangeAvatarInstructionTile)} localPosition: {avatarGameObject.transform.localPosition}");
 
             if (_scaleToFit)
-                root.localScale = _scale * scale;
+            {
+                root.localScale = Vector3.one * maxBoxScale;
+                root.localPosition = (root.InverseTransformDirection(_offset) - offsetY) * maxBoxScale;
+            }
             else
+            {
                 root.localScale = _scale;
-
-            //if(_bottomPivot)
-                root.localPosition = (root.InverseTransformDirection(_offset) - offsetY) * scale;
-                                       
-            Debug.Log($"{_avatarInstance} {_offset} scale {_scale} {avatarGameObject.transform.position} brain body {_brain.Body.Transform.position}");
-
-            var playerId = _brain.Player.GetPlayerIdByBody(_brain.Body);
-            if(playerId > -1)
-                MonaEventBus.Trigger<MonaPlayerChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_PLAYER_CHANGE_AVATAR_EVENT), new MonaPlayerChangeAvatarEvent(playerId, _avatarInstance));
-            MonaEventBus.Trigger<MonaChangeAvatarEvent>(new EventHook(MonaCoreConstants.ON_CHANGE_AVATAR_EVENT), new MonaChangeAvatarEvent(_avatarInstance));
+                root.localPosition = (root.InverseTransformDirection(_offset) - offsetY) * _scale.y;
+            }
 
         }
 
