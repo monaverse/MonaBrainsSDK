@@ -128,7 +128,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                 return string.Empty;
 
             string bodyID = _forceSameBody == DefinedBodyType.UseLocalID && _target != MonaBrainTargetLayoutType.AllBodies ?
-                 body.LocalId : body.DurableID.ToString();
+                 body.LocalId : body.DurableId.ToString();
 
             return string.Format(_bodyIDString, bodyID);
         }
