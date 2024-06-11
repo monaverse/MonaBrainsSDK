@@ -682,7 +682,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             newPosition = SnapToGrid(newPosition);
 
             Vector3 direction = newPosition - bodyPosition;
-            body.AddPosition(direction);
+
+            //Debug.Log($"{nameof(ApplyGlobalMovementVector)} {direction} : {direction.magnitude}");
+
+            if(direction.magnitude > 0.01f)
+                body.AddPosition(direction);
         }
 
         private void ApplyLocalMovementVector(IMonaBody body, Vector3 move)
@@ -696,7 +700,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (SnapType == MovementSnapType.SnapToGrid)
                 direction = direction.normalized * _gridSnapUnits;
 
-            body.AddPosition(direction);
+            if (direction.magnitude > 0.01f)
+                body.AddPosition(direction);
         }
 
         private Vector3 ClampPositionToMaxDistance(Vector3 position)
