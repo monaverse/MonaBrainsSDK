@@ -507,7 +507,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         {
             if (_movingState == MovingStateType.Moving)
             {
-                var progressDelta = Mathf.Round((((_value * _speed) / _distance) * deltaTime) * 100000f) / 100000f;
+                var speed = _speed * _value;
+                var distance = _distance;
+                var progressDelta = Mathf.Round(((1f / (distance / speed)) * deltaTime) * 1000f) / 1000f;
 
                 if (!_useStartDirection)
                     _direction = GetDirectionVector(DirectionType);
