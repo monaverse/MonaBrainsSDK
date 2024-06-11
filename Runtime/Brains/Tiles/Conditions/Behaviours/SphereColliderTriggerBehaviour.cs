@@ -278,25 +278,28 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             return closest;
         }
 
+        private List<IMonaBody> _rangeBodies = new List<IMonaBody>();
         public List<IMonaBody> FindClosestOutOfRangeWithMonaTag(string tag)
         {
+            _rangeBodies.Clear();
             var bodies = MonaBody.FindByTag(tag);
+            _rangeBodies.AddRange(bodies);
             //Debug.Log($"{nameof(FindClosestOutOfRangeWithMonaTag)} prefilter: {bodies.Count}");
             IMonaBody closest = null;
             float closestDistance = Mathf.Infinity;
-            for(var i = bodies.Count-1;i >= 0;i--)
+            for(var i = _rangeBodies.Count-1;i >= 0;i--)
             {
-                var pos = bodies[i].GetPosition();
+                var pos = _rangeBodies[i].GetPosition();
                 var d = Vector3.Distance(pos, _brain.Body.GetPosition());
-                if (bodies[i] == _brain.Body)
+                if (_rangeBodies[i] == _brain.Body)
                 {
-                    bodies.RemoveAt(i);
+                    _rangeBodies.RemoveAt(i);
                 }
-                else if (bodies[i].GetActive())
+                else if (_rangeBodies[i].GetActive())
                 {
-                    if(_brain.Body.WithinRadius(bodies[i], _radius))
+                    if(_brain.Body.WithinRadius(_rangeBodies[i], _radius))
                     {
-                        bodies.RemoveAt(i);
+                        _rangeBodies.RemoveAt(i);
                     }
                     else if (d < closestDistance)
                     {
@@ -305,10 +308,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     }
                 }
             }
-            bodies.Remove(closest);
-            bodies.Insert(0, closest);
+            _rangeBodies.Remove(closest);
+            _rangeBodies.Insert(0, closest);
             //Debug.Log($"{nameof(FindClosestOutOfRangeWithMonaTag)} {_bodies.Count}");
-            return bodies;
+            return _rangeBodies;
         }
 
         private void IncludeIfInsideTrigger(IMonaBody body)
@@ -353,7 +356,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     return true;
                 }
             }
-            Debug.Log($"{nameof(AddBody)} {_bodies.Count}");
+            //Debug.Log($"{nameof(AddBody)} {_bodies.Count}");
             return false;
         }
 
