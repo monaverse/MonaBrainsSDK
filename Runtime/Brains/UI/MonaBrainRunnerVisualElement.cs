@@ -108,9 +108,6 @@ namespace Mona.SDK.Brains.UIElements
 
         private void Refresh()
         {
-            if (_runner.BrainGraphs.Count == 0)
-                _runner.BrainGraphs.Add(null);
-
             _brainsListView.itemsSource = _runner.BrainGraphs;
             _brainsListView.Rebuild();
 
