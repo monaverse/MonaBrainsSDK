@@ -12,7 +12,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
     {
         public const string ID = "ApplyTorqueVector3";
         public const string NAME = "Apply Torque Vector3";
-        public const string CATEGORY = "Physics";
+        public const string CATEGORY = "Torque";
         public override Type TileType => typeof(ApplyTorqueVector3InstructionTile);
 
         [SerializeField] private Vector3 _directionValue;
