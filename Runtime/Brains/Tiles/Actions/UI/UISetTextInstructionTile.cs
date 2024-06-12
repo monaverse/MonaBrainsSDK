@@ -13,7 +13,7 @@ using TMPro;
 namespace Mona.SDK.Brains.Tiles.Actions.UI
 {
     [Serializable]
-    public class UISetTextInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class UISetTextInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload, ITickAfterInstructionTile
     {
         public const string ID = "UISetText";
         public const string NAME = "Set UI Text";

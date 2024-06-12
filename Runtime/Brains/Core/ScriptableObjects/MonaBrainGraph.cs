@@ -471,7 +471,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         //static readonly ProfilerMarker _profilerAddMonaAssetsToNetwork = new ProfilerMarker($"MonaBrains.{nameof(MonaBrainGraph)}.{nameof(AddMonaAssetsToNetwork)}.{nameof(Preload)}");
 
-        private void AddMonaAssetsToNetwork()
+        public void AddMonaAssetsToNetwork()
         {
             //_profilerAddMonaAssetsToNetwork.Begin();
             //Debug.Log($"{nameof(AddMonaAssetsToNetwork)}", _body.Transform.gameObject);
