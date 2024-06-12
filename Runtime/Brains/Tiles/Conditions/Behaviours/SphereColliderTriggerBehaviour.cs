@@ -308,8 +308,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     }
                 }
             }
-            _rangeBodies.Remove(closest);
-            _rangeBodies.Insert(0, closest);
+
+            if (closest != null)
+            {
+                _rangeBodies.Remove(closest);
+                _rangeBodies.Insert(0, closest);
+            }
             //Debug.Log($"{nameof(FindClosestOutOfRangeWithMonaTag)} {_bodies.Count}");
             return _rangeBodies;
         }

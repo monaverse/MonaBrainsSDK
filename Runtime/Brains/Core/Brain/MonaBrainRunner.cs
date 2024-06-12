@@ -266,6 +266,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private void Awake()
         {
             _brainInstances.Clear();
+            AddMonaAssetsToNetwork();
             EnsureGlobalRunnerExists();
             CacheComponents();
             InitVariableCache();
@@ -273,6 +274,15 @@ namespace Mona.SDK.Brains.Core.Brain
             DetectRigidbody();
             LoadUrl();
             //Debug.Log($"{nameof(MonaBrainRunner)} {nameof(Awake)} {gameObject.name}", gameObject);
+        }
+
+        private void AddMonaAssetsToNetwork()
+        {
+            for(var i = 0;i < _brainGraphs.Count; i++)
+            {
+                if (_brainGraphs[i] == null) continue;
+                _brainGraphs[i].AddMonaAssetsToNetwork();
+            }
         }
 
         private void Start()
