@@ -44,6 +44,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             {
                 var collider = _brain.GameObject.AddComponent<BoxCollider>();
                 collider.isTrigger = true;
+
+                var bounds = _brain.Body.GetBounds();
+
+                var col = (BoxCollider)collider;
+                col.center = _brain.GameObject.transform.InverseTransformPoint(bounds.center);
+                col.size = bounds.size + Vector3.one * .01f;
+
             }
         }
 
