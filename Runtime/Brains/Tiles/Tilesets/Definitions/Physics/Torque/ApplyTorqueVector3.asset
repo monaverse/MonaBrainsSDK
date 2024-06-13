@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 5156608922757628673
   _id: ApplyTorqueVector3
   _name: Apply Torque Vector3
-  _category: Forces
+  _category: Torque
   references:
     version: 2
     RefIds:
@@ -31,7 +31,7 @@ MonoBehaviour:
         _torqueValueName: 
         _duration: 0
         _durationValueName: 
-        _maxSpeed: 0.2
+        _maxSpeed: 2
         _maxSpeedName: 
         _directionValue: {x: 0, y: 0, z: 0}
         _directionName: []
