@@ -9,6 +9,7 @@ using Mona.SDK.Core.Body;
 using Mona.SDK.Core.State.Structs;
 using Unity.Profiling;
 using Mona.SDK.Brains.Core.Control;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -40,9 +41,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             _instruction = instruction;
         }
 
-        public IMonaBody GetBodyToControl()
+        private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
+        public List<IMonaBody> GetBodiesToControl()
         {
-            return _brain.Body;
+            if (_bodiesToControl.Count == 0)
+                _bodiesToControl.Add(_brain.Body);
+            return _bodiesToControl;
         }
 
         public override InstructionTileResult Do()

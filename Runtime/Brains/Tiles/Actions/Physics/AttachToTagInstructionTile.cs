@@ -10,6 +10,7 @@ using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.Physics.Interfaces;
 using Mona.SDK.Core;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
@@ -45,9 +46,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             _brain = brainInstance;
         }
 
-        public IMonaBody GetBodyToControl()
+        private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
+        public List<IMonaBody> GetBodiesToControl()
         {
-            return _brain.Body;
+            if (_bodiesToControl.Count == 0)
+                _bodiesToControl.Add(_brain.Body);
+            return _bodiesToControl;
         }
 
         private IMonaBody GetTarget()

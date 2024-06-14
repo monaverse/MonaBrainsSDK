@@ -13,6 +13,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Input;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Utils;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -150,9 +151,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             return InstructionTileResult.Success;
         }
 
-        public virtual IMonaBody GetBodyToControl()
+        private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
+        public virtual List<IMonaBody> GetBodiesToControl()
         {
-            return _brain.Body;
+            if (_bodiesToControl.Count == 0)
+                _bodiesToControl.Add(_brain.Body);
+            return _bodiesToControl;
         }
 
         public override InstructionTileResult Do()

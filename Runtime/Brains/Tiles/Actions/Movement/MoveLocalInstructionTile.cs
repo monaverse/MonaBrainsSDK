@@ -18,6 +18,7 @@ using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Core.Utils;
 using Unity.Profiling;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -445,9 +446,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             }
         }
 
-        public IMonaBody GetBodyToControl()
+        private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
+        public List<IMonaBody> GetBodiesToControl()
         {
-            return _brain.Body;
+            if (_bodiesToControl.Count == 0)
+                _bodiesToControl.Add(_brain.Body);
+            return _bodiesToControl;
         }
 
         protected float GetSpeed()

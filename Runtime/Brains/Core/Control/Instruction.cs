@@ -50,7 +50,7 @@ namespace Mona.SDK.Brains.Core.Control
 
         public bool IsRunning() => _result == InstructionTileResult.Running;
 
-        private List<IInstructionTile> _needAuthInstructionTiles = new List<IInstructionTile>();
+        private List<INeedAuthorityInstructionTile> _needAuthInstructionTiles = new List<INeedAuthorityInstructionTile>();
         private List<IBlockchainInstructionTile> _blockchainTiles = new List<IBlockchainInstructionTile>();
         public List<IBlockchainInstructionTile> BlockchainTiles => _blockchainTiles;
 
@@ -146,7 +146,7 @@ namespace Mona.SDK.Brains.Core.Control
                 var tile = InstructionTiles[i];
 
                 if (tile is INeedAuthorityInstructionTile)
-                    _needAuthInstructionTiles.Add(tile);
+                    _needAuthInstructionTiles.Add((INeedAuthorityInstructionTile)tile);
 
                 if (tile is IBlockchainInstructionTile)
                     _blockchainTiles.Add((IBlockchainInstructionTile)tile);
@@ -555,17 +555,36 @@ namespace Mona.SDK.Brains.Core.Control
             if (_firstActionIndex == -1) return;
             var tile = InstructionTiles[_firstActionIndex];
 
-            if (!_brain.Body.HasControl() && HasTilesNeedingAuthority())
+            if (HasTilesNeedingAuthority())
             {
-                //if(_brain.LoggingEnabled)
-                Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority to run this instruction. {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
+                bool hasControl = true;
+                for (var i = 0; i < _needAuthInstructionTiles.Count; i++)
+                {
+                    var bodies = _needAuthInstructionTiles[i].GetBodiesToControl();
+                    for(var b = 0; b < bodies.Count; b++)
+                    {
+                        if(!bodies[b].HasControl())
+                        {
+                            hasControl = false;
+                            break;
+                        }
+                    }
 
-                CacheTileWaitingForAuthorization();
-                CacheInputIfNeeded();
-                CacheLastMessageEventIfNeeded();
+                    if (!hasControl) break;
+                }
 
-                _result = InstructionTileResult.WaitingForAuthority;
-                return;
+                if (!hasControl)
+                {
+                    //if(_brain.LoggingEnabled)
+                    Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority to run this instruction. {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
+
+                    CacheTileWaitingForAuthorization();
+                    CacheInputIfNeeded();
+                    CacheLastMessageEventIfNeeded();
+
+                    _result = InstructionTileResult.WaitingForAuthority;
+                    return;
+                }
             }
 
             if (InstructionTiles.Count == 1)

@@ -12,6 +12,7 @@ using Mona.SDK.Brains.Actions.Blockchain.Enums;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Brains.Core.Utils.Structs;
 using Mona.SDK.Core.Body;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
 {
@@ -47,8 +48,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
 
         private IMonaBrain _brain;
 
-        public IMonaBody GetBodyToControl() => _brain.Body;
-
+        private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
+        public List<IMonaBody> GetBodiesToControl()
+        {
+            if (_bodiesToControl.Count == 0)
+                _bodiesToControl.Add(_brain.Body);
+            return _bodiesToControl;
+        }
         public CopyTokenInstructionTile() { }
 
         public void Preload(IMonaBrain brain, IMonaBrainPage page, IInstruction instruction)

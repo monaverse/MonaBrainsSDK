@@ -9,6 +9,7 @@ using Mona.SDK.Brains.Tiles.Actions.Variables.Interfaces;
 using Mona.SDK.Brains.Tiles.Actions.Variables.Enums;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Body;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
@@ -21,7 +22,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         public const string CATEGORY = "Numbers";
         public override Type TileType => typeof(NumberSetMinMaxInstructionTile);
 
-        public IMonaBody GetBodyToControl() => _brain.Body;
+        private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
+        public List<IMonaBody> GetBodiesToControl()
+        {
+            if (_bodiesToControl.Count == 0)
+                _bodiesToControl.Add(_brain.Body);
+            return _bodiesToControl;
+        }
 
         [SerializeField] private ValuesToSetType _valuesToSet;
         [BrainPropertyEnum(false)] public ValuesToSetType ValuesToSet { get => _valuesToSet; set => _valuesToSet = value; }

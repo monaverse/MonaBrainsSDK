@@ -10,6 +10,7 @@ using Mona.SDK.Brains.Tiles.Actions.Variables.Enums;
 using Mona.SDK.Core.State.Structs;
 using Unity.Profiling;
 using Mona.SDK.Core.Body;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
@@ -83,7 +84,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         private IMonaBrain _brain;
 
-        public IMonaBody GetBodyToControl() => _brain.Body;
+        private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
+        public List<IMonaBody> GetBodiesToControl()
+        {
+            if (_bodiesToControl.Count == 0)
+                _bodiesToControl.Add(_brain.Body);
+            return _bodiesToControl;
+        }
 
         public ValueChangeType OperatorToUse => GetOperator();
 

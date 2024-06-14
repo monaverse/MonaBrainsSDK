@@ -5,6 +5,7 @@ using Mona.SDK.Brains.Tiles.Actions.Physics.Enums;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.State.Structs;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
@@ -36,12 +37,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 else if (variable is IMonaVariablesBodyValue)
                     source = ((IMonaVariablesBodyValue)variable).Value;
             }
+            _bodiesToControl.Clear();
+            _bodiesToControl.Add(source);
             return source;
         }
 
-        public override IMonaBody GetBodyToControl()
+        private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
+        public List<IMonaBody> GetBodiesToControl()
         {
-            return GetTarget();
+            if (_bodiesToControl.Count == 0)
+                _bodiesToControl.Add(_brain.Body);
+            return _bodiesToControl;
         }
 
         protected override bool ApplyForceToTarget()

@@ -12,6 +12,7 @@ using Mona.SDK.Brains.Tiles.Actions.Physics.Interfaces;
 using Mona.SDK.Core;
 using Mona.SDK.Brains.Core.State.Structs;
 using Mona.SDK.Core.State.Structs;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
@@ -53,9 +54,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             _brain = brainInstance;
         }
 
-        public IMonaBody GetBodyToControl()
+        private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
+        public List<IMonaBody> GetBodiesToControl()
         {
-            return _brain.Body;
+            if (_bodiesToControl.Count == 0)
+                _bodiesToControl.Add(_brain.Body);
+            return _bodiesToControl;
         }
 
         public override InstructionTileResult Do()

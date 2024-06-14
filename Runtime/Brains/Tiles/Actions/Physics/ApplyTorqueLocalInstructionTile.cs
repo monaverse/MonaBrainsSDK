@@ -17,6 +17,7 @@ using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Input;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.Utils;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
@@ -184,6 +185,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                         target = ((IMonaVariablesBodyValue)variables).Value;
                     break;
             }
+            _bodiesToControl.Clear();
+            _bodiesToControl.Add(target);
             return target;
         }
 
@@ -272,10 +275,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             PushOverTime(deltaTime);
         }
-        
-        public virtual IMonaBody GetBodyToControl()
+
+        private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
+        public virtual List<IMonaBody> GetBodiesToControl()
         {
-            return _brain.Body;
+            if (_bodiesToControl.Count == 0)
+                _bodiesToControl.Add(_brain.Body);
+            return _bodiesToControl;
         }
 
         private void PushOverTime(float deltaTime)

@@ -17,6 +17,7 @@ using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.Utils;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -249,9 +250,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
         }
 
-        public IMonaBody GetBodyToControl()
+        private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
+        public List<IMonaBody> GetBodiesToControl()
         {
-            return _brain.Body;
+            if (_bodiesToControl.Count == 0)
+                _bodiesToControl.Add(_brain.Body);
+            return _bodiesToControl;
         }
 
         public InstructionTileResult Continue()
