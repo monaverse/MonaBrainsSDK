@@ -15,8 +15,7 @@ using System.IO;
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
-    public class ExportGlbInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile, IActionStateEndInstructionTile, 
-        INeedAuthorityInstructionTile
+    public class ExportGlbInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile, IActionStateEndInstructionTile
     {
         public const string ID = "ExportGlb";
         public const string NAME = "Export Glb";

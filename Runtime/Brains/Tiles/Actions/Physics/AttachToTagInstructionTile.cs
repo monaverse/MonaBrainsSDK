@@ -71,6 +71,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public override InstructionTileResult Do()
         {
+            if (!_brain.Body.HasControl()) return InstructionTileResult.WaitingForAuthority;
+
             var body = GetTarget();
             if(body != null)
             {

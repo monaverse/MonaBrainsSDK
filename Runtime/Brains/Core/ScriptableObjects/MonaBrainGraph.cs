@@ -799,6 +799,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
 
         private void HandleMonaBrainTick(InstructionEvent evt)
         {
+            //Debug.Log($"{nameof(HandleMonaBrainTick)} {evt.Type}", _body.ActiveTransform.gameObject);
             _runner.WaitFrame(_index, OnExecuteTickEvent, evt, LoggingEnabled);
         }
 
@@ -809,7 +810,6 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             //if (evt.Type == InstructionEventTypes.Start) _profilerStart.Begin();
             //if (evt.Type == InstructionEventTypes.Tick) _profilerTick.Begin();
             //if(LoggingEnabled)
-            //    Debug.Log($"{nameof(ExecuteTickEvent)} {evt.Type}", _body.ActiveTransform.gameObject);
             ExecuteCorePageInstructions(evt.Type, evt);
             ExecuteStatePageInstructions(evt.Type, evt);
 
@@ -983,7 +983,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             ResetBrainVariables();
 
             //if(_body.Transform != null)
-            //    Debug.Log($"{nameof(Unload)} brain on Body {Name}", _body.Transform.gameObject);
+             //Debug.Log($"{nameof(Unload)} brain on Body {Name}", _body.Transform.gameObject);
         }
 
         private void ResetBrainVariables()

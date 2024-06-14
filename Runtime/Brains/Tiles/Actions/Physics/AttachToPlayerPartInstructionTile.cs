@@ -53,6 +53,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public override InstructionTileResult Do()
         {
+            if (!_brain.Body.HasControl()) return InstructionTileResult.WaitingForAuthority;
+
             if (_brain.Player != null && _brain.Player.PlayerBody != null)
             {
                 _playerPart = _brain.Player.PlayerBody.FindChildByTag(_part.ToString());

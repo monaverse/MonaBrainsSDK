@@ -204,6 +204,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override InstructionTileResult Do()
         {
+            if (!_brain.Body.HasControl()) return InstructionTileResult.WaitingForAuthority;
+
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetFloat(_valueValueName);
 

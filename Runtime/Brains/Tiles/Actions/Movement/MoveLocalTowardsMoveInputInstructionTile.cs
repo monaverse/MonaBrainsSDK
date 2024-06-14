@@ -157,6 +157,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override InstructionTileResult Do()
         {
+            if (!_brain.Body.HasControl()) return InstructionTileResult.WaitingForAuthority;
+
             _direction = _brain.Body.ActiveTransform.forward * InputMoveDirection.y;
 
             _movingState = MovingStateType.Moving;

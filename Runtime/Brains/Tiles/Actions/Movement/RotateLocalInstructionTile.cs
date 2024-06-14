@@ -231,6 +231,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override InstructionTileResult Do()
         {
+
+            if (!_brain.Body.HasControl()) return InstructionTileResult.WaitingForAuthority;
+
             _profilerDo.Begin();
 
             if (!string.IsNullOrEmpty(_valueValueName))

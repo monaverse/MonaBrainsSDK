@@ -11,11 +11,12 @@ using Mona.SDK.Brains.Core.Utils.Enums;
 using Mona.SDK.Brains.Actions.Blockchain.Enums;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Brains.Core.Utils.Structs;
+using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
 {
     [Serializable]
-    public class CopyTokenInstructionTile : InstructionTile, IInstructionTileWithPreloadAndPageAndInstruction, IActionInstructionTile
+    public class CopyTokenInstructionTile : InstructionTile, IInstructionTileWithPreloadAndPageAndInstruction, IActionInstructionTile, INeedAuthorityInstructionTile
     {
         public const string ID = "CopyToken";
         public const string NAME = "Copy Token";
@@ -46,6 +47,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
 
         private IMonaBrain _brain;
 
+        public IMonaBody GetBodyToControl() => _brain.Body;
+
         public CopyTokenInstructionTile() { }
 
         public void Preload(IMonaBrain brain, IMonaBrainPage page, IInstruction instruction)
@@ -56,6 +59,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
 
         public override InstructionTileResult Do()
         {
+            if (!_brain.Body.HasControl()) return InstructionTileResult.WaitingForAuthority;
+
             Token token = default;
             switch (_source)
             {

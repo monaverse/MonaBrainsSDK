@@ -312,6 +312,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override InstructionTileResult Do()
         {
+            if (!_brain.Body.HasControl()) return InstructionTileResult.WaitingForAuthority;
+
             if (!string.IsNullOrEmpty(_durationValueName))
                 _duration = _brain.Variables.GetFloat(_durationValueName);
 
@@ -342,7 +344,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             if (!_brain.Body.HasControl())
             {
-                LostControl();
+                if (_movingState == MovingStateType.Moving)
+                    LostControl();
                 return;
             }
 

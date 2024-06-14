@@ -311,8 +311,42 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         }
 
         private bool _shouldWait;
+        private string _loadedUrl;
+        private string _loadedAsset;
+
         public override InstructionTileResult Do()
         {
+            if (!string.IsNullOrEmpty(_assetUrlName))
+                _assetUri = _brain.Variables.GetString(_assetUrlName);
+
+            if (_useUri)
+            {
+                if (string.IsNullOrEmpty(_assetUri))
+                    return InstructionTileResult.Success;
+
+                _avatarAsset = (IMonaAvatarAssetItem)(new MonaAvatarAsset()
+                {
+                    Url = _assetUri
+                });
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(_monaAssetName))
+                    _monaAsset = _brain.Variables.GetString(_monaAssetName);
+
+                _avatarAsset = (IMonaAvatarAssetItem)_brain.GetMonaAsset(_monaAsset);
+            }
+
+            if (!string.IsNullOrEmpty(_assetUri))
+            {
+                if (_loadedUrl == _assetUri) 
+                    return InstructionTileResult.Success;
+            }
+            else if (_loadedAsset == _monaAsset)
+            {
+                return InstructionTileResult.Success;
+            }
+
             _shouldWait = true;
             //_profilerDo.Begin();
             switch (_target)
@@ -440,24 +474,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 if (_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
 
-                if (!string.IsNullOrEmpty(_assetUrlName))
-                    _assetUri = _brain.Variables.GetString(_assetUrlName);
-
-                if (!string.IsNullOrEmpty(_assetUri))
-                {
-                    _avatarAsset = (IMonaAvatarAssetItem)(new MonaAvatarAsset()
-                    {
-                        Url = _assetUri
-                    });
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(_monaAssetName))
-                        _monaAsset = _brain.Variables.GetString(_monaAssetName);
-
-                    _avatarAsset = (IMonaAvatarAssetItem)_brain.GetMonaAsset(_monaAsset);
-                }
-
                 if (_avatarAsset.Value != null)
                 {
                     var avatar = GameObject.Instantiate(_avatarAsset.Value);
@@ -516,6 +532,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
                     LoadAvatar(animator, body, avatar);
 
+                    _loadedAsset = _avatarAsset.PrefabId;
+                    _loadedUrl = null;
+
                     if(_shouldWait)
                         Complete(InstructionTileResult.Success, true);
 
@@ -534,8 +553,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         {
             if (url == body.SkinId)
             {
-                Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatarAtUrl)} same url don't change {url}");
-
                 var avatarBody = body.Skin.GetComponent<IMonaBody>();
                 _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SKIN, avatarBody);
 
@@ -572,7 +589,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     if (rb != null)
                         rb.RemoveRigidbody();
 
-
                     var animator = avatar.GetComponent<Animator>();
 
                     ParsedHumanoid parsed = new ParsedHumanoid();
@@ -601,6 +617,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     try
                     {
                         LoadAvatar(animator, body, avatar, parsed.Skeleton);
+                        _loadedAsset = null;
+                        _loadedUrl = url;
                         body.SkinId = url;
                         body.Skin = avatar;
                     }
@@ -817,6 +835,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                                 if (t != null)
                                 {
                                     var newPart = t.AddComponent<MonaBodyPart>();
+                                    newPart.SyncType = MonaBodyNetworkSyncType.NotNetworked;
                                     newPart.AddTag(tag);
                                 }
                             }
@@ -835,6 +854,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                             {
                                 var t = pair.Value;
                                 var newPart = t.AddComponent<MonaBodyPart>();
+                                newPart.SyncType = MonaBodyNetworkSyncType.NotNetworked;
                                 newPart.AddTag(tag);
                             }
                         }
@@ -854,6 +874,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                                 if (t != null)
                                 {
                                     var newPart = t.AddComponent<MonaBodyPart>();
+                                    newPart.SyncType = MonaBodyNetworkSyncType.NotNetworked;
                                     newPart.AddTag(tag);
                                 }
                             }

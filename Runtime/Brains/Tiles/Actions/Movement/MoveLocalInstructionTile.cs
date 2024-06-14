@@ -251,9 +251,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private bool _listening;
         private void AddFixedTickDelegate()
         {
-            if(_listening) return;
+            if (_listening) return;
             _listening = true;
-            //Debug.Log($"{nameof(AddFixedTickDelegate)}, fr: {Time.frameCount}", _brain.Body.Transform.gameObject);
 
             OnFixedTick = HandleFixedTick;
             MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
@@ -305,6 +304,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         public override InstructionTileResult Do()
         {
             //_profilerDo.Begin();
+            if (!_brain.Body.HasControl()) return InstructionTileResult.WaitingForAuthority;
 
             UpdateInput();
 
@@ -532,7 +532,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void LostControl()
         {
-            //Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(LostControl)}");
+            Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(LostControl)}");
             _movingState = MovingStateType.Stopped;
             StoppedMoving();
             Complete(InstructionTileResult.LostAuthority, true);

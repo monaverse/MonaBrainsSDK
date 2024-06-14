@@ -47,6 +47,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override InstructionTileResult Do()
         {
+            if (!_brain.Body.HasControl()) return InstructionTileResult.WaitingForAuthority;
             //_profilerDo.Begin();
             if (!string.IsNullOrEmpty(_stateValueName))
                 _changeState = _brain.Variables.GetString(_stateValueName);

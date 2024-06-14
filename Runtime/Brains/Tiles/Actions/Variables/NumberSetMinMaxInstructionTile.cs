@@ -8,17 +8,20 @@ using Mona.SDK.Brains.Core.State;
 using Mona.SDK.Brains.Tiles.Actions.Variables.Interfaces;
 using Mona.SDK.Brains.Tiles.Actions.Variables.Enums;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
     [Serializable]
-    public class NumberSetMinMaxInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile
+    public class NumberSetMinMaxInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile, INeedAuthorityInstructionTile
 
     {
         public const string ID = "SetMinMax";
         public const string NAME = "Set Min / Max";
         public const string CATEGORY = "Numbers";
         public override Type TileType => typeof(NumberSetMinMaxInstructionTile);
+
+        public IMonaBody GetBodyToControl() => _brain.Body;
 
         [SerializeField] private ValuesToSetType _valuesToSet;
         [BrainPropertyEnum(false)] public ValuesToSetType ValuesToSet { get => _valuesToSet; set => _valuesToSet = value; }

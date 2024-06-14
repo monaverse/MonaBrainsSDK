@@ -9,11 +9,12 @@ using Mona.SDK.Brains.Tiles.Actions.Variables.Interfaces;
 using Mona.SDK.Brains.Tiles.Actions.Variables.Enums;
 using Mona.SDK.Core.State.Structs;
 using Unity.Profiling;
+using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
     [Serializable]
-    public class SetNumberToInstructionTile : InstructionTile, ISetNumberToInstructionTile, IActionInstructionTile,
+    public class SetNumberToInstructionTile : InstructionTile, ISetNumberToInstructionTile, IActionInstructionTile, INeedAuthorityInstructionTile,
         IStoreVariableInstructionTile
 
     {
@@ -81,6 +82,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string StoreResultOn { get => _storeResultOn; set => _storeResultOn = value; }
 
         private IMonaBrain _brain;
+
+        public IMonaBody GetBodyToControl() => _brain.Body;
 
         public ValueChangeType OperatorToUse => GetOperator();
 

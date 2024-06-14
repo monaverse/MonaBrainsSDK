@@ -75,7 +75,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if(_bodyInput.GetButton(MonaInputType.Action) == GetInputState())
             {
                 if (Raycast(_bodyInput.Ray))
+                {
+                    Debug.Log($"{nameof(OnSelectInstructionTile)}");
                     return Complete(InstructionTileResult.Success);
+                }
             }
             else if (_bodyInput.GetButton(MonaInputType.Action) != MonaInputState.None)
             {
