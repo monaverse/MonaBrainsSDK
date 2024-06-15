@@ -36,7 +36,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         public const string CATEGORY = "Character";
         public override Type TileType => typeof(ChangeAvatarInstructionTile);
 
-        public bool IsAnimationTile => _target == MonaBrainBroadcastType.Self;
+        public bool IsAnimationTile => _target == MonaBrainBroadcastType.Self || _target == MonaBrainBroadcastType.ThisBodyOnly;
 
         //static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(ChangeAvatarInstructionTile)}.{nameof(Do)}");
         //static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(ChangeAvatarInstructionTile)}.{nameof(Preload)}");

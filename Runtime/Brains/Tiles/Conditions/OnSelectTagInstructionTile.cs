@@ -90,21 +90,24 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                 var foundBody = false;
 
-                if(!_allowParent)
+                if (body != null)
                 {
-                    foundBody = body.HasMonaTag(_monaTag);
-                }
-                else
-                {
-                    var parent = body;
-                    while (parent != null)
+                    if (!_allowParent)
                     {
-                        if (parent.HasMonaTag(_monaTag))
+                        foundBody = body.HasMonaTag(_monaTag);
+                    }
+                    else
+                    {
+                        var parent = body;
+                        while (parent != null)
                         {
-                            foundBody = true;
-                            break;
+                            if (parent.HasMonaTag(_monaTag))
+                            {
+                                foundBody = true;
+                                break;
+                            }
+                            parent = parent.Parent;
                         }
-                        parent = parent.Parent;
                     }
                 }
 

@@ -19,6 +19,7 @@ using Mona.SDK.Brains.Core.Animation;
 using Mona.SDK.Core.Utils;
 using Unity.Profiling;
 using Mona.SDK.Brains.Core.Utils;
+using Mona.SDK.Brains.ThirdParty.Redcode.Awaiting;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -197,7 +198,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         protected void Spawn(string prefabId, string url, bool disable = true, Action<GameObject> callback = null)
         {
-            _urlLoader.Load(url, false, (glb) =>
+            _urlLoader.Load(url, false, async (glb) =>
             {
                 if (glb != null)
                 {
@@ -232,6 +233,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                             }
                             if (_hidden)
                                 child.SetVisible(false);
+                        }
+
+                        if(body.GetActive())
+                        {
+                            while (!body.Started)
+                                await new WaitForSeconds(.1f);
                         }
 
                         ((MonaBodyBase)child).MakeUnique(_brain.Player.PlayerId, true);

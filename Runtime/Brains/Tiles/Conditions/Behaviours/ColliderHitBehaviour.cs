@@ -86,6 +86,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         public void SetBrain(IMonaBrain brain)
         {
             _brain = brain;
+            var bounds = _brain.Body.GetBounds();
+            var coll = (BoxCollider)_collider;
+            coll.center = transform.InverseTransformPoint(bounds.center);
+            coll.size = bounds.size;
         }
 
         public void SetPage(IMonaBrainPage page)
