@@ -322,8 +322,8 @@ namespace Mona.SDK.Brains.Core.Control
             }
             else if (IsRunning())
             {
-                // if (_brain.LoggingEnabled)
-                    //Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction still running", _brain.Body.ActiveTransform.gameObject);
+                //if (_brain.LoggingEnabled)
+                //  Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction still running", _brain.Body.ActiveTransform.gameObject);
 
                 /*if (!HasConditional())
                 {
@@ -550,7 +550,7 @@ namespace Mona.SDK.Brains.Core.Control
             //if (_brain.LoggingEnabled)
             //    Debug.Log($"{nameof(ExecuteActions)} #{_page.Instructions.IndexOf(this)} start instruction", _brain.Body.ActiveTransform.gameObject);
             _result = InstructionTileResult.Running;
-            Debug.Log($"{nameof(ExecuteActions)} #{_page.Instructions.IndexOf(this)} set to running", _brain.Body.ActiveTransform.gameObject);
+            //Debug.Log($"{nameof(ExecuteActions)} #{_page.Instructions.IndexOf(this)} set to running", _brain.Body.ActiveTransform.gameObject);
 
             if (_firstActionIndex == -1) return;
             var tile = InstructionTiles[_firstActionIndex];

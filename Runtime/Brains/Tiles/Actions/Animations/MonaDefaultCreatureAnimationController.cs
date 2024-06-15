@@ -172,7 +172,7 @@ namespace Mona.SDK.Brains.Core.Animation
         private void Update()
         {
             //if (_brain.Body.AttachType != MonaBodyAttachType.None) return;
-            if (_brain.Body.NetworkBody != null) return;
+            //if (_brain.Body.NetworkBody != null) return;
             _speed = Mathf.Lerp(_speed, _toSpeed, Time.deltaTime * 10f);
             _animator.SetFloat(SPEED, _speed);
         }

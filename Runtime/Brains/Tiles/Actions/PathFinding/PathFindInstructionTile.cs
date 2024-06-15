@@ -56,6 +56,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
         private Action<MonaBodyEvent> OnBodyEvent;
         private Action<MonaBodyAnimationControllerChangedEvent> OnAnimationControllerChanged;
+        private Action<MonaBodySpawnedEvent> OnMonaBodySpawned;
 
         public PathFindInstructionTile() { }
 
@@ -83,16 +84,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
             _brain = brainInstance;
             _instruction = instruction;
 
+            OnAnimationControllerChanged = HandleAnimationControllerChanged;
+            MonaEventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+            OnMonaBodySpawned = HandleMonaBodySpawned;
+            MonaEventBus.Register<MonaBodySpawnedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnMonaBodySpawned);
+
+            SetupAnimation();
+        }
+
+        private void HandleMonaBodySpawned(MonaBodySpawnedEvent evt)
+        {
             _agent = _brain.Body.ActiveTransform.GetComponent<NavMeshAgent>();
             if (_agent == null)
                 _agent = _brain.Body.ActiveTransform.AddComponent<NavMeshAgent>();
 
             SetAgentSettings();
-
-            OnAnimationControllerChanged = HandleAnimationControllerChanged;
-            MonaEventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
-
-            SetupAnimation();
         }
 
         private void HandleAnimationControllerChanged(MonaBodyAnimationControllerChangedEvent evt)
@@ -152,6 +158,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
         {
             RemoveFixedTickDelegate();
             MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnMonaBodySpawned);
 
             //if(_brain.LoggingEnabled)
             //    Debug.Log($"{nameof(MoveLocalInstructionTile)}.{nameof(Unload)}");
@@ -262,12 +269,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
                 return;
             }
 
-            _currentSpeed = Mathf.Abs(Vector3.Distance(_brain.Body.GetPosition(), _lastPosition) / deltaTime);
+            var d = Vector3.Distance(_brain.Body.GetPosition(), _lastPosition);
+            _currentSpeed = Mathf.Abs(d / deltaTime);
             _lastPosition = _brain.Body.GetPosition();
-            if (_currentSpeed < 0.01f)
-                _currentSpeed = 0;
+            if (_currentSpeed < Mathf.Epsilon)
+              _currentSpeed = 0;
 
-            //Debug.Log($"remaining: {_agent.remainingDistance} {_agent.pathStatus} pending: {_agent.pathPending} stopped: {_agent.isStopped}");
+            //Debug.Log($"remaining: {_agent.remainingDistance} {_agent.pathStatus} pending: {_agent.pathPending} stopped: {_agent.isStopped} {d} {_currentSpeed}");
 
             if (!_agent.pathPending)
             {
