@@ -220,14 +220,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
 
         public override InstructionTileResult Do()
         {
-            switch (_brain.PropertyType)
-            {
-                default: return DefaultDo();
-            }
-        }
-
-        private InstructionTileResult DefaultDo()
-        {
             if (!string.IsNullOrEmpty(_volumeName))
                 _volume = _brain.Variables.GetFloat(_volumeName);
 
@@ -243,37 +235,34 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             if (!string.IsNullOrEmpty(_allowInterruptionName))
                 _allowInterruption = _brain.Variables.GetBool(_allowInterruptionName);
 
-            //Debug.Log($"{nameof(PlayAnimationInstructionTile)} do {_clip.Value}");
-            if (!_isPlaying)
+            Debug.Log($"{nameof(PlayAudioInstructionTile)} do {_clip.Value}");
+            if (!_isPlaying || _allowInterruption)
             {
                 try
                 {
-                    if (_allowInterruption || !_audioSource.isPlaying)
+                    if (_brain.LoggingEnabled)
+                        Debug.Log($"{nameof(PlayAudioInstructionTile)} play audio {_clip.Value}");
+
+                    try
                     {
-                        if (_brain.LoggingEnabled)
-                            Debug.Log($"{nameof(PlayAudioInstructionTile)} play audio {_clip.Value}");
+                        SetupClip();
 
-                        try
-                        {
-                            SetupClip();
+                        _audioSource.volume = _volume;
+                        _audioSource.pitch = _pitch;
+                        _audioSource.loop = _loopAudio;
+                        _audioSource.Play();
+                        _isPlaying = true;
 
-                            _audioSource.volume = _volume;
-                            _audioSource.pitch = _pitch;
-                            _audioSource.loop = _loopAudio;
-                            _audioSource.Play();
-                            _isPlaying = true;
-                        
-                            AddFixedTickDelegate();
-                            if (_wait)
-                                return Complete(InstructionTileResult.Running);
-                            else
-                                return Complete(InstructionTileResult.Success);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError($"{nameof(PlayAudioInstructionTile)} could not player audio {e.Message}");
+                        AddFixedTickDelegate();
+                        if (_wait)
+                            return Complete(InstructionTileResult.Running);
+                        else
                             return Complete(InstructionTileResult.Success);
-                        }
+                    }
+                    catch (Exception e)
+                    {
+                        //Debug.LogError($"{nameof(PlayAudioInstructionTile)} could not player audio {e.Message}");
+                        return Complete(InstructionTileResult.Success);
                     }
                 }
                 catch(Exception e)
@@ -282,7 +271,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
                 }
                 return Complete(InstructionTileResult.Success);
             }
-            return Complete(InstructionTileResult.Running);
+            return Complete(InstructionTileResult.Success);
         }
     }
 }
