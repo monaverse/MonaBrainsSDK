@@ -235,12 +235,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                                 child.SetVisible(false);
                         }
 
-                        if(body.GetActive())
-                        {
-                            while (!body.Started)
-                                await new WaitForSeconds(.1f);
-                        }
-
                         ((MonaBodyBase)child).MakeUnique(_brain.Player.PlayerId, true);
                         MonaEventBus.Trigger<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), new MonaBodyInstantiatedEvent(child));
                     }
@@ -472,7 +466,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
 
 
-            var bounds = GetBounds(poolItem.Transform.gameObject);
+            var bounds = poolItem.GetBounds();
             var extents = bounds.extents * 2f;
             var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
             var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
@@ -525,45 +519,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         }
 
-        private Bounds GetBounds(GameObject go)
-        {
-            Bounds bounds;
-            Renderer childRender;
-            bounds = GetRenderBounds(go);
-            if (bounds.extents.x == 0)
-            {
-                bounds = new Bounds(go.transform.position, Vector3.zero);
-                foreach (Transform child in go.transform)
-                {
-                    childRender = child.GetComponent<Renderer>();
-                    if (childRender)
-                    {
-                        bounds.Encapsulate(childRender.bounds);
-                    }
-                    else
-                    {
-                        bounds.Encapsulate(GetBounds(child.gameObject));
-                    }
-                }
-            }
-            return bounds;
-        }
-
-        private Bounds GetRenderBounds(GameObject go)
-        {
-            Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
-            Renderer render = go.GetComponent<Renderer>();
-            if (render != null)
-            {
-                return render.bounds;
-            }
-            return bounds;
-        }
-
         private void HandleAfterEnabled(IMonaBody body)
         {
             body.OnAfterEnabled -= HandleAfterEnabled;
-            //Debug.Log($"{nameof(HandleAfterEnabled)} ready ", body.Transform.gameObject);
+            Debug.Log($"{nameof(HandleAfterEnabled)} ready ", body.Transform.gameObject);
             Complete(InstructionTileResult.Success, true);
         }
 

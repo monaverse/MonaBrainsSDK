@@ -34,7 +34,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         public bool ShouldClear() => Time.frameCount - Frame > 0;
     }
 
-    public class ColliderHitBehaviour : MonoBehaviour, IDisposable
+    public class ColliderHitBehaviour : MonoBehaviour
     {
         private Collider _collider;
         private IMonaBrain _brain;
@@ -74,22 +74,39 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             MonaEventBus.Register<MonaLateTickEvent>(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
         }
 
-        public void Dispose()
+        public void Dispose(bool destroy)
         {
             if (_collider != null && !_colliderWasCreatedByMe)
                 Destroy(_collider);
             _collider = null;
 
+            if(destroy)
+                MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_SCALE_CHANGED_EVENT, _brain.Body), OnBodyScaleChanged);
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), OnLateTick);
         }
 
+        private Action<MonaBodyScaleChangedEvent> OnBodyScaleChanged;
         public void SetBrain(IMonaBrain brain)
         {
             _brain = brain;
-            var bounds = _brain.Body.GetBounds();
-            var coll = (BoxCollider)_collider;
-            coll.center = transform.InverseTransformPoint(bounds.center);
-            coll.size = bounds.size;
+            if (_colliderWasCreatedByMe)
+            {
+                OnBodyScaleChanged = HandleBodyScaleChanged;
+                MonaEventBus.Register<MonaBodyScaleChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_SCALE_CHANGED_EVENT, _brain.Body), OnBodyScaleChanged);
+                HandleBodyScaleChanged(new MonaBodyScaleChangedEvent(_brain.Body));
+            }
+        }
+
+        private void HandleBodyScaleChanged(MonaBodyScaleChangedEvent evt)
+        {
+            Debug.Log($"{nameof(HandleBodyScaleChanged)}", evt.Body.Transform.gameObject);
+            var bounds = evt.Body.GetBounds();
+            if (_collider is BoxCollider && _colliderWasCreatedByMe)
+            {
+                var coll = (BoxCollider)_collider;
+                coll.center = transform.InverseTransformPoint(bounds.center);
+                coll.size = bounds.size;
+            }
         }
 
         public void SetPage(IMonaBrainPage page)

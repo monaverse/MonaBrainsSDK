@@ -649,6 +649,13 @@ namespace Mona.SDK.Brains.Core.Brain
                     instance.Preload(gameObject, this, i);
                 }
             }
+
+            if (OnMonaTick == null)
+            {
+                OnMonaTick = HandleMonaTick;
+                MonaEventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
+            }
+
         }
 
         private void HandleHotReload(MonaBrainReloadEvent evt)
@@ -676,12 +683,6 @@ namespace Mona.SDK.Brains.Core.Brain
             //Debug.Log($"{nameof(MonaBrainRunner)}.{nameof(HandleStarted)} start brains {_body.Transform.name} active? {gameObject.activeInHierarchy}", _body.Transform.gameObject);
 
             PreloadBrains();
-
-            if (OnMonaTick == null)
-            {
-                OnMonaTick = HandleMonaTick;
-                MonaEventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnMonaTick);
-            }
 
             _began = true;
             //_beginBrainsAfterFrame = Time.frameCount;
