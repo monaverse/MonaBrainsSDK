@@ -30,6 +30,7 @@ namespace Mona.SDK.Brains.UIElements
         private int _selectedTab = 0;
 
         private TextField _name;
+        private TextField _readMe;
         private EnumField _property;
 
         private IInstructionTileSet _tileSet;
@@ -164,9 +165,15 @@ namespace Mona.SDK.Brains.UIElements
             _name = new TextField("Brain Name");
             _name.RegisterValueChangedCallback((evt) => _brain.Name = (string)evt.newValue);
             _brainMetaData.Add(_name);
+
+            _readMe = new TextField("Brain ReadMe");
+            _readMe.RegisterValueChangedCallback((evt) => _brain.ReadMe = (string)evt.newValue);
+            _brainMetaData.Add(_readMe);
+
             _property = new EnumField("Property", MonaBrainPropertyType.Default);
             _property.RegisterValueChangedCallback((evt) => _brain.PropertyType = (MonaBrainPropertyType)evt.newValue);
             _brainMetaData.Add(_property);
+
 
             var tagContainer = new VisualElement();
             var s = tagContainer.style;
@@ -876,6 +883,7 @@ namespace Mona.SDK.Brains.UIElements
             _brain = brain;
             
             _name.value = _brain.Name;
+            _readMe.value = _brain.ReadMe;
             _property.value = (MonaBrainPropertyType)_brain.PropertyType;
             _selectedTab = 0;
 

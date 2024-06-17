@@ -7,6 +7,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.State.Structs;
+using System.Text;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -76,6 +77,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     case MonaBodyValueType.ClientId:
                         return TargetVariableType.Number;
                     case MonaBodyValueType.PlayerName:
+                        return TargetVariableType.String;
+                    case MonaBodyValueType.ReadMe:
                         return TargetVariableType.String;
                 }
 
@@ -176,7 +179,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     SetVariable((float)body.ClientId); break;
                 case MonaBodyValueType.PlayerName:
                     SetVariable(body.PlayerName); break;
-
+                case MonaBodyValueType.ReadMe:
+                    var runner = body.Transform.GetComponent<IMonaBrainRunner>();
+                    if (runner != null)
+                    {
+                        var readme = new StringBuilder();
+                        for (var i = 0; i < runner.BrainInstances.Count; i++)
+                        {
+                            if (i > 0 && !string.IsNullOrEmpty(runner.BrainInstances[i].ReadMe.Replace(" ", ""))) readme.Append("\n");
+                            readme.Append(runner.BrainInstances[i].ReadMe);
+                        }
+                        SetVariable(readme.ToString());
+                    }
+                    break;
                 default:
                     SetVariable(body.GetPosition()); break;
             }

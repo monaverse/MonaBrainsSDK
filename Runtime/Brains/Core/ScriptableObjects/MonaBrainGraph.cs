@@ -50,6 +50,10 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         public string Name { get => _name; set => _name = value; }
 
         [SerializeField]
+        private string _readMe;
+        public string ReadMe { get => _readMe; set => _readMe = value; }
+
+        [SerializeField]
         public MonaBrainPropertyType _propertyType;
         public MonaBrainPropertyType PropertyType { get => _propertyType; set => _propertyType = value; }
 

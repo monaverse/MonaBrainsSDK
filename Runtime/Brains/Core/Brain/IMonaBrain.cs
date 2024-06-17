@@ -21,6 +21,7 @@ namespace Mona.SDK.Brains.Core.Brain
         string ListenGuid { get; set; }
 
         string Name { get; set; }
+        string ReadMe { get; set; }
         MonaBrainPropertyType PropertyType { get; set; }
 
         string LocalId { get; }

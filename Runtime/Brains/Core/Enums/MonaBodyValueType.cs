@@ -15,6 +15,7 @@
         ChildCount = 18,
         PlayerId = 19,
         ClientId = 20,
-        PlayerName = 21
+        PlayerName = 21,
+        ReadMe = 22,
     }
 }
