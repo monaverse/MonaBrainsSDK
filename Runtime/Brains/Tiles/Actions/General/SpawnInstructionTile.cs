@@ -20,6 +20,7 @@ using Mona.SDK.Core.Utils;
 using Unity.Profiling;
 using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Brains.ThirdParty.Redcode.Awaiting;
+using Mona.SDK.Brains.Tiles.Actions.Character;
 
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
@@ -465,24 +466,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             Vector3 position = body.GetPosition() + body.GetRotation() * offset;
             Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
 
-
-            var bounds = poolItem.GetBounds();
-            var extents = bounds.extents * 2f;
-            var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
-            var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
-            var containScale = maxScale / max;
-
-            if(_scaleToFit)
-                poolItem.SetScale(_scale * containScale);
-            else
-                poolItem.SetScale(scale, true);
-
-            if (_bottomPivot)
-            {
-                var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
-                float newScale = Mathf.Max(Mathf.Max(poolItem.Transform.localScale.x, poolItem.Transform.localScale.y), poolItem.Transform.localScale.z);
-                poolItem.Transform.localPosition = (poolItem.Transform.InverseTransformDirection(_offset) - offsetY) * newScale;
-            }
+            poolItem.Transform.localScale = Vector3.one;
+            var parsed = ChangeAvatarInstructionTile.ParseHumanoid(poolItem.Transform.gameObject);
+            RecalculateSize(poolItem, parsed.Avatar != null);
 
             poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
 
@@ -517,6 +503,130 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             return Complete(InstructionTileResult.Running);
 
+        }
+
+        private void RecalculateSize(IMonaBody avatarGameObject, bool isAvatar)
+        {
+
+            var bounds = avatarGameObject.GetBounds();
+            var extents = bounds.extents * 2f;
+            var avatarFactor = isAvatar ? .2f : 1f;
+
+            extents.x *= avatarFactor;
+            extents.z *= avatarFactor;
+
+            Debug.Log($"extents: {extents} scale:{_scale}");
+
+            var boxScale = new Vector3(_scale.x / extents.x, _scale.y / extents.y, _scale.z / extents.z);
+            var index = 0;
+            var max = extents.x;
+            if (extents.y > max)
+            {
+                index = 1;
+                max = extents.y;
+            }
+            if (extents.z > max) index = 2;
+
+            var maxBoxScale = boxScale[index];
+            extents *= maxBoxScale;
+            Debug.Log($"extents: {extents} {maxBoxScale}");
+
+            var mostOverlap = -1;
+            var mostOverlapDistance = 0f;
+            for (var i = 0; i < 3; i++)
+            {
+                if (index != i)
+                {
+                    if (extents[i] > _scale[i])
+                    {
+                        var d = extents[i] - _scale[i];
+                        if (d > mostOverlapDistance)
+                        {
+                            mostOverlap = i;
+                            mostOverlapDistance = d;
+                        }
+                    }
+                }
+            }
+
+            if (mostOverlap > -1)
+                maxBoxScale *= _scale[mostOverlap] / extents[mostOverlap];
+
+            extents = bounds.extents * 2f * maxBoxScale;
+            Debug.Log($"extents: {extents} {maxBoxScale} orig {bounds.extents * 2f} d:{mostOverlapDistance} i:{mostOverlap}");
+            //var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
+            //var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
+            //var scale = maxScale / max;
+
+
+
+            var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
+            /*
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} center: {bounds.center}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} extents: {bounds.extents}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} local: {avatarGameObject.transform.localPosition}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} center to bottom: {(root.InverseTransformPoint(bounds.center).y - extents.y)}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} offsetY: {offsetY}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} scale: {scale}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} yscale factor: {extents.y / max}");
+            */
+
+            avatarGameObject.Transform.localScale = Vector3.one;
+            avatarGameObject.Transform.localPosition = Vector3.zero;
+            avatarGameObject.Transform.localRotation = Quaternion.Euler(_eulerAngles);
+
+            var childBrains = avatarGameObject.Transform.GetComponentsInChildren<IMonaBrainRunner>();
+            for (var i = 0; i < childBrains.Length; i++)
+                childBrains[i].CacheTransforms();
+
+            Debug.Log($"{nameof(SpawnInstructionTile)} localPosition: {avatarGameObject.Transform.localPosition}");
+
+            if (_scaleToFit)
+            {
+                avatarGameObject.SetScale(Vector3.one * maxBoxScale);
+                avatarGameObject.Transform.localPosition = (avatarGameObject.Transform.InverseTransformDirection(_offset) - offsetY) * maxBoxScale;
+            }
+            else
+            {
+                avatarGameObject.SetScale(_scale);
+                avatarGameObject.Transform.localPosition = (avatarGameObject.Transform.InverseTransformDirection(_offset) - offsetY) * _scale.y;
+            }
+
+        }
+
+        private Bounds GetBounds(GameObject go)
+        {
+            Bounds bounds;
+            Renderer childRender;
+            bounds = GetRenderBounds(go);
+            if (bounds.extents.x == 0)
+            {
+                bounds = new Bounds(go.transform.position, Vector3.zero);
+                foreach (Transform child in go.transform)
+                {
+                    childRender = child.GetComponent<Renderer>();
+                    if (childRender)
+                    {
+                        bounds.Encapsulate(childRender.bounds);
+                    }
+                    else
+                    {
+                        bounds.Encapsulate(GetBounds(child.gameObject));
+                    }
+                }
+            }
+            return bounds;
+        }
+
+        private Bounds GetRenderBounds(GameObject go)
+        {
+            Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
+            Renderer render = go.GetComponent<Renderer>();
+            if (render != null)
+            {
+                return render.bounds;
+            }
+            return bounds;
         }
 
         private void HandleAfterEnabled(IMonaBody body)

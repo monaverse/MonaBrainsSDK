@@ -100,12 +100,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         private void HandleBodyScaleChanged(MonaBodyScaleChangedEvent evt)
         {
             Debug.Log($"{nameof(HandleBodyScaleChanged)}", evt.Body.Transform.gameObject);
-            var bounds = evt.Body.GetBounds();
             if (_collider is BoxCollider && _colliderWasCreatedByMe)
             {
+                var bounds = evt.Body.GetBounds();
                 var coll = (BoxCollider)_collider;
+                Debug.Log($"{nameof(HandleBodyScaleChanged)} {bounds.center} {bounds.size}");
                 coll.center = transform.InverseTransformPoint(bounds.center);
-                coll.size = bounds.size;
+                coll.size = Vector3.Scale(bounds.size, new Vector3(1f/evt.Body.Transform.lossyScale.x, 1f / evt.Body.Transform.lossyScale.y, 1f / evt.Body.Transform.lossyScale.z));
             }
         }
 

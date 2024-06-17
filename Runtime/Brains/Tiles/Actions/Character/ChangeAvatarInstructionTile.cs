@@ -639,7 +639,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         }
 
         //thank you gpt!
-        private Dictionary<HumanBodyBones, string[]> _boneSynonyms = new Dictionary<HumanBodyBones, string[]> {
+        private static Dictionary<HumanBodyBones, string[]> _boneSynonyms = new Dictionary<HumanBodyBones, string[]> {
             { HumanBodyBones.Hips, new string[] { "Hips", "mixamorig:Hips" } },
             { HumanBodyBones.LeftUpperLeg, new string[] { "LeftUpperLeg", "UpperLeg.L", "Upper_Leg.L", "L_UpperLeg", "mixamorig:LeftUpLeg" } },
             { HumanBodyBones.RightUpperLeg, new string[] { "RightUpperLeg", "UpperLeg.R", "Upper_Leg.R", "R_UpperLeg", "mixamorig:RightUpLeg" } },
@@ -698,13 +698,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             { HumanBodyBones.LastBone, new string[] { "LastBone" } }
         };
 
-        private struct ParsedHumanoid
+        public struct ParsedHumanoid
         {
             public Dictionary<HumanBodyBones, Transform> Skeleton;
             public Avatar Avatar;
         }
 
-        private ParsedHumanoid ParseHumanoid(GameObject avatar)
+        public static ParsedHumanoid ParseHumanoid(GameObject avatar)
         {
 
             var transforms = new List<Transform>(avatar.GetComponentsInChildren<Transform>());
