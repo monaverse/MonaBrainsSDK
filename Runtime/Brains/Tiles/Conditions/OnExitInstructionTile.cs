@@ -66,7 +66,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             SetActive(true);
 
-            _brain.Body.AddRigidbody();
+            if(!_brain.Body.Parent.Transform.GetComponent<IMonaBrainRunner>().HasRigidbodyTiles() && _brain.Body.Parent.ActiveRigidbody == null)
+                _brain.Body.AddRigidbody();
         }
 
         public void SetActive(bool active)

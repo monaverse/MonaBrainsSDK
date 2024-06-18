@@ -389,30 +389,36 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             _availableBrainGraphs = MonaGlobalBrainRunner.Instance.PlayerBrainGraphs;
 
-            var resourceGraphs = Resources.FindObjectsOfTypeAll<MonaBrainGraph>();
-            for (var i = 0; i < resourceGraphs.Length; i++)
+            if (_brainsToAdd == AddBrainType.WithName)
             {
-                if (_availableBrainGraphs.Contains(resourceGraphs[i]))
-                    continue;
-
-                _availableBrainGraphs.Add(resourceGraphs[i]);
+                var resourceGraph = Resources.Load<MonaBrainGraph>(_brainString);
+                if (!_brainGraphsToAdd.Contains(resourceGraph))
+                    _brainGraphsToAdd.Add(resourceGraph);
             }
-
-            for (int i = 0; i < _availableBrainGraphs.Count; i++)
+            else
             {
-                if (_brainGraphsToAdd.Contains(_availableBrainGraphs[i]))
-                    continue;
-
-                switch (_brainsToAdd)
+                var resourceGraphs = Resources.FindObjectsOfTypeAll<MonaBrainGraph>();
+                Debug.Log($"{nameof(SetBrainGraphsToAdd)} {resourceGraphs.Length} graphs found");
+                for (var i = 0; i < resourceGraphs.Length; i++)
                 {
-                    case AddBrainType.WithName:
-                        if (_availableBrainGraphs[i].Name == _brainString)
-                            _brainGraphsToAdd.Add(_availableBrainGraphs[i]);
-                        break;
-                    case AddBrainType.ContainingString:
-                        if (_availableBrainGraphs[i].Name.Contains(_brainString))
-                            _brainGraphsToAdd.Add(_availableBrainGraphs[i]);
-                        break;
+                    if (_availableBrainGraphs.Contains(resourceGraphs[i]))
+                        continue;
+
+                    _availableBrainGraphs.Add(resourceGraphs[i]);
+                }
+
+                for (int i = 0; i < _availableBrainGraphs.Count; i++)
+                {
+                    if (_brainGraphsToAdd.Contains(_availableBrainGraphs[i]))
+                        continue;
+
+                    switch (_brainsToAdd)
+                    {
+                        case AddBrainType.ContainingString:
+                            if (_availableBrainGraphs[i].Name.Contains(_brainString))
+                                _brainGraphsToAdd.Add(_availableBrainGraphs[i]);
+                            break;
+                    }
                 }
             }
         }

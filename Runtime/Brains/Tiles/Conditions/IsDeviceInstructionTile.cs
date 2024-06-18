@@ -109,8 +109,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     return _runtimeDevice == DeviceType.Console;
                 case PlatformType.Desktop:
                     return _runtimeDevice == DeviceType.Desktop;
+#if UNITY_2023_2_OR_NEWER
+                case PlatformType.Headset:
+                    return XRSettings.isDeviceActive;
+#else
                 case PlatformType.Headset:
                     return _runtimePlatform == RuntimePlatform.VisionOS || XRSettings.isDeviceActive;
+#endif
                 case PlatformType.Handheld:
                     return _runtimeDevice == DeviceType.Handheld;
                 case PlatformType.SpecificOS:
@@ -143,8 +148,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     return _runtimePlatform == RuntimePlatform.Switch;
                 case OperatingSystemType.tvOS:
                     return _runtimePlatform == RuntimePlatform.tvOS;
+#if UNITY_2023_2_OR_NEWER
+                case OperatingSystemType.VisionOS:
+                    return XRSettings.isDeviceActive;
+#else
                 case OperatingSystemType.VisionOS:
                     return _runtimePlatform == RuntimePlatform.VisionOS;
+#endif
                 case OperatingSystemType.WebGL:
                     return _runtimePlatform == RuntimePlatform.WebGLPlayer;
                 case OperatingSystemType.Windows:
