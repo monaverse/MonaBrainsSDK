@@ -183,8 +183,8 @@ namespace Mona.SDK.Brains.Core.Animation
         {
             if (speed > 0f)
             {
-                _speed = speed;
-                _toSpeed = speed;
+                _speed = speed + 1f;
+                _toSpeed = speed + 1f;
             }
             else
             {

@@ -42,7 +42,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
 
         private void MoveTo(Vector3 pos)
         {
-            Debug.Log($"{nameof(PathFindToPositionInstructionTile)} {pos}");
             SetAgentSettings();
             _agent.isStopped = false;
             _agent.SetDestination(pos);

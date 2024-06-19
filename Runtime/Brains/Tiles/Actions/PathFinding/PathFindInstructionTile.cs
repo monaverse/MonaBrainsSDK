@@ -84,16 +84,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
             _brain = brainInstance;
             _instruction = instruction;
 
+            //Debug.Log($"{nameof(PathFindInstructionTile)} preload {_brain.Body.Started}");
             OnAnimationControllerChanged = HandleAnimationControllerChanged;
             MonaEventBus.Register<MonaBodyAnimationControllerChangedEvent>(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
+            
             OnMonaBodySpawned = HandleMonaBodySpawned;
             MonaEventBus.Register<MonaBodySpawnedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_SPAWNED), OnMonaBodySpawned);
+
+            if (_brain.Body.Started)
+                HandleMonaBodySpawned();
 
             SetupAnimation();
         }
 
-        private void HandleMonaBodySpawned(MonaBodySpawnedEvent evt)
+        private void HandleMonaBodySpawned(MonaBodySpawnedEvent evt = default)
         {
+            //Debug.Log($"{nameof(PathFindInstructionTile)} HandleMonaBodySpawened");
             _agent = _brain.Body.ActiveTransform.GetComponent<NavMeshAgent>();
             if (_agent == null)
                 _agent = _brain.Body.ActiveTransform.AddComponent<NavMeshAgent>();
@@ -268,14 +274,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
                 LostControl();
                 return;
             }
-
+            /*
             var d = Vector3.Distance(_brain.Body.GetPosition(), _lastPosition);
             _currentSpeed = Mathf.Abs(d / deltaTime);
             _lastPosition = _brain.Body.GetPosition();
             if (_currentSpeed < Mathf.Epsilon)
               _currentSpeed = 0;
-
+            */
             //Debug.Log($"remaining: {_agent.remainingDistance} {_agent.pathStatus} pending: {_agent.pathPending} stopped: {_agent.isStopped} {d} {_currentSpeed}");
+
+            if(_agent == null)
+            {
+                Debug.LogWarning($"{nameof(PathFindInstructionTile)} cannot find agent");
+            }
+
+            _currentSpeed = _agent.velocity.magnitude;
 
             if (!_agent.pathPending)
             {
@@ -322,6 +335,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
 
         protected void SetAgentSettings()
         {
+            if (_agent == null) return;
             _agent.baseOffset = _baseOffset;
             _agent.speed = _speed;
             _agent.angularSpeed = _angularSpeed;
