@@ -62,14 +62,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
             if (!found)
             {
-                var bounds = _brain.Body.GetBounds();
-
                 _colliderWasCreatedByMe = true;
                 _collider = gameObject.AddComponent<BoxCollider>();
-                _collider.isTrigger = true;
-                var col = (BoxCollider)_collider;
-                col.center = gameObject.transform.InverseTransformPoint(bounds.center);
-                col.size = bounds.size + Vector3.one*.01f;
             }
 
             OnBodySpawned = HandleBodySpawned;
@@ -93,6 +87,26 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         public void SetBrain(IMonaBrain brain)
         {
             _brain = brain;
+            Debug.Log("AA: Brain set, setting collision bounds...");
+            SetCollisionBounds();
+        }
+
+        private void SetCollisionBounds()
+        {
+            if (_collider is BoxCollider && _colliderWasCreatedByMe)
+            {
+                _collider.isTrigger = true;
+                var bounds = _brain.Body.GetBounds();
+                var col = (BoxCollider)_collider;
+                col.center = gameObject.transform.InverseTransformPoint(bounds.center);
+                col.size = bounds.size + Vector3.one * .01f;
+
+                Debug.Log("AA: Collision bounds set.");
+            }
+            else
+            {
+                Debug.Log("AA: Collision bounds set by exisiting collider.");
+            }
         }
 
         public void SetPage(IMonaBrainPage page)

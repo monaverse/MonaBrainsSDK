@@ -44,8 +44,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page)
         {
-            _profilerDo.Begin();
-
             _brain = brainInstance;
             
             if (_collider == null || _gameObject != _brain.GameObject)
@@ -75,8 +73,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             _collider.SetBrain(_brain);
 
             SetActive(true);
-
-            _profilerDo.End();
         }
 
         public void SetActive(bool active)
