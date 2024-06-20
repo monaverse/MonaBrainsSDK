@@ -16,25 +16,40 @@ MonoBehaviour:
     rid: 3250164677034377633
   _id: ApplyForceAway
   _name: Apply Force Away
-  _category: Forces
+  _category: Adv Forces
   references:
     version: 2
     RefIds:
     - rid: 3250164677034377633
-      type: {class: ApplyForceAwayInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
-        asm: com.monaverse.sdk.brains.runtime}
+      type: {class: ApplyForceAwayInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ApplyForceAway
         _name: Apply Force Away
-        _category: Forces
+        _category: Adv Forces
         _muted: 0
         _force: 5
         _forceValueName: 
+        _distance: 5
+        _distanceName: 
+        _alignmentDirection: 0
+        _directionTag: Player
+        _directionVector: {x: 0, y: -1, z: 0}
+        _directionVectorName: []
         _duration: 0
         _durationValueName: 
+        _damping: 5
+        _dampingName: 
+        _alignmentGeometry: 0
+        _geometryTag: Player
+        _alignmentAxis: 4
+        _targetAxisValue: 0
+        _targetAxisValueName: 
+        _targetPlane: {x: 0, y: 0}
+        _targetPlaneName: []
+        _targetPosition: {x: 0, y: 0, z: 0}
+        _targetPositionName: []
+        _scaleWith: 20
+        _forceSpace: 1
         _maxSpeed: 0.2
-        _dragType: 0
-        _drag: 0.2
-        _angularDrag: 0.2
-        _friction: 0.5
-        _bounce: 0.2
+        _maxSpeedName: 
+        _yFactor: 1

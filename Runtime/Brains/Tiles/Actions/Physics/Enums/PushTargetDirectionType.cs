@@ -20,6 +20,8 @@
         PitchUp = 33,
         PitchDown = 34,
         TurnRight = 35,
-        TurnLeft = 36
+        TurnLeft = 36,
+        TorqueAlignment = 40,
+        PositionalAlignment = 50
     }
 }

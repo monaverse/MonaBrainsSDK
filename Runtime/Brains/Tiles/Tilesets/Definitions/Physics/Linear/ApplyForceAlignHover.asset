@@ -9,38 +9,32 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ccf7596b3a07d2b4b8659bf2cc1b02a0, type: 3}
-  m_Name: ApplyForceToward
+  m_Script: {fileID: 11500000, guid: e811a756c179e429f8e380feffd0a597, type: 3}
+  m_Name: ApplyForceAlignHover
   m_EditorClassIdentifier: 
   _tile:
-    rid: 3250164677034377635
-  _id: ApplyForceToward
-  _name: Apply Force Toward
+    rid: 1597717309468705025
+  _id: ApplyForceAlignHover
+  _name: Hover
   _category: Adv Forces
   references:
     version: 2
     RefIds:
-    - rid: 3250164677034377635
-      type: {class: ApplyForceTowardInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+    - rid: 1597717309468705025
+      type: {class: ApplyForceAlignHoverInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: ApplyForceToward
-        _name: Apply Force Toward
+        _id: ApplyForceAlignHover
+        _name: Hover
         _category: Adv Forces
         _muted: 0
-        _force: 5
+        _force: 10
         _forceValueName: 
         _distance: 5
         _distanceName: 
-        _alignmentDirection: 0
-        _directionTag: Player
-        _directionVector: {x: 0, y: -1, z: 0}
-        _directionVectorName: []
         _duration: 0
         _durationValueName: 
         _damping: 5
         _dampingName: 
-        _alignmentGeometry: 0
-        _geometryTag: Player
         _alignmentAxis: 4
         _targetAxisValue: 0
         _targetAxisValueName: 
@@ -48,6 +42,10 @@ MonoBehaviour:
         _targetPlaneName: []
         _targetPosition: {x: 0, y: 0, z: 0}
         _targetPositionName: []
+        _alignmentDirection: 0
+        _directionTag: Player
+        _directionVector: {x: 0, y: -1, z: 0}
+        _directionVectorName: []
         _scaleWith: 20
         _forceSpace: 1
         _maxSpeed: 0.2

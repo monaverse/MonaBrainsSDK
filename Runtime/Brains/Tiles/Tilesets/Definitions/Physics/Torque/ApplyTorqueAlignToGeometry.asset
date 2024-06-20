@@ -9,31 +9,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 727ee271892774f1dacf574701081992, type: 3}
-  m_Name: ApplyTorquePitchUp
+  m_Script: {fileID: 11500000, guid: 46d8cd7a30a5f466ab892ce4857bb160, type: 3}
+  m_Name: ApplyTorqueAlignToGeometry
   m_EditorClassIdentifier: 
   _tile:
-    rid: 1597717129070117271
-  _id: ApplyTorquePitchUp
-  _name: Torque Pitch Up
-  _category: Torque
+    rid: 1597717309468704789
+  _id: ApplyTorqueGeometryAlign
+  _name: Align to Mesh
+  _category: Adv Torque
   references:
     version: 2
     RefIds:
-    - rid: 1597717129070117271
-      type: {class: ApplyTorquePitchUpInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+    - rid: 1597717309468704789
+      type: {class: ApplyTorqueAlignToGeometryInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: ApplyTorquePitchUp
-        _name: Torque Pitch Up
-        _category: Torque
+        _id: ApplyTorqueGeometryAlign
+        _name: Align to Mesh
+        _category: Adv Torque
         _muted: 0
         _alignmentAxis: 4
-        _torque: 1
+        _torque: 10
         _torqueValueName: 
         _duration: 0
         _durationValueName: 
         _alignmentGeometry: 0
-        _geometryTag: 
+        _geometryTag: Ground
         _targetAngle: 0
         _targetAngleName: 
         _targetAngles2: {x: 0, y: 0}
@@ -43,9 +43,9 @@ MonoBehaviour:
         _damping: 50
         _dampingName: 
         _alignmentDirection: 0
-        _directionTag: 
+        _directionTag: Player
         _directionVector: {x: 0, y: 0, z: 0}
         _directionVectorName: []
         _scaleForceWith: 20
-        _maxSpeed: 2
+        _maxSpeed: 0.2
         _maxSpeedName: 

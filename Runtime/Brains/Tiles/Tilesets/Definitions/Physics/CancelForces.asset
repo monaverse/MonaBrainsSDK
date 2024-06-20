@@ -16,14 +16,14 @@ MonoBehaviour:
     rid: 6017384255221138360
   _id: CancelForces
   _name: Cancel Forces
-  _category: Forces
+  _category: Adv Forces
   references:
     version: 2
     RefIds:
     - rid: 6017384255221138360
       type: {class: CancelForcesInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics.ScriptableObjects, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: CancelForces
+        _name: Cancel Forces
+        _category: Adv Forces
         _muted: 0
