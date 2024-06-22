@@ -526,14 +526,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                     targetRotation = Quaternion.Euler(TrueDefinedTargetAngles);
                     break;
                 default:
-                    targetRotation = GetDirectionVectorRotation(body.GetPosition(), GetAlignmentDirectionVector(body));
-                    break;
+                    return GetDirectionVectorRotation(body, body.GetPosition(), GetAlignmentDirectionVector(body), deltaTime);
             }
 
             return TorqueForRotation(body, currentRotation, targetRotation, deltaTime);
         }
 
-        protected Quaternion GetDirectionVectorRotation(Vector3 rayOrigin, Vector3 direction)
+        protected Vector3 GetDirectionVectorRotation(IMonaBody body, Vector3 rayOrigin, Vector3 direction, float deltaTime)
         {
             RaycastHit hit;
             if (UnityEngine.Physics.Raycast(rayOrigin, direction, out hit))
@@ -543,15 +542,40 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                     IMonaBody hitBody = hit.transform.GetComponent<IMonaBody>();
 
                     if (hitBody == null || !hitBody.HasMonaTag(_geometryTag))
-                        return Quaternion.identity;
+                        return Vector3.zero;
                 }
 
-                Vector3 normal = hit.normal;
-                Quaternion directionRotation = Quaternion.FromToRotation(Vector3.up, normal);
-                return directionRotation;
+                Vector3 targetUp = hit.normal;
+                Vector3 currentUp = body.Transform.up;
+                Vector3 torque = Vector3.Cross(currentUp, targetUp) * _torque;
+
+                switch (_alignmentAxis)
+                {
+                    case AlignmentAxes.X:
+                        torque = new Vector3(torque.x, 0, 0);
+                        break;
+                    case AlignmentAxes.Y:
+                        torque = new Vector3(0, torque.y, 0);
+                        break;
+                    case AlignmentAxes.Z:
+                        torque = new Vector3(0, 0, torque.z);
+                        break;
+                    case AlignmentAxes.XY:
+                        torque = new Vector3(torque.x, torque.y, 0);
+                        break;
+                    case AlignmentAxes.XZ:
+                        torque = new Vector3(torque.x, 0, torque.z);
+                        break;
+                    case AlignmentAxes.YZ:
+                        torque = new Vector3(0, torque.y, torque.z);
+                        break;
+                }
+
+                Vector3 dampingTorque = _damping * deltaTime * -body.ActiveRigidbody.angularVelocity;
+                return (torque + dampingTorque) * GetMassScaler(body);
             }
 
-            return Quaternion.identity;
+            return Vector3.zero;
         }
 
         protected Vector3 GetAlignmentDirectionVector(IMonaBody body)
@@ -570,7 +594,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                     return _directionVector;
             }
 
-            return -Vector3.up;
+            return Vector3.down;
         }
 
         protected Vector3 TorqueForRotation(IMonaBody body, Quaternion currentRotation, Quaternion targetRotation, float deltaTime)
@@ -615,7 +639,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             }
 
             Vector3 torque = axis * angle * adjustedForce * deltaTime;
-            Vector3 dampingTorque = -rb.angularVelocity * adjustedDamping * deltaTime;
+            Vector3 dampingTorque = adjustedDamping * deltaTime * -rb.angularVelocity;
             return torque + dampingTorque;
         }
 

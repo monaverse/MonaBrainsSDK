@@ -28,7 +28,7 @@ MonoBehaviour:
         _category: Adv Torque
         _muted: 0
         _alignmentAxis: 4
-        _torque: 10
+        _torque: 1
         _torqueValueName: 
         _duration: 0
         _durationValueName: 
@@ -40,11 +40,11 @@ MonoBehaviour:
         _targetAngles2Name: []
         _targetAngles3: {x: 0, y: 0, z: 0}
         _targetAngles3Name: []
-        _damping: 50
+        _damping: 1
         _dampingName: 
         _alignmentDirection: 0
         _directionTag: Player
-        _directionVector: {x: 0, y: 0, z: 0}
+        _directionVector: {x: 0, y: -1, z: 0}
         _directionVectorName: []
         _scaleForceWith: 20
         _maxSpeed: 0.2
