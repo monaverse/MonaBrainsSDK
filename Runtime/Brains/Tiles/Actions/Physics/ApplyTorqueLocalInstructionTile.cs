@@ -571,8 +571,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                         break;
                 }
 
-                Vector3 dampingTorque = _damping * deltaTime * -body.ActiveRigidbody.angularVelocity;
-                return (torque + dampingTorque) * GetMassScaler(body);
+                float massScaler = GetMassScaler(body);
+                float damping = _damping * massScaler;
+                torque *= massScaler;
+
+                Vector3 dampingTorque = damping * deltaTime * -body.ActiveRigidbody.angularVelocity;
+                return (torque + dampingTorque);
             }
 
             return Vector3.zero;
