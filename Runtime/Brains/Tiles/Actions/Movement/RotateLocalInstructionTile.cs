@@ -245,10 +245,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             //Debug.Log($"move input {_bodyInput.MoveValue}");
             if (DirectionType == RotateDirectionType.InputLeftRight)
             {
-                _brain.Body.SetDragType(DragType.Quadratic);
-                _brain.Body.SetDrag(.2f);
-                _brain.Body.SetAngularDrag(.2f);
-                _brain.Body.SetOnlyApplyDragWhenGrounded(true);
+                //_brain.Body.SetDragType(DragType.Quadratic);
+                //_brain.Body.SetDrag(.2f);
+                //_brain.Body.SetAngularDrag(.2f);
+                //_brain.Body.SetOnlyApplyDragWhenGrounded(true);
                 
                 if(Mathf.Approximately(_bodyInput.MoveValue.x, 0f) || (_lookStraightAhead && Mathf.Approximately(_bodyInput.MoveValue.y, 0)))
                 {
