@@ -987,7 +987,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             ResetBrainVariables();
 
             //if(_body.Transform != null)
-             //Debug.Log($"{nameof(Unload)} brain on Body {Name}", _body.Transform.gameObject);
+            //Debug.Log($"{nameof(Unload)} brain on Body {Name}", _body.Transform.gameObject);
         }
 
         private void ResetBrainVariables()

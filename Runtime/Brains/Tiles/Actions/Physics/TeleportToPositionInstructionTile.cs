@@ -63,6 +63,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             UseOffset = 10
         }
 
+        public override void SetThenCallback(IInstructionTile tile, Func<InstructionTileCallback, InstructionTileResult> thenCallback)
+        {
+            if (_thenCallback.ActionCallback == null)
+            {
+                _instructionCallback.Tile = tile;
+                _instructionCallback.ActionCallback = thenCallback;
+                _thenCallback.Tile = this;
+                _thenCallback.ActionCallback = ExecuteActionCallback;
+            }
+        }
+
+        private InstructionTileCallback _instructionCallback = new InstructionTileCallback();
+        private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
+        {
+            if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
+            return InstructionTileResult.Success;
+        }
+
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
@@ -70,6 +88,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public override InstructionTileResult Do()
         {
+            Debug.Log($"{nameof(TeleportToPositionInstructionTile)} ", _brain.Body.Transform.gameObject);
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
@@ -81,8 +100,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
             if (OffsetType == ObjectOffsetType.NoOffset)
             {
+                _brain.Body.OnTeleported -= HandleTeleported;
+                _brain.Body.OnTeleported += HandleTeleported;
                 _brain.Body.TeleportPosition(_value, true, _target == MonaBrainTransformType.LocalSpace);
-                return Complete(InstructionTileResult.Success);
+                return Complete(InstructionTileResult.Running);
             }
 
             GetTargetPosition(out Vector3 position, out bool targetFound, out bool useLocalSpace);
@@ -90,8 +111,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             if (!targetFound)
                 return Complete(InstructionTileResult.Success);
 
+            _brain.Body.OnTeleported -= HandleTeleported;
+            _brain.Body.OnTeleported += HandleTeleported;
             _brain.Body.TeleportPosition(position + _offset, true, useLocalSpace);
-            return Complete(InstructionTileResult.Success);
+            return Complete(InstructionTileResult.Running);
+        }
+
+        private void HandleTeleported()
+        {
+            Debug.Log($"{nameof(HandleTeleported)} ", _brain.Body.Transform.gameObject);
+            _brain.Body.OnTeleported -= HandleTeleported;
+            Complete(InstructionTileResult.Success, true);
         }
 
         private void GetTargetPosition(out Vector3 position, out bool targetFound, out bool useLocalSpace)

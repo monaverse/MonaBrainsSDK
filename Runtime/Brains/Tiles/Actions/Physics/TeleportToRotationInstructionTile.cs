@@ -28,6 +28,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public TeleportToRotationInstructionTile() { }
 
+        public override void SetThenCallback(IInstructionTile tile, Func<InstructionTileCallback, InstructionTileResult> thenCallback)
+        {
+            if (_thenCallback.ActionCallback == null)
+            {
+                _instructionCallback.Tile = tile;
+                _instructionCallback.ActionCallback = thenCallback;
+                _thenCallback.Tile = this;
+                _thenCallback.ActionCallback = ExecuteActionCallback;
+            }
+        }
+
+        private InstructionTileCallback _instructionCallback = new InstructionTileCallback();
+        private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
+        {
+            if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
+            return InstructionTileResult.Success;
+        }
+
         public void Preload(IMonaBrain brainInstance)
         {
             _brain = brainInstance;
@@ -41,13 +59,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             //Debug.Log($"{nameof(TeleportToRotationInstructionTile)} {_value} {_valueValueName}");
             if (_brain != null)
             {
-                if(_useLocal)
+                _brain.Body.OnTeleported -= HandleTeleported;
+                _brain.Body.OnTeleported += HandleTeleported;
+                if (_useLocal)
                     _brain.Body.TeleportRotation(_brain.Body.ActiveTransform.parent.rotation * Quaternion.Euler(_value), true);
                 else
                     _brain.Body.TeleportRotation(Quaternion.Euler(_value), true);
-                return Complete(InstructionTileResult.Success);
+                return Complete(InstructionTileResult.Running);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+        }
+
+        private void HandleTeleported()
+        {
+            //Debug.Log($"{nameof(HandleTeleported)} ", _brain.Body.Transform.gameObject);
+            _brain.Body.OnTeleported -= HandleTeleported;
+            Complete(InstructionTileResult.Success, true);
         }
 
     }

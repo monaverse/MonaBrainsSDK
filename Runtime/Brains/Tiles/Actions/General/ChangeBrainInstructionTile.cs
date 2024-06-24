@@ -351,8 +351,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             for (int i = 0; i < _brainGraphsToAdd.Count; i++)
                 runner.AddBrainGraph((MonaBrainGraph)_brainGraphsToAdd[i]);
 
-            runner.BrainInstances.Clear();
-            runner.RestartBrains();
+            runner.RestartBrains(true);
         }
 
         private void RemoveBrains(MonaBrainRunner runner)

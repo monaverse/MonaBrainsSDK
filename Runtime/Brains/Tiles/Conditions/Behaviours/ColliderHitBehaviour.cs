@@ -164,7 +164,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                                 _lastPosition = hitInfo.point - Vector3.Scale(dir.normalized, _collider.bounds.extents);
                             }
                         }
-                        //Debug.Log($"Added collision {_lastPosition} {_brain.Body.ActiveRigidbody.position} {_brain.Body.ActiveTransform.position}", _brain.Body.Transform.gameObject);
+                        Debug.Log($"Added collision {_lastPosition} {_brain.Body.ActiveRigidbody.position} {_brain.Body.ActiveTransform.position}", _brain.Body.Transform.gameObject);
                         MonaEventBus.Trigger(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), new MonaBodyEvent(MonaBodyEventType.OnStop));
                         _brain.Body.TeleportPosition(_lastPosition, true);
                     }

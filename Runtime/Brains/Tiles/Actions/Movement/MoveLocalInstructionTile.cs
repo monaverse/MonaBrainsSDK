@@ -544,7 +544,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         private void ManualStop()
         {
-            //Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(LostControl)}");
+            Debug.Log($"{nameof(MoveLocalInstructionTile)} {nameof(ManualStop)}", _brain.Body.Transform.gameObject);
             _movingState = MovingStateType.Stopped;
             StoppedMoving();
             Complete(InstructionTileResult.Success, true);

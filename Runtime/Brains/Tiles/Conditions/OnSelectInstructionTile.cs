@@ -76,7 +76,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             {
                 if (Raycast(_bodyInput.Ray))
                 {
-                    Debug.Log($"{nameof(OnSelectInstructionTile)}");
+                    Debug.Log($"{nameof(OnSelectInstructionTile)} {Time.frameCount}");
                     return Complete(InstructionTileResult.Success);
                 }
             }

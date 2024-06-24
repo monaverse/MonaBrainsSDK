@@ -344,6 +344,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void CacheTransforms()
         {
+            if (_body == null) return;
             _transformDefaults.Clear();
             _transformDefaults.Add(new ResetTransform(_body));
         }
@@ -605,7 +606,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void PreloadBrains()
         {
-            //Debug.Log($"{nameof(PreloadBrains)} {_body.Transform.name}", _body.Transform.gameObject);
+            //Debug.Log($"{nameof(PreloadBrains)} {_body.Transform.name} instances; {_brainInstances.Count}", _body.Transform.gameObject);
             _body.InitializeTags();
 
             for (var i = 0; i < _wait.Count; i++)
@@ -718,11 +719,13 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
-        public void RestartBrains()
+        public void RestartBrains(bool clearInstances = false)
         {
-            //Debug.Log($"Restart Brains {_body.Transform.name}", _body.Transform.gameObject);
+            Debug.Log($"Restart Brains {_body.Transform.name}", _body.Transform.gameObject);
             _began = false;
             UnloadBrains();
+            if(clearInstances)
+                _brainInstances.Clear();
             PreloadBrains();
             if (gameObject.activeInHierarchy)
                 BeginBrainsAgain();
@@ -779,7 +782,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 ResetTransforms();
             //_began = false;
             //if(_body.Transform != null)
-            //    Debug.Log($"{nameof(UnloadBrains)} {_body.Transform.name}", _body.Transform.gameObject);
+            //    Debug.Log($"{nameof(UnloadBrains)} {_body.Transform.name} instances {_brainInstances.Count}", _body.Transform.gameObject);
             for (var i = 0; i < _brainInstances.Count; i++)
             {
                 var instance = _brainInstances[i];

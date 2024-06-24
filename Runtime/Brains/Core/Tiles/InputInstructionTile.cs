@@ -76,6 +76,7 @@ namespace Mona.SDK.Brains.Core.Tiles
 
         protected virtual void AddTickDelegate()
         {
+            //Debug.Log($"{nameof(AddTickDelegate)} input instruction tile {_brain.Body.Transform.gameObject}", _brain.Body.Transform.gameObject);
             OnTick = HandleTick;
             MonaEventBus.Register<MonaTickEvent>(new EventHook(MonaCoreConstants.TICK_EVENT), OnTick);
 
@@ -87,6 +88,7 @@ namespace Mona.SDK.Brains.Core.Tiles
 
         protected virtual void RemoveTickDelegate()
         {
+            //Debug.Log($"{nameof(RemoveTickDelegate)} input instruction tile {_brain.Body.Transform.gameObject}", _brain.Body.Transform.gameObject);
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.TICK_EVENT), OnTick);
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.INPUT_EVENT, _brain.Body), OnInput);
 
@@ -104,8 +106,8 @@ namespace Mona.SDK.Brains.Core.Tiles
 
             AddTickDelegate();
 
-            if (_brain.LoggingEnabled)
-                Debug.Log($"{nameof(InputInstructionTile)}.{nameof(UpdateActive)} {_active}");
+           // if (_brain.LoggingEnabled)
+           //     Debug.Log($"{nameof(InputInstructionTile)}.{nameof(UpdateActive)} {_active}");
         }
 
         public virtual void ClearInput()
