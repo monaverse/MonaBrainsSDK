@@ -214,7 +214,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                     monaTag = MonaGlobalBrainRunner.Instance.GetTag(tag);
                 else
                     monaTag = _monaTagSource.GetTag(tag);
-                if (monaTag.IsPlayerTag) return true;
+                if (monaTag != null && monaTag.IsPlayerTag) return true;
             }
 
             return false;
