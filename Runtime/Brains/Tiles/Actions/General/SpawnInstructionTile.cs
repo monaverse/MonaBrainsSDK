@@ -472,7 +472,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
 
-            poolItem.SetPosition(position);
+            poolItem.TeleportPosition(position);
 
             poolItem.OnAfterEnabled -= HandleAfterEnabled;
             poolItem.OnAfterEnabled += HandleAfterEnabled;
@@ -571,6 +571,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             Debug.Log($"{nameof(ChangeAvatarInstructionTile)} yscale factor: {extents.y / max}");
             */
 
+            var offset = _offset;
+            if (HasVector3Values(_offsetName))
+                offset = GetVector3Value(_brain, _offsetName);
+
             avatarGameObject.Transform.localScale = Vector3.one;
             avatarGameObject.Transform.localPosition = Vector3.zero;
             avatarGameObject.Transform.localRotation = Quaternion.Euler(_eulerAngles);
@@ -584,12 +588,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (_scaleToFit)
             {
                 avatarGameObject.SetScale(Vector3.one * maxBoxScale);
-                avatarGameObject.Transform.localPosition = (avatarGameObject.Transform.InverseTransformDirection(_offset) - offsetY) * maxBoxScale;
+                avatarGameObject.Transform.localPosition = (avatarGameObject.Transform.InverseTransformDirection(offset) - offsetY) * maxBoxScale;
             }
             else
             {
                 avatarGameObject.SetScale(_scale);
-                avatarGameObject.Transform.localPosition = (avatarGameObject.Transform.InverseTransformDirection(_offset) - offsetY) * _scale.y;
+                avatarGameObject.Transform.localPosition = (avatarGameObject.Transform.InverseTransformDirection(offset) - offsetY) * _scale.y;
             }
 
         }
