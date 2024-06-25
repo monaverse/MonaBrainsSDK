@@ -484,7 +484,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             for (var i = 0; i < childBrains.Length; i++)
                 childBrains[i].CacheTransforms();
 
-            poolItem.SetVisible(true);
+            if(!_hidden)
+                poolItem.SetVisible(true);
 
             IMonaBody previouslySpawnedBody = _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
 
