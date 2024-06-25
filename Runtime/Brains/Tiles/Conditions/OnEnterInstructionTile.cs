@@ -122,7 +122,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             var bodies = _collider.BodiesThatEntered;
             if (bodies.Count > 0)
             {
-            Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(Do)} found: {_tag} {_collider.BodiesThatEntered.Count}", _brain.Body.ActiveTransform.gameObject);
+            //Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(Do)} found: {_tag} {_collider.BodiesThatEntered.Count}", _brain.Body.ActiveTransform.gameObject);
                 var body = bodies[0];
                 if (body != null)
                 {

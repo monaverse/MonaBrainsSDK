@@ -235,7 +235,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             if (!string.IsNullOrEmpty(_allowInterruptionName))
                 _allowInterruption = _brain.Variables.GetBool(_allowInterruptionName);
 
-            Debug.Log($"{nameof(PlayAudioInstructionTile)} do {_clip.Value}");
+            //Debug.Log($"{nameof(PlayAudioInstructionTile)} do {_clip.Value}");
             if (!_isPlaying || _allowInterruption)
             {
                 try
