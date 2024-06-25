@@ -86,9 +86,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             _brain = brainInstance;
         }
 
+        public override void Unload(bool destroy = false)
+        {
+            if(_brain != null && _brain.Body != null)
+                _brain.Body.OnTeleported -= HandleTeleported;
+            base.Unload(destroy);
+        }
+
         public override InstructionTileResult Do()
         {
-            Debug.Log($"{nameof(TeleportToPositionInstructionTile)} ", _brain.Body.Transform.gameObject);
+            //Debug.Log($"{nameof(TeleportToPositionInstructionTile)} ", _brain.Body.Transform.gameObject);
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
@@ -119,7 +126,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         private void HandleTeleported()
         {
-            Debug.Log($"{nameof(HandleTeleported)} ", _brain.Body.Transform.gameObject);
+            //Debug.Log($"{nameof(HandleTeleported)} ", _brain.Body.Transform.gameObject);
             _brain.Body.OnTeleported -= HandleTeleported;
             Complete(InstructionTileResult.Success, true);
         }

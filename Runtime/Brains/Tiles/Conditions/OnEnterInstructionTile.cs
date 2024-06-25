@@ -107,6 +107,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (_collider != null)
             {
+                _collider.BodiesThatEntered.Clear();
                 if (destroy)
                 {
                     _collider.Dispose();
@@ -118,10 +119,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override InstructionTileResult Do()
         {
             if (_collider == null) return InstructionTileResult.Failure;
-            //Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(Do)} found: {_tag} {_collider.BodiesThatEntered.Count}", _brain.Body.ActiveTransform.gameObject);
             var bodies = _collider.BodiesThatEntered;
             if (bodies.Count > 0)
             {
+            Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(Do)} found: {_tag} {_collider.BodiesThatEntered.Count}", _brain.Body.ActiveTransform.gameObject);
                 var body = bodies[0];
                 if (body != null)
                 {
