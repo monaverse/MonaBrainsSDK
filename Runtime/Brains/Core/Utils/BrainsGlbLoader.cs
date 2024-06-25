@@ -127,11 +127,13 @@ namespace Mona.SDK.Brains.Core.Utils
                         if (avatarData == null)
                         {
                             Debug.LogError("Invalid URL: Failed to download VRM file");
+                            callback?.Invoke(null);
                             return;
                         }
                         if (avatarData.SizeInMB() > MonaBrainConstants.AVATAR_MAXIMUM_FILESIZE_MB)
                         {
                             Debug.LogError($"VRM file is above our maximum supported size ({MonaBrainConstants.AVATAR_MAXIMUM_FILESIZE_MB} Megabytes)");
+                            callback?.Invoke(null);
                             return;
                         }
 
@@ -141,6 +143,7 @@ namespace Mona.SDK.Brains.Core.Utils
                         if (glbData == null)
                         {
                             Debug.LogError("Failed to parse VRM file, mesh not a parsable GLB");
+                            callback?.Invoke(null);
                             return;
                         }
 
