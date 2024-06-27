@@ -614,6 +614,15 @@ namespace Mona.SDK.Brains.UIEditors
                 _brain = (MonaBrainGraph)_listView.selectedItem;
                 _brainEditor.SetBrain(_brain);
                 _brainEditor.style.visibility = Visibility.Visible;
+                _brainEditor.schedule.Execute(() =>
+                {
+                    _brainEditor.style.width = _brainEditor.resolvedStyle.width - 1;
+                    _brainEditor.schedule.Execute(() =>
+                    {
+                        _brainEditor.style.width = Length.Percent(100);
+
+                    }).ExecuteLater(100);
+                }).ExecuteLater(100);
             }
             else
             {

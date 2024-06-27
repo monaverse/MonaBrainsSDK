@@ -87,7 +87,9 @@ namespace Mona.SDK.Brains.UIElements
         private SerializedProperty _layersProp;
 #endif
 
-        private Foldout CreateHeading(string text)
+        private TwoPaneSplitView _splitPane = new TwoPaneSplitView();
+
+        private Foldout CreateHeading(string text, Color color = default)
         {
             var foldOut = new Foldout();
             foldOut.style.marginLeft = -9;
@@ -105,7 +107,7 @@ namespace Mona.SDK.Brains.UIElements
                     content.style.fontSize = 14;
                     content.style.height = 28;
                     content.style.unityFontStyleAndWeight = FontStyle.Bold;
-                    content.style.backgroundColor = _lightRed;
+                    content.style.backgroundColor = color == default ? _lightRed : color;
                     content.style.paddingBottom = content.style.paddingTop = 3;
                     content.style.borderBottomLeftRadius = content.style.borderBottomRightRadius = content.style.borderTopLeftRadius = content.style.borderTopRightRadius = 3;
                 }
@@ -149,7 +151,15 @@ namespace Mona.SDK.Brains.UIElements
         public MonaBrainGraphVisualElement(Action newCallback)
         {
             callback = newCallback;
-            style.flexDirection = FlexDirection.Row;
+            style.flexGrow = 1;
+
+            _splitPane.style.flexGrow = 1;
+
+            _splitPane.orientation = TwoPaneSplitViewOrientation.Horizontal;
+            _splitPane.fixedPaneIndex = 1;
+            _splitPane.fixedPaneInitialDimension = 150;
+
+            Add(_splitPane);
 
             _leftColumn = new ScrollView();
             _leftColumn.style.flexDirection = FlexDirection.Column;
@@ -157,7 +167,7 @@ namespace Mona.SDK.Brains.UIElements
             _leftColumn.style.paddingRight = 3;
             _leftColumn.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
             _leftColumn.verticalScrollerVisibility = ScrollerVisibility.Auto;
-            Add(_leftColumn);
+            _splitPane.Add(_leftColumn);
 
             _brainMetaData = CreateHeading("Brain Metadata");
             _brainMetaData.value = false;
@@ -469,7 +479,8 @@ namespace Mona.SDK.Brains.UIElements
             _rightColumn.style.width = 150;
             _rightColumn.style.backgroundColor = Color.HSVToRGB(347f / 360f, .66f, .1f);
             _rightColumn.style.paddingLeft = 5;
-            Add(_rightColumn);
+
+            _splitPane.Add(_rightColumn);
 
             var searchContainer = new VisualElement();
             var searchLabel = new Label("Search Tiles");
@@ -487,25 +498,31 @@ namespace Mona.SDK.Brains.UIElements
                     var items = _tileSource.FindAll(x =>
                     {
                         if (x.IsHeader) return false;
+                        if (x.IsCategory) return true;
                         if (x.Category != null && x.Category.ToLower().Contains(evt.newValue.ToLower())) return true;
                         if (x.Label.ToLower().Contains(evt.newValue.ToLower())) return true;
                         return false;
                     });
+
                     items = items.FindAll(x =>
                     {
                         if (x.IsCategory)
                         {
-                            return items.Find(f => f.Category == x.Category) != null;
+                            return items.Find(f => f.Category == x.Category && f.IsCategory == false) != null;
                         }
                         return true;
                     });
-                    _tileListView.itemsSource = items;
-                    _tileListView.Rebuild();
+                    _tileViewSource = items;
+                    RefreshTileView();
+                    //_tileListView.itemsSource = items;
+                    //_tileListView.Rebuild();
                 }
                 else
                 {
-                    _tileListView.itemsSource = _tileSource;
-                    _tileListView.Rebuild();
+                    _tileViewSource = _tileSource;
+                    RefreshTileView();
+                    //_tileListView.itemsSource = _tileSource;
+                    //_tileListView.Rebuild();
                 }
             });
             _search[0].style.backgroundColor = Color.black;
@@ -514,6 +531,19 @@ namespace Mona.SDK.Brains.UIElements
             searchContainer.Add(_search);
             _rightColumn.Add(searchContainer);
 
+            _tileScrollView = new ScrollView();
+            _tileScrollView.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+            _tileScrollView.verticalScrollerVisibility = ScrollerVisibility.Auto;
+            _tileScrollView.style.flexGrow = 1;
+
+            _rightColumn.Add(_tileScrollView);
+
+            _tileView = new VisualElement();
+            _tileView.style.flexDirection = FlexDirection.Column;
+
+            _tileScrollView.Add(_tileView);
+
+            /*
             _tileListView = new ListView(null, 34, () => new TileMenuItemVisualElement(), (elem, i) =>
             {
                 var item = (TileMenuItemVisualElement)elem;
@@ -532,8 +562,77 @@ namespace Mona.SDK.Brains.UIElements
             };
             _tileListView.style.flexGrow = 1;
             _rightColumn.Add(_tileListView);
+            */
+
             //Add(_root);
         }
+
+        private ScrollView _tileScrollView;
+        private VisualElement _tileView;
+        private List<TileMenuItem> _tileViewSource = new List<TileMenuItem>();
+        private Dictionary<string, bool> _tileViewFoldouts = new Dictionary<string, bool>();
+
+        private void RefreshTileView()
+        {
+            _tileView.Clear();
+            Foldout lastCategoryHeader = null;
+            for(var i = 0;i < _tileViewSource.Count; i++)
+            {
+                var tile = _tileViewSource[i];
+                if(tile.IsCategory)
+                {
+                    if (tile.IsHeader)
+                    {
+                        var item = new TileMenuItemVisualElement();
+                        item.style.height = 40;
+                        item.SetItem(tile);
+                        _tileView.Add(item);
+                    }
+                    else
+                    {
+                        lastCategoryHeader = CreateHeading(tile.Label, Color.HSVToRGB(1f, 0f, .2f));
+                        lastCategoryHeader.RegisterValueChangedCallback(evt =>
+                        {
+                            if (!_tileViewFoldouts.ContainsKey(tile.Category))
+                                _tileViewFoldouts[tile.Category] = false;
+                            _tileViewFoldouts[tile.Category] = evt.newValue;
+                        });
+                        if(i < _tileViewSource.Count-1)
+                        {
+                            if (_search.text.Length > 0)
+                            {
+                                if (_tileViewSource[i + 1].Category == tile.Category)
+                                    lastCategoryHeader.value = true;
+                            }
+                            else
+                            {
+                                if (_tileViewFoldouts[tile.Category])
+                                    lastCategoryHeader.value = true;
+                            }
+                        }
+
+                        _tileView.Add(lastCategoryHeader);
+                    }
+                }
+                else if(lastCategoryHeader != null)
+                {
+                    var item = new TileMenuItemVisualElement();
+                    item.RegisterCallback<ClickEvent>((evt) =>
+                    {
+                        var target = (TileMenuItemVisualElement)evt.currentTarget;
+
+                        if (!target.Item.IsCategory)
+                            target.Item.Action();
+
+                        //_tileListView.selectedIndex = -1;
+                    });
+                    item.style.height = 30;
+                    item.SetItem(tile);
+                    lastCategoryHeader.Add(item);
+                }
+            }
+        }
+
 
         public class TileMenuItem
         {
@@ -543,6 +642,7 @@ namespace Mona.SDK.Brains.UIElements
             public string Category;
             public bool IsHeader;
             public bool IsCondition;
+            public bool ShowByDefault;
             public override string ToString()
             {
                 return Label;
@@ -603,12 +703,14 @@ namespace Mona.SDK.Brains.UIElements
                     SetRadius(0);
                     if (_item.IsHeader)
                     {
+                        Debug.Log($"is header: {_item.Label}");
                         _label.style.backgroundColor = Color.HSVToRGB(.9f, 0f, .1f);
                         _label.style.color = Color.HSVToRGB(1f, 0f, 1f);
                         _label.style.unityFontStyleAndWeight = FontStyle.Bold;
                     }
                     else
                     {
+                        Debug.Log($"is category: {_item.Label}");
                         if (_item.IsCondition)
                         {
                             _label.style.backgroundColor = Color.HSVToRGB(.9f, 0f, .1f); 
@@ -627,6 +729,7 @@ namespace Mona.SDK.Brains.UIElements
             }
         }
 
+        private bool _firstRefresh = true;
         private void RefreshMenu()
         {
             if (_brain.TileSet == null)
@@ -637,7 +740,10 @@ namespace Mona.SDK.Brains.UIElements
 #if UNITY_EDITOR
             _tileSource = new List<TileMenuItem>();
             _tileSource.Add(new TileMenuItem() { Label = "WHEN TILES", IsCategory = true, IsHeader = true });
-            
+
+            if(_firstRefresh)
+                _tileViewFoldouts.Clear();
+
             string lastCategory = null;
             var tiles = _brain.TileSet.ConditionTiles;
             //tiles.Sort((a, b) =>
@@ -657,6 +763,8 @@ namespace Mona.SDK.Brains.UIElements
                 if(def.Category != lastCategory)
                 {
                     _tileSource.Add(new TileMenuItem() { Label = def.Category, Category = def.Category, IsCategory = true, IsCondition = true });
+                    if (_firstRefresh)
+                        _tileViewFoldouts[def.Category] = _brain.TileSet.DefaultShowCategories.IndexOf(def.Category) > -1;
                     lastCategory = def.Category;
                 }    
                 _tileSource.Add(new TileMenuItem() { Label = $"{def.Name}", Category = def.Category, IsCondition = true, Action = () => AddTileToSelectedInstructions(def.Tile) });
@@ -682,13 +790,18 @@ namespace Mona.SDK.Brains.UIElements
                 CopyToTile(def);
                 if (def.Category != lastCategory)
                 {
-                    _tileSource.Add(new TileMenuItem() { Label = def.Category, IsCategory = true });
+                    _tileSource.Add(new TileMenuItem() { Label = def.Category, Category = def.Category, IsCategory = true });
+                    if(_firstRefresh)
+                        _tileViewFoldouts[def.Category] = _brain.TileSet.DefaultShowCategories.IndexOf(def.Category) > -1;
                     lastCategory = def.Category;
                 }
-                _tileSource.Add(new TileMenuItem() { Label = $"{def.Name}", Action = () => AddTileToSelectedInstructions(def.Tile) });
+                _tileSource.Add(new TileMenuItem() { Label = $"{def.Name}", Category = def.Category, Action = () => AddTileToSelectedInstructions(def.Tile) });
             }
-            _tileListView.itemsSource = _tileSource;
-            _tileListView.RefreshItems();
+            //_tileListView.itemsSource = _tileSource;
+            //_tileListView.RefreshItems();
+            _tileViewSource = _tileSource;
+            _firstRefresh = false;
+            RefreshTileView();
 #endif
         }
 

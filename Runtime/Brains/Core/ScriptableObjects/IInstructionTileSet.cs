@@ -7,6 +7,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
     public interface IInstructionTileSet
     {
         string Version { get; }
+        List<string> DefaultShowCategories { get; }
         List<IInstructionTileDefinition> ConditionTiles { get; }
         List<IInstructionTileDefinition> ActionTiles { get; }
         IInstructionTileDefinition Find(string id);

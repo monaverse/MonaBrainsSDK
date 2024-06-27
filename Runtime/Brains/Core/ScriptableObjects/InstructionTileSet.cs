@@ -21,6 +21,11 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         public string Version => _version;
 
         [SerializeField]
+        public List<string> _defaultShowCategories = new List<string>();
+
+        public List<string> DefaultShowCategories => _defaultShowCategories;
+
+        [SerializeField]
         public List<ScriptableObject> _conditionTiles = new List<ScriptableObject>();
 
         [SerializeField]
