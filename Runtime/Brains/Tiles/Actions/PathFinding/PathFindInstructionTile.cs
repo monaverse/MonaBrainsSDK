@@ -57,6 +57,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
         private Action<MonaBodyEvent> OnBodyEvent;
         private Action<MonaBodyAnimationControllerChangedEvent> OnAnimationControllerChanged;
         private Action<MonaBodySpawnedEvent> OnMonaBodySpawned;
+        private Action<MonaBodyNetworkedEvent> OnMonaBodyNetworked;
 
         public PathFindInstructionTile() { }
 
@@ -100,10 +101,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
         private void HandleMonaBodySpawned(MonaBodySpawnedEvent evt = default)
         {
             //Debug.Log($"{nameof(PathFindInstructionTile)} HandleMonaBodySpawened");
+            _agent = _brain.Body.Transform.GetComponent<NavMeshAgent>();
+            if (_agent != null && _brain.Body.Transform != _brain.Body.ActiveTransform)
+            {
+                GameObject.DestroyImmediate(_agent);
+                _agent = null;
+            }
+
             _agent = _brain.Body.ActiveTransform.GetComponent<NavMeshAgent>();
             if (_agent == null)
                 _agent = _brain.Body.ActiveTransform.AddComponent<NavMeshAgent>();
 
+            Debug.Log($"{nameof(HandleMonaBodySpawned)} agent null: {_agent == null}");
             SetAgentSettings();
         }
 
