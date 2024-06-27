@@ -57,7 +57,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
         private Action<MonaBodyEvent> OnBodyEvent;
         private Action<MonaBodyAnimationControllerChangedEvent> OnAnimationControllerChanged;
         private Action<MonaBodySpawnedEvent> OnMonaBodySpawned;
-        private Action<MonaBodyNetworkedEvent> OnMonaBodyNetworked;
 
         public PathFindInstructionTile() { }
 
