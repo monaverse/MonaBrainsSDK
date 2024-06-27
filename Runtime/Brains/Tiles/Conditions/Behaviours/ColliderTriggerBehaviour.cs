@@ -87,7 +87,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         public void SetBrain(IMonaBrain brain)
         {
             _brain = brain;
-            Debug.Log("AA: Brain set, setting collision bounds...");
             SetCollisionBounds();
         }
 
@@ -100,12 +99,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                 var col = (BoxCollider)_collider;
                 col.center = gameObject.transform.InverseTransformPoint(bounds.center);
                 col.size = bounds.size + Vector3.one * .01f;
-
-                Debug.Log("AA: Collision bounds set.");
-            }
-            else
-            {
-                Debug.Log("AA: Collision bounds set by exisiting collider.");
             }
         }
 

@@ -33,11 +33,22 @@ To add this sdk to your Unity project, follow these steps:
 ![Screenshot 2024-03-27 at 1 20 04 PM](https://github.com/monaverse/MonaBrainsSDK/assets/541988/9e81d422-ef31-4d61-a8fe-642e1ebaa733)
 
 
-if you don't, then create one by right clicking on your Brains folder, then selecting: Create -> Mona Brains -> Utils -> Mona Tags from the context menu.
+if you don't, then create one by right clicking on your Brains folder (or Assets folder if you don't yet have a brains folder), then selecting: Create -> Mona Brains -> Utils -> Mona Tags from the context menu.
 ![Screenshot 2024-03-27 at 1 16 09 PM](https://github.com/monaverse/MonaBrainsSDK/assets/541988/1cf2af63-e0bd-448f-b629-d3ed3b34beff)
 
 
 10. Once set up is complete, you should see a menu item at the top of Unity called 'Mona' with the option to launch the brains editor.
 
-11. Check back frequently for updated releases as this project is in active development and changing regularly.
+11. You may receive the following compiler errors once brains is installed. This is because the VRM and Brains Libraries use different GLTF importer libraries. 
+<img width="875" alt="image" src="https://github.com/monaverse/MonaBrainsSDK/assets/541988/a71a245a-592f-429a-9ec2-11246a9870d6">
+
+- Set your importer to the `MonaUnityGLTF` library. 
+- Under Edit -> Project Settings -> Player -> Other Settings -> Scripting Define Symbols, you'll want to add the following items:
+  - `UNIGLTF_DISABLE_DEFAULT_GLB_IMPORTER`
+  - `UNIGLTF_DISABLE_DEFAULT_GLTF_IMPORTER`
+
+<img width="781" alt="image" src="https://github.com/monaverse/MonaBrainsSDK/assets/541988/2ee77621-35fd-4336-9865-faefee6566fd">
+
+
+13. Check back frequently for updated releases as this project is in active development and changing regularly.
 

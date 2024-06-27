@@ -721,7 +721,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void RestartBrains(bool clearInstances = false)
         {
-            Debug.Log($"Restart Brains {_body.Transform.name}", _body.Transform.gameObject);
+            //Debug.Log($"Restart Brains {_body.Transform.name}", _body.Transform.gameObject);
             _began = false;
             UnloadBrains();
             if(clearInstances)

@@ -516,7 +516,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             extents.x *= avatarFactor;
             extents.z *= avatarFactor;
 
-            Debug.Log($"extents: {extents} scale:{_scale}");
+            //Debug.Log($"extents: {extents} scale:{_scale}");
 
             var boxScale = new Vector3(_scale.x / extents.x, _scale.y / extents.y, _scale.z / extents.z);
             var index = 0;
@@ -530,7 +530,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             var maxBoxScale = boxScale[index];
             extents *= maxBoxScale;
-            Debug.Log($"extents: {extents} {maxBoxScale}");
+            //Debug.Log($"extents: {extents} {maxBoxScale}");
 
             var mostOverlap = -1;
             var mostOverlapDistance = 0f;
@@ -554,7 +554,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 maxBoxScale *= _scale[mostOverlap] / extents[mostOverlap];
 
             extents = bounds.extents * 2f * maxBoxScale;
-            Debug.Log($"extents: {extents} {maxBoxScale} orig {bounds.extents * 2f} d:{mostOverlapDistance} i:{mostOverlap}");
+            //Debug.Log($"extents: {extents} {maxBoxScale} orig {bounds.extents * 2f} d:{mostOverlapDistance} i:{mostOverlap}");
             //var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
             //var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
             //var scale = maxScale / max;
@@ -584,7 +584,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             for (var i = 0; i < childBrains.Length; i++)
                 childBrains[i].CacheTransforms();
 
-            Debug.Log($"{nameof(SpawnInstructionTile)} localPosition: {avatarGameObject.Transform.localPosition}");
+            //Debug.Log($"{nameof(SpawnInstructionTile)} localPosition: {avatarGameObject.Transform.localPosition}");
 
             if (_scaleToFit)
             {
@@ -637,7 +637,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private void HandleAfterEnabled(IMonaBody body)
         {
             body.OnAfterEnabled -= HandleAfterEnabled;
-            Debug.Log($"{nameof(HandleAfterEnabled)} ready ", body.Transform.gameObject);
+            //Debug.Log($"{nameof(HandleAfterEnabled)} ready ", body.Transform.gameObject);
             Complete(InstructionTileResult.Success, true);
         }
 
