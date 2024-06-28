@@ -40,10 +40,12 @@ namespace Mona.SDK.Brains.UIElements
         private VisualElement _rightColumn;
         private Foldout _brainMetaData;
         private MonaBrainPageVisualElement _corePage;
+        public MonaBrainPageVisualElement CorePage => _corePage;
         private VisualElement _tabToolbar;
         private VisualElement _tabs;
         private Button _btnNewPage;
         private MonaBrainPageVisualElement _activeStatePage;
+        public MonaBrainPageVisualElement ActiveStatePage => _activeStatePage;
         private Label _statePageHeading;
         private Foldout _activePagesHeading;
         private Foldout _defaultVariablesHeading;
@@ -56,6 +58,7 @@ namespace Mona.SDK.Brains.UIElements
         private Toggle _toggleAllowLogging;
         private Toggle _toggleLegacyMonaPlatforms;
         private TextField _search;
+        private VisualElement _dropArea;
 
         private Button _btnDeletePage;
         private Button _btnMoveLeft;
@@ -542,6 +545,15 @@ namespace Mona.SDK.Brains.UIElements
             _tileView.style.flexDirection = FlexDirection.Column;
 
             _tileScrollView.Add(_tileView);
+            /*
+            var drop = new VisualElement();
+            drop.style.width = 0;
+            drop.style.height = 0;
+            Add(drop);
+            */
+            _dropArea = new VisualElement();
+            _dropArea.style.position = Position.Absolute;
+            Add(_dropArea);
 
             /*
             _tileListView = new ListView(null, 34, () => new TileMenuItemVisualElement(), (elem, i) =>
@@ -583,7 +595,7 @@ namespace Mona.SDK.Brains.UIElements
                 {
                     if (tile.IsHeader)
                     {
-                        var item = new TileMenuItemVisualElement();
+                        var item = new TileMenuItemVisualElement(_dropArea, this);
                         item.style.height = 40;
                         item.SetItem(tile);
                         _tileView.Add(item);
@@ -616,7 +628,7 @@ namespace Mona.SDK.Brains.UIElements
                 }
                 else if(lastCategoryHeader != null)
                 {
-                    var item = new TileMenuItemVisualElement();
+                    var item = new TileMenuItemVisualElement(_dropArea, this);
                     item.RegisterCallback<ClickEvent>((evt) =>
                     {
                         var target = (TileMenuItemVisualElement)evt.currentTarget;
@@ -629,102 +641,6 @@ namespace Mona.SDK.Brains.UIElements
                     item.style.height = 30;
                     item.SetItem(tile);
                     lastCategoryHeader.Add(item);
-                }
-            }
-        }
-
-
-        public class TileMenuItem
-        {
-            public string Label;
-            public Action Action;
-            public bool IsCategory;
-            public string Category;
-            public bool IsHeader;
-            public bool IsCondition;
-            public bool ShowByDefault;
-            public override string ToString()
-            {
-                return Label;
-            }
-
-        }
-
-        public class TileMenuItemVisualElement : VisualElement
-        {
-            private TileMenuItem _item;
-            public TileMenuItem Item => _item;
-            private Label _label;
-
-            private Color _brightPink = Color.HSVToRGB(351f / 360f, .79f, .98f);
-            private Color _lightRed = Color.HSVToRGB(347f / 360f, .80f, .66f);
-            private Color _textColor = Color.white;
-
-            public TileMenuItemVisualElement()
-            {
-                style.flexDirection = FlexDirection.Row;
-                style.flexGrow = 1;
-                _label = new Label();
-                _label.style.flexWrap = Wrap.Wrap;
-                Add(_label);
-            }
-
-            private void SetRadius(float r) => _label.style.borderBottomLeftRadius = _label.style.borderBottomRightRadius = _label.style.borderTopLeftRadius = _label.style.borderTopRightRadius = r;
-
-            public void SetItem(TileMenuItem item)
-            {
-                _item = item;
-                _label.style.flexGrow = 1;
-                _label.style.unityFontStyleAndWeight = FontStyle.Normal;
-                _label.style.marginBottom = _label.style.marginLeft = _label.style.marginRight = 2;
-                _label.style.borderLeftWidth = 5;
-                _label.style.borderLeftColor = Color.white;
-                _label.style.paddingLeft = 4;
-                _label.text = _item.Label;
-                _label.style.unityTextAlign = TextAnchor.MiddleLeft;
-                SetRadius(3);
-
-                if (_item.IsCondition)
-                {
-                    _label.style.backgroundColor = _lightRed;
-                    _label.style.color = _textColor;
-                }
-                else
-                {
-                    _label.style.backgroundColor = _brightPink;
-                    _label.style.color = _textColor;
-                }
-
-                if (_item.IsCategory)
-                {
-                    _label.style.borderLeftWidth = 0;
-                    _label.style.unityTextAlign = TextAnchor.MiddleLeft;
-                    _label.text = _item.Label.ToUpper();
-                    SetRadius(0);
-                    if (_item.IsHeader)
-                    {
-                        Debug.Log($"is header: {_item.Label}");
-                        _label.style.backgroundColor = Color.HSVToRGB(.9f, 0f, .1f);
-                        _label.style.color = Color.HSVToRGB(1f, 0f, 1f);
-                        _label.style.unityFontStyleAndWeight = FontStyle.Bold;
-                    }
-                    else
-                    {
-                        Debug.Log($"is category: {_item.Label}");
-                        if (_item.IsCondition)
-                        {
-                            _label.style.backgroundColor = Color.HSVToRGB(.9f, 0f, .1f); 
-                            _label.style.color = _textColor;
-                        }
-                        else
-                        {
-                            _label.style.backgroundColor = Color.HSVToRGB(.9f, 0f, .1f); 
-                            _label.style.color = _textColor;
-                        }
-
-                        _label.style.color = Color.HSVToRGB(1f, 0f, 1f);
-                        _label.style.unityFontStyleAndWeight = FontStyle.Bold;
-                    }
                 }
             }
         }
@@ -767,7 +683,7 @@ namespace Mona.SDK.Brains.UIElements
                         _tileViewFoldouts[def.Category] = _brain.TileSet.DefaultShowCategories.IndexOf(def.Category) > -1;
                     lastCategory = def.Category;
                 }    
-                _tileSource.Add(new TileMenuItem() { Label = $"{def.Name}", Category = def.Category, IsCondition = true, Action = () => AddTileToSelectedInstructions(def.Tile) });
+                _tileSource.Add(new TileMenuItem() { Label = $"{def.Name}", Category = def.Category, IsCondition = true, Tile = def.Tile, Action = () => AddTileToSelectedInstructions(def.Tile) });
             }
             
             _tileSource.Add(new TileMenuItem() { Label = "THEN DO TILES", IsCategory = true, IsHeader = true });
@@ -795,7 +711,7 @@ namespace Mona.SDK.Brains.UIElements
                         _tileViewFoldouts[def.Category] = _brain.TileSet.DefaultShowCategories.IndexOf(def.Category) > -1;
                     lastCategory = def.Category;
                 }
-                _tileSource.Add(new TileMenuItem() { Label = $"{def.Name}", Category = def.Category, Action = () => AddTileToSelectedInstructions(def.Tile) });
+                _tileSource.Add(new TileMenuItem() { Label = $"{def.Name}", Category = def.Category, Tile = def.Tile, Action = () => AddTileToSelectedInstructions(def.Tile) });
             }
             //_tileListView.itemsSource = _tileSource;
             //_tileListView.RefreshItems();

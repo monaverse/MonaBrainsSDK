@@ -18,6 +18,9 @@ namespace Mona.SDK.Brains.UIElements
         private Label _label;
         private ListView _instructionListView;
 
+        private List<MonaInstructionVisualElement> _instructions = new List<MonaInstructionVisualElement>();
+        public List<MonaInstructionVisualElement> Instructions => _instructions;
+
         public MonaBrainPageVisualElement()
         {
             style.flexDirection = FlexDirection.Column;
@@ -45,12 +48,18 @@ namespace Mona.SDK.Brains.UIElements
             _instructionListView.bindItem += (elem, i) =>
             {
                 if (elem is MonaInstructionVisualElement)
+                {
                     ((MonaInstructionVisualElement)elem).OnTileIndexClicked += HandleTileIndexClicked;
+                    _instructions.Add((MonaInstructionVisualElement)elem);
+                }
             };
             _instructionListView.unbindItem += (elem, i) =>
             {
                 if (elem is MonaInstructionVisualElement)
+                {
                     ((MonaInstructionVisualElement)elem).OnTileIndexClicked -= HandleTileIndexClicked;
+                    _instructions.Remove((MonaInstructionVisualElement)elem);
+                }
                 if (elem is MonaInstructionVisualElement)
                     ((MonaInstructionVisualElement)elem).ClearInstruction();
             };

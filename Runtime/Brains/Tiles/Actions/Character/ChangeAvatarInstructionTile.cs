@@ -595,12 +595,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     if (animator == null || animator.avatar == null)
                         parsed = ParseHumanoid(avatar);
 
-                    if ((animator == null || animator.avatar == null) && parsed.Avatar == null)
+                    if ((animator == null || animator.avatar == null) && parsed.Avatar == null && avatar.name != "Pivot-Brains")
                     {
                         var pivot = new GameObject("Pivot-Brains");
                         avatar.transform.SetParent(pivot.transform);
                         avatar.transform.localScale = Vector3.one;
                         avatar.transform.localPosition = Vector3.zero;
+                        avatar.transform.localRotation = Quaternion.identity;
                         avatar = pivot;
 
                         var bounds = GetBounds(avatar);

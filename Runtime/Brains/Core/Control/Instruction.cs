@@ -24,6 +24,7 @@ namespace Mona.SDK.Brains.Core.Control
     {
         private IMonaBrain _brain;
         private IMonaBrainPage _page;
+        public IMonaBrainPage Page => _page;
 
         public event Action<IInstruction> OnReset = delegate { };
         public event Action<int> OnRefresh = delegate { };
@@ -680,18 +681,27 @@ namespace Mona.SDK.Brains.Core.Control
 
             if(instance is IConditionInstructionTile)
             {
-                var idx = InstructionTiles.FindLastIndex(x => x is IConditionInstructionTile);
-                if(idx > -1)
+                if (i > 0 && i < InstructionTiles.Count && InstructionTiles[i] is IConditionInstructionTile)
                 {
-                    InstructionTiles.Insert(idx+1, instance);
-                    Changed(idx+1);
+                    InstructionTiles.Insert(i, instance);
+                    Changed(0);
                     return;
                 }
                 else
                 {
-                    InstructionTiles.Insert(0, instance);
-                    Changed(0);
-                    return;
+                    var idx = InstructionTiles.FindLastIndex(x => x is IConditionInstructionTile);
+                    if (idx > -1)
+                    {
+                        InstructionTiles.Insert(idx + 1, instance);
+                        Changed(idx + 1);
+                        return;
+                    }
+                    else
+                    {
+                        InstructionTiles.Insert(0, instance);
+                        Changed(0);
+                        return;
+                    }
                 }
             }
 

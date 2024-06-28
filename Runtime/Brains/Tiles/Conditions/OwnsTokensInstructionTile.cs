@@ -284,7 +284,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                     _tokens = tokens.FindAll(x =>
                     {
-                        if (x.Description.ToLower().StartsWith(_tokenDescription.ToLower()))
+                        if (x.Description != null && x.Description.ToLower().StartsWith(_tokenDescription.ToLower()))
                             return true;
                         return false;
                     });

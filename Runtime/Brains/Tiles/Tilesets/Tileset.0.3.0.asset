@@ -16,6 +16,7 @@ MonoBehaviour:
   _defaultShowCategories:
   - Local Movement
   - Input
+  - Physics
   _conditionTiles:
   - {fileID: 11400000, guid: f99938dad8e48d54092793f99c79935d, type: 2}
   - {fileID: 11400000, guid: bd4567cef507ddc42a90effa497218b3, type: 2}

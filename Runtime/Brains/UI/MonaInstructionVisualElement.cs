@@ -5,6 +5,7 @@ using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Core.Tiles.ScriptableObjects;
 using System;
+using System.Collections.Generic;
 
 #if UNITY_EDITOR
 using UnityEditor.UIElements;
@@ -19,8 +20,13 @@ namespace Mona.SDK.Brains.UIElements
         private IMonaBrain _brain;
         private IInstruction _instruction;
         private IMonaBrainPage _page;
+        public IMonaBrainPage Page => _page;
+        public IInstruction Instruction => _instruction;
 
         private ScrollView _scrollView;
+
+        private List<MonaInstructionTileVisualElement> _tiles = new List<MonaInstructionTileVisualElement>();
+        public List<MonaInstructionTileVisualElement> Tiles => _tiles;
 
 #if UNITY_EDITOR
         private ToolbarMenu _replaceTileMenu;
@@ -178,6 +184,7 @@ namespace Mona.SDK.Brains.UIElements
             }
 
             _scrollView.Clear();
+            _tiles.Clear();
             for (var i = 0; i <_instruction.InstructionTiles.Count; i++)
             {
                 var tile = _instruction.InstructionTiles[i];
@@ -187,6 +194,7 @@ namespace Mona.SDK.Brains.UIElements
                     Select(c, expand);
                 };
                 view.SetInstructionTile(_brain, _page, tile, i, _instruction.InstructionTiles.Count);
+                _tiles.Add(view);
                 _scrollView.Add(view);
                 _scrollView.schedule.Execute(() =>
                 {

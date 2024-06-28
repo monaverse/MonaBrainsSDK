@@ -31,6 +31,7 @@ namespace Mona.SDK.Brains.UIElements
         private IMonaBrain _brain;
         private IMonaBrainPage _page;
         private IInstructionTile _tile;
+        public IInstructionTile Tile => _tile;
         private int _index;
 
         private VisualElement _toolBar;
@@ -56,6 +57,7 @@ namespace Mona.SDK.Brains.UIElements
 
         public MonaInstructionTileVisualElement()
         {
+            AddToClassList("slot");
 #if UNITY_EDITOR
             _expandIcon = (Sprite)AssetDatabase.LoadAssetAtPath("Packages/com.monaverse.brainssdk/Runtime/Resources/tile_expand.png", typeof(Sprite));
             _collapseIcon = (Sprite)AssetDatabase.LoadAssetAtPath("Packages/com.monaverse.brainssdk/Runtime/Resources/tile_collapse.png", typeof(Sprite));

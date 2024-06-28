@@ -34,6 +34,7 @@ namespace Mona.SDK.Brains.Core.Control
         InstructionTileResult Result { get; set; }
 
         List<Token> Tokens { get; set; }
+        IMonaBrainPage Page { get; }
 
         void ToggleMuteTile(int i);
         void ToggleMute();
