@@ -29,10 +29,16 @@ namespace Mona.SDK.Brains.UIElements
         public event Action OnHeight;
 
         private IMonaBrain _brain;
+        public IMonaBrain Brain => _brain;
+
         private IMonaBrainPage _page;
+        public IMonaBrainPage Page => _page;
+
         private IInstructionTile _tile;
         public IInstructionTile Tile => _tile;
+
         private int _index;
+        public int Index => _index;
 
         private VisualElement _toolBar;
         private VisualElement _valuesContainer;
@@ -55,14 +61,18 @@ namespace Mona.SDK.Brains.UIElements
         private Sprite _expandIcon;
         private Sprite _collapseIcon;
 
-        public MonaInstructionTileVisualElement()
+        private VisualElement _dropArea;
+        private InstructionTileDragAndDropManipulator _manipulator;
+
+        public MonaInstructionTileVisualElement(VisualElement dropArea, MonaBrainGraphVisualElement search)
         {
-            AddToClassList("slot");
+            _dropArea = dropArea;
 #if UNITY_EDITOR
             _expandIcon = (Sprite)AssetDatabase.LoadAssetAtPath("Packages/com.monaverse.brainssdk/Runtime/Resources/tile_expand.png", typeof(Sprite));
             _collapseIcon = (Sprite)AssetDatabase.LoadAssetAtPath("Packages/com.monaverse.brainssdk/Runtime/Resources/tile_collapse.png", typeof(Sprite));
 #endif
 
+            _manipulator = new InstructionTileDragAndDropManipulator(this, _dropArea, search);
 
             style.flexDirection = FlexDirection.Column;
 
@@ -136,7 +146,8 @@ namespace Mona.SDK.Brains.UIElements
             _valuesExtended.style.borderLeftWidth = 1;
             _valuesExtended.style.borderLeftColor = Color.black;
             _valuesContainer.Add(_valuesExtended);
-
+            
+            _dropArea = new VisualElement();
         }
 
         public void Select(bool expand)
@@ -173,7 +184,7 @@ namespace Mona.SDK.Brains.UIElements
                 _labelMore.style.backgroundImage = new StyleBackground(_expandIcon);
         }
 
-        public void SetInstructionTile(IMonaBrain brain, IMonaBrainPage page, IInstructionTile tile, int tileIndex, int instructionTileCount)
+        public void SetInstructionTile(IMonaBrain brain, IMonaBrainPage page, IInstructionTile tile, int tileIndex)
         {
             _brain = brain;
             _page = page;

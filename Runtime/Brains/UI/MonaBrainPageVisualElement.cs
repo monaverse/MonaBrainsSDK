@@ -21,11 +21,18 @@ namespace Mona.SDK.Brains.UIElements
         private List<MonaInstructionVisualElement> _instructions = new List<MonaInstructionVisualElement>();
         public List<MonaInstructionVisualElement> Instructions => _instructions;
 
-        public MonaBrainPageVisualElement()
+        private VisualElement _dropArea;
+        private MonaBrainGraphVisualElement _search;
+
+        public MonaBrainPageVisualElement(VisualElement dropArea, MonaBrainGraphVisualElement search)
         {
+
+            _dropArea = dropArea;
+            _search = search;
+
             style.flexDirection = FlexDirection.Column;
 
-            _instructionListView = new ListView(null, 120, () => new MonaInstructionVisualElement(), (elem, i) => BindInstructionItem((MonaInstructionVisualElement)elem, i));
+            _instructionListView = new ListView(null, 120, () => new MonaInstructionVisualElement(_dropArea, _search), (elem, i) => BindInstructionItem((MonaInstructionVisualElement)elem, i));
             _instructionListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
             _instructionListView.showFoldoutHeader = false;
             _instructionListView.headerTitle = "Instructions";

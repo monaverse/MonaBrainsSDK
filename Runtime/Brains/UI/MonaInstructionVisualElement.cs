@@ -42,8 +42,13 @@ namespace Mona.SDK.Brains.UIElements
 
         private IManipulator _click;
 
-        public MonaInstructionVisualElement()
+        private VisualElement _dropArea;
+        private MonaBrainGraphVisualElement _search;
+
+        public MonaInstructionVisualElement(VisualElement dropArea, MonaBrainGraphVisualElement search)
         {
+            _dropArea = dropArea;
+            _search = search;
             _click = new Clickable(() =>
             {
                 HandleDeselect();
@@ -188,12 +193,12 @@ namespace Mona.SDK.Brains.UIElements
             for (var i = 0; i <_instruction.InstructionTiles.Count; i++)
             {
                 var tile = _instruction.InstructionTiles[i];
-                var view = new MonaInstructionTileVisualElement();
+                var view = new MonaInstructionTileVisualElement(_dropArea, _search);
                 view.OnClicked += (c, expand) =>
                 {
                     Select(c, expand);
                 };
-                view.SetInstructionTile(_brain, _page, tile, i, _instruction.InstructionTiles.Count);
+                view.SetInstructionTile(_brain, _page, tile, i);
                 _tiles.Add(view);
                 _scrollView.Add(view);
                 _scrollView.schedule.Execute(() =>

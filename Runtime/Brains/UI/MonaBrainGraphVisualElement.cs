@@ -156,6 +156,8 @@ namespace Mona.SDK.Brains.UIElements
             callback = newCallback;
             style.flexGrow = 1;
 
+            _dropArea = new VisualElement();
+
             _splitPane.style.flexGrow = 1;
 
             _splitPane.orientation = TwoPaneSplitViewOrientation.Horizontal;
@@ -253,7 +255,7 @@ namespace Mona.SDK.Brains.UIElements
             _corePageContainer.value = true;
             _leftColumn.Add(_corePageContainer);
 
-            _corePage = new MonaBrainPageVisualElement();
+            _corePage = new MonaBrainPageVisualElement(_dropArea, this);
             _corePage.OnSelectedInstructionsChanged += HandleSelectedInstructions;
             _corePage.OnTileIndexClicked += HandleTileIndexClicked;
             _corePageContainer.Add(_corePage);
@@ -316,7 +318,7 @@ namespace Mona.SDK.Brains.UIElements
             _statePageInstructions = CreateSmallHeading("Active Page Instructions");
             _activePageContainer.Add(_statePageInstructions);
 
-            _activeStatePage = new MonaBrainPageVisualElement();
+            _activeStatePage = new MonaBrainPageVisualElement(_dropArea, this);
             _activeStatePage.OnSelectedInstructionsChanged += HandleSelectedInstructions;
             _activeStatePage.OnTileIndexClicked += HandleTileIndexClicked;
             _activePageContainer.Add(_activeStatePage);
@@ -551,7 +553,6 @@ namespace Mona.SDK.Brains.UIElements
             drop.style.height = 0;
             Add(drop);
             */
-            _dropArea = new VisualElement();
             _dropArea.style.position = Position.Absolute;
             Add(_dropArea);
 

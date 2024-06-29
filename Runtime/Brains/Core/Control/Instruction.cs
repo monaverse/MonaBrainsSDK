@@ -737,7 +737,7 @@ namespace Mona.SDK.Brains.Core.Control
                 }
             }
 
-            if (i == -1)
+            if (i == -1 || i > InstructionTiles.Count-1)
             {
                 InstructionTiles.Add(instance);
                 Changed(InstructionTiles.Count - 1);
