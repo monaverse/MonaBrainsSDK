@@ -27,6 +27,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         [BrainProperty(false)] public bool LookStraightAhead { get => _lookStraightAhead; set => _lookStraightAhead = value; }
 
+        [SerializeField] private Vector3 _targetValue;
+        [SerializeField] private string[] _targetvalueValueName = new string[4];
+        [BrainPropertyShow(nameof(Source), (int)MonaBrainTargetResultType.OnHitTarget)]
+        [BrainProperty(true)] public Vector3 TargetValue { get => _targetValue; set => _targetValue = value; }
+        [BrainPropertyValueName(nameof(TargetValue), typeof(IMonaVariablesVector3Value))] public string[] TargetValueValueName { get => _targetvalueValueName; set => _targetvalueValueName = value; }
+
         private IMonaBody GetTarget()
         {
             var body = GetSource();
@@ -61,6 +67,31 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Quaternion _look;
         protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress, bool immediate)
         {
+            if (_source == MonaBrainTargetResultType.OnHitTarget && HasVector3Values(_targetvalueValueName))
+            {
+                var targetVector = GetVector3Value(_brain, _targetvalueValueName);
+
+                var fwd = targetVector - _brain.Body.GetPosition();
+                if (_lookStraightAhead)
+                    fwd.y = 0;
+
+                var rot = _brain.Body.GetRotation();
+                if (immediate)
+                {
+                    _look = Quaternion.LookRotation(fwd, Vector3.up);
+                    _brain.Body.TeleportRotation(_look, true);
+                    return Quaternion.identity;
+                }
+                else
+                {
+                    if (progress == 0f)
+                        _look = Quaternion.LookRotation(fwd, Vector3.up);
+                    _brain.Body.SetRotation(Quaternion.Inverse(rot));
+                    return Quaternion.RotateTowards(rot, _look, angle);
+                }
+            }
+
+
             IMonaBody body = GetTarget();
             if (body != null)
             {

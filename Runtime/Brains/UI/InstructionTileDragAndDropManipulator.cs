@@ -65,6 +65,8 @@ public class InstructionTileDragAndDropManipulator : PointerManipulator
         {
             Vector3 pointerDelta = evt.position - pointerStartPosition;
 
+            if (pointerDelta.magnitude < 20) return;
+
             if (_clone == null)
             {
                 _tileItem = (MonaInstructionTileVisualElement)target;
