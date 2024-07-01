@@ -426,6 +426,10 @@ namespace Mona.SDK.Brains.UIElements
                 var fieldContainer = new VisualElement();
                 fieldContainer.style.flexDirection = FlexDirection.Row;
                 fieldContainer.style.alignItems = Align.FlexEnd;
+                fieldContainer.RegisterCallback<PointerDownEvent>((evt) =>
+                {
+                    evt.StopImmediatePropagation();
+                });
                 container.Add(fieldContainer);
 
                 var isAsset = (BrainPropertyMonaAsset)property.GetCustomAttribute(typeof(BrainPropertyMonaAsset), true);
