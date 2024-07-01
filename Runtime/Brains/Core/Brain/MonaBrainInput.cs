@@ -156,6 +156,9 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
+        public void EnableInput() => _inputs.Player.Enable();
+        public void DisableInput() => _inputs.Player.Disable();
+
         private Dictionary<MonaInputType, MonaInputState> _buttons = new Dictionary<MonaInputType, MonaInputState>();
         private Vector2 _moveValue;
         private Vector2 _lookValue;
@@ -182,6 +185,7 @@ namespace Mona.SDK.Brains.Core.Brain
         public MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState = MonaInputState.Pressed)
         {
             if (_player == null) return default;
+            if (!_inputs.Player.enabled) return default;
 
             if (_lastFrame != Time.frameCount)
             {
