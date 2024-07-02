@@ -137,8 +137,16 @@ namespace Mona.SDK.Brains.Core.Brain
                 {
                     var go = new GameObject();
                     var runner = go.AddComponent<MonaGlobalBrainRunner>();
+
                     go.name = nameof(MonaGlobalBrainRunner);
-                    go.transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
+                    try
+                    {
+                        go.transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
+                    }
+                    catch(Exception e)
+                    {
+                        Debug.Log($"{nameof(MonaGlobalBrainRunner)} init no space tag present");
+                    }
                     runner.Awake();
                 }
             }
@@ -158,6 +166,9 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void Awake()
         {
+#if OLYMPIA
+            NetworkSettings.NetworkType = MonaNetworkType.Shared;
+#endif
             if (IsAndroidOrIOS)
                 Application.targetFrameRate = 60;
 

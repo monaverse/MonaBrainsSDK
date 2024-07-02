@@ -4,6 +4,12 @@ using Mona.SDK.Brains.Core.Utils.Enums;
 
 namespace Mona.SDK.Brains.Core.Utils.Structs
 {
+    public record TokenFile
+    {
+        public string Url { get; set; }
+        public string Filetype { get; set; }
+    }
+
     public struct Token
     {
         public string Id;
@@ -35,6 +41,7 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
         public Dictionary<string, object> Traits;
         public TokenAssetType AssetType;
         public string AssetUrl;
+        public List<TokenFile> Files;
 
         public override bool Equals(object obj)
         {

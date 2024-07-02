@@ -8,22 +8,29 @@ using Mona.SDK.Brains.Core.Utils.Structs;
 
 namespace Mona.SDK.Brains.Core.Utils
 {
-    [Serializable]
-    public class RegisteredContract
+    public enum MonaSDKFilterType
     {
-        public string Address;
-        public int StartToken;
-        public int TokenCount;
-        public string TokenType;
-        public bool Active;
-        public bool RequireOwnership = true;
-        public string Chain;
+        Trait=0,
+        Contract=1
+    }
+
+    [Serializable]
+    public class MonaSDKFilter
+    {
+        public MonaSDKFilterType FilterType;
+        public bool Exclude;
+        public string Contract;
+        public string TraitName;
+        public string TraitValue;
     }
 
     public class MonaBrainBlockchain : MonoBehaviour, IMonaBrainBlockchain
     {
         [SerializeField]
         protected string _walletAddress;
+
+        [SerializeField]
+        public List<MonaSDKFilter> Filters = new List<MonaSDKFilter>();
 
         public virtual void SetWalletAddress(string address) => _walletAddress = address;
 
