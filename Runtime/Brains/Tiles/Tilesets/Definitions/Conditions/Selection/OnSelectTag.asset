@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164610271543365
   _id: OnSelectTag
   _name: On Tag Selected
-  _category: Input
+  _category: Selection
   references:
     version: 2
     RefIds:
@@ -25,7 +25,9 @@ MonoBehaviour:
       data:
         _id: OnSelectTag
         _name: On Tag Selected
-        _category: Input
+        _category: Selection
+        _muted: 0
         _monaTag: Player
         _distance: 100
         _distanceValueName: 
+        _allowParent: 0

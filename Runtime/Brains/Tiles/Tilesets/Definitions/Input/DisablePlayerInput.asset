@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540027290878055
   _id: DisablePlayerInput
   _name: Avatar Control Off
-  _category: Character
+  _category: Monaverse
   references:
     version: 2
     RefIds:
@@ -25,4 +25,5 @@ MonoBehaviour:
       data:
         _id: DisablePlayerInput
         _name: Avatar Control Off
-        _category: Character
+        _category: Monaverse
+        _muted: 0

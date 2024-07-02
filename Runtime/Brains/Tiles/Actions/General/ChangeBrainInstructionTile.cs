@@ -19,7 +19,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
     {
         public const string ID = "ChangeBrain";
         public const string NAME = "Add / Remove Brain";
-        public const string CATEGORY = "General";
+        public const string CATEGORY = "Body Actions";
         public override Type TileType => typeof(ChangeBrainInstructionTile);
 
         public bool IsAnimationTile => true;

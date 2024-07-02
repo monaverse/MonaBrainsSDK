@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6017384830349869296
   _id: MoveWithInput
   _name: Move With Input
-  _category: Adv Movement
+  _category: Character Cntrl
   references:
     version: 2
     RefIds:
@@ -25,7 +25,7 @@ MonoBehaviour:
       data:
         _id: MoveWithInput
         _name: Move With Input
-        _category: Adv Movement
+        _category: Character Controls
         _muted: 0
         _target: 10
         _targetTag: Player

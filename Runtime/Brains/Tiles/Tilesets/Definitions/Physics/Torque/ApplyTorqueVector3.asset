@@ -49,5 +49,7 @@ MonoBehaviour:
         _scaleForceWith: 20
         _maxSpeed: 2
         _maxSpeedName: 
+        _alignVelocity: 0
+        _alignVelocityName: 
         _directionValue: {x: 0, y: 0, z: 0}
         _directionName: []

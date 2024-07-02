@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164769144701326
   _id: OnInput
   _name: Mona Input
-  _category: Input
+  _category: Monaverse
   references:
     version: 2
     RefIds:
@@ -28,8 +28,8 @@ MonoBehaviour:
         _category: Input
         _muted: 0
         _inputType: 3
-        _inputState: 2
         _moveDirection: 0
+        _inputState: 2
         _useLookAsMove: 0
         _allowTouch: 0
         _gestureTimeout: 0

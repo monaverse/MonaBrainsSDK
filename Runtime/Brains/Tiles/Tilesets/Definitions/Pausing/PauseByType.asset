@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6017384683200315424
   _id: PauseByType
   _name: Pause Body
-  _category: Pause / Resume
+  _category: Body Actions
   references:
     version: 2
     RefIds:
@@ -25,7 +25,7 @@ MonoBehaviour:
       data:
         _id: PauseByType
         _name: Pause Body
-        _category: Pause / Resume
+        _category: Body Actions
         _muted: 0
         _target: 0
         _targetTag: Pausable

@@ -16,7 +16,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     {
         public new const string ID = "OnSelectTag";
         public new const string NAME = "Select Tag";
-        public new const string CATEGORY = "Input";
+        public new const string CATEGORY = "Selection";
         public override Type TileType => typeof(OnSelectTagInstructionTile);
 
         [SerializeField] private string _monaTag;

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2f274b7155854736a33f0d4e5570e09, type: 3}
+  m_Name: OnInputLook
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 2811961450262954952
+  _id: OnInputLook
+  _name: On Look Control
+  _category: Input
+  references:
+    version: 2
+    RefIds:
+    - rid: 2811961450262954952
+      type: {class: OnInputLookInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: OnInputLook
+        _name: On Look Control
+        _category: Input
+        _muted: 0
+        _moveDirection: 5
+        _inputState: 3
+        _allowTouch: 0
+        _gestureTimeout: 0
+        _joystickType: 0
+        _joystickSize: 30
+        _deadZoneType: 0
+        _joystickSizeDeadZone: 15
+        _useLookAsMove: 0

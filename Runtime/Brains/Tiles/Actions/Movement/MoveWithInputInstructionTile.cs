@@ -17,19 +17,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
     {
         public const string ID = "MoveWithInput";
         public const string NAME = "Move With Input";
-        public const string CATEGORY = "Adv Movement";
+        public const string CATEGORY = "Character Cntrl";
         public override Type TileType => typeof(MoveWithInputInstructionTile);
 
         [SerializeField] private MonaBrainTransformTargetType _target = MonaBrainTransformTargetType.Self;
-        [BrainPropertyEnum(true)] public MonaBrainTransformTargetType Target { get => _target; set => _target = value; }
+        [BrainPropertyEnum(false)] public MonaBrainTransformTargetType Target { get => _target; set => _target = value; }
 
         [SerializeField] private string _targetTag = "Player";
         [BrainPropertyShow(nameof(Target), (int)MonaBrainTransformType.Tag)]
-        [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
+        [BrainPropertyMonaTag(false)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
         [SerializeField] private string _bodyArray;
         [BrainPropertyShow(nameof(Target), (int)MonaBrainTransformTargetType.MyBodyArray)]
-        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string BodyArray { get => _bodyArray; set => _bodyArray = value; }
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), false)] public string BodyArray { get => _bodyArray; set => _bodyArray = value; }
 
         [SerializeField] private PlayerInputDeviceType _device = PlayerInputDeviceType.Mouse;
         [BrainPropertyEnum(true)] public PlayerInputDeviceType Device { get => _device; set => _device = value; }
@@ -37,11 +37,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private Vector2 _directionVector;
         [SerializeField] private string[] _directionVectorName;
         [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.Vector2)]
-        [BrainProperty(true)] public Vector2 DirectionVector { get => _directionVector; set => _directionVector = value; }
+        [BrainProperty(false)] public Vector2 DirectionVector { get => _directionVector; set => _directionVector = value; }
         [BrainPropertyValueName("DirectionVector", typeof(IMonaVariablesVector2Value))] public string[] DirectionVectorName { get => _directionVectorName; set => _directionVectorName = value; }
 
         [SerializeField] private MovementMode _moveAlong = MovementMode.XZ;
-        [BrainPropertyEnum(true)] public MovementMode MoveAlong { get => _moveAlong; set => _moveAlong = value; }
+        [BrainPropertyEnum(false)] public MovementMode MoveAlong { get => _moveAlong; set => _moveAlong = value; }
 
         [SerializeField] private MovementPlaneType _axisType = MovementPlaneType.ViewBasedPlaneLock;
         [BrainPropertyShow(nameof(Device), (int)PlayerInputDeviceType.GenericMovement)]
@@ -75,7 +75,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private string _speedName;
         [BrainPropertyShow(nameof(DisplaySpeed), (int)DisplayField.Display)]
         [BrainPropertyShowLabel(nameof(DisplaySpeed), (int)DisplayField.Display, "Meters/Sec")]
-        [BrainProperty(false)] public float Speed { get => _speed; set => _speed = value; }
+        [BrainProperty(true)] public float Speed { get => _speed; set => _speed = value; }
         [BrainPropertyValueName("Speed", typeof(IMonaVariablesFloatValue))] public string SpeedName { get => _speedName; set => _speedName = value; }
 
         [SerializeField] private bool _placeOnSurface = false;

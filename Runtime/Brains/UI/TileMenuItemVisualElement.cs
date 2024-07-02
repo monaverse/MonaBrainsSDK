@@ -87,14 +87,14 @@ namespace Mona.SDK.Brains.UIElements
                 SetRadius(0);
                 if (_item.IsHeader)
                 {
-                    Debug.Log($"is header: {_item.Label}");
+                    //Debug.Log($"is header: {_item.Label}");
                     _label.style.backgroundColor = Color.HSVToRGB(.9f, 0f, .1f);
                     _label.style.color = Color.HSVToRGB(1f, 0f, 1f);
                     _label.style.unityFontStyleAndWeight = FontStyle.Bold;
                 }
                 else
                 {
-                    Debug.Log($"is category: {_item.Label}");
+                    //Debug.Log($"is category: {_item.Label}");
                     if (_item.IsCondition)
                     {
                         _label.style.backgroundColor = Color.HSVToRGB(.9f, 0f, .1f);

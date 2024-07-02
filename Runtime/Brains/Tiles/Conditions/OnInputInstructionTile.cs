@@ -20,14 +20,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override Type TileType => typeof(OnInputInstructionTile);
 
         [SerializeField]
-        private MonaInputType _inputType = MonaInputType.Action;
+        private MonaInputType _inputType = MonaInputType.Move;
         [BrainPropertyEnum(true)]
-        public MonaInputType InputType { get => _inputType; set => _inputType = value; }
-
-        [SerializeField]
-        private MonaInputState _inputState = MonaInputState.Pressed;
-        [BrainPropertyEnum(true)]
-        public MonaInputState InputState { get => _inputState; set => _inputState = value; }
+        public virtual MonaInputType InputType { get => _inputType; set => _inputType = value; }
 
         [SerializeField]
         private MonaInputMoveType _moveDirection = MonaInputMoveType.AllDirections;
@@ -35,6 +30,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Move)]
         [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Look)]
         public MonaInputMoveType MoveDirection { get => _moveDirection; set => _moveDirection = value; }
+
+        [SerializeField]
+        private MonaInputState _inputState = MonaInputState.Held;
+        [BrainPropertyEnum(true)]
+        public MonaInputState InputState { get => _inputState; set => _inputState = value; }
 
         [SerializeField] private bool _useLookAsMove;
         [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Look)]

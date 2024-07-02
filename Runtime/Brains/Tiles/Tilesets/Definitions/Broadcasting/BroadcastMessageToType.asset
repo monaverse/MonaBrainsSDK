@@ -21,14 +21,17 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 5149698009646503237
-      type: {class: BroadcastMessageToTypeInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Broadcasting,
-        asm: com.monaverse.sdk.brains.runtime}
+      type: {class: BroadcastMessageToTypeInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Broadcasting, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: BroadcastMessage
         _name: Send Message
         _category: General
         _muted: 0
         _messageTarget: 0
-        _tag: Player
+        _tag: Default
+        _bodyArray: 
         _message: 
+        _messageName: 
+        _includeAttached: 0
+        _includeAttachedName: 
         _appendPlayerId: 0

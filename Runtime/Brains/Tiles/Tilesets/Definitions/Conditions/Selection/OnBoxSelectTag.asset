@@ -16,21 +16,21 @@ MonoBehaviour:
     rid: 5156609103371436409
   _id: OnBoxSelectTag
   _name: Box Select Tag
-  _category: Input
+  _category: Selection
   references:
     version: 2
     RefIds:
     - rid: 5156609103371436409
       type: {class: OnBoxSelectTagInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnBoxSelectTag
+        _name: Box Select Tag
+        _category: Selection
         _muted: 0
         _tl: {x: 0, y: 0}
-        _tlValueName: 
+        _tlValueName: []
         _br: {x: 0, y: 0}
-        _brValueName: 
+        _brValueName: []
         _monaTag: 
         _distance: 100
         _distanceValueName: 

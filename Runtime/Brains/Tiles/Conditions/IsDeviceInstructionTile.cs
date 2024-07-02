@@ -15,7 +15,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     {
         public const string ID = "IsDevice";
         public const string NAME = "Is Device";
-        public const string CATEGORY = "Platform";
+        public const string CATEGORY = "System";
         public override Type TileType => typeof(IsDeviceInstructionTile);
 
         [SerializeField] private PlatformType _device = PlatformType.SpecificOS;

@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6317540209771676627
   _id: SpawnAsset
   _name: Spawn Asset
-  _category: General
+  _category: Spawning
   references:
     version: 2
     RefIds:
@@ -25,12 +25,42 @@ MonoBehaviour:
       data:
         _id: SpawnAsset
         _name: Spawn Asset
-        _category: General
-        _monaAsset: 
+        _category: Spawning
+        _muted: 0
         _poolCount: 5
+        _poolCountName: 
         _location: 0
         _tag: Default
         _part: Default
+        _spawnAsChild: 0
+        _spawnAsChildName: 
         _offset: {x: 0, y: 0, z: 0}
+        _offsetName:
+        - 
+        - 
+        - 
+        - 
         _eulerAngles: {x: 0, y: 0, z: 0}
+        _eulerAnglesName:
+        - 
+        - 
+        - 
+        - 
         _scale: {x: 1, y: 1, z: 1}
+        _scaleName:
+        - 
+        - 
+        - 
+        - 
+        _scaleToFit: 0
+        _bottomPivot: 0
+        _importLights: 0
+        _hidden: 0
+        _spawnOnEmpty: 0
+        _destroyOnDisable: 0
+        _enableAll: 0
+        _monaAsset: 
+        _monaAssetName: 
+        _useUrl: 0
+        _assetUrl: 
+        _assetUrlValueName: 

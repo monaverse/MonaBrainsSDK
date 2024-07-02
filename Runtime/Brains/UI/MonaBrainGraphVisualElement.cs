@@ -174,84 +174,16 @@ namespace Mona.SDK.Brains.UIElements
             _leftColumn.verticalScrollerVisibility = ScrollerVisibility.Auto;
             _splitPane.Add(_leftColumn);
 
-            _brainMetaData = CreateHeading("Brain Metadata");
-            _brainMetaData.value = false;
-
-            _name = new TextField("Brain Name");
-            _name.RegisterValueChangedCallback((evt) => _brain.Name = (string)evt.newValue);
-            _brainMetaData.Add(_name);
-
-            _readMe = new TextField("Brain ReadMe");
-            _readMe.RegisterValueChangedCallback((evt) => _brain.ReadMe = (string)evt.newValue);
-            _brainMetaData.Add(_readMe);
-
-            _property = new EnumField("Property", MonaBrainPropertyType.Default);
-            _property.RegisterValueChangedCallback((evt) => _brain.PropertyType = (MonaBrainPropertyType)evt.newValue);
-            _brainMetaData.Add(_property);
-
-
-            var tagContainer = new VisualElement();
-            var s = tagContainer.style;
-            s.flexDirection = FlexDirection.Column;
-            s.marginLeft = s.marginRight = s.marginTop = s.marginBottom = 5;
-            s.paddingLeft = s.paddingRight = s.paddingTop = s.paddingBottom = 5;
-            //s.borderBottomLeftRadius = s.borderBottomRightRadius = s.borderTopLeftRadius = s.borderTopRightRadius = 5;
-            //s.borderLeftWidth = s.borderRightWidth = s.borderTopWidth = s.borderBottomWidth = 1;
-            //s.borderLeftColor = s.borderRightColor = s.borderTopColor = s.borderBottomColor = new Color(.5f, .5f, .5f);
-            s.backgroundColor = new Color(.2f, .2f, .2f);
-            s.marginBottom = 10;
-
-            var label = CreateSmallHeading("Mona Tags");
-            tagContainer.Add(label);
-
-            _monaTagListView = new ListView(null, -1, () => new MonaTagReferenceVisualElement(_brain), (elem, i) => ((MonaTagReferenceVisualElement)elem).SetValue(i, _brain.MonaTags[i]));
-            _monaTagListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
-            _monaTagListView.showFoldoutHeader = false;
-            _monaTagListView.headerTitle = "Mona Tags";
-            _monaTagListView.showAddRemoveFooter = true;
-            _monaTagListView.reorderMode = ListViewReorderMode.Animated;
-            _monaTagListView.reorderable = true;
-            _monaTagListView.style.paddingBottom = 10;
-            _monaTagListView.itemsAdded += (elems) =>
-            {
-                foreach (var e in elems)
-                {
-                    if(string.IsNullOrEmpty(_brain.MonaTags[e]))
-                        _brain.MonaTags[e] = MonaBrainConstants.TAG_DEFAULT;
-                }
-            };
-            tagContainer.Add(_monaTagListView);
-
-            var label2 = CreateSmallHeading("Mona Assets");
-            label2.style.marginTop = 10;
-            tagContainer.Add(label2);
-
-            _monaAssetsListView = new ListView(null, -1, () => new MonaAssetReferenceVisualElement(), (elem, i) => ((MonaAssetReferenceVisualElement)elem).SetValue(_brain, i));
-            _monaAssetsListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
-            _monaAssetsListView.showFoldoutHeader = false;
-            _monaAssetsListView.headerTitle = "Mona Assets";
-            _monaAssetsListView.showAddRemoveFooter = true;
-            _monaAssetsListView.reorderMode = ListViewReorderMode.Animated;
-            _monaAssetsListView.reorderable = true;
-            _monaAssetsListView.itemsAdded += (elems) =>
-            {
-                foreach (var e in elems)
-                {
-                    _brain.MonaAssets[e] = null;
-                }
-            };
-            tagContainer.Add(_monaAssetsListView);
-            _brainMetaData.Add(tagContainer);
-            _leftColumn.Add(_brainMetaData);
+            
 #if UNITY_EDITOR
-            _defaultVariablesHeading = CreateHeading("Brain Default Variables");
+            _defaultVariablesHeading = CreateHeading("Variables");
             _defaultVariablesHeading.value = true;
             _leftColumn.Add(_defaultVariablesHeading);
 
             _defaultVariablesVisualElement = new MonaVariablesVisualElement(callback);
             _defaultVariablesHeading.Add(_defaultVariablesVisualElement);
 #endif
-            _corePageContainer = CreateHeading("Brain Core Page Instructions");
+            _corePageContainer = CreateHeading("Core Page Instructions");
             _corePageContainer.value = true;
             _leftColumn.Add(_corePageContainer);
 
@@ -359,10 +291,82 @@ namespace Mona.SDK.Brains.UIElements
             };
             btnBar.Add(_btnMoveRight);
 
+            // METADATA SECTION
+
+            _brainMetaData = CreateHeading("Metadata / Tags / Assets");
+            _brainMetaData.value = false;
+
+            _name = new TextField("Brain Name");
+            _name.RegisterValueChangedCallback((evt) => _brain.Name = (string)evt.newValue);
+            _brainMetaData.Add(_name);
+
+            _readMe = new TextField("Brain ReadMe");
+            _readMe.RegisterValueChangedCallback((evt) => _brain.ReadMe = (string)evt.newValue);
+            _brainMetaData.Add(_readMe);
+
+            _property = new EnumField("Property", MonaBrainPropertyType.Default);
+            _property.RegisterValueChangedCallback((evt) => _brain.PropertyType = (MonaBrainPropertyType)evt.newValue);
+            _brainMetaData.Add(_property);
+
+
+            var tagContainer = new VisualElement();
+            var s = tagContainer.style;
+            s.flexDirection = FlexDirection.Column;
+            s.marginLeft = s.marginRight = s.marginTop = s.marginBottom = 5;
+            s.paddingLeft = s.paddingRight = s.paddingTop = s.paddingBottom = 5;
+            //s.borderBottomLeftRadius = s.borderBottomRightRadius = s.borderTopLeftRadius = s.borderTopRightRadius = 5;
+            //s.borderLeftWidth = s.borderRightWidth = s.borderTopWidth = s.borderBottomWidth = 1;
+            //s.borderLeftColor = s.borderRightColor = s.borderTopColor = s.borderBottomColor = new Color(.5f, .5f, .5f);
+            s.backgroundColor = new Color(.2f, .2f, .2f);
+            s.marginBottom = 10;
+
+            var label = CreateSmallHeading("Mona Tags");
+            tagContainer.Add(label);
+
+            _monaTagListView = new ListView(null, -1, () => new MonaTagReferenceVisualElement(_brain), (elem, i) => ((MonaTagReferenceVisualElement)elem).SetValue(i, _brain.MonaTags[i]));
+            _monaTagListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
+            _monaTagListView.showFoldoutHeader = false;
+            _monaTagListView.headerTitle = "Mona Tags";
+            _monaTagListView.showAddRemoveFooter = true;
+            _monaTagListView.reorderMode = ListViewReorderMode.Animated;
+            _monaTagListView.reorderable = true;
+            _monaTagListView.style.paddingBottom = 10;
+            _monaTagListView.itemsAdded += (elems) =>
+            {
+                foreach (var e in elems)
+                {
+                    if (string.IsNullOrEmpty(_brain.MonaTags[e]))
+                        _brain.MonaTags[e] = MonaBrainConstants.TAG_DEFAULT;
+                }
+            };
+            tagContainer.Add(_monaTagListView);
+
+            var label2 = CreateSmallHeading("Mona Assets");
+            label2.style.marginTop = 10;
+            tagContainer.Add(label2);
+
+            _monaAssetsListView = new ListView(null, -1, () => new MonaAssetReferenceVisualElement(), (elem, i) => ((MonaAssetReferenceVisualElement)elem).SetValue(_brain, i));
+            _monaAssetsListView.virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
+            _monaAssetsListView.showFoldoutHeader = false;
+            _monaAssetsListView.headerTitle = "Mona Assets";
+            _monaAssetsListView.showAddRemoveFooter = true;
+            _monaAssetsListView.reorderMode = ListViewReorderMode.Animated;
+            _monaAssetsListView.reorderable = true;
+            _monaAssetsListView.itemsAdded += (elems) =>
+            {
+                foreach (var e in elems)
+                {
+                    _brain.MonaAssets[e] = null;
+                }
+            };
+            tagContainer.Add(_monaAssetsListView);
+            _brainMetaData.Add(tagContainer);
+            _leftColumn.Add(_brainMetaData);
+
 #if UNITY_EDITOR
 
-            _foldOut = CreateHeading("Brain Settings");
-            _foldOut.value = true;
+            _foldOut = CreateHeading("Advanced Settings");
+            _foldOut.value = false;
             _tileSetField = new DropdownField("Latest Version");
             _tileSetField.RegisterValueChangedCallback((changed) =>
             {
@@ -373,7 +377,7 @@ namespace Mona.SDK.Brains.UIElements
                     _brain.TileSet = versions[0];
                 else
                     _brain.TileSet = tileSet;
-                Debug.Log($"Tileset value changed {value}");
+                //Debug.Log($"Tileset value changed {value}");
             });
             _foldOut.Add(_tileSetField);
 
@@ -874,7 +878,7 @@ namespace Mona.SDK.Brains.UIElements
             if (_selectedTab > _tabs.childCount)
                 _selectedTab = 0;
 
-            _activePagesHeading.text = $"Brain State Pages - {_brain.StatePages.Count}";
+            _activePagesHeading.text = $"State Pages - {_brain.StatePages.Count}";
 
             _activePagesHeading.value = true;
             if (_brain.StatePages.Count == 0)
