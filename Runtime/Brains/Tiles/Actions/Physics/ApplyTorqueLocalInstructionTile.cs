@@ -576,7 +576,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 torque *= massScaler;
 
                 Vector3 dampingTorque = damping * deltaTime * -body.ActiveRigidbody.angularVelocity;
-                return (torque + dampingTorque);
+                return torque + dampingTorque;
             }
 
             return Vector3.zero;
@@ -604,7 +604,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         protected Vector3 TorqueForRotation(IMonaBody body, Quaternion currentRotation, Quaternion targetRotation, float deltaTime)
         {
             Rigidbody rb = body.ActiveRigidbody;
-            Quaternion deltaRotation = targetRotation * Quaternion.Inverse(currentRotation);
+
+            Vector3 targetEulers = GetAdjustedTargetAngles(currentRotation.eulerAngles, targetRotation.eulerAngles);
+            Quaternion deltaRotation = Quaternion.Euler(targetEulers) * Quaternion.Inverse(currentRotation);
+            //Quaternion deltaRotation = targetRotation * Quaternion.Inverse(currentRotation);
             deltaRotation.ToAngleAxis(out float angle, out Vector3 axis);
 
             switch (_alignmentAxis)
@@ -645,6 +648,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             Vector3 torque = axis * angle * adjustedForce * deltaTime;
             Vector3 dampingTorque = adjustedDamping * deltaTime * -rb.angularVelocity;
             return torque + dampingTorque;
+        }
+
+        protected Vector3 GetAdjustedTargetAngles(Vector3 currentAngles, Vector3 targetAngles)
+        {
+            Vector3 modifiedTargetEulers = new Vector3(
+            ShortestAngleDifference(currentAngles.x, targetAngles.x),
+            ShortestAngleDifference(currentAngles.y, targetAngles.y),
+            ShortestAngleDifference(currentAngles.z, targetAngles.z)
+            );
+
+            return modifiedTargetEulers;
+        }
+
+        protected float ShortestAngleDifference(float current, float target)
+        {
+            float difference = Mathf.DeltaAngle(current, target);
+            return difference;
         }
 
         protected float GetMassScaler(IMonaBody body)
