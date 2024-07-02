@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164677034377237
   _id: AddTag
   _name: Add / Remove Tag
-  _category: General
+  _category: Body Actions
   references:
     version: 2
     RefIds:
@@ -25,7 +25,7 @@ MonoBehaviour:
       data:
         _id: AddTag
         _name: Add / Remove Tag
-        _category: General
+        _category: Body Actions
         _muted: 0
         _target: 35
         _targetTag: 

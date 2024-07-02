@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164677034377239
   _id: RemoveTag
   _name: Remove Tag
-  _category: General
+  _category: Body and Brains
   references:
     version: 2
     RefIds:
@@ -26,4 +26,5 @@ MonoBehaviour:
         _id: RemoveTag
         _name: Remove Tag
         _category: General
+        _muted: 0
         _tag: Default

@@ -16,7 +16,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
     {
         public const string ID = "AddTag";
         public const string NAME = "Add Tag";
-        public const string CATEGORY = "General";
+        public const string CATEGORY = "Body Actions";
         public override Type TileType => typeof(AddTagInstructionTile);
 
         [SerializeField] private MonaBrainBroadcastType _target = MonaBrainBroadcastType.ThisBodyOnly;

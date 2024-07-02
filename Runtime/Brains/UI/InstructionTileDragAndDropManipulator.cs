@@ -54,7 +54,7 @@ public class InstructionTileDragAndDropManipulator : PointerManipulator
         target.RegisterCallback<PointerMoveEvent>(PointerMoveHandler);
         target.CapturePointer(evt.pointerId);
         enabled = true;
-        Debug.Log($"{nameof(PointerDownHandler)} enabled");
+        //Debug.Log($"{nameof(PointerDownHandler)} enabled");
     }
 
     // This method checks whether a drag is in progress and whether target has captured the pointer.
@@ -99,7 +99,7 @@ public class InstructionTileDragAndDropManipulator : PointerManipulator
             _clone.transform.position = new Vector2(
                 Mathf.Clamp(targetStartPosition.x - _root.worldTransform.GetPosition().x + pointerDelta.x, 0, target.panel.visualTree.worldBound.width),
                 Mathf.Clamp(targetStartPosition.y - _root.worldTransform.GetPosition().y + pointerDelta.y, 0, target.panel.visualTree.worldBound.height));
-            Debug.Log($"{nameof(PointerMoveHandler)} clone {_clone.transform.position}");
+            //Debug.Log($"{nameof(PointerMoveHandler)} clone {_clone.transform.position}");
         }
     }
 
@@ -161,7 +161,7 @@ public class InstructionTileDragAndDropManipulator : PointerManipulator
                 var overlappingInstructions = instructions.FindAll(x => OverlapsTarget(x));
                 MonaInstructionVisualElement closestOverlappingInstruction = FindClosestInstruction(overlappingInstructions);
 
-                Debug.Log($"{nameof(PointerCaptureOutHandler)} closestOverlappingInstruction {closestOverlappingInstruction != null} {closestOverlappingInstruction}");
+                //Debug.Log($"{nameof(PointerCaptureOutHandler)} closestOverlappingInstruction {closestOverlappingInstruction != null} {closestOverlappingInstruction}");
                 if (closestOverlappingInstruction != null)
                 {
                     MoveTileToSelectedInstructions(_clone.Tile, _tileItem.Index, -1, _instructionParent.Instruction, closestOverlappingInstruction.Instruction, closestOverlappingInstruction.Page);
@@ -170,7 +170,7 @@ public class InstructionTileDragAndDropManipulator : PointerManipulator
             }
             else if (closestOverlappingTile != null)
             {
-                Debug.Log($"{nameof(PointerCaptureOutHandler)} closestOverlappingTile {closestOverlappingTile?.Tile.Name}");
+                //Debug.Log($"{nameof(PointerCaptureOutHandler)} closestOverlappingTile {closestOverlappingTile?.Tile.Name}");
 
                 closestPos = RootSpaceOfSlot(closestOverlappingTile);
                 closestPos = new Vector2(closestPos.x - 5, closestPos.y - 5);
@@ -213,7 +213,7 @@ public class InstructionTileDragAndDropManipulator : PointerManipulator
 
     private bool OverlapsTarget(VisualElement slot)
     {
-        Debug.Log($"{nameof(OverlapsTarget)} {_clone.worldBound.position} {_clone.worldBound.width} {_clone.worldBound.height} slot {slot.worldBound.position} {slot.worldBound.width} {slot.worldBound.height}");
+        //Debug.Log($"{nameof(OverlapsTarget)} {_clone.worldBound.position} {_clone.worldBound.width} {_clone.worldBound.height} slot {slot.worldBound.position} {slot.worldBound.width} {slot.worldBound.height}");
         return _clone.worldBound.Overlaps(slot.worldBound);
     }
 

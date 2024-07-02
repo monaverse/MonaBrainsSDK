@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 6017384862577066232
   _id: IsDevice
   _name: On Device Platform
-  _category: General
+  _category: System
   references:
     version: 2
     RefIds:

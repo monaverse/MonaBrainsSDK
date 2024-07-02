@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 3250164610271543306
   _id: OnInteract
   _name: On Interact
-  _category: Input
+  _category: Monaverse
   references:
     version: 2
     RefIds:
@@ -26,3 +26,4 @@ MonoBehaviour:
         _id: OnInteract
         _name: On Interact
         _category: Input
+        _muted: 0

@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 3250164503775543324
   _id: ChangeState
-  _name: Change State
+  _name: Change State Page
   _category: General
   references:
     version: 2
@@ -23,7 +23,9 @@ MonoBehaviour:
     - rid: 3250164503775543324
       type: {class: ChangeStateInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: ChangeState
+        _name: Change State Page
+        _category: General
+        _muted: 0
         _changeState: 
+        _stateValueName: 

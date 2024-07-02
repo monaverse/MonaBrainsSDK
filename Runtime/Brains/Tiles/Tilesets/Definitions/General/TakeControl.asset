@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 8029245551254176050
   _id: TakeControl
   _name: Take Control
-  _category: General
+  _category: Character
   references:
     version: 2
     RefIds:
@@ -24,8 +24,6 @@ MonoBehaviour:
       type: {class: TakeControlInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: TakeControl
-        _name: Change State
-        _category: General
+        _name: Take Control
+        _category: Character
         _muted: 0
-        _TakeControl: 
-        _stateValueName: 

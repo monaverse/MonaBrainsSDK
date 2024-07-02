@@ -22,11 +22,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
         public override Type TileType => typeof(BroadcastMessageToTypeInstructionTile);
 
         [SerializeField] private MonaBrainBroadcastType _messageTarget = MonaBrainBroadcastType.Tag;
-        [BrainPropertyEnum(true)] public MonaBrainBroadcastType MessageTarget { get => _messageTarget; set => _messageTarget = value; }
+        [BrainPropertyEnum(false)] public MonaBrainBroadcastType MessageTarget { get => _messageTarget; set => _messageTarget = value; }
 
         [SerializeField] private string _tag;
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.Tag)]
-        [BrainPropertyMonaTag(true)] public string Tag { get => _tag; set => _tag = value; }
+        [BrainPropertyMonaTag(false)] public string Tag { get => _tag; set => _tag = value; }
 
         [SerializeField] private string _bodyArray;
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.MyBodyArray)]

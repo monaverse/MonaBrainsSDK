@@ -29,7 +29,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
     {
         public const string ID = "Spawn";
         public const string NAME = "Spawn Asset";
-        public const string CATEGORY = "General";
+        public const string CATEGORY = "Spawning";
         public override Type TileType => typeof(SpawnInstructionTile);
 
         static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(SpawnAssetInstructionTile)}.{nameof(Preload)}");

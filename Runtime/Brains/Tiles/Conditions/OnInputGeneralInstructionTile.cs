@@ -12,20 +12,14 @@ using Mona.SDK.Brains.Core.Brain;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnInputInstructionTile : InputInstructionTile
+    public class OnInputGeneralInstructionTile : InputInstructionTile
     {
-        public const string ID = "OnInput";
-        public const string NAME = "Mona Input";
-        public const string CATEGORY = "Input";
-        public override Type TileType => typeof(OnInputInstructionTile);
+        public override Type TileType => typeof(OnInputGeneralInstructionTile);
+
+        public virtual MonaInputType InputType => MonaInputType.Move;
 
         [SerializeField]
-        private MonaInputType _inputType = MonaInputType.Move;
-        [BrainPropertyEnum(true)]
-        public virtual MonaInputType InputType { get => _inputType; set => _inputType = value; }
-
-        [SerializeField]
-        private MonaInputMoveType _moveDirection = MonaInputMoveType.AllDirections;
+        private MonaInputMoveType _moveDirection = MonaInputMoveType.Up;
         [BrainPropertyEnum(true)]
         [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Move)]
         [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Look)]
@@ -35,10 +29,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         private MonaInputState _inputState = MonaInputState.Held;
         [BrainPropertyEnum(true)]
         public MonaInputState InputState { get => _inputState; set => _inputState = value; }
-
-        [SerializeField] private bool _useLookAsMove;
-        [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Look)]
-        [BrainProperty(true)] public bool UseLookAsMove { get => _useLookAsMove; set => _useLookAsMove = value; }
 
         [SerializeField] private bool _allowTouch;
         [BrainProperty(false)] public bool AllowTouch { get => _allowTouch; set => _allowTouch = value; }
@@ -127,6 +117,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
         }
 
+        [SerializeField] private bool _useLookAsMove;
+        [BrainPropertyShow(nameof(InputType), (int)MonaInputType.Look)]
+        [BrainProperty(false)] public bool UseLookAsMove { get => _useLookAsMove; set => _useLookAsMove = value; }
+
         private float TrueJoystickSize => _joystickType == ZoneSizeType.Resolution ? _joystickSize : GetPixelSizeFromPercentage(_joystickSize);
         private float TrueDeadZone => _deadZoneType == ZoneSizeType.Resolution ? _joystickSizeDeadZone : GetPixelSizeFromPercentage(_joystickSizeDeadZone);
 
@@ -171,8 +165,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 _brainInput.SetTouchJoystickSettings(GestureTimeout, TrueJoystickSize, TrueDeadZone);
             }
 
-            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, _inputType, GetInputState());
-            if (localInput.GetButton(_inputType) == _inputState)
+            var localInput = _brainInput.ProcessInput(_brain.LoggingEnabled, InputType, GetInputState());
+            if (localInput.GetButton(InputType) == _inputState)
             {
                 //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_inputState} {localInput.Mouse}");
                 SetLocalInput(localInput);
@@ -187,7 +181,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             _bodyInput = evt.Input;
             var input = _bodyInput.MoveValue;
-            if (_inputType == MonaInputType.Look)
+            if (InputType == MonaInputType.Look)
                 input = _bodyInput.LookValue;
             
             var xDown = Mathf.Abs(input.x) > TrueDeadZone / TrueJoystickSize;
@@ -333,7 +327,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
             else
             {
-                if (_inputType == MonaInputType.Look && !_useLookAsMove)
+                if (InputType == MonaInputType.Look && !_useLookAsMove)
                     _bodyInput.LookValue = input;
                 else
                     _bodyInput.MoveValue = input;
@@ -380,7 +374,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public override InstructionTileResult Do()
         {
-            if (_bodyInput.GetButton(_inputType) == _inputState)
+            if (_bodyInput.GetButton(InputType) == _inputState)
             {
                 //if(_brain.LoggingEnabled)
                 //    Debug.Log($"{nameof(OnInputInstructionTile)} DO {_inputType} {_inputState} {Time.frameCount}");

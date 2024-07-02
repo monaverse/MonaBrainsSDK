@@ -16,21 +16,24 @@ MonoBehaviour:
     rid: 1609535021095059498
   _id: SpawnNextAsset
   _name: Spawn Next Asset
-  _category: General
+  _category: Spawning
   references:
     version: 2
     RefIds:
     - rid: 1609535021095059498
       type: {class: SpawnNextAssetInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: SpawnNextAsset
+        _name: Spawn Next Asset
+        _category: Spawning
+        _muted: 0
         _poolCount: 5
         _poolCountName: 
         _location: 0
         _tag: 
         _part: Default
+        _spawnAsChild: 0
+        _spawnAsChildName: 
         _offset: {x: 0, y: 0, z: 0}
         _offsetName:
         - 
@@ -49,5 +52,13 @@ MonoBehaviour:
         - 
         - 
         - 
+        _scaleToFit: 0
+        _bottomPivot: 0
+        _importLights: 0
+        _hidden: 0
+        _spawnOnEmpty: 0
+        _destroyOnDisable: 0
+        _enableAll: 0
         _monaAsset: 
+        _monaAssetProviderName: 
         _shuffled: 0

@@ -24,7 +24,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
     {
         public new const string ID = "SpawnNextAsset";
         public new const string NAME = "Spawn Asset";
-        public new const string CATEGORY = "General";
+        public new const string CATEGORY = "Spawning";
         public override Type TileType => typeof(SpawnNextAssetInstructionTile);
 
         [SerializeField] private string _monaAsset = null;
