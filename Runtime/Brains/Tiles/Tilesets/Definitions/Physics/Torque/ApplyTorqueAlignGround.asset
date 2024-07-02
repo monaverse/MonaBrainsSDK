@@ -49,3 +49,5 @@ MonoBehaviour:
         _scaleForceWith: 20
         _maxSpeed: 0.2
         _maxSpeedName: 
+        _alignVelocity: 0
+        _alignVelocityName: 
