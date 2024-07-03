@@ -52,6 +52,7 @@ namespace Mona.SDK.Brains.Core.Control
         public bool IsRunning() => _result == InstructionTileResult.Running;
 
         private List<INeedAuthorityInstructionTile> _needAuthInstructionTiles = new List<INeedAuthorityInstructionTile>();
+        private List<ITakeAuthorityInstructionTile> _takeAuthInstructionTiles = new List<ITakeAuthorityInstructionTile>();
         private List<IBlockchainInstructionTile> _blockchainTiles = new List<IBlockchainInstructionTile>();
         public List<IBlockchainInstructionTile> BlockchainTiles => _blockchainTiles;
 
@@ -124,6 +125,7 @@ namespace Mona.SDK.Brains.Core.Control
             _page = page;
             _firstActionIndex = -1;
             _needAuthInstructionTiles.Clear();
+            _takeAuthInstructionTiles.Clear();
             _blockchainTiles.Clear();
 
             if (_progressTile == null)
@@ -148,6 +150,9 @@ namespace Mona.SDK.Brains.Core.Control
 
                 if (tile is INeedAuthorityInstructionTile)
                     _needAuthInstructionTiles.Add((INeedAuthorityInstructionTile)tile);
+
+                if (tile is ITakeAuthorityInstructionTile)
+                    _takeAuthInstructionTiles.Add((ITakeAuthorityInstructionTile)tile);
 
                 if (tile is IBlockchainInstructionTile)
                     _blockchainTiles.Add((IBlockchainInstructionTile)tile);
@@ -286,6 +291,7 @@ namespace Mona.SDK.Brains.Core.Control
         private List<IMonaBody> _waitForAuthBodies = new List<IMonaBody>();
         private Action<MonaStateAuthorityChangedEvent> OnStateAuthorityChanged;
         private bool HasTilesNeedingAuthority() => _needAuthInstructionTiles.Count > 0;
+        private bool HasTilesTakingAuthority() => _takeAuthInstructionTiles.Count > 0;
         
         private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
         {
@@ -558,7 +564,8 @@ namespace Mona.SDK.Brains.Core.Control
 
             if (HasTilesNeedingAuthority())
             {
-                bool hasControl = true;
+                //bool hasControl = true;
+                /* TODO: likely remove
                 for (var i = 0; i < _needAuthInstructionTiles.Count; i++)
                 {
                     var bodies = _needAuthInstructionTiles[i].GetBodiesToControl();
@@ -572,9 +579,9 @@ namespace Mona.SDK.Brains.Core.Control
                     }
 
                     if (!hasControl) break;
-                }
+                }*/
 
-                if (!hasControl)
+                if (!_brain.Body.HasControl())
                 {
                     //if(_brain.LoggingEnabled)
                     Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority to run this instruction. {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
@@ -583,8 +590,11 @@ namespace Mona.SDK.Brains.Core.Control
                     CacheInputIfNeeded();
                     CacheLastMessageEventIfNeeded();
 
-                    _result = InstructionTileResult.WaitingForAuthority;
-                    return;
+                    if (!HasTilesTakingAuthority())
+                    {
+                        _result = InstructionTileResult.WaitingForAuthority;
+                        return;
+                    }
                 }
             }
 

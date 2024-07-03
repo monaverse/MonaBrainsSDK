@@ -17,7 +17,7 @@ using Mona.SDK.Core;
 namespace Mona.SDK.Brains.Tiles.Actions.General
 {
     [Serializable]
-    public class TakeControlInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile
+    public class TakeControlInstructionTile : InstructionTile, IInstructionTileWithPreload, IActionInstructionTile, ITakeAuthorityInstructionTile
     {
         public const string ID = "TakeControl";
         public const string NAME = "Change State";
