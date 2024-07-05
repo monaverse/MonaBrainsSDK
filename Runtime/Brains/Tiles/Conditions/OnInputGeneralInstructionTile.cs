@@ -16,7 +16,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     {
         public override Type TileType => typeof(OnInputGeneralInstructionTile);
 
-        public virtual MonaInputType InputType => MonaInputType.Move;
+        private MonaInputType _inputType = MonaInputType.Move;
+        public virtual MonaInputType InputType { get => _inputType; set => _inputType = value; }
 
         [SerializeField]
         private MonaInputMoveType _moveDirection = MonaInputMoveType.Up;

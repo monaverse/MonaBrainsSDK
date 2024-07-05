@@ -70,7 +70,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         //[BrainPropertyEnum(true)] public ValueChangeType Operator { get => _operator; set => _operator = value; }
 
         [SerializeField] private string _targetVariable;
+        [SerializeField] private string _targetVariableName;
         [BrainProperty(true)] public string TargetVariable { get => _targetVariable; set => _targetVariable = value; }
+        [BrainPropertyValueName("TargetVariable", typeof(IMonaVariablesStringValue))] public string TargetVariableName { get => _targetVariableName; set => _targetVariableName = value; }
 
         [SerializeField] private bool _includeAttached = true;
         [SerializeField] private string _includeAttachedName;
@@ -168,6 +170,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
             if (HasVector3Values(_myVector3Name))
                 _myVector3 = GetVector3Value(_brain, _myVector3Name);
+
+            if (!string.IsNullOrEmpty(_targetVariableName))
+                _targetVariable = _brain.Variables.GetString(_targetVariableName);
 
             switch (_target)
             {

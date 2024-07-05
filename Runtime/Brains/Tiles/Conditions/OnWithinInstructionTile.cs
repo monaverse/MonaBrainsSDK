@@ -26,6 +26,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] private string _tag;
         [BrainPropertyMonaTag(true)] public string MonaTag { get => _tag; set => _tag = value; }
 
+        [SerializeField] private bool _negate;
+        [SerializeField] private string _negateName;
+        [BrainProperty(true)] public bool Negate { get => _negate; set => _negate = value; }
+        [BrainPropertyValueName("Negate", typeof(IMonaVariablesBoolValue))] public string NegateName { get => _negateName; set => _negateName = value; }
+
         public bool PlayerTriggered => _brain.HasPlayerTag();
 
         private IMonaBrain _brain;
@@ -111,6 +116,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override InstructionTileResult Do()
         {
             if (_collider == null) return InstructionTileResult.Failure;
+
+            if (!string.IsNullOrEmpty(_negateName))
+                _negate = _brain.Variables.GetBool(_negateName);
+
             //if (_brain.LoggingEnabled)
             //    Debug.Log($"{nameof(OnWithinInstructionTile)}.{nameof(Do)} found: {_tag} {_collider.BodiesWithin.Count}", _brain.Body.ActiveTransform.gameObject);
             var bodies = _collider.BodiesWithin;
@@ -122,10 +131,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     if (_brain.LoggingEnabled)
                         Debug.Log($"{nameof(OnWithinInstructionTile)}.{nameof(Do)} found: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
-                    return Complete(InstructionTileResult.Success);
+                    return _negate ? Complete(InstructionTileResult.Failure) : Complete(InstructionTileResult.Success);
                 }
             }
-            return Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
+            return _negate ? Complete(InstructionTileResult.Success) : Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
         }
     }
 }
