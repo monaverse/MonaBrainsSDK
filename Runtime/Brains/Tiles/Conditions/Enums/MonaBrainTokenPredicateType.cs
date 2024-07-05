@@ -13,7 +13,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Enums
         TokenRange=21,
         Contract=25,
         Collection=30,
-        Position=35
+        CollectionSymbol = 31,
+        CollectionSlug = 32,
+        Position =35,
+        ChainId=40
     }
 
     public enum MonaBrainTokenPredicatePositionType

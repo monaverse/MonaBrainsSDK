@@ -67,6 +67,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         [SerializeField] protected string _byCollection;
         [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.Collection)]
+        [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.CollectionSymbol)]
+        [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.CollectionSlug)]
         [BrainProperty(true)] public string Collection { get => _byCollection; set => _byCollection = value; }
 
         [SerializeField] protected string _byContract;
@@ -84,6 +86,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] protected float _byTokenMax;
         [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.TokenRange)]
         [BrainProperty(true)] public float TokenMax { get => _byTokenMax; set => _byTokenMax = value; }
+
+        [SerializeField] protected string _byChainId;
+        [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.ChainId)]
+        [BrainProperty(true)] public string ChainId { get => _byChainId; set => _byChainId = value; }
 
         [SerializeField] protected MonaBrainTokenPredicatePositionType _positionType;
         [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.Position)]
@@ -199,28 +205,28 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     if (_tokenType == MonaBrainTokenFilterType.OnlyAvatars)
                         _tokens = tokens.FindAll(x =>
                         {
-                            if (x.AssetType == TokenAssetType.Avatar)
+                            if (x.Files.Find(x => x.Filetype == "vrm") != null)
                                 return true;
                             return false;
                         });
-                    else if (_tokenType == MonaBrainTokenFilterType.OnlyObjects)
+                    else if (_tokenType == MonaBrainTokenFilterType.OnlyGLBs)
                         _tokens = tokens.FindAll(x =>
                         {
-                            if(x.AssetType == TokenAssetType.Artifact)
+                            if(x.Files.Find(x => x.Filetype == "glb") != null)
+                            return true;
+                            return false;
+                        });
+                    else if (_tokenType == MonaBrainTokenFilterType.OnlyAvatarsAndGLBs)
+                        _tokens = tokens.FindAll(x =>
+                        {
+                            if (x.Files.Find(x => x.Filetype == "vrm") != null || x.Files.Find(x => x.Filetype == "glb") != null)
                                 return true;
                             return false;
                         });
-                    else if (_tokenType == MonaBrainTokenFilterType.OnlyAvatarsAndObjects)
+                    else if (_tokenType == MonaBrainTokenFilterType.OnlyUnitySpaces)
                         _tokens = tokens.FindAll(x =>
                         {
-                            if (x.AssetType == TokenAssetType.Artifact || x.AssetType == TokenAssetType.Avatar)
-                                return true;
-                            return false;
-                        });
-                    else if (_tokenType == MonaBrainTokenFilterType.OnlySpaces)
-                        _tokens = tokens.FindAll(x =>
-                        {
-                            if (x.AssetType == TokenAssetType.Space)
+                            if (x.Files.Find(x => x.Filetype == "unityasset" && x.Url.Contains("Space")) != null)
                                 return true;
                             return false;
                         });
@@ -257,7 +263,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                     _tokens = tokens.FindAll(x =>
                     {
-                        if (x.Nft.Metadata.Name.ToLower() == _tokenName.ToLower())
+                        if (x.Name.ToLower() == _tokenName.ToLower())
                             return true;
                         return false;
                     });
@@ -266,7 +272,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                     _tokens = tokens.FindAll(x =>
                     {
-                        if (x.Nft.Metadata.Name.ToLower().Contains(_tokenName.ToLower()))
+                        if (x.Name.ToLower().Contains(_tokenName.ToLower()))
                             return true;
                         return false;
                     });
@@ -275,7 +281,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                     _tokens = tokens.FindAll(x =>
                     {
-                        if (x.Nft.Metadata.Name.ToLower().StartsWith(_tokenName.ToLower()))
+                        if (x.Name.ToLower().StartsWith(_tokenName.ToLower()))
                             return true;
                         return false;
                     });
@@ -293,7 +299,34 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                     _tokens = tokens.FindAll(x =>
                     {
-                        if (x.CollectionId == _byCollection)
+                        if (x.Collection.Id == _byCollection)
+                            return true;
+                        return false;
+                    });
+                    break;
+                case MonaBrainTokenPredicateType.CollectionSymbol:
+
+                    _tokens = tokens.FindAll(x =>
+                    {
+                        if (x.Collection.Id == _byCollection)
+                            return true;
+                        return false;
+                    });
+                    break;
+                case MonaBrainTokenPredicateType.CollectionSlug:
+
+                    _tokens = tokens.FindAll(x =>
+                    {
+                        if (x.Collection.Id == _byCollection)
+                            return true;
+                        return false;
+                    });
+                    break;
+                case MonaBrainTokenPredicateType.ChainId:
+
+                    _tokens = tokens.FindAll(x =>
+                    {
+                        if (x.ChainId == _byChainId)
                             return true;
                         return false;
                     });
@@ -311,7 +344,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                     _tokens = tokens.FindAll(x =>
                     {
-                        if (x.Nft.TokenId.ToLower() == _byTokenId.ToLower())
+                        if (x.TokenId.ToLower() == _byTokenId.ToLower())
                             return true;
                         return false;
                     });
@@ -320,7 +353,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                     _tokens = tokens.FindAll(x =>
                     {
-                        var tokenId = float.Parse(x.Nft.TokenId);
+                        var tokenId = float.Parse(x.TokenId);
                         if (tokenId >= _byTokenMin && tokenId <= _byTokenMax)
                             return true;
                         return false;

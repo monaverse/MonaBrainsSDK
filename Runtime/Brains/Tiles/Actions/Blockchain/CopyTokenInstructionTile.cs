@@ -24,11 +24,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
         public const string CATEGORY = "Blockchain";
         public override Type TileType => typeof(CopyTokenInstructionTile);
 
-        [SerializeField] private MonaBrainTokenResultType _source = MonaBrainTokenResultType.AssetUrl;
+        [SerializeField] private MonaBrainTokenResultType _source = MonaBrainTokenResultType.AssetGLBUrl;
         [BrainProperty(true)] public MonaBrainTokenResultType Source { get => _source; set => _source = value; }
 
+        [SerializeField] private string _fileContains;
+        [BrainPropertyShow(nameof(Source), (int)MonaBrainTokenResultType.FileContains)]
+        [BrainProperty(true)] public string FileContains { get => _fileContains; set => _fileContains = value; }
+
         [SerializeField] private string _targetValue;
-        [BrainPropertyShow(nameof(Source), (int)MonaBrainTokenResultType.AssetUrl)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBrainTokenResultType.AssetGLBUrl)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBrainTokenResultType.AssetVRMUrl)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBrainTokenResultType.AssetVRMOrGLBUrl)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBrainTokenResultType.AssetUnitySpaceUrl)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBrainTokenResultType.FileContains)]
         [BrainPropertyValue(typeof(IMonaVariablesStringValue))] public string TargetUrlValue { get => _targetValue; set => _targetValue = value; }
 
         [SerializeField] private string _traitName;
@@ -70,11 +78,62 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
             Token token = default;
             switch (_source)
             {
-                case MonaBrainTokenResultType.AssetUrl:
+                case MonaBrainTokenResultType.AssetGLBUrl:
                     if (_instruction.Tokens.Count > 0)
                     {
                         token = _instruction.Tokens[0];
-                        _brain.Variables.Set(_targetValue, token.AssetUrl);
+                        var file = token.Files.Find(x => x.Filetype == "glb");
+                        if(file != null)
+                            _brain.Variables.Set(_targetValue, file.Url);
+                    }
+
+                    break;
+
+                case MonaBrainTokenResultType.AssetVRMUrl:
+                    if (_instruction.Tokens.Count > 0)
+                    {
+                        token = _instruction.Tokens[0];
+                        var file = token.Files.Find(x => x.Filetype == "vrm");
+                        if (file != null)
+                            _brain.Variables.Set(_targetValue, file.Url);
+                    }
+
+                    break;
+
+                case MonaBrainTokenResultType.AssetVRMOrGLBUrl:
+                    if (_instruction.Tokens.Count > 0)
+                    {
+                        token = _instruction.Tokens[0];
+                        var file = token.Files.Find(x => x.Filetype == "vrm");
+                        if (file != null)
+                            _brain.Variables.Set(_targetValue, file.Url);
+                        else
+                        {
+                            file = token.Files.Find(x => x.Filetype == "glb");
+                            if (file != null)
+                                _brain.Variables.Set(_targetValue, file.Url);
+                        }
+                    }
+
+                    break;
+
+                case MonaBrainTokenResultType.AssetUnitySpaceUrl:
+                    if (_instruction.Tokens.Count > 0)
+                    {
+                        token = _instruction.Tokens[0];
+                        var file = token.Files.Find(x => x.Filetype == "unityasset");
+                        if (file != null)
+                            _brain.Variables.Set(_targetValue, file.Url);
+                    }
+
+                    break;
+                case MonaBrainTokenResultType.FileContains:
+                    if (_instruction.Tokens.Count > 0)
+                    {
+                        token = _instruction.Tokens[0];
+                        var file = token.Files.Find(x => x.Url.Contains(_fileContains) || x.Filetype.Contains(_fileContains));
+                        if (file != null)
+                            _brain.Variables.Set(_targetValue, file.Url);
                     }
 
                     break;

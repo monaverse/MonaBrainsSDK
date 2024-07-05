@@ -10,35 +10,37 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
         public string Filetype { get; set; }
     }
 
+    public record Collection
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Slug { get; set; }
+        public string Symbol { get; set; }
+        public string ImageUrl { get; set; }
+        public int TokenCount { get; set; }
+        public string ContractDeployedAt { get; set; }
+    }
+
     public struct Token
     {
-        public string Id;
+        public string ChainId;
         public string Contract;
-        public string Accessibility;
-        public string ActiveVersion;
-        public string Artist;
-        public bool IsChecked;
-        public string CollectionId;
-        public string Creator;
-        public string CreatorId;
-        public string Description;
-        public string DocumentId;
-        public bool Hidden;
+        public string TokenId;
+        public string Kind;
+        public string Name;
         public string Image;
-        public string LastSaleEventId;
-        public string LastSalePrice;
-        public bool Minted;
-        public TokenNft Nft;
-        public bool Nsfw;
-        public string Owner;
-        public string[] Owners;
-        public string ParentId;
-        public string Price;
-        public string Promoted;
-        public Dictionary<string, object> Properties;
-        public string Slug;
-        public string SubCollectionId;
+        public string ImageSmall;
+        public string ImageLarge;
+        public string Description;
+        public string Media;
+        public Dictionary<string, object> Metadata;
+        public float RarityScore;
+        public int RarityRank;
+        public int Supply;
+        public Collection Collection;
+
         public Dictionary<string, object> Traits;
+
         public TokenAssetType AssetType;
         public string AssetUrl;
         public List<TokenFile> Files;
@@ -51,7 +53,7 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
 
         public bool Equals(Token other)
         {
-            return Id == other.Id;
+            return ChainId == other.ChainId && Contract == other.Contract && TokenId == other.TokenId;
         }
     }
 }
