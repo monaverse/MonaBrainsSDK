@@ -22,6 +22,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField]
         private MonaInputType _inputType = MonaInputType.Move;
         [BrainPropertyEnum(true)]
-        public virtual MonaInputType InputType { get => _inputType; set => _inputType = value; }
+        public override MonaInputType InputType { get => _inputType; set => _inputType = value; }
     }
 }

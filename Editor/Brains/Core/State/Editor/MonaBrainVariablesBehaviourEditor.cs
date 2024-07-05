@@ -19,7 +19,8 @@ namespace Mona.SDK.Brains.Core.State.UIEditors
 
         public void OnDestroy()
         {
-            _root.Dispose();
+            if (_root != null)
+                _root.Dispose();
         }
     }
 #endif

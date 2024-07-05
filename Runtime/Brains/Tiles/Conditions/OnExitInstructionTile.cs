@@ -25,6 +25,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] private string _tag;
         [BrainPropertyMonaTag(true)] public string MonaTag { get => _tag; set => _tag = value; }
 
+        [SerializeField] private bool _negate;
+        [SerializeField] private string _negateName;
+        [BrainProperty(true)] public bool Negate { get => _negate; set => _negate = value; }
+        [BrainPropertyValueName("Negate", typeof(IMonaVariablesBoolValue))] public string NegateName { get => _negateName; set => _negateName = value; }
+
         public bool PlayerTriggered => _brain.HasPlayerTag();
 
         private IMonaBrain _brain;
@@ -66,8 +71,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             SetActive(true);
 
-            if(!_brain.Body.Parent.Transform.GetComponent<IMonaBrainRunner>().HasRigidbodyTiles() && _brain.Body.Parent.ActiveRigidbody == null)
-                _brain.Body.AddRigidbody();
+            //if(!_brain.Body.Parent.Transform.GetComponent<IMonaBrainRunner>().HasRigidbodyTiles() && _brain.Body.Parent.ActiveRigidbody == null)
+            //    _brain.Body.AddRigidbody();
         }
 
         public void SetActive(bool active)
@@ -113,6 +118,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             if (_collider == null) return InstructionTileResult.Failure;
 
+            if (!string.IsNullOrEmpty(_negateName))
+                _negate = _brain.Variables.GetBool(_negateName);
+
             var bodies = _collider.BodiesThatLeft;
             var bodyExists = bodies.Count > 0;
             if(bodyExists)
@@ -128,9 +136,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             }
 
             if (bodyExists)
-                return Complete(InstructionTileResult.Success);
+                return _negate ? Complete(InstructionTileResult.Failure) : Complete(InstructionTileResult.Success);
 
-            return Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
+            return _negate ? Complete(InstructionTileResult.Success) : Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
         }
     }
 }

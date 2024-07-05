@@ -52,7 +52,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyValueName("MyVector3", typeof(IMonaVariablesVector3Value))] public string[] WorldPositionName { get => _worldPositionName; set => _worldPositionName = value; }
 
         [SerializeField] private bool _negate;
+        [SerializeField] private string _negateName;
         [BrainProperty(true)] public bool Negate { get => _negate; set => _negate = value; }
+        [BrainPropertyValueName("Negate", typeof(IMonaVariablesBoolValue))] public string NegateName { get => _negateName; set => _negateName = value; }
 
         [SerializeField] private float _distance = 100f;
         [SerializeField] private string _distanceValueName;
@@ -113,6 +115,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             if (!string.IsNullOrEmpty(_distanceValueName))
                 _distance = _brain.Variables.GetFloat(_distanceValueName);
+
+            if (!string.IsNullOrEmpty(_negateName))
+                _negate = _brain.Variables.GetBool(_negateName);
 
             bool targetIsHoveredOver = TargetIsHoveredOver();
             bool success = (targetIsHoveredOver && !_negate) || (!targetIsHoveredOver && _negate);

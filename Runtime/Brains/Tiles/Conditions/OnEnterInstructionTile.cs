@@ -30,6 +30,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [SerializeField] private string _tag;
         [BrainPropertyMonaTag(true)] public string MonaTag { get => _tag; set => _tag = value; }
 
+        [SerializeField] private bool _negate;
+        [SerializeField] private string _negateName;
+        [BrainProperty(true)] public bool Negate { get => _negate; set => _negate = value; }
+        [BrainPropertyValueName("Negate", typeof(IMonaVariablesBoolValue))] public string NegateName { get => _negateName; set => _negateName = value; }
+
         public bool PlayerTriggered => _brain.HasPlayerTag();
 
         private IMonaBrain _brain;
@@ -119,6 +124,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override InstructionTileResult Do()
         {
             if (_collider == null) return InstructionTileResult.Failure;
+
+            if (!string.IsNullOrEmpty(_negateName))
+                _negate = _brain.Variables.GetBool(_negateName);
+
             var bodies = _collider.BodiesThatEntered;
             if (bodies.Count > 0)
             {

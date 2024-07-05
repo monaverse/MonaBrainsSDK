@@ -100,6 +100,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainProperty(false)] public float MaxSpeed { get => _maxSpeed; set => _maxSpeed = value; }
         [BrainPropertyValueName(nameof(MaxSpeed), typeof(IMonaVariablesFloatValue))] public string MaxSpeedName { get => _maxSpeedName; set => _maxSpeedName = value; }
 
+        [SerializeField] private float _alignVelocity = 0.5f;
+        [SerializeField] private string _alignVelocityName;
+        [BrainProperty(false)] public float AlignVelocity { get => _alignVelocity; set => _alignVelocity = value; }
+        [BrainPropertyValueName(nameof(AlignVelocity), typeof(IMonaVariablesFloatValue))] public string AlignVelocityName { get => _alignVelocityName; set => _alignVelocityName = value; }
+
         private Vector3 _direction;
 
         protected IMonaBrain _brain;
@@ -366,6 +371,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             if (!string.IsNullOrEmpty(_maxSpeedName))
                 _maxSpeed = _brain.Variables.GetFloat(_maxSpeedName);
 
+            if (!string.IsNullOrEmpty(_alignVelocityName))
+                _alignVelocity = _brain.Variables.GetFloat(_alignVelocityName);
+
             if (_movingState == MovingStateType.Stopped)
             {
                 _time = 0;
@@ -404,6 +412,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 if (DirectionType == PushDirectionType.TorqueAlignment)
                 {
                     body.ApplyTorque(GetAlignmentForce(body, evt.DeltaTime), ForceMode.Impulse, true);
+                    AlignVelocityWithTorque(body);
                 }
                 else
                 {
@@ -412,6 +421,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                     body.ActiveRigidbody.maxAngularVelocity = _maxSpeed;
                     if (!body.ActiveRigidbody.isKinematic)
                         body.ActiveRigidbody.angularVelocity = Vector3.ClampMagnitude(body.ActiveRigidbody.angularVelocity, _maxSpeed);
+
+                    AlignVelocityWithTorque(body);
                 }
                 
                 StopPushing();
@@ -456,6 +467,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 if (DirectionType == PushDirectionType.TorqueAlignment)
                 {
                     body.ApplyTorque(GetAlignmentForce(body, deltaTime), ForceMode.Impulse, true);
+                    AlignVelocityWithTorque(body);
                 }
                 else
                 {
@@ -464,6 +476,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                     body.ActiveRigidbody.maxAngularVelocity = _maxSpeed;
                     if (!body.ActiveRigidbody.isKinematic)
                         body.ActiveRigidbody.angularVelocity = Vector3.ClampMagnitude(body.ActiveRigidbody.angularVelocity, _maxSpeed);
+
+                    AlignVelocityWithTorque(body);
                 }
 
                 if (_time >= 1f)
@@ -473,6 +487,31 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
                 _time += deltaTime;
             }
+        }
+
+        private void AlignVelocityWithTorque(IMonaBody body)
+        {
+            if (Mathf.Approximately(_alignVelocity, 0f))
+                return;
+
+            Vector3 currentVelocity = body.CurrentVelocity;
+            //Vector3 alignedVelocity = Vector3.Lerp(currentVelocity, body.Transform.forward * currentVelocity.magnitude, _alignVelocity);
+            //body.ActiveRigidbody.velocity = alignedVelocity;
+
+            Vector3 localVelocity = body.Transform.InverseTransformDirection(currentVelocity);
+
+            // Determine the primary movement direction in local space
+            Vector3 primaryDirection = localVelocity.normalized;
+            primaryDirection.x = 0; // Ignore sideways movement
+            primaryDirection.y = 0; // Ignore vertical movement
+            primaryDirection = primaryDirection.normalized;
+
+            // Transform the primary direction back to world space
+            Vector3 worldAlignDirection = body.Transform.TransformDirection(primaryDirection);
+
+            // Align velocity with rotation
+            Vector3 alignedVelocity = Vector3.Lerp(currentVelocity, worldAlignDirection * currentVelocity.magnitude, _alignVelocity);
+            body.ActiveRigidbody.velocity = alignedVelocity;
         }
 
         private void StopPushing()

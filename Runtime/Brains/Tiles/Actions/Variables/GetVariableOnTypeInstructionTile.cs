@@ -28,7 +28,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
         [SerializeField] private string _targetVariable;
+        [SerializeField] private string _targetVariableName;
         [BrainProperty(true)] public string TargetVariable { get => _targetVariable; set => _targetVariable = value; }
+        [BrainPropertyValueName("TargetVariable", typeof(IMonaVariablesStringValue))] public string TargetVariableName { get => _targetVariableName; set => _targetVariableName = value; }
 
         [SerializeField] private string _storeResultOn;
         [BrainPropertyValue(typeof(IMonaVariablesValue))] public string StoreResultOn { get => _storeResultOn; set => _storeResultOn = value; }
@@ -100,6 +102,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
             if (!string.IsNullOrEmpty(_includeAttachedName))
                 _includeAttached = _brain.Variables.GetBool(_includeAttachedName);
+
+            if (!string.IsNullOrEmpty(_targetVariableName))
+                _targetVariable = _brain.Variables.GetString(_targetVariableName);
 
             switch (_target)
             {
