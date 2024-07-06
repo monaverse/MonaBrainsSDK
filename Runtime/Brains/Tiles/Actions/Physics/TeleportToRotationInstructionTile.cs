@@ -62,11 +62,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 _brain.Body.OnTeleported -= HandleTeleported;
                 _brain.Body.OnTeleported += HandleTeleported;
                 if (_useLocal)
-                    _brain.Body.TeleportRotation(_brain.Body.ActiveTransform.parent.rotation * Quaternion.Euler(_value), true);
+                {
+                    if (_brain.Body.ActiveTransform.parent != null)
+                        _brain.Body.TeleportRotation(_brain.Body.ActiveTransform.parent.rotation * Quaternion.Euler(_value), true);
+                    else
+                        _brain.Body.TeleportRotation(_brain.Body.ActiveTransform.rotation * Quaternion.Euler(_value), true);
+                }
                 else
                     _brain.Body.TeleportRotation(Quaternion.Euler(_value), true);
                 return Complete(InstructionTileResult.Running);
-            }
+            }   
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
