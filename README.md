@@ -16,7 +16,9 @@ To add this sdk to your Unity project, follow these steps:
 3. Under 'Package Manager' add a scoped registery:
      - Name: Open UPM
      - URL: https://package.openupm.com
-     - Scope(s): com.monaverse, com.vrmc
+     - Scope(s): (one on each line)
+          - com.monaverse
+          - com.vrmc
   
 4. Close the 'Project Settings' window.
 5. In Unity, in the top menu, select Window -> Package Manager
