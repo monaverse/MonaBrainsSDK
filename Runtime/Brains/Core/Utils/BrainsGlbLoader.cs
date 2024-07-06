@@ -130,12 +130,13 @@ namespace Mona.SDK.Brains.Core.Utils
                             callback?.Invoke(null);
                             return;
                         }
-                        if (avatarData.SizeInMB() > MonaBrainConstants.AVATAR_MAXIMUM_FILESIZE_MB)
+
+                        /*if (avatarData.SizeInMB() > MonaBrainConstants.AVATAR_MAXIMUM_FILESIZE_MB)
                         {
                             Debug.LogError($"VRM file is above our maximum supported size ({MonaBrainConstants.AVATAR_MAXIMUM_FILESIZE_MB} Megabytes)");
                             callback?.Invoke(null);
                             return;
-                        }
+                        }*/
 
                         var glbData = new GlbBinaryParser(avatarData, "_character")
                             .Parse();
