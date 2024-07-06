@@ -91,6 +91,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.ChainId)]
         [BrainProperty(true)] public string ChainId { get => _byChainId; set => _byChainId = value; }
 
+        [SerializeField] protected float _limit;
+        [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.Limit)]
+        [BrainProperty(true)] public float Limit { get => _limit; set => _limit = value; }
+
         [SerializeField] protected MonaBrainTokenPredicatePositionType _positionType;
         [BrainPropertyShow(nameof(SearchType), (int)MonaBrainTokenPredicateType.Position)]
         [BrainPropertyEnum(true)] public MonaBrainTokenPredicatePositionType PositionType { get => _positionType; set => _positionType = value; }
@@ -212,7 +216,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     else if (_tokenType == MonaBrainTokenFilterType.OnlyGLBs)
                         _tokens = tokens.FindAll(x =>
                         {
-                            if(x.Files.Find(x => x.Filetype == "glb") != null)
+                            if(x.Files.Find(x => x.Filetype == "glb") != null && x.Files.Find(x => x.Filetype == "vrm") == null)
                             return true;
                             return false;
                         });
@@ -358,6 +362,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                             return true;
                         return false;
                     });
+                    break;
+
+                case MonaBrainTokenPredicateType.Limit:
+
+                    _tokens.Clear();
+                    var c = Mathf.Min(tokens.Count, _limit);
+                    for (var i = 0; i < c; i++)
+                        _tokens.Add(tokens[i]);
                     break;
             }
 
