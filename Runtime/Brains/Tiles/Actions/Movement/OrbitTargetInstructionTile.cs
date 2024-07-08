@@ -161,6 +161,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             {
                 Vector3 lookDirection = targetPosition - newPosition;
                 Quaternion lookRotation = Quaternion.LookRotation(lookDirection);
+
+                /* make sure orbit honors bind values */
+                lookRotation = _brain.Body.RotationBounds.BindValue(lookRotation, _brain.Body.ActiveTransform);
+
+                newPosition = targetPosition - (lookRotation * Vector3.forward) * (targetPosition - newPosition).magnitude;
+                _brain.Body.TeleportPosition(newPosition);
+
                 _brain.Body.TeleportRotation(lookRotation);
             }
 
