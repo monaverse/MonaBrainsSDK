@@ -56,6 +56,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 _brain.Body.SetScale(_scale, true);
                 if (_letFall) _brain.Body.SetKinematic(false, true);
             }
+            _brain.Body.ClearPin();
             return Complete(InstructionTileResult.Success);
         }
     }

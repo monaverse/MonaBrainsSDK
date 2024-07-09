@@ -40,6 +40,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainProperty(false)]
         public Vector3 Scale { get => _scale; set => _scale = value; }
 
+        [SerializeField]
+        private bool _pinDontParent = false;
+        [BrainProperty(false)]
+        public bool PinDontParent { get => _pinDontParent; set => _pinDontParent = value; }
+
         private IMonaBrain _brain;
 
         public AttachToTargetInstructionTile() { }
@@ -60,11 +65,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 if (_brain.HasPlayerTag(body.MonaTags))
                     _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true);
                 _brain.Body.SetScale(_scale, true);
-                _brain.Body.SetTransformParent(body.ActiveTransform);
+
+                if (_pinDontParent)
+                {
+                    _brain.Body.PinToParent(body.ActiveTransform, () => {
+                        if (body.ActiveTransform.parent != null)
+                            return body.ActiveTransform.position + body.ActiveTransform.parent.TransformDirection(_offset);
+                        else
+                            return body.ActiveTransform.position + _offset;
+
+                    }, () => body.ActiveTransform.rotation);
+                }
+                else
+                    _brain.Body.SetTransformParent(body.ActiveTransform);
+
                 if(body.ActiveTransform.parent != null)
                     _brain.Body.TeleportPosition(body.ActiveTransform.position + body.ActiveTransform.parent.TransformDirection(_offset), true);
                 else
-                    _brain.Body.TeleportPosition(body.ActiveTransform.position + body.ActiveTransform.TransformDirection(_offset), true);
+                    _brain.Body.TeleportPosition(body.ActiveTransform.position + _offset, true);
+
                 _brain.Body.SetRotation(body.ActiveTransform.rotation, true);
             }
             return Complete(InstructionTileResult.Success);

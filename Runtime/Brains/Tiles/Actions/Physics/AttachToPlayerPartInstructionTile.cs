@@ -37,6 +37,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainProperty(false)]
         public Vector3 Scale { get => _scale; set => _scale = value; }
 
+        [SerializeField]
+        private bool _pinDontParent = false;
+        [BrainProperty(false)]
+        public bool PinDontParent { get => _pinDontParent; set => _pinDontParent = value; }
+
         private IMonaBrain _brain;
         private IMonaBody _playerPart;
 
@@ -65,11 +70,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 if (_playerPart == null) _playerPart = _brain.Player.PlayerBody;
                 _brain.Body.SetScale(_scale, true);
                 _brain.Body.SetLayer(MonaCoreConstants.LAYER_LOCAL_PLAYER, true, true);
-                _brain.Body.SetTransformParent(_playerPart.ActiveTransform);
+
+                if (_pinDontParent)
+                    _brain.Body.PinToParent(_playerPart.ActiveTransform, () =>
+                    {
+                        if (_playerPart.ActiveTransform.parent != null)
+                            return _playerPart.ActiveTransform.position + _playerPart.ActiveTransform.parent.TransformDirection(_offset);
+                        else
+                            return _playerPart.ActiveTransform.position + _offset;
+
+                    }, () => _playerPart.ActiveTransform.rotation);
+                else
+                    _brain.Body.SetTransformParent(_playerPart.ActiveTransform);
+
                 if (_playerPart.ActiveTransform.parent != null)
                     _brain.Body.TeleportPosition(_playerPart.ActiveTransform.position + _playerPart.ActiveTransform.parent.TransformDirection(_offset), true);
                 else
-                    _brain.Body.TeleportPosition(_playerPart.ActiveTransform.position + _playerPart.ActiveTransform.TransformDirection(_offset), true);
+                    _brain.Body.TeleportPosition(_playerPart.ActiveTransform.position + _offset, true);
                 _brain.Body.SetRotation(_playerPart.ActiveTransform.rotation, true);
             }
          

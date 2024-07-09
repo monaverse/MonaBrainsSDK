@@ -298,7 +298,7 @@ namespace Mona.SDK.Brains.Core.Control
             if (evt.Body.HasControl())
             {
                 _result = InstructionTileResult.WaitingForAuthority;
-                Debug.Log($"{nameof(HandleStateAuthorityChanged)} {_result}");
+                //Debug.Log($"{nameof(HandleStateAuthorityChanged)} {_result}");
                 MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain.Body), new InstructionEvent(InstructionEventTypes.Authority));
             }
         }

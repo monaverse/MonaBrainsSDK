@@ -41,6 +41,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
 
         private IMonaBrain _brain;
         private bool _active;
+        private bool _hadControl;
 
         public WaitInstructionTile()
         {
@@ -121,6 +122,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
                     _seconds = _brain.Variables.GetFloat(_secondsValueName);
                 _remaining = _seconds;
                 _isRunning = true;
+                _hadControl = _brain.Body.HasControl();
                 //if(_brain.LoggingEnabled) Debug.Log($"{nameof(WaitInstructionTile)} remaining {_seconds}");
                 AddFixedTickDelegate();
             }
@@ -160,19 +162,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
 
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
-            if (!_brain.Body.HasControl())
-            {
-                LostControl();
-                return;
-            }
-
             FixedTick(evt.DeltaTime);
         }
 
         private void FixedTick(float deltaTime)
         {
             _remaining -= deltaTime;
-            //if (_brain.LoggingEnabled) Debug.Log($"{nameof(WaitInstructionTile)} {_remaining} of {_seconds}");
             if (_remaining <= 0)
             {
                 _isRunning = false;

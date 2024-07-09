@@ -22,6 +22,7 @@ MonoBehaviour:
   _conditionTiles:
   - {fileID: 11400000, guid: f99938dad8e48d54092793f99c79935d, type: 2}
   - {fileID: 11400000, guid: bd4567cef507ddc42a90effa497218b3, type: 2}
+  - {fileID: 11400000, guid: 40e4745eb50c141bfb4f46e65751341e, type: 2}
   - {fileID: 11400000, guid: 5493f459acb5843339bf2f504ed8ff02, type: 2}
   - {fileID: 11400000, guid: 40276111f6e22417cbadfedca2977141, type: 2}
   - {fileID: 11400000, guid: 166585b58cc9fe8408fc2e00e02782c9, type: 2}
