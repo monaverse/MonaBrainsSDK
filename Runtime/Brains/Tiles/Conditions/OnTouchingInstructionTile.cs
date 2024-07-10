@@ -7,7 +7,9 @@ using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions.Behaviours;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using Mona.SDK.Core;
+using Mona.SDK.Core.Events;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core.Utils;
 using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -31,8 +33,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public bool PlayerTriggered => _brain.HasPlayerTag();
 
         private IMonaBrain _brain;
+        private IMonaBrainPage _page;
         private ColliderHitBehaviour _collider;
         private GameObject _gameObject;
+        private Rigidbody _rigidbody;
+
         private bool _active;
 
         private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnCollisionStay };
@@ -40,12 +45,32 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public OnTouchingInstructionTile() { }
 
+        private Action<MonaBodyRigidbodyChangedEvent> OnRigidbodyChanged;
+
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page)
         {
             _brain = brainInstance;
+            _page = page;
+
+            OnRigidbodyChanged = HandleRigidbodyChanged;
+            MonaEventBus.Register<MonaBodyRigidbodyChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_RIGIDBODY_CHANGED_EVENT, _brain.Body), OnRigidbodyChanged);
+
+            HandleRigidbodyChanged(default);
+        }
+
+        public void HandleRigidbodyChanged(MonaBodyRigidbodyChangedEvent evt)
+        {
+            if(_collider != null && _rigidbody != _brain.Body.ActiveRigidbody)
+            {
+                GameObject.DestroyImmediate(_collider);
+                _collider = null;
+            }
+
             if (_collider == null)
             {
-                var colliders = _brain.GameObject.GetComponents<ColliderHitBehaviour>();
+                _rigidbody = _brain.Body.ActiveRigidbody;
+
+                var colliders = _rigidbody.gameObject.gameObject.GetComponents<ColliderHitBehaviour>();
                 var found = false;
                 for (var i = 0; i < colliders.Length; i++)
                 {
@@ -57,11 +82,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     }
                 }
 
-                if(!found)
+                if (!found)
                 {
-                    _collider = _brain.GameObject.AddComponent<ColliderHitBehaviour>();
+                    _collider = _rigidbody.gameObject.gameObject.AddComponent<ColliderHitBehaviour>();
                     _collider.SetBrain(_brain);
-                    _collider.SetPage(page);
+                    _collider.SetPage(_page);
                     _collider.SetMonaTag(_tag);
                 }
                 UpdateActive();
@@ -99,9 +124,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public override void Unload(bool destroy = false)
         {
-            if (_collider != null)
+            if(_collider != null)
             {
                 _collider.Dispose(destroy);
+            }
+
+            if (destroy && _collider != null)
+            {
+                MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_RIGIDBODY_CHANGED_EVENT, _brain.Body), OnRigidbodyChanged);
                 GameObject.Destroy(_collider);
             }
         }

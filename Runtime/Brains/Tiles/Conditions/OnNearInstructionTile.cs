@@ -6,9 +6,12 @@ using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions.Behaviours;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using Mona.SDK.Core;
+using Mona.SDK.Core.Events;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Core.Utils;
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
@@ -40,8 +43,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public bool PlayerTriggered => _brain.HasPlayerTag();
 
         private IMonaBrain _brain;
+        private IMonaBrainPage _page;
         private SphereColliderTriggerBehaviour _collider;
         private GameObject _gameObject;
+        private Rigidbody _rigidbody;
         private bool _active;
 
         private List<MonaTriggerType> _triggerTypes = new List<MonaTriggerType>() { MonaTriggerType.OnTriggerEnter };
@@ -49,18 +54,36 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public OnNearInstructionTile() { }
 
+        private Action<MonaBodyRigidbodyChangedEvent> OnRigidbodyChanged;
+
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
+            _page = page;
             _instruction = instruction;
 
             _firstTile = _instruction.InstructionTiles.FindAll(x => x is IOnBodyFilterInstructionTile).IndexOf(this) == 0;
+
+            OnRigidbodyChanged = HandleRigidbodyChanged;
+            MonaEventBus.Register<MonaBodyRigidbodyChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_RIGIDBODY_CHANGED_EVENT, _brain.Body), OnRigidbodyChanged);
+        }
+
+        public void HandleRigidbodyChanged(MonaBodyRigidbodyChangedEvent evt)
+        {
+            if (_brain.Body.ActiveRigidbody == null)
+                return;
+
+            if (_collider != null && _rigidbody != _brain.Body.ActiveRigidbody)
+            {
+                GameObject.DestroyImmediate(_collider);
+                _collider = null;
+            }
 
             if (_collider == null)
             {
                 _collider = _brain.GameObject.AddComponent<SphereColliderTriggerBehaviour>();
                 _collider.SetBrain(_brain);
-                _collider.SetPage(page);
+                _collider.SetPage(_page);
                 _collider.SetMonaTag(_tag);
                 _collider.SetRadius(_distance);
                 _collider.SetLocalPlayerOnly(PlayerTriggered);
@@ -102,6 +125,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (_collider != null)
             {
                 _collider.Dispose();
+            }
+
+            if (destroy && _collider != null)
+            {
+                MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_RIGIDBODY_CHANGED_EVENT, _brain.Body), OnRigidbodyChanged);
                 GameObject.Destroy(_collider);
             }
         }

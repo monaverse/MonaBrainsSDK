@@ -204,13 +204,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         {
             if (body != null && body.HasMonaTag(_monaTag))
             {
-                if(_brain.Player.NetworkSettings.GetNetworkType() == MonaNetworkType.Shared)
-                {
-                    //in shared mode only pay attention to your own player body
-                    if (body.HasMonaTag(MonaBrainConstants.TAG_REMOTE_PLAYER))
-                        return false;
-                }
-
                 if (!_bodiesIndex.ContainsKey(body))
                 {
                     //if(_brain.LoggingEnabled)
@@ -232,13 +225,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         {
             if (body != null && body.HasMonaTag(_monaTag))
             {
-                if (_brain.Player.NetworkSettings.GetNetworkType() == MonaNetworkType.Shared)
-                {
-                    //in shared mode only pay attention to your own player body
-                    if (body.HasMonaTag(MonaBrainConstants.TAG_REMOTE_PLAYER))
-                        return false;
-                }
-
                 if (_bodiesIndex.ContainsKey(body))// && !_brain.Body.WithinRadius(body, _radius, includeTriggers: true))
                 {
                     //if (_brain.LoggingEnabled)

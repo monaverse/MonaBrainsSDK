@@ -8,7 +8,7 @@ using System;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class OnHasControlInstructionTile : InstructionTile, IConditionInstructionTile, IStartableInstructionTile, IInstructionTileWithPreload
+    public class OnHasControlInstructionTile : InstructionTile, IConditionInstructionTile, IStartableInstructionTile, IInstructionTileWithPreload, ITickAfterInstructionTile
     {
         public const string ID = "OnHasControl";
         public const string NAME = "Has Control";
