@@ -69,9 +69,9 @@ namespace Mona.SDK.Brains.Core.State
             return ((IMonaVariablesBrainValue)prop).Value;
         }
 
-        protected override void FireValueEvent(string variableName, IMonaVariablesValue value)
+        public override void FireValueEvent(string variableName, IMonaVariablesValue value, bool isNetworked = false)
         {
-            base.FireValueEvent(variableName, value);
+            base.FireValueEvent(variableName, value, isNetworked);
             if (variableName == MonaBrainConstants.RESULT_STATE) return;
             if (variableName.StartsWith("__")) return;
             MonaEventBus.Trigger<MonaValueChangedEvent>(_eventHook, new MonaValueChangedEvent(variableName, value));

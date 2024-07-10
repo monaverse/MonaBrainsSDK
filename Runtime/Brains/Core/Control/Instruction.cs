@@ -355,6 +355,7 @@ namespace Mona.SDK.Brains.Core.Control
             else if (result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
             {
                 //if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
+                _result = result;
                 MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
             }
             else if (result == InstructionTileResult.Failure)
@@ -432,7 +433,6 @@ namespace Mona.SDK.Brains.Core.Control
                                 ResetExecutionLinks();
 
                             _result = InstructionTileResult.Running;
-                            Debug.Log($"{nameof(ExecuteFirstTile)} #{_page.Instructions.IndexOf(this)} set to running", _brain.Body.ActiveTransform.gameObject);
 
                             if (!HasConditional())
                             {
@@ -586,12 +586,12 @@ namespace Mona.SDK.Brains.Core.Control
                     //if(_brain.LoggingEnabled)
                     Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority to run this instruction. {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
 
-                    CacheTileWaitingForAuthorization();
-                    CacheInputIfNeeded();
-                    CacheLastMessageEventIfNeeded();
-
                     if (!HasTilesTakingAuthority())
                     {
+                        CacheTileWaitingForAuthorization();
+                        CacheInputIfNeeded();
+                        CacheLastMessageEventIfNeeded();
+
                         _result = InstructionTileResult.WaitingForAuthority;
                         return;
                     }

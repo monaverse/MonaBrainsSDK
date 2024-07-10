@@ -53,6 +53,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private bool Evaluate(IMonaBrainVariables state)
         {
+            //if(_brain.LoggingEnabled) Debug.Log($"{nameof(BoolValueInstructionTile)} {_valueName} {state.GetBool(_valueName)} == {_value}");
             switch(_operator)
             {
                 case BoolValueOperatorType.NotEqual: return state.GetBool(_valueName) != _value;

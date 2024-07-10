@@ -320,7 +320,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
         private void IncludeIfInsideTrigger(IMonaBody body)
         {
-            if (_collider.bounds.Contains(body.ActiveTransform.position))
+            if (_collider != null && _collider.bounds.Contains(body.ActiveTransform.position))
                 AddBody(body);
         }
 

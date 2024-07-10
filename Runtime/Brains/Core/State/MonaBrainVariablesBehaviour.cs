@@ -55,5 +55,6 @@ namespace Mona.SDK.Brains.Core.State
         public void SaveResetDefaults() => _variables.SaveResetDefaults();
         public void CacheVariableNames() => _variables.CacheVariableNames();
         public bool HasUI() => _variables.HasUI();
+        public void FireValueEvent(string variableName, IMonaVariablesValue value, bool isNetworked = false) => _variables.FireValueEvent(variableName, value, isNetworked);
     }
 }

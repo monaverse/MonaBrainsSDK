@@ -25,8 +25,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override Type TileType => typeof(TakeControlInstructionTile);
 
         private IMonaBrain _brain;
+        private float _timeout;
 
         private Action<MonaStateAuthorityChangedEvent> OnStateAuthorityChanged;
+        private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
         //static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(TakeControlInstructionTile)}.{nameof(Do)}");
 
@@ -58,11 +60,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
         {
-            RemoveEventDelegates();
-            if(_brain.Body.HasControl())
+            Debug.Log($"{nameof(TakeControlInstructionTile)} {nameof(HandleStateAuthorityChanged)}", _brain.Body.Transform.gameObject);
+            if (evt.Owned)
+            {
+                RemoveEventDelegates();
                 Complete(InstructionTileResult.Success, true);
-            else
+            }
+        }
+
+        private void HandleFixedTick(MonaBodyFixedTickEvent evt)
+        {
+            _timeout -= evt.DeltaTime;
+            if(_timeout < 0)
+            {
+                Debug.Log($"Take control request timedout", _brain.Body.Transform.gameObject);
+                RemoveEventDelegates();
                 Complete(InstructionTileResult.Failure, true);
+            }
         }
 
         public IMonaBody GetBodyToControl()
@@ -84,6 +98,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void AddEventDelegates()
         {
+            OnFixedTick = HandleFixedTick;
+            MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
 
             OnStateAuthorityChanged = HandleStateAuthorityChanged;
             MonaEventBus.Register<MonaStateAuthorityChangedEvent>(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _brain.Body), OnStateAuthorityChanged);
@@ -92,6 +108,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private void RemoveEventDelegates()
         {
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _brain.Body), OnStateAuthorityChanged);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }
     }
 }

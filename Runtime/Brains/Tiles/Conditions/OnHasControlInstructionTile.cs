@@ -4,6 +4,7 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using System;
+using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -26,6 +27,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public override InstructionTileResult Do()
         {
+            //if(_brain.LoggingEnabled) Debug.Log($"{nameof(OnHasControlInstructionTile)} {_brain.Body.HasControl()}", _brain.Body.Transform.gameObject);
             if (_brain.Body.HasControl())
             {
                 return Complete(InstructionTileResult.Success);
