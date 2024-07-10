@@ -110,6 +110,28 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainProperty(false)] public float MaxSpeed { get => _maxSpeed; set => _maxSpeed = value; }
         [BrainPropertyValueName("MaxSpeed", typeof(IMonaVariablesFloatValue))] public string MaxSpeedName { get => _maxSpeedName; set => _maxSpeedName = value; }
 
+        [SerializeField] private DistanceSampling _sampling = DistanceSampling.SingleSample;
+        [BrainPropertyShow(nameof(DisplayRaySampling), (int)DisplayType.Display)]
+        [BrainPropertyEnum(false)] public DistanceSampling Sampling { get => _sampling; set => _sampling = value; }
+
+        [SerializeField] private float _samplingRadius = 1f;
+        [SerializeField] private string _samplingRadiusName;
+        [BrainPropertyShow(nameof(DisplaySamplingVars), (int)DisplayType.Display)]
+        [BrainProperty(false)] public float SamplingRadius { get => _samplingRadius; set => _samplingRadius = value; }
+        [BrainPropertyValueName("SamplingRadius", typeof(IMonaVariablesFloatValue))] public string SamplingRadiusName { get => _samplingRadiusName; set => _samplingRadiusName = value; }
+
+        [SerializeField] private float _sampleCount = 10f;
+        [SerializeField] private string _sampleCountName;
+        [BrainPropertyShow(nameof(DisplaySamplingVars), (int)DisplayType.Display)]
+        [BrainProperty(false)] public float SampleCount { get => _sampleCount; set => _sampleCount = value; }
+        [BrainPropertyValueName("SampleCount", typeof(IMonaVariablesFloatValue))] public string SampleCountName { get => _sampleCountName; set => _sampleCountName = value; }
+
+        [SerializeField] private SamplingType _sampleToUse = SamplingType.Closest;
+        [BrainPropertyShow(nameof(DisplaySamplingVars), (int)DisplayType.Display)]
+        [BrainPropertyEnum(false)] public SamplingType SampleToUse { get => _sampleToUse; set => _sampleToUse = value; }
+
+        protected List<float> _rayDistances = new List<float>();
+
         private Vector3 _direction;
 
         protected IMonaBrain _brain;
@@ -132,6 +154,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public DisplayType DisplayAlignmentAxis => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.TargetPosition ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayAlignmentDirection => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.Direction ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayGeometryAlignment => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.Direction ? DisplayType.Display : DisplayType.Hide;
+        public DisplayType DisplayRaySampling => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode != PositionalAlignmentMode.TargetPosition ? DisplayType.Display : DisplayType.Hide;
+        public DisplayType DisplaySamplingVars => DisplayRaySampling == DisplayType.Display && Sampling == DistanceSampling.MultipleSamples ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayGeometryTag => DirectionType == PushDirectionType.PositionalAlignment && TrueGeometryAlignment == TargetAlignmentGeometry.Tag ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayDirectionTag => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.Direction && AlignmentDirection == BodyAlignmentDirection.TagDirection ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayDirectionVector => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.Direction && (AlignmentDirection == BodyAlignmentDirection.LocalDirection || AlignmentDirection == BodyAlignmentDirection.GlobalDirection) ? DisplayType.Display : DisplayType.Hide;
@@ -218,6 +242,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             Hover = 0,
             TargetPosition = 10,
             Direction = 20
+        }
+
+        public enum DistanceSampling
+        {
+            SingleSample = 0,
+            MultipleSamples = 10
+        }
+
+        public enum SamplingType
+        {
+            Closest = 0,
+            Furthest = 10,
+            Average = 20
         }
 
         public ApplyForceLocalInstructionTile() { }
@@ -382,6 +419,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
             if (!string.IsNullOrEmpty(_maxSpeedName))
                 _maxSpeed = _brain.Variables.GetFloat(_maxSpeedName);
+
+            if (!string.IsNullOrEmpty(_sampleCountName))
+                _sampleCount = _brain.Variables.GetFloat(_sampleCountName);
+
+            if (!string.IsNullOrEmpty(_samplingRadiusName))
+                _samplingRadius = _brain.Variables.GetFloat(_samplingRadiusName);
 
             if (_movingState == MovingStateType.Stopped)
             {
@@ -563,40 +606,120 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             Rigidbody rb = body.ActiveRigidbody;
             Vector3 position = body.GetPosition();
 
+            _rayDistances.Clear();
+
+            float distance = _sampling == DistanceSampling.SingleSample ?
+                GetDistanceFromRay(position, direction) :
+                GetDistanceFromPlane(position, direction);
+
+            if (Mathf.Approximately(distance, 0f))
+                return Vector3.zero;
+
+            float distanceToSurface = distance;
+            float distanceError = _distance - distanceToSurface;
+            Vector3 oppositeDirection = direction * -1f;
+            float speedInDirection = Vector3.Dot(rb.velocity, oppositeDirection.normalized);
+
+            float adjustedForce = _force;
+            float adjustedDamping = _damping;
+
+            if (_scaleWith != ForceScaling.None)
+            {
+                float massScaler = GetMassScaler(body);
+                adjustedForce *= massScaler;
+                adjustedDamping *= massScaler;
+            }
+
+            float forceAmount = (distanceError * adjustedForce) - (speedInDirection * adjustedDamping);
+
+            return oppositeDirection.normalized * forceAmount;
+        }
+
+        protected float GetDistanceFromRay(Vector3 position, Vector3 direction)
+        {
             Ray ray = new Ray(position, direction);
             RaycastHit hit;
 
-            if (UnityEngine.Physics.Raycast(ray, out hit))
+            if (UnityEngine.Physics.Raycast(ray, out hit, Mathf.Infinity))
             {
                 if (TrueGeometryAlignment == TargetAlignmentGeometry.Tag)
                 {
                     IMonaBody hitBody = hit.transform.GetComponent<IMonaBody>();
 
                     if (hitBody == null || !hitBody.HasMonaTag(_geometryTag))
-                        return Vector3.zero;
+                        return 0f;
                 }
 
-                float distanceToSurface = hit.distance;
-                float distanceError = _distance - distanceToSurface;
-                Vector3 oppositeDirection = direction * -1f;
-                float speedInDirection = Vector3.Dot(rb.velocity, oppositeDirection.normalized);
-
-                float adjustedForce = _force;
-                float adjustedDamping = _damping;
-
-                if (_scaleWith != ForceScaling.None)
-                {
-                    float massScaler = GetMassScaler(body);
-                    adjustedForce *= massScaler;
-                    adjustedDamping *= massScaler;
-                }
-
-                float forceAmount = (distanceError * adjustedForce) - (speedInDirection * adjustedDamping);
-
-                return oppositeDirection.normalized * forceAmount;
+                return hit.distance;
             }
 
-            return Vector3.zero;
+            return 0f;
+        }
+
+        protected float GetDistanceFromPlane(Vector3 position, Vector3 direction)
+        {
+            _rayDistances.Clear();
+
+            float distance = 0f;
+
+            Vector3 perp1 = Vector3.Cross(direction, Vector3.up).normalized;
+
+            if (perp1.magnitude < 0.1f)
+                perp1 = Vector3.Cross(direction, Vector3.right).normalized;
+
+            Vector3 perp2 = Vector3.Cross(direction, perp1).normalized;
+
+            for (int i = 0; i < _sampleCount; i++)
+            {
+                Vector2 randomPoint = UnityEngine.Random.insideUnitCircle * _samplingRadius;
+                Vector3 sampleOrigin = position + (perp1 * randomPoint.x) + (perp2 * randomPoint.y);
+
+                Ray ray = new Ray(sampleOrigin, direction);
+                RaycastHit hit;
+
+                if (UnityEngine.Physics.Raycast(ray, out hit, Mathf.Infinity))
+                {
+                    if (TrueGeometryAlignment == TargetAlignmentGeometry.Tag)
+                    {
+                        IMonaBody hitBody = hit.transform.GetComponent<IMonaBody>();
+
+                        if (hitBody == null || !hitBody.HasMonaTag(_geometryTag))
+                            continue;
+                    }
+
+                    _rayDistances.Add(hit.distance);
+                }
+            }
+
+            switch (_sampleToUse)
+            {
+                case SamplingType.Closest:
+                    for (int i = 0; i < _rayDistances.Count; i++)
+                    {
+                        if (i == 0 || distance > _rayDistances[i])
+                            distance = _rayDistances[i];
+                    }
+                    break;
+                case SamplingType.Furthest:
+                    for (int i = 0; i < _rayDistances.Count; i++)
+                    {
+                        if (i == 0 || distance < _rayDistances[i])
+                            distance = _rayDistances[i];
+                    }
+                    break;
+                case SamplingType.Average:
+                    float sum = 0;
+
+                    for (int i = 0; i < _rayDistances.Count; i++)
+                        sum += _rayDistances[i];
+
+                    if (sum > 0)
+                        distance = sum / _rayDistances.Count;
+
+                    break;
+            }
+
+            return distance;
         }
 
         protected Vector3 AlignmentPositionalForce(IMonaBody body)

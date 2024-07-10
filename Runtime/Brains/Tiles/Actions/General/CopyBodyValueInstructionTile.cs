@@ -62,7 +62,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private StringCopyType _copyType;
         [BrainPropertyShow(nameof(TrueTargetType), (int)TargetVariableType.String)]
         [BrainPropertyEnum(false)]
-        public StringCopyType CopyType { get => _copyType; set => _copyType = value; }        
+        public StringCopyType CopyType { get => _copyType; set => _copyType = value; }
+
+        [SerializeField] private Vector3 _offset;
+        [SerializeField] private string[] _offsetName;
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Position)]
+        [BrainProperty(false)] public Vector3 Offset { get => _offset; set => _offset = value; }
+        [BrainPropertyValueName("Offset", typeof(IMonaVariablesVector3Value))] public string[] MyVector3Name { get => _offsetName; set => _offsetName = value; }
 
         public TargetVariableType TrueTargetType
         {
@@ -146,6 +152,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
+            if (HasVector3Values(_offsetName))
+                _offset = GetVector3Value(_brain, _offsetName);
+
             IMonaBody body = GetBody();
 
             if (body == null)
@@ -193,7 +202,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     }
                     break;
                 default:
-                    SetVariable(body.GetPosition()); break;
+                    SetVariable(body.GetPosition(_offset)); break;
             }
 
             return Complete(InstructionTileResult.Success);
