@@ -520,8 +520,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                         avatar = pivot;
 
                         var bounds = GetBounds(avatar);
-                        var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
-                        avatar.transform.localPosition = offsetY;
+                        if (_bottomPivot)
+                        {
+                            var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
+                            avatar.transform.localPosition = offsetY;
+                        }
+                        else
+                            avatar.transform.localPosition = Vector3.zero;
                     }
 
                     if (animator == null)
@@ -604,9 +609,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                         avatar.transform.localRotation = Quaternion.identity;
                         avatar = pivot;
 
-                        var bounds = GetBounds(avatar);
-                        var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
-                        avatar.transform.localPosition = offsetY;
+                        if (_bottomPivot)
+                        {
+                            var bounds = GetBounds(avatar);
+                            var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
+                            avatar.transform.localPosition = offsetY;
+                        }
+                        else
+                            avatar.transform.localPosition = Vector3.zero;
                     }
 
                     if (animator == null)
@@ -957,6 +967,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
 
             var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
+            if (!_bottomPivot)
+                offsetY = Vector3.zero;
             /*
             Debug.Log($"{nameof(ChangeAvatarInstructionTile)} center: {bounds.center}");
             Debug.Log($"{nameof(ChangeAvatarInstructionTile)} extents: {bounds.extents}");

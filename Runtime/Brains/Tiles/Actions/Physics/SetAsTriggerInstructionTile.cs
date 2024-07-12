@@ -5,6 +5,7 @@ using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Core.State.Structs;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
@@ -23,7 +24,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainPropertyValueName("Value", typeof(IMonaVariablesBoolValue))] public string ValueValueName { get => _valueValueName; set => _valueValueName = value; }
 
         private IMonaBrain _brain;
-        private Collider _collider;
+        private List<Collider> _colliders;
 
         public SetAsTriggerInstructionTile() { }
 
@@ -31,11 +32,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             _brain = brainInstance;
 
-            if (_collider != null)
-                return;
-
             if(!_brain.Body.HasCollider())
-                _brain.Body.AddCollider();
+                _colliders = _brain.Body.AddCollider();
+        }
+
+        public override void Unload(bool destroy = false)
+        {
+            if (destroy)
+            {
+                if (_colliders != null)
+                {
+                    for (var i = 0; i < _colliders.Count; i++)
+                        GameObject.Destroy(_colliders[i]);
+                }
+                _colliders = null;
+            }
         }
 
         public override InstructionTileResult Do()

@@ -174,7 +174,12 @@ namespace Mona.SDK.Brains.Core.Brain
                 _brainGraphs.Remove(_brainGraphsToRemove[i]);
 
             for (int i = 0; i < _brainInstancesToRemove.Count; i++)
+            {
+                var instance = _brainInstancesToRemove[i];
+                MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_DESTROYED_EVENT), new MonaBrainDestroyedEvent(instance));
+                instance.Unload(true);
                 _brainInstances.Remove(_brainInstancesToRemove[i]);
+            }
         }
 
         public void RemoveAllBrainGraphs()

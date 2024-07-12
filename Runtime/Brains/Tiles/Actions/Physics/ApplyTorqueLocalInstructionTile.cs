@@ -108,6 +108,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private Vector3 _direction;
 
         protected IMonaBrain _brain;
+        private List<Collider> _colliders;
 
         private MovingStateType _movingState;
         private float _time;
@@ -219,7 +220,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             _instruction = instruction;
 
             if (!_brain.Body.HasCollider())
-                _brain.Body.AddCollider();
+                _colliders = _brain.Body.AddCollider();
 
             UpdateActive();
         }
@@ -278,6 +279,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             RemoveFixedTickDelegate();
             if (_brain.LoggingEnabled)
                 Debug.Log($"{nameof(ApplyTorqueLocalInstructionTile)}.{nameof(Unload)}");
+        
+            if (destroy)
+            {
+                if (_colliders != null)
+                {
+                    for (var i = 0; i < _colliders.Count; i++)
+                        GameObject.Destroy(_colliders[i]);
+                }
+                _colliders = null;
+            }
         }
 
         public void Pause()

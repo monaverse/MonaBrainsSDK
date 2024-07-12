@@ -114,6 +114,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
         protected List<IMonaAssetProvider> _monaAssets = new List<IMonaAssetProvider>();
         public List<IMonaAssetProvider> MonaAssets => _monaAssets;
 
+        private List<Collider> _colliders;
         private List<IMonaAssetProviderBehaviour> _childAssets;
         private List<IMonaAssetItem> _assets = new List<IMonaAssetItem>();
         public List<IMonaAssetItem> GetAllMonaAssets()
@@ -464,7 +465,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                     }
 
                     if (((_body.ActiveRigidbody != null && !_body.ActiveRigidbody.isKinematic) || HasUsePhysicsTileSetToTrue()) && !_body.HasCollider())
-                        _body.AddCollider();
+                        _colliders = _body.AddCollider();
                 }
             }
 
@@ -976,6 +977,12 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if(destroy)
             {
                 RemoveEventDelegates();
+                if (_colliders != null)
+                {
+                    for (var i = 0; i < _colliders.Count; i++)
+                        GameObject.Destroy(_colliders[i]);
+                }
+                _colliders = null;
             }
 
             _began = false;

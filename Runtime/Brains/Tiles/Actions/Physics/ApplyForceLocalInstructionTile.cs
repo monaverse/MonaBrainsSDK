@@ -258,14 +258,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         }
 
         public ApplyForceLocalInstructionTile() { }
-        
+
+        private List<Collider> _colliders;
+
         public virtual void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
             _instruction = instruction;
 
             if (!_brain.Body.HasCollider())
-                _brain.Body.AddCollider();
+                _colliders = _brain.Body.AddCollider();
 
             UpdateActive();
         }
@@ -324,6 +326,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             RemoveFixedTickDelegate();
             if (_brain.LoggingEnabled)
                 Debug.Log($"{nameof(ApplyForceLocalInstructionTile)}.{nameof(Unload)}");
+            if(destroy)
+            {
+                if(_colliders != null)
+                {
+                    for (var i = 0; i < _colliders.Count; i++)
+                        GameObject.Destroy(_colliders[i]);
+                }
+                _colliders = null;
+            }
         }
 
         public void Pause()
