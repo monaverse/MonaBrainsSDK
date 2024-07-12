@@ -66,6 +66,8 @@
         public const string NO_VALUE = "No Value by that Name";
         public const string NOT_STARTED = "Not Started";
         public const string NOT_CONTROLLED = "Does not Have Control";
+        public const string NOT_HOST = "Not Host";
+        public const string NOT_CLIENT = "Not Client";
 
         public const string TILE_MENU_LABEL = "...";
         public const string MENU_DELETE_TILE = "Delete Tile";

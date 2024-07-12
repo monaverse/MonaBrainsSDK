@@ -10,6 +10,11 @@ using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Body;
 using System.Collections.Generic;
 using Unity.Profiling;
+using Mona.SDK.Brains.Core.State;
+using Unity.VisualScripting;
+using Mona.SDK.Core.Events;
+using Mona.SDK.Core;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
@@ -95,10 +100,36 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [SerializeField] private VariableUsageType _variableType = VariableUsageType.Any;
         [BrainPropertyEnum(false)] public VariableUsageType VariableType { get => _variableType; set => _variableType = value; }
 
+        [SerializeField] private bool _takeControl = false;
+        [BrainPropertyEnum(false)] public bool TakeControl { get => _takeControl; set => _takeControl = value; }
+
         private IMonaBrain _brain;
         private Dictionary<IMonaBody, IMonaBrainRunner> _runnerCache = new Dictionary<IMonaBody, IMonaBrainRunner>();
 
+        private Action<MonaBodyFixedTickEvent> OnFixedTick;
+        private float _timeout;
+
+        private Dictionary<IMonaBrainVariables, WaitForControl> _waitingForControl = new Dictionary<IMonaBrainVariables, WaitForControl>();
+
         public SetVariableOnTypeInstructionTile() { }
+
+        public override void SetThenCallback(IInstructionTile tile, Func<InstructionTileCallback, InstructionTileResult> thenCallback)
+        {
+            if (_thenCallback.ActionCallback == null)
+            {
+                _instructionCallback.Tile = tile;
+                _instructionCallback.ActionCallback = thenCallback;
+                _thenCallback.Tile = this;
+                _thenCallback.ActionCallback = ExecuteActionCallback;
+            }
+        }
+
+        private InstructionTileCallback _instructionCallback = new InstructionTileCallback();
+        private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
+        {
+            if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
+            return InstructionTileResult.Success;
+        }
 
         public void Preload(IMonaBrain brain) => _brain = brain;
 
@@ -146,10 +177,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         public override InstructionTileResult Do()
         {
+            Debug.Log($"{nameof(SetVariableOnTypeInstructionTile)} {_myVariable}");
+
             if (_brain == null || (_variableType == VariableUsageType.Any && string.IsNullOrEmpty(_myVariable)))
+            {
+                Debug.Log($"{nameof(SetVariableOnTypeInstructionTile)} variable not found");
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+            }
 
             //_profilerDo.Begin();
+            _waitingForControl.Clear();
 
             var myValue = _brain.Variables.GetVariable(_myVariable);
 
@@ -174,28 +211,29 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             if (!string.IsNullOrEmpty(_targetVariableName))
                 _targetVariable = _brain.Variables.GetString(_targetVariableName);
 
+            var result = InstructionTileResult.Success;
             switch (_target)
             {
                 case MonaBrainBroadcastType.Tag:
-                    ModifyOnTag(myValue);
+                    result = ModifyOnTag(myValue);
                     break;
                 case MonaBrainBroadcastType.Self:
-                    ModifyOnWholeEntity(myValue, _brain.Body);
+                    result = ModifyOnWholeEntity(myValue, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.Parents:
-                    ModifyOnParents(myValue, _brain.Body);
+                    result = ModifyOnParents(myValue, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.Children:
-                    ModifyOnChildren(myValue, _brain.Body);
+                    result = ModifyOnChildren(myValue, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.ThisBodyOnly:
-                    ModifyValueOnBrains(myValue, _brain.Body);
+                    result = ModifyValueOnBrains(myValue, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.AllSpawnedByMe:
-                    ModifyOnAllSpawned(myValue);
+                    result = ModifyOnAllSpawned(myValue);
                     break;
                 case MonaBrainBroadcastType.MyBodyArray:
-                    ModifyValueOnBodyArray(myValue, _brain);
+                    result = ModifyValueOnBodyArray(myValue, _brain);
                     break;
                 default:
                     IMonaBody targetBody = GetTarget();
@@ -204,25 +242,70 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                         break;
 
                     if (ModifyAllAttached)
-                        ModifyOnWholeEntity(myValue, targetBody);
+                        result = ModifyOnWholeEntity(myValue, targetBody);
                     else
-                        ModifyValueOnBrains(myValue, targetBody);
+                        result = ModifyValueOnBrains(myValue, targetBody);
 
                     break;
             }
 
+            if (result != InstructionTileResult.Success)
+            {
+                //Debug.Log($"{nameof(SetVariableOnTypeInstructionTile)} DO NOT HAVE CONTROL OF ALL VARIABLES waiting for control of #{_waitingForControl.Count}");
+                _timeout = 1f;
+                if (_waitingForControl.Count > 0)
+                    AddEventDelegates();
+                else
+                    result = InstructionTileResult.Success;
+            }
+
             //_profilerDo.End();
-            return Complete(InstructionTileResult.Success);
+            return Complete(result);
         }
 
-        private void ModifyValueOnBodyArray(IMonaVariablesValue myValue, IMonaBrain brain)
+        private void AddEventDelegates()
+        {
+            OnFixedTick = HandleFixedTick;
+            MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+        }
+
+        private void RemoveAllEventDelegates()
+        {
+            foreach(var pair in _waitingForControl)
+                pair.Key.NetworkVariables.OnStateAuthorityChanged -= pair.Value.OnStateAuthorityChanged;
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+        }
+
+        private void RemoveEventDelegates(IMonaBrainVariables brainVariables)
+        {
+            //Debug.Log($"{nameof(SetVariableOnTypeInstructionTile)} CONTROL CHANGED has control? {brainVariables.NetworkVariables.HasControl()}");
+            brainVariables.NetworkVariables.OnStateAuthorityChanged -= _waitingForControl[brainVariables].OnStateAuthorityChanged;
+        }
+
+        private void HandleFixedTick(MonaBodyFixedTickEvent evt)
+        {
+            _timeout -= evt.DeltaTime;
+            if (_timeout < 0)
+            {
+                //Debug.Log($"Take control request timedout", _brain.Body.Transform.gameObject);
+                RemoveAllEventDelegates();
+                Complete(InstructionTileResult.Failure, true);
+            }
+        }
+
+        private InstructionTileResult ModifyValueOnBodyArray(IMonaVariablesValue myValue, IMonaBrain brain)
         {
             var bodyArray = brain.Variables.GetBodyArray(_bodyArray);
 
+            var result = InstructionTileResult.Success;
             for (var i = 0; i < bodyArray.Count; i++)
             {
                 if (ModifyAllAttached)
-                    ModifyOnWholeEntity(myValue, bodyArray[i]);
+                {
+                    var r = ModifyOnWholeEntity(myValue, bodyArray[i]);
+                    if (r != InstructionTileResult.Success)
+                        result = r;
+                }
                 else
                 {
                     var runner = GetCachedRunner(bodyArray[i]);
@@ -230,19 +313,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     {
                         for (var j = 0; j < runner.BrainInstances.Count; j++)
                         {
+                            InstructionTileResult r;
                             if (ModifyAllAttached)
-                                ModifyOnWholeEntity(myValue, runner.BrainInstances[j].Body);
+                                r = ModifyOnWholeEntity(myValue, runner.BrainInstances[j].Body);
                             else
-                                ModifyValueOnBrains(myValue, runner.BrainInstances[j].Body);
+                                r = ModifyValueOnBrains(myValue, runner.BrainInstances[j].Body);
+                            if (r != InstructionTileResult.Success)
+                                result = r;
                         }
                     }
                 }
             }
+            return result;
         }
 
         static readonly ProfilerMarker _profileModifyOnTag = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.{nameof(ModifyOnTag)}");
 
-        private void ModifyOnTag(IMonaVariablesValue myValue)
+        private InstructionTileResult ModifyOnTag(IMonaVariablesValue myValue)
         {
             _profileModifyOnTag.Begin();
             var tagBodies = MonaBody.FindByTag(_targetTag);
@@ -250,39 +337,49 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             if (tagBodies.Count < 1)
             {
                 _profileModifyOnTag.End();
-                return;
+                return InstructionTileResult.Success;
             }
 
+            var result = InstructionTileResult.Success;
             for (int i = 0; i < tagBodies.Count; i++)
             {
                 if (tagBodies[i] == null)
                     continue;
 
+                InstructionTileResult r;
                 if (ModifyAllAttached)
-                    ModifyOnWholeEntity(myValue, tagBodies[i]);
+                    r = ModifyOnWholeEntity(myValue, tagBodies[i]);
                 else
-                    ModifyValueOnBrains(myValue, tagBodies[i]);
+                    r = ModifyValueOnBrains(myValue, tagBodies[i]);
+                if (r != InstructionTileResult.Success)
+                    result = r;
             }
             _profileModifyOnTag.End();
+            return result;
         }
 
         static readonly ProfilerMarker _profileModifyOnWholeEntity = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.{nameof(ModifyOnWholeEntity)}");
 
-        private void ModifyOnWholeEntity(IMonaVariablesValue myValue, IMonaBody body)
+        private InstructionTileResult ModifyOnWholeEntity(IMonaVariablesValue myValue, IMonaBody body)
         {
             _profileModifyOnWholeEntity.Begin();
             IMonaBody topBody = body;
             while (topBody.Parent != null)
                 topBody = topBody.Parent;
 
-            ModifyValueOnBrains(myValue, topBody);
-            ModifyOnChildren(myValue, topBody);
+            var result = ModifyValueOnBrains(myValue, topBody);
+            var r = ModifyOnChildren(myValue, topBody);
+
+            if (r != InstructionTileResult.Success)
+                result = r;
+
             _profileModifyOnWholeEntity.End();
+            return result;
         }
 
         static readonly ProfilerMarker _profileModifyOnParents = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.{nameof(ModifyOnParents)}");
 
-        private void ModifyOnParents(IMonaVariablesValue myValue, IMonaBody body)
+        private InstructionTileResult ModifyOnParents(IMonaVariablesValue myValue, IMonaBody body)
         {
             _profileModifyOnParents.Begin();
             IMonaBody parent = body.Parent;
@@ -290,46 +387,58 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             if (parent == null)
             {
                 _profileModifyOnParents.End();
-                return;
+                return InstructionTileResult.Success;
             }
 
-            ModifyValueOnBrains(myValue, parent);
-            ModifyOnParents(myValue, parent);
+            var result = ModifyValueOnBrains(myValue, parent);
+            var r = ModifyOnParents(myValue, parent);
+            if (r != InstructionTileResult.Success)
+                result = r;
             _profileModifyOnParents.End();
+            return result;
         }
 
-        private void ModifyOnChildren(IMonaVariablesValue myValue, IMonaBody body)
+        private InstructionTileResult ModifyOnChildren(IMonaVariablesValue myValue, IMonaBody body)
         {
         
             var children = body.Children();
+            var result = InstructionTileResult.Success;
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i] == null)
                     continue;
 
-                ModifyValueOnBrains(myValue, children[i]);
-                ModifyOnChildren(myValue, children[i]);
+                var r = ModifyValueOnBrains(myValue, children[i]);
+                if (r != InstructionTileResult.Success)
+                    result = r;
+                r = ModifyOnChildren(myValue, children[i]);
+                if (r != InstructionTileResult.Success)
+                    result = r;
             }
-        
+            return result;
         }
 
-        private void ModifyOnAllSpawned(IMonaVariablesValue myValue)
-        {
-        
+        private InstructionTileResult ModifyOnAllSpawned(IMonaVariablesValue myValue)
+        {        
             var spawned = _brain.SpawnedBodies;
 
+            var result = InstructionTileResult.Success;
             for (int i = 0; i < spawned.Count; i++)
             {
                 if (spawned[i] == null)
                     continue;
 
+                InstructionTileResult r;
                 if (ModifyAllAttached)
-                    ModifyOnWholeEntity(myValue, spawned[i]);
+                    r = ModifyOnWholeEntity(myValue, spawned[i]);
                 else
-                    ModifyValueOnBrains(myValue, spawned[i]);
+                    r = ModifyValueOnBrains(myValue, spawned[i]);
+
+                if (r != InstructionTileResult.Success)
+                    result = r;
             }
-            
+            return result;
         }
 
         static readonly ProfilerMarker _profileGetTarget = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.{nameof(GetTarget)}");
@@ -378,11 +487,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         static readonly ProfilerMarker markerGet = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.Get");
         static readonly ProfilerMarker markerSet = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.Set");
 
+        private struct WaitForControl
+        {
+            public Action OnStateAuthorityChanged;
+        }
 
-        private void ModifyValueOnBrains(IMonaVariablesValue myValue, IMonaBody body)
+        private InstructionTileResult ModifyValueOnBrains(IMonaVariablesValue myValue, IMonaBody body)
         {
             if (body.ActiveTransform == null)
-                return;
+                return InstructionTileResult.Success;
 
             _profileModifyValueOnBrains.Begin();
             var runner = GetCachedRunner(body);
@@ -390,9 +503,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             if (runner == null)
             {
                 _profileModifyValueOnBrains.End();
-                return;
+                return InstructionTileResult.Success;
             }
 
+            var result = InstructionTileResult.Success;
             for (int i = 0; i < runner.BrainInstances.Count; i++)
             {
                 var brainVariables = runner.BrainInstances[i].Variables;
@@ -400,22 +514,112 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 if (brainVariables == null)
                     continue;
 
+                var shouldSetValue = !_takeControl || brainVariables.NetworkVariables == null || (_takeControl && body.HasControl());
+                var shouldTakeControl = _takeControl && !body.HasControl();
+
                 switch (_variableType)
                 {
                     case VariableUsageType.Number:
-                        brainVariables.Set(_targetVariable, _myNumber, true, false);
+                        if(shouldSetValue)
+                            brainVariables.Set(_targetVariable, _myNumber, true, false);
+                        else if(shouldTakeControl)
+                        {
+                            result = InstructionTileResult.Running;
+                            var wait = new WaitForControl()
+                            {
+                                OnStateAuthorityChanged = () =>
+                                {
+                                    RemoveEventDelegates(brainVariables);
+                                    _waitingForControl.Remove(brainVariables);
+                                    if (brainVariables.NetworkVariables.HasControl())
+                                        brainVariables.Set(_targetVariable, _myNumber, true, false);
+                                }
+                            };
+                            _waitingForControl.Add(brainVariables, wait);
+                            brainVariables.NetworkVariables.OnStateAuthorityChanged += wait.OnStateAuthorityChanged;
+                            body.TakeControl();
+                        }
                         break;
                     case VariableUsageType.String:
-                        brainVariables.Set(_targetVariable, _myString, true, false);
+                        if (shouldSetValue)
+                            brainVariables.Set(_targetVariable, _myString, true, false);
+                        else if (shouldTakeControl)
+                        {
+                            result = InstructionTileResult.Running;
+                            var wait = new WaitForControl()
+                            {
+                                OnStateAuthorityChanged = () =>
+                                {
+                                    RemoveEventDelegates(brainVariables);
+                                    _waitingForControl.Remove(brainVariables);
+                                    if (brainVariables.NetworkVariables.HasControl())
+                                        brainVariables.Set(_targetVariable, _myString, true, false);
+                                }
+                            };
+                            _waitingForControl.Add(brainVariables, wait);
+                            brainVariables.NetworkVariables.OnStateAuthorityChanged += wait.OnStateAuthorityChanged;
+                            body.TakeControl();
+                        }
                         break;
                     case VariableUsageType.Boolean:
-                        brainVariables.Set(_targetVariable, _myBool, true, false);
+                        if (shouldSetValue)
+                            brainVariables.Set(_targetVariable, _myBool, true, false);
+                        else if (shouldTakeControl)
+                        {
+                            result = InstructionTileResult.Running;
+                            var wait = new WaitForControl()
+                            {
+                                OnStateAuthorityChanged = () =>
+                                {
+                                    RemoveEventDelegates(brainVariables);
+                                    _waitingForControl.Remove(brainVariables);
+                                    if (brainVariables.NetworkVariables.HasControl())
+                                        brainVariables.Set(_targetVariable, _myBool, true, false);
+                                }
+                            };
+                            brainVariables.NetworkVariables.OnStateAuthorityChanged += wait.OnStateAuthorityChanged;
+                            body.TakeControl();
+                        }
                         break;
                     case VariableUsageType.Vector2:
-                        brainVariables.Set(_targetVariable, _myVector2, true, false);
+                        if (shouldSetValue)
+                            brainVariables.Set(_targetVariable, _myVector2, true, false);
+                        else if (shouldTakeControl)
+                        {
+                            result = InstructionTileResult.Running;
+                            var wait = new WaitForControl()
+                            {
+                                OnStateAuthorityChanged = () =>
+                                {
+                                    RemoveEventDelegates(brainVariables);
+                                    _waitingForControl.Remove(brainVariables);
+                                    if (brainVariables.NetworkVariables.HasControl())
+                                        brainVariables.Set(_targetVariable, _myVector2, true, false);
+                                }
+                            };
+                            brainVariables.NetworkVariables.OnStateAuthorityChanged += wait.OnStateAuthorityChanged;
+                            body.TakeControl();
+                        }
                         break;
                     case VariableUsageType.Vector3:
-                        brainVariables.Set(_targetVariable, _myVector3, true, false);
+                        if (shouldSetValue)
+                            brainVariables.Set(_targetVariable, _myVector3, true, false);
+                        else if (shouldTakeControl)
+                        {
+                            result = InstructionTileResult.Running;
+                            var wait = new WaitForControl()
+                            {
+                                OnStateAuthorityChanged = () =>
+                                {
+                                    RemoveEventDelegates(brainVariables);
+                                    _waitingForControl.Remove(brainVariables);
+                                    if (brainVariables.NetworkVariables.HasControl())
+                                        brainVariables.Set(_targetVariable, _myVector3, true, false);
+                                }
+                            };
+                            brainVariables.NetworkVariables.OnStateAuthorityChanged += wait.OnStateAuthorityChanged;
+                            body.TakeControl();
+                        }
                         break;
                     default:
                         markerGet.Begin();
@@ -428,27 +632,67 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                         markerGet.End();
 
                         markerSet.Begin();
-                        if (targetValue is IMonaVariablesStringValue)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetValueAsString(_myVariable), true, false);
-                        else if (targetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesFloatValue)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetFloat(_myVariable), true, false);
-                        else if (targetValue is IMonaVariablesBoolValue && myValue is IMonaVariablesBoolValue)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetBool(_myVariable), true, false);
-                        else if (targetValue is IMonaVariablesVector2Value && myValue is IMonaVariablesVector2Value)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector2(_myVariable), true, false);
-                        else if (targetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector3(_myVariable), true, false);
-                        else if (targetValue is IMonaVariablesBodyArrayValue && myValue is IMonaVariablesBodyArrayValue)
+
+                        if (shouldSetValue)
                         {
-                            var list = new List<IMonaBody>();
+                            if (targetValue is IMonaVariablesStringValue)
+                                brainVariables.Set(_targetVariable, _brain.Variables.GetValueAsString(_myVariable), true, false);
+                            else if (targetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesFloatValue)
+                                brainVariables.Set(_targetVariable, _brain.Variables.GetFloat(_myVariable), true, false);
+                            else if (targetValue is IMonaVariablesBoolValue && myValue is IMonaVariablesBoolValue)
+                                brainVariables.Set(_targetVariable, _brain.Variables.GetBool(_myVariable), true, false);
+                            else if (targetValue is IMonaVariablesVector2Value && myValue is IMonaVariablesVector2Value)
+                                brainVariables.Set(_targetVariable, _brain.Variables.GetVector2(_myVariable), true, false);
+                            else if (targetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
+                                brainVariables.Set(_targetVariable, _brain.Variables.GetVector3(_myVariable), true, false);
+                            else if (targetValue is IMonaVariablesBodyArrayValue && myValue is IMonaVariablesBodyArrayValue)
+                            {
+                                var list = new List<IMonaBody>();
                                 list.AddRange(_brain.Variables.GetBodyArray(_myVariable));
-                            brainVariables.Set(_targetVariable, list, false);
+                                brainVariables.Set(_targetVariable, list, false);
+                            }
                         }
+                        else if (shouldTakeControl)
+                        {
+                            result = InstructionTileResult.Running;
+                            var wait = new WaitForControl()
+                            {
+                                OnStateAuthorityChanged = () =>
+                                {
+                                    RemoveEventDelegates(brainVariables);
+                                    _waitingForControl.Remove(brainVariables);
+                                    if (brainVariables.NetworkVariables.HasControl())
+                                    {
+                                        if (targetValue is IMonaVariablesStringValue)
+                                            brainVariables.Set(_targetVariable, _brain.Variables.GetValueAsString(_myVariable), true, false);
+                                        else if (targetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesFloatValue)
+                                            brainVariables.Set(_targetVariable, _brain.Variables.GetFloat(_myVariable), true, false);
+                                        else if (targetValue is IMonaVariablesBoolValue && myValue is IMonaVariablesBoolValue)
+                                            brainVariables.Set(_targetVariable, _brain.Variables.GetBool(_myVariable), true, false);
+                                        else if (targetValue is IMonaVariablesVector2Value && myValue is IMonaVariablesVector2Value)
+                                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector2(_myVariable), true, false);
+                                        else if (targetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
+                                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector3(_myVariable), true, false);
+                                        else if (targetValue is IMonaVariablesBodyArrayValue && myValue is IMonaVariablesBodyArrayValue)
+                                        {
+                                            var list = new List<IMonaBody>();
+                                            list.AddRange(_brain.Variables.GetBodyArray(_myVariable));
+                                            brainVariables.Set(_targetVariable, list, false);
+                                        }
+                                    }
+                                }
+                            };
+                            _waitingForControl.Add(brainVariables, wait);
+                            brainVariables.NetworkVariables.OnStateAuthorityChanged += wait.OnStateAuthorityChanged;
+                            body.TakeControl();
+                        }
+
                         markerSet.End();
                         break;
                 }
             }
             _profileModifyValueOnBrains.End();
+            return result;
         }
     }
 }

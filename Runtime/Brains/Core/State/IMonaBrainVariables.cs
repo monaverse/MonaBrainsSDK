@@ -3,11 +3,16 @@ using Mona.SDK.Core.Network;
 using Mona.SDK.Core.Network.Interfaces;
 using Mona.SDK.Core.State;
 using UnityEngine;
+using System;
 
 namespace Mona.SDK.Brains.Core.State
 {
     public interface IMonaBrainVariables : IMonaVariables
     {
+        event Action OnStateAuthorityChanged;
+
+        INetworkMonaVariables NetworkVariables { get; }
+
         void SetGameObject(GameObject gameObject, IMonaBrain brain);
 
         void Set(string variableName, IMonaBrain value);

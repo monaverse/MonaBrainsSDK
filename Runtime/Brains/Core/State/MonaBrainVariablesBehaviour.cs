@@ -11,16 +11,26 @@ namespace Mona.SDK.Brains.Core.State
     [Serializable]
     public class MonaBrainVariablesBehaviour : MonoBehaviour, IMonaBrainVariables
     {
+        public event Action OnStateAuthorityChanged = delegate { };
+
         [SerializeField]
         private MonaBrainVariables _variables = new MonaBrainVariables();
         public MonaBrainVariables Variables => _variables;
+
+        public INetworkMonaVariables _networkVariables;
+        public INetworkMonaVariables NetworkVariables => _networkVariables;
 
         public void Awake()
         {
             SetGameObject(gameObject);
         }
 
-        public void SetNetworkVariables(INetworkMonaVariables variables) => _variables.SetNetworkVariables(variables);
+        public void SetNetworkVariables(INetworkMonaVariables variables)
+        {
+            _networkVariables = variables;
+            _variables.SetNetworkVariables(variables);
+        }
+
         public List<IMonaVariablesValue> VariableList { get => _variables.VariableList; set => _variables.VariableList = value; }
 
         public void SyncValuesOnNetwork() => _variables.SyncValuesOnNetwork();

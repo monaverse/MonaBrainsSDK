@@ -63,6 +63,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private IMonaBody _playerCameraBody;
         private Camera _playerCamera;
         private int _playerId;
+        private bool _isHost;
 
         private List<IMonaTags> _monaTags = new List<IMonaTags>();
         public List<IMonaTags> MonaTags => _monaTags;
@@ -78,12 +79,13 @@ namespace Mona.SDK.Brains.Core.Brain
         }
 
         private List<MonaRemotePlayer> _otherPlayers = new List<MonaRemotePlayer>();
-
-        public IMonaBody PlayerBody => _playerBody;
-        public IMonaBody PlayerCameraBody => _playerCameraBody;
-        public Camera PlayerCamera => _playerCamera;
         public List<MonaRemotePlayer> OtherPlayers => _otherPlayers;
-        public int PlayerId => _playerId;
+
+        public IMonaBody PlayerBody { get => _playerBody; set => _playerBody = value; } 
+        public IMonaBody PlayerCameraBody { get => _playerCameraBody; set => _playerCameraBody = value; }
+        public Camera PlayerCamera { get => _playerCamera; set => _playerCamera = value; }
+        public int PlayerId { get => _playerId; set => _playerId = value; }
+        public bool IsHost { get => _isHost; set => _isHost = value; }
 
         public int GetPlayerIdByBody(IMonaBody body)
         {

@@ -16,6 +16,8 @@ namespace Mona.SDK.Brains.Core.State
     [Serializable]
     public class MonaBrainVariables : MonaVariables, IMonaBrainVariables
     {
+        public event Action OnStateAuthorityChanged = delegate { };
+
         private IMonaBrain _brain;
 
         private Dictionary<string, Vector3> _internalVariables = new Dictionary<string, Vector3>();
