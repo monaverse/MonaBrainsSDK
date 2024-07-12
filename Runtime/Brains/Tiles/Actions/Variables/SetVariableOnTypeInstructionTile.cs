@@ -429,15 +429,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
                         markerSet.Begin();
                         if (targetValue is IMonaVariablesStringValue)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetValueAsString(_myVariable), false);
+                            brainVariables.Set(_targetVariable, _brain.Variables.GetValueAsString(_myVariable), true, false);
                         else if (targetValue is IMonaVariablesFloatValue && myValue is IMonaVariablesFloatValue)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetFloat(_myVariable), false);
+                            brainVariables.Set(_targetVariable, _brain.Variables.GetFloat(_myVariable), true, false);
                         else if (targetValue is IMonaVariablesBoolValue && myValue is IMonaVariablesBoolValue)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetBool(_myVariable), false);
+                            brainVariables.Set(_targetVariable, _brain.Variables.GetBool(_myVariable), true, false);
                         else if (targetValue is IMonaVariablesVector2Value && myValue is IMonaVariablesVector2Value)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector2(_myVariable), false);
+                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector2(_myVariable), true, false);
                         else if (targetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
-                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector3(_myVariable), false);
+                            brainVariables.Set(_targetVariable, _brain.Variables.GetVector3(_myVariable), true, false);
                         else if (targetValue is IMonaVariablesBodyArrayValue && myValue is IMonaVariablesBodyArrayValue)
                         {
                             var list = new List<IMonaBody>();
