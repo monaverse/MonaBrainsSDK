@@ -460,7 +460,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                         return tokens.FindIndex(a => a.Equals(x)) > -1;
                     }
                     else
-                        return !tokens.Contains(x);
+                        return tokens.FindIndex(a => a.Equals(x)) == -1;
                 });
                 _instruction.Tokens = filtered;
 
