@@ -49,6 +49,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private InstructionTileCallback _instructionCallback = new InstructionTileCallback();
         private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
         {
+            RemoveEventDelegates();
             if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
             return InstructionTileResult.Success;
         }
@@ -60,7 +61,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void HandleStateAuthorityChanged(MonaStateAuthorityChangedEvent evt)
         {
-            Debug.Log($"{nameof(TakeControlInstructionTile)} {nameof(HandleStateAuthorityChanged)}", _brain.Body.Transform.gameObject);
+            Debug.Log($"{nameof(TakeControlInstructionTile)} {nameof(HandleStateAuthorityChanged)} owned? {evt.Owned}", _brain.Body.Transform.gameObject);
             if (evt.Owned)
             {
                 RemoveEventDelegates();
@@ -71,11 +72,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private void HandleFixedTick(MonaBodyFixedTickEvent evt)
         {
             _timeout -= evt.DeltaTime;
-            if(_timeout < 0)
+            if (_timeout < 0)
             {
-                Debug.Log($"Take control request timedout", _brain.Body.Transform.gameObject);
+                Debug.Log($"{nameof(TakeControlInstructionTile)} request timedout", _brain.Body.Transform.gameObject);
                 RemoveEventDelegates();
-                Complete(InstructionTileResult.Failure, true);
+                Complete(_brain.Body.HasControl() ? InstructionTileResult.Success : InstructionTileResult.Failure, true);
             }
         }
 
@@ -88,9 +89,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             if (!_brain.Body.HasControl())
             {
-                AddEventDelegates();
+                Debug.Log($"{nameof(TakeControlInstructionTile)} {nameof(Do)}", _brain.Body.Transform.gameObject);                
+                _timeout = 1f;
                 _brain.Body.TakeControl();
-                return Complete(InstructionTileResult.Running);
+                if (_brain.Body.HasControl() && _brain.Variables.HasControl())
+                    return Complete(InstructionTileResult.Success);
+                else
+                {
+                    AddEventDelegates();
+                    return Complete(InstructionTileResult.Running);
+                }
             }
 
             return Complete(InstructionTileResult.Success);
@@ -98,6 +106,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void AddEventDelegates()
         {
+            //Debug.Log($"{nameof(TakeControlInstructionTile)} {nameof(AddEventDelegates)}", _brain.Body.Transform.gameObject);
             OnFixedTick = HandleFixedTick;
             MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
 
@@ -107,6 +116,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void RemoveEventDelegates()
         {
+            //Debug.Log($"{nameof(TakeControlInstructionTile)} {nameof(RemoveEventDelegates)}", _brain.Body.Transform.gameObject);
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.STATE_AUTHORITY_CHANGED_EVENT, _brain.Body), OnStateAuthorityChanged);
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
         }

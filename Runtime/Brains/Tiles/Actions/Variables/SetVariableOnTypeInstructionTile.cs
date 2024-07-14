@@ -177,7 +177,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         public override InstructionTileResult Do()
         {
-            Debug.Log($"{nameof(SetVariableOnTypeInstructionTile)} {_myVariable}");
+            //Debug.Log($"{nameof(SetVariableOnTypeInstructionTile)} {_myVariable}");
 
             if (_brain == null || (_variableType == VariableUsageType.Any && string.IsNullOrEmpty(_myVariable)))
             {

@@ -78,5 +78,10 @@ namespace Mona.SDK.Brains.Core.State
             if (variableName.StartsWith("__")) return;
             MonaEventBus.Trigger<MonaValueChangedEvent>(_eventHook, new MonaValueChangedEvent(variableName, value));
         }
+
+        public bool HasControl()
+        {
+            return NetworkVariables == null || NetworkVariables.HasControl();
+        }
     }
 }

@@ -22,6 +22,7 @@ namespace Mona.SDK.Brains.Core.State
         Vector3 GetInternalVector3(string variableName);
 
         void SetNetworkVariables(INetworkMonaVariables state);
+        bool HasControl();
 
         void SyncValuesOnNetwork();
 

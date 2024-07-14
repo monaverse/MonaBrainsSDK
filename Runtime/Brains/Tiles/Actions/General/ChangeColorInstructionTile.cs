@@ -268,45 +268,43 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             return Do();
         }
 
+        private IMonaBody _body;
+        private Light _light;
+        private Image _image;
+        private Text _text;
+        private TMP_Text _textTmp;
+        private TextMeshProUGUI _textUI;
+
         private void SetColor(Color c, IMonaBody body)
         {
-            if(body.Renderers.Length > 0)
+            if (_body != body)
             {
-                _brain.Body.SetColor(_color, true);
-                return;
+                _body = body;
+                _light = body.Transform.GetComponent<Light>();
+                _image = body.Transform.GetComponent<Image>();
+                _text = body.Transform.GetComponent<Text>();
+                _textTmp = body.Transform.GetComponent<TMP_Text>();
+                _textUI = body.Transform.GetComponent<TMPro.TextMeshProUGUI>();
             }
 
-            Light light = body.Transform.GetComponent<Light>();
+            if (body.Renderers.Length > 0)
+                body.SetColor(_color, true);
 
-            if (light != null)
-            {
-                light.color = c;
-                return;
-            }
+            if (_light != null)
+                _light.color = c;
 
-            Image image = body.Transform.GetComponent<Image>();
+            if (_image != null)
+                _image.color = c;
 
-            if (image != null)
-            {
-                image.color = c;
-                return;
-            }
+            if (_text != null)
+                _text.color = c;
 
-            Text text = body.Transform.GetComponent<Text>();
+            if (_textTmp != null)
+                _textTmp.color = c;
 
-            if (text != null)
-            {
-                text.color = c;
-                return;
-            }
+            if (_textUI != null)
+                _textUI.color = c;
 
-            TMP_Text tmpText = body.Transform.GetComponent<TMP_Text>();
-
-            if (tmpText != null)
-            {
-                text.color = c;
-                return;
-            }
             //else if(_lights.Length > 0)
             //{
             //    for (var i = 0; i < _lights.Length; i++)
@@ -449,6 +447,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             {
                 case MonaBrainTargetColorType.Parent:
                     return _brain.Body.Parent;
+                case MonaBrainTargetColorType.ThisBodyOnly:
+                    return _brain.Body;
                 case MonaBrainTargetColorType.MessageSender:
                     var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
                     if (brain != null)

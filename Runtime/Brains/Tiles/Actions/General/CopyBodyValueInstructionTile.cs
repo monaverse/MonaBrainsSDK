@@ -183,6 +183,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 case MonaBodyValueType.ChildCount:
                     SetVariable((float)body.Transform.childCount); break;
                 case MonaBodyValueType.PlayerId:
+                    //Debug.Log($"{nameof(CopyBodyValueInstructionTile)} playerId {body.PlayerId} {body.ClientId} {body.PlayerName} ", body.Transform.gameObject);
                     SetVariable((float)body.PlayerId); break;
                 case MonaBodyValueType.ClientId:
                     SetVariable((float)body.ClientId); break;
