@@ -499,7 +499,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             if (_body.Transform.Find("Root") != null)
             {
                 var child = _body.Transform.Find("Root");
-                if (Vector3.Distance(child.position, _body.GetPosition()) < Mathf.Epsilon)
+                //if (Vector3.Distance(child.position, _body.GetPosition()) < Mathf.Epsilon)
                 {
                     _root = child;
                     found = true;
