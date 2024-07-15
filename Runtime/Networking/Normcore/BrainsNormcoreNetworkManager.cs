@@ -74,8 +74,10 @@ namespace Mona.Networking
             //if (isUnownedInHierarchy)
             //    realtimeView.RequestOwnershipOfSelfAndChildren();
 
-            if(model.players.Count == 0)
-                ClaimHost();
+            if (isUnownedInHierarchy)
+            {
+                RequestOwnership();
+            }
             else
                 ClaimClient();
 
@@ -87,6 +89,7 @@ namespace Mona.Networking
             ShowRoom();
         }
 
+        private bool _claimed;
         protected override void OnRealtimeModelReplaced(BrainsRoomModel previousModel, BrainsRoomModel currentModel)
         {
             if (previousModel != null)
@@ -105,13 +108,14 @@ namespace Mona.Networking
 
                 // Register for events so we'll know if the color changes later
                 currentModel.ownerIDSelfDidChange += HandleOwnerIDChanged;
+
             }
         }
 
         private void HandleOwnerIDChanged(RealtimeModel model, int id)
         {
             Debug.Log($"{nameof(HandleOwnerIDChanged)} owner: {id} client: {_realtime.clientID}");
-            if (id == _realtime.clientID)
+            if (model.ownerIDSelf == _realtime.clientID)
                 ClaimHost();
             else
                 ClaimClient();
