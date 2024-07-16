@@ -45,6 +45,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Forward)]
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.ChildIndex)]
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.SiblingIndex)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.BoundsExtents)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.BoundsCenter)]
         [BrainPropertyEnum(false)] public TargetVariableType TargetType { get => _targetType; set => _targetType = value; }
 
         [SerializeField] string _targetValue;
@@ -63,6 +65,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(TrueTargetType), (int)TargetVariableType.String)]
         [BrainPropertyEnum(false)]
         public StringCopyType CopyType { get => _copyType; set => _copyType = value; }
+
+        [SerializeField] private bool _includeChildren = true;
+        [SerializeField] private string _includeChildrenName;
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.BoundsExtents)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.BoundsCenter)]
+        [BrainProperty(false)] public bool IncludeChildren { get => _includeChildren; set => _includeChildren = value; }
+        [BrainPropertyValueName("IncludeChildren", typeof(IMonaVariablesBoolValue))] public string IncludeChildrenName { get => _includeChildrenName; set => _includeChildrenName = value; }
 
         [SerializeField] private Vector3 _offset;
         [SerializeField] private string[] _offsetName;
@@ -155,6 +164,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (HasVector3Values(_offsetName))
                 _offset = GetVector3Value(_brain, _offsetName);
 
+            if (!string.IsNullOrEmpty(_includeChildrenName))
+                _includeChildren = _brain.Variables.GetBool(_includeChildrenName);
+
             IMonaBody body = GetBody();
 
             if (body == null)
@@ -202,6 +214,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         SetVariable(readme.ToString());
                     }
                     break;
+                case MonaBodyValueType.BoundsExtents:
+                    SetBoundsValue(body); break;
+                case MonaBodyValueType.BoundsCenter:
+                    SetBoundsValue(body); break;
                 default:
                     SetVariable(body.GetPosition(_offset)); break;
             }
@@ -269,6 +285,35 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         _brain.Variables.Set(_targetString, GetAxisValue(result).ToString());
                     break;
             }
+        }
+
+        private void SetBoundsValue(IMonaBody body)
+        {
+            Transform parent = body.Transform.parent != null ? body.Transform.parent : body.Transform;
+            Bounds bounds = new Bounds(parent.position, Vector3.zero);
+
+            if (_includeChildren)
+            {
+                Renderer[] renderers = parent.GetComponentsInChildren<Renderer>();
+
+                for (int i = 0; i < renderers.Length; i++)
+                {
+                    if (renderers[i].GetComponent<LineRenderer>() == null)
+                        bounds.Encapsulate(renderers[i].bounds);
+                }
+            }
+            else
+            {
+                Renderer renderer = parent.GetComponent<Renderer>();
+
+                if (renderer != null)
+                    bounds.Encapsulate(renderer.bounds);
+            }
+
+            Vector3 result = _source == MonaBodyValueType.BoundsExtents ?
+                bounds.extents * 2f : bounds.center;
+
+            SetVariable(result);
         }
 
         private void SetVariable(string result)

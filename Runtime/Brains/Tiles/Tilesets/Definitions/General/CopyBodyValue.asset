@@ -28,9 +28,16 @@ MonoBehaviour:
         _name: Copy Body Value
         _category: Variables
         _muted: 0
+        _body: 10
+        _tag: 
         _source: 0
         _axis: 1
         _targetType: 0
         _targetValue: 
         _targetNumber: 
         _targetString: 
+        _copyType: 0
+        _includeChildren: 1
+        _includeChildrenName: 
+        _offset: {x: 0, y: 0, z: 0}
+        _offsetName: []

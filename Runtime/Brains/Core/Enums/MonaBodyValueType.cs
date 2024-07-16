@@ -17,5 +17,7 @@
         ClientId = 20,
         PlayerName = 21,
         ReadMe = 22,
+        BoundsExtents = 30,
+        BoundsCenter = 40
     }
 }
