@@ -105,13 +105,15 @@ namespace Mona.Networking
             }
 
             MonaBody.SetPlayer(_playerId, _clientId, _playerName, isNetworked: false);
+
+            BrainsNormcoreNetworkManager.Instance.RegisterPlayerBody(MonaBody);
         }
 
         private void UpdateLocalId(string localId, string prefabId, bool locallyOwnedMonabody)
         {
             if (_localId == localId && _prefabId == prefabId && _locallyOwnedMonabody == locallyOwnedMonabody) return;
 
-            Debug.Log($"{nameof(BrainsNormcoreMonaBodyNetworkBehaviour)}.{nameof(UpdateLocalId)} new network object, find local copy of {_localId} prefab: {_prefabId}");
+            //Debug.Log($"{nameof(BrainsNormcoreMonaBodyNetworkBehaviour)}.{nameof(UpdateLocalId)} new network object, find local copy of {_localId} prefab: {_prefabId}");
 
             _localId = localId;
             _prefabId = prefabId;
@@ -184,7 +186,7 @@ namespace Mona.Networking
 
         public void SetIdentifier(string localId, string prefabId, bool locallyOwnedMonaBody)
         {
-            Debug.Log($"{nameof(SetIdentifier)} localId {localId} prefabId {prefabId}, locallyOwnedMonaBody {locallyOwnedMonaBody}");
+            //Debug.Log($"{nameof(SetIdentifier)} localId {localId} prefabId {prefabId}, locallyOwnedMonaBody {locallyOwnedMonaBody}");
             model.identifier.SetIdentifier(localId, prefabId, locallyOwnedMonaBody);
         }
 
@@ -299,7 +301,7 @@ namespace Mona.Networking
 
         public void Spawned()
         {
-            Debug.Log($"MONA OBJECT SPAWNED {gameObject.name}", this.gameObject);
+            //Debug.Log($"MONA OBJECT SPAWNED {gameObject.name}", this.gameObject);
 
             var monaBody = gameObject.GetComponent<MonaBody>();
             if (monaBody != null)
@@ -462,6 +464,9 @@ namespace Mona.Networking
             }
 
             ownerIDSelfDidChange -= StateAuthorityChanged;
+
+            //Debug.Log($"{nameof(BrainsNormcoreMonaBodyNetworkBehaviour)}.{nameof(OnDestroy)} unparent mona object {_monaBody} client: {_clientId}");
+            BrainsNormcoreNetworkManager.Instance.UnregisterPlayerBody(_clientId);
         }
 
         public void FixedUpdate()
@@ -671,12 +676,23 @@ namespace Mona.Networking
 
         private void SendTeleportPosition(Vector3 position, bool isKinematic)
         {
+            //Debug.Log($"{nameof(SendTeleportPosition)} {position}", gameObject);
+            if (transform.parent != null)
+            {
+                var pos = transform.parent.InverseTransformPoint(position);
+                transform.localPosition = pos;
+            }
+            else
+            {
+                transform.localPosition = position;
+            }
+            /*
             transform.position = position;
             if (_networkRigidbody != null)
             {
                 SendKinematic(isKinematic);
                 _networkRigidbody.position = position;
-            }
+            }*/
             //Debug.Log($"{nameof(SendPositionRpc)} {position}");
         }
 
@@ -707,12 +723,23 @@ namespace Mona.Networking
 
         private void SendTeleportRotation(Quaternion rotation, bool isKinematic)
         {
+            //Debug.Log($"{nameof(SendTeleportRotation)} {rotation}", gameObject);
+            if (transform.parent != null)
+            {
+                var rot = Quaternion.Inverse(transform.parent.rotation) * rotation;
+                transform.localRotation = rot;
+            }
+            else
+            {
+                transform.localRotation = rotation;
+            }
+            /*
             transform.rotation = rotation;
             if (_networkRigidbody != null)
             {
                 SendKinematic(isKinematic);
                 _networkRigidbody.rotation = rotation;
-            }
+            }*/
             //Debug.Log($"{nameof(SendRotationRpc)} {rotation}");
         }
 
@@ -723,11 +750,22 @@ namespace Mona.Networking
 
         private void SendTeleportGlobalRotation(Quaternion rotation)
         {
+            Debug.Log($"{nameof(SendTeleportGlobalRotation)} {rotation}", gameObject);
+            if (transform.parent != null)
+            {
+                var rot = Quaternion.Inverse(transform.parent.rotation) * rotation;
+                transform.localRotation = rot;
+            }
+            else
+            {
+                transform.localRotation = rotation;
+            }
+            /*
             transform.rotation = rotation;
             if (_networkRigidbody != null)
             {
                 _networkRigidbody.rotation = rotation;
-            }
+            }*/
             //Debug.Log($"{nameof(SendRotationRpc)} {rotation}");
         }
 

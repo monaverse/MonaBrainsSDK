@@ -62,7 +62,7 @@ namespace Mona.Networking
             _locallyOwnedMonabody = locallyOwnedMonabody;
             _index = index;
 
-            Debug.Log($"{nameof(BrainsNormcoreMonaVariablesNetworkBehaviour)}.{nameof(IdentifierChanged)} new network object, find local copy of {_localId} prefab: {_prefabId}");
+            //Debug.Log($"{nameof(BrainsNormcoreMonaVariablesNetworkBehaviour)}.{nameof(IdentifierChanged)} new network object, find local copy of {_localId} prefab: {_prefabId}");
 
             gameObject.name = _localId + ":NetworkVariables";
 
@@ -166,7 +166,7 @@ namespace Mona.Networking
             if (!variable.IsLocal)
             {
                 var variableName = variable.Name;
-                Debug.Log($"{nameof(SyncStrings)} {_monaBody.LocalId} {variableName} = {value} ");
+                //ebug.Log($"{nameof(SyncStrings)} {_monaBody.LocalId} {variableName} = {value} ");
                 MonaVariables?.Set(variableName, value, false);
             }
         }
@@ -362,12 +362,12 @@ namespace Mona.Networking
 
         public void HandleConnected(Realtime realtime)
         {
-            Debug.Log($"MONA OBJECT STATE SPAWNED");
+            //Debug.Log($"MONA OBJECT STATE SPAWNED");
         }
 
         public void SetMonaBody(MonaBody monaBody, int index)
         {
-            Debug.Log($"{nameof(SetMonaBody)} {monaBody.LocalId} {index}", monaBody.Transform.gameObject);
+            //Debug.Log($"{nameof(SetMonaBody)} {monaBody.LocalId} {index}", monaBody.Transform.gameObject);
             _monaBody = monaBody;
 
             if (_monaBody != null)
@@ -376,7 +376,7 @@ namespace Mona.Networking
                 if (index < states.Length)
                 {
                     _monaVariables = states[index];
-                    Debug.Log($"bind network variables instance to {_monaBody.name} at index {index}", this.gameObject);
+                    //Debug.Log($"bind network variables instance to {_monaBody.name} at index {index}", this.gameObject);
                     _monaVariables.SetNetworkVariables((INetworkMonaVariables)this);
                     _monaBody.OnControlRequested -= HandleBodyControlRequested;
                     _monaBody.OnControlRequested += HandleBodyControlRequested;
@@ -473,7 +473,7 @@ namespace Mona.Networking
 
         public void SendStringRpc(string variableName, string value)
         {
-            Debug.Log($"{nameof(SendStringRpc)} {variableName} : {value}");
+            //Debug.Log($"{nameof(SendStringRpc)} {variableName} : {value}");
             SetNetworkString(variableName, value);
         }
 

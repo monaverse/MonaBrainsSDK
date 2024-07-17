@@ -12,6 +12,8 @@ using Normal.Realtime;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using Mona.SDK.Brains.ThirdParty.Redcode.Awaiting;
+using Normal.Realtime.Serialization;
 
 namespace Mona.Networking
 {
@@ -36,8 +38,13 @@ namespace Mona.Networking
 
         private Action<NetworkSpawnerInitializedEvent> OnNetworkSpawnerInitialized;
 
+        public static BrainsNormcoreNetworkManager Instance;
+
         private void Awake()
         {
+            if (Instance == null)
+                Instance = this;
+
             _realtime = GetComponent<Realtime>();
             _realtime.didConnectToRoom += DidConnectToRoom;
             _realtime.didDisconnectFromRoom += DidDisconnectFromRoom;
@@ -60,6 +67,8 @@ namespace Mona.Networking
             UpdateStatus("Connecting...");
             HideRoomConnect();
 
+            _ready = false;
+
             if (!string.IsNullOrEmpty(_roomInput.text))
                 _realtime.Connect(_roomInput.text);
             else
@@ -79,7 +88,9 @@ namespace Mona.Networking
                 RequestOwnership();
             }
             else
+            {
                 ClaimClient();
+            }
 
             ShowStart();
         }
@@ -89,13 +100,17 @@ namespace Mona.Networking
             ShowRoom();
         }
 
-        private bool _claimed;
+        public bool _ready;
         protected override void OnRealtimeModelReplaced(BrainsRoomModel previousModel, BrainsRoomModel currentModel)
         {
+            Debug.Log($"{nameof(OnRealtimeModelReplaced)} {previousModel != null} {currentModel != null}");
             if (previousModel != null)
             {
                 // Unregister from events
                 previousModel.ownerIDSelfDidChange -= HandleOwnerIDChanged;
+                previousModel.PLAYER_IDDidChange -= HandlePlayerIDChanged;
+                previousModel.players.modelAdded -= HandlePlayerAdded;
+                previousModel.players.modelRemoved -= HandlePlayerRemoved;
             }
 
             if (currentModel != null)
@@ -106,10 +121,39 @@ namespace Mona.Networking
                     Debug.Log($"fresh model");
                 }
 
+                if(_realtime.connected)
+                    Debug.Log($"player count {currentModel.players.Count} PLAYERID {currentModel.PLAYER_ID}");
+
                 // Register for events so we'll know if the color changes later
                 currentModel.ownerIDSelfDidChange += HandleOwnerIDChanged;
+                currentModel.PLAYER_IDDidChange += HandlePlayerIDChanged;
+                currentModel.players.modelAdded += HandlePlayerAdded;
+                currentModel.players.modelRemoved += HandlePlayerRemoved;
+            }
+        }
+
+        private void HandlePlayerAdded(RealtimeSet<BrainsPlayerModel> set, BrainsPlayerModel model, bool remote)
+        {
+            if (model.clientID == realtime.clientID)
+            {
+                var position = _spawnPoints[model.playerID % _spawnPoints.Length].transform.position;
+                var rotation = _spawnPoints[model.playerID % _spawnPoints.Length].transform.rotation;
+
+                Debug.Log($"{nameof(HandlePlayerAdded)} Teleport: {model.playerID} {model.name} {position} {rotation}");
+
+                MonaGlobalBrainRunner.Instance.PlayerBody.SetPlayer(model.playerID, model.clientID, model.name, true);
+                MonaGlobalBrainRunner.Instance.PlayerBody.SetInitialTransforms(position, rotation);
+                MonaGlobalBrainRunner.Instance.PlayerBody.TeleportPosition(position);
+                MonaGlobalBrainRunner.Instance.PlayerBody.TeleportRotation(rotation);
 
             }
+        }
+
+        private void HandlePlayerRemoved(RealtimeSet<BrainsPlayerModel> set, BrainsPlayerModel model, bool remote)
+        {
+
+            Debug.Log($"{nameof(HandlePlayerRemoved)} Teleport: {model.playerID} {model.name}");
+
         }
 
         private void HandleOwnerIDChanged(RealtimeModel model, int id)
@@ -117,8 +161,11 @@ namespace Mona.Networking
             Debug.Log($"{nameof(HandleOwnerIDChanged)} owner: {id} client: {_realtime.clientID}");
             if (model.ownerIDSelf == _realtime.clientID)
                 ClaimHost();
-            else
-                ClaimClient();
+        }
+
+        private void HandlePlayerIDChanged(RealtimeModel model, int value)
+        {
+            Debug.Log($"Room PLAYER_ID changed {((BrainsRoomModel)model).PLAYER_ID}");
         }
 
         private void ClaimHost()
@@ -180,6 +227,7 @@ namespace Mona.Networking
         }
 
         private bool _spawned;
+
         private void SpawnAvatar(bool isHost = false)
         {
             if (_spawned) return;
@@ -189,32 +237,91 @@ namespace Mona.Networking
             
             if (_avatarLocalPrefab != null)
             {
-                var position = _spawnPoints[player.playerID % _spawnPoints.Length].transform.position;
-                var rotation = _spawnPoints[player.playerID % _spawnPoints.Length].transform.rotation;
-                var avatar = GameObject.Instantiate(_avatarLocalPrefab, position, rotation);
+                var position = Vector3.up * 10f;
+                var avatar = GameObject.Instantiate(_avatarLocalPrefab, position, Quaternion.identity);
                 avatar.GetComponent<MonaBodyBase>().MakeUnique(player.clientID, true);
                 avatar.GetComponent<MonaBodyBase>().PrefabId = _avatarRemotePrefab.name;
-                avatar.GetComponent<IMonaBody>().SetPlayer(player.playerID, player.clientID, player.name);
-
+                avatar.GetComponent<IMonaBody>().SetPlayer(player.clientID, player.clientID, player.name);
 
                 MonaGlobalBrainRunner.Instance.PlayerCamera = avatar.GetComponentInChildren<Camera>();
                 MonaGlobalBrainRunner.Instance.PlayerBody = avatar.GetComponent<IMonaBody>();
             }
 
-            MonaGlobalBrainRunner.Instance.PlayerId = player.playerID;
+            MonaGlobalBrainRunner.Instance.PlayerId = player.clientID;
             MonaGlobalBrainRunner.Instance.IsHost = isHost;
 
         }
 
         private BrainsPlayerModel AddPlayer()
         {
+            Debug.Log($"{nameof(AddPlayer)} {model.PLAYER_ID}");
+
             var player = new BrainsPlayerModel();
             player.clientID = realtime.clientID;
-            player.playerID = model.PLAYER_ID++;
-            player.name = $"Player {player.playerID}";
+            player.name = $"Client {player.clientID}";
 
-            model.players.Add(player);
             return player;
+        }
+
+        public void RegisterPlayerBody(IMonaBody body)
+        {
+            if(!isOwnedLocallyInHierarchy)
+            {
+                Debug.Log($"{nameof(RegisterPlayerBody)} {body.NetworkBody.LocalId} not on host");
+                return;
+            }
+
+            var clientID = body.ClientId;
+            var found = false;
+
+            foreach (var player in model.players)
+            {
+                if(player.clientID == clientID)
+                {
+                    Debug.Log($"{nameof(RegisterPlayerBody)} update player name {body.PlayerName}");
+                    player.name = body.PlayerName;
+                    found = true;
+                }
+            }
+
+            if(!found)
+            {
+                var player = new BrainsPlayerModel();
+                player.clientID = body.ClientId;
+                player.playerID = model.PLAYER_ID;
+                player.name = $"Player {player.playerID}";
+
+                Debug.Log($"{nameof(RegisterPlayerBody)} update player id {player.playerID} {player.name} {player.clientID}");
+
+                model.PLAYER_ID += 1;
+                model.players.Add(player);
+            }
+
+        }
+
+        public void UnregisterPlayerBody(int clientID)
+        {
+            if (!isOwnedLocallyInHierarchy)
+            {
+                Debug.Log($"{nameof(UnregisterPlayerBody)} {clientID} not on host");
+                return;
+            }
+
+            BrainsPlayerModel playerLeft = null;
+            foreach (var player in model.players)
+            {
+                if (player.clientID == clientID)
+                {
+                    playerLeft = player;
+                }
+            }
+
+            if(playerLeft != null)
+            {
+                model.players.Remove(playerLeft);
+                model.PLAYER_ID = model.players.Count;
+                Debug.Log($"{nameof(UnregisterPlayerBody)} {playerLeft.name} {playerLeft.clientID} player left");
+            }
         }
 
         private void CreateNetworkSpawner()

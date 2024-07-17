@@ -161,8 +161,8 @@ namespace Mona.Networking
             while (!monaBody.Started)
                 await new WaitForSeconds(.1f);
 
-            Debug.Log($"{nameof(MonaNetworkSpawner)} spawning {monaBody.name}");
-            Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(RegisterMonaBody)} {monaBody.name} {monaBody.LocalId}");
+            //Debug.Log($"{nameof(MonaNetworkSpawner)} spawning {monaBody.name}");
+            //Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(RegisterMonaBody)} {monaBody.name} {monaBody.LocalId}");
             ReconcileNetworkMonaBody(monaBody);
         }
 
@@ -173,14 +173,14 @@ namespace Mona.Networking
         public void RegisterNetworkMonaBody(INetworkMonaBodyClient networkMonaBody)
         {
             if (networkMonaBody == null) return;
-            Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(RegisterNetworkMonaBody)} {networkMonaBody.LocalId}");
+            //Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(RegisterNetworkMonaBody)} {networkMonaBody.LocalId}");
             ReconcileMonaBody(networkMonaBody);
         }
 
         public void RegisterNetworkMonaVariables(INetworkMonaVariables networkMonaVariables)
         {
             if (networkMonaVariables == null) return;
-            Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(RegisterNetworkMonaVariables)} {networkMonaVariables.LocalId}");
+            //Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(RegisterNetworkMonaVariables)} {networkMonaVariables.LocalId}");
             WaitForSpawn(networkMonaVariables);
         }
 
@@ -199,7 +199,7 @@ namespace Mona.Networking
             while (!monaBody.Started)
                 await new WaitForSeconds(.1f);
 
-            Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(RegisterNetworkMonaVariables)} found mona body: {networkMonaBody.LocalId}");
+            //Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(RegisterNetworkMonaVariables)} found mona body: {networkMonaBody.LocalId}");
             ReconcileNetworkMonaVariables(networkMonaBody, networkMonaVariables);
         }
 
@@ -261,7 +261,7 @@ namespace Mona.Networking
         {
             if (networkMonaBody == null) return;
             var monaBody = MonaBody.FindByLocalId(networkMonaBody.LocalId);
-            Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(ReconcileMonaBody)} {networkMonaBody.LocalId} instance {monaBody}");
+            //Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(ReconcileMonaBody)} {networkMonaBody.LocalId} instance {monaBody}");
             if (monaBody != null)
             {
                 BindNetworkAndMonaBody(networkMonaBody, (MonaBody)monaBody);
@@ -276,7 +276,7 @@ namespace Mona.Networking
         {
             if (networkMonaBody == null) return;
             var monaBody = MonaBody.FindByLocalId(networkMonaBody.LocalId);
-            Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(ReconcileNetworkMonaVariables)} {networkMonaBody.LocalId} {networkVariables.Index} instance {monaBody}");
+            //Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(ReconcileNetworkMonaVariables)} {networkMonaBody.LocalId} {networkVariables.Index} instance {monaBody}");
             if (monaBody != null)
             {
                 ((INetworkMonaBodyServer)networkMonaBody).RegisterNetworkVariables(networkVariables);
@@ -373,7 +373,7 @@ namespace Mona.Networking
 
         public void SpawnNetworkMonaBody(string localId, bool isSceneObject, bool locallyOwnedMonaBody, string prefabId, MonaBodyNetworkSyncType syncType, bool syncPositionAndRotation, Vector3 position, Quaternion rotation, Vector3 scale, int variablesCount = 0, string name = null, bool playerSet = false, int playerId = 0, int clientId = 0, string playerName = null)
         {
-            Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(SpawnNetworkMonaBodyRPC)} {localId} {prefabId} me: {realtime.clientID}");
+            //Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(SpawnNetworkMonaBodyRPC)} {localId} {prefabId} me: {realtime.clientID}");
             var existingNetworkMonaBody = BrainsNormcoreMonaBodyNetworkBehaviour.FindByLocalId(localId);
             if (existingNetworkMonaBody == null)
             {
@@ -408,7 +408,7 @@ namespace Mona.Networking
                     }
                 }
 
-                Debug.Log($"{nameof(SpawnNetworkMonaBody)} {localId} {isSceneObject} {playerId} {clientId} {playerName}");
+               // Debug.Log($"{nameof(SpawnNetworkMonaBody)} {localId} {isSceneObject} {playerId} {clientId} {playerName}");
 
 
                 networkObject.transform.localScale = scale;

@@ -146,7 +146,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             _collider.SetRadius(_distance);
             var bodies = _collider.FindForwardMostBodyWithMonaTagInFieldOfView(_tag, _fieldOfView);
-            //Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} chck on near: {_tag} {bodies?.Count}", _brain.Body.ActiveTransform.gameObject);
+            //if(bodies != null && bodies.Count > 0)
+            //    Debug.Log($"{nameof(OnNearInstructionTile)}.{nameof(Do)} Is Near: {_tag} {bodies?.Count}", _brain.Body.ActiveTransform.gameObject);
             if (bodies != null)
             {
                 FilterBodiesOnInstruction(bodies);

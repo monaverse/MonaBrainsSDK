@@ -102,8 +102,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private void UpdateActive()
         {
-            if (_brain != null && _brain.LoggingEnabled)
-                Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(UpdateActive)} {_active}");
+            //if (_brain != null && _brain.LoggingEnabled)
+            //    Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(UpdateActive)} {_active}");
             if (_collider != null)
                 _collider.SetActive(_active);
         }
@@ -136,8 +136,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 if (body != null)
                 {
                     _collider.BodiesThatEntered.Clear();
-                    if (_brain.LoggingEnabled)
-                        Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(Do)} found: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
+                    //if (_brain.LoggingEnabled)
+                    //    Debug.Log($"{nameof(OnEnterInstructionTile)}.{nameof(Do)} found: {_tag} {body}", _brain.Body.ActiveTransform.gameObject);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, body);
                     return Complete(InstructionTileResult.Success);
                 }
