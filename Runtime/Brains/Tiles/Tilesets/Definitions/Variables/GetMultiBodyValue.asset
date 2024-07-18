@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c119e59e8ca2a48f1a791a3ecb551174, type: 3}
+  m_Name: GetMultiBodyValue
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 7445142201185861649
+  _id: GetMultiBodyValue
+  _name: Get Multi Body Value
+  _category: Variables
+  references:
+    version: 2
+    RefIds:
+    - rid: 7445142201185861649
+      type: {class: GetMultiBodyValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General,
+        asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
+        _muted: 0
+        _valueType: 0
+        _originBody: 10
+        _originTag: Player
+        _targetBody: 0
+        _targetTag: Default
+        _bodyArray: 
+        _axis: 1
+        _targetType: 0
+        _targetVector: 
+        _targetNumber: 
+        _targetString: 
+        _copyType: 0
+        _distanceType: 0
+        _directionValue: 0
+        _direction: 0
+        _customDirection: {x: 0, y: 0, z: 1}
+        _customDirectionName: []
+        _space: 0
+        _rangeMin: 1
+        _rangeMinName: 
+        _rangeMax: 100
+        _rangeMaxName: 
