@@ -130,6 +130,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainPropertyShow(nameof(DisplaySamplingVars), (int)DisplayType.Display)]
         [BrainPropertyEnum(false)] public SamplingType SampleToUse { get => _sampleToUse; set => _sampleToUse = value; }
 
+        [SerializeField] private ApplyForceType _linearForce = ApplyForceType.Impulse;
+        [BrainPropertyShow(nameof(DisplayLinearForce), (int)DisplayType.Display)]
+        [BrainPropertyEnum(false)] public ApplyForceType LinearForce { get => _linearForce; set => _linearForce = value; }
+
+        [SerializeField] private ApplyForceType _positionalForce = ApplyForceType.Acceleration;
+        [BrainPropertyShow(nameof(DirectionType), (int)PushDirectionType.PositionalAlignment)]
+        [BrainPropertyEnum(false)] public ApplyForceType PositionalForce { get => _positionalForce; set => _positionalForce = value; }
+
         protected List<float> _rayDistances = new List<float>();
 
         private Vector3 _direction;
@@ -160,6 +168,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public DisplayType DisplayDirectionTag => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.Direction && AlignmentDirection == BodyAlignmentDirection.TagDirection ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayDirectionVector => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.Direction && (AlignmentDirection == BodyAlignmentDirection.LocalDirection || AlignmentDirection == BodyAlignmentDirection.GlobalDirection) ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayTargetPosition => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.TargetPosition && AlignmentAxis == AlignmentAxes.XYZ ? DisplayType.Display : DisplayType.Hide;
+        public DisplayType DisplayLinearForce => DirectionType != PushDirectionType.PositionalAlignment ? DisplayType.Display : DisplayType.Hide;
 
         public DisplayType DisplayTargetAxis
         {
@@ -234,6 +243,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 }
 
                 return Vector3.zero;
+            }
+        }
+
+        public ForceMode ForceModeToUse
+        {
+            get
+            {
+                ApplyForceType forceType = DirectionType == PushDirectionType.PositionalAlignment ?
+                    _positionalForce : _linearForce;
+
+                return forceType == ApplyForceType.Impulse ?
+                    ForceMode.Impulse : ForceMode.Acceleration;
             }
         }
 
@@ -475,12 +496,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
                 if (DirectionType == PushDirectionType.PositionalAlignment)
                 {
-                    body.ApplyForce(GetAlignmentForce(body), ForceMode.Acceleration, true);
+                    body.ApplyForce(GetAlignmentForce(body), ForceModeToUse, true);
                 }
                 else
                 {
                     float force = _force * GetMassScaler(body);
-                    body.ApplyForce(_direction.normalized * force, ForceMode.Impulse, true);
+                    body.ApplyForce(_direction.normalized * force, ForceModeToUse, true);
                     if (!body.ActiveRigidbody.isKinematic)
                         body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
                 }
@@ -526,12 +547,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
                 if (DirectionType == PushDirectionType.PositionalAlignment)
                 {
-                    body.ApplyForce(GetAlignmentForce(body), ForceMode.Acceleration, true);
+                    body.ApplyForce(GetAlignmentForce(body), ForceModeToUse, true);
                 }
                 else
                 {
                     float force = _force * GetMassScaler(body);
-                    body.ApplyForce(_direction.normalized * force, ForceMode.Impulse, true);
+                    body.ApplyForce(_direction.normalized * force, ForceModeToUse, true);
                     if (!body.ActiveRigidbody.isKinematic)
                         body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
                 }
