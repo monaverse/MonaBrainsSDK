@@ -441,11 +441,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             return result;
         }
 
-        static readonly ProfilerMarker _profileGetTarget = new ProfilerMarker($"MonaBrains.{nameof(SetVariableOnTypeInstructionTile)}.{nameof(GetTarget)}");
-
         private IMonaBody GetTarget()
         {
-            _profileGetTarget.Begin();
             switch (_target)
             {
                 case MonaBrainBroadcastType.Parent:
@@ -453,31 +450,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 case MonaBrainBroadcastType.MessageSender:
                     var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
                     if (brain != null)
-                    {
-                        _profileGetTarget.End();
                         return brain.Body;
-                    }
                     break;
                 case MonaBrainBroadcastType.OnConditionTarget:
-                    _profileGetTarget.End();
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
                 case MonaBrainBroadcastType.OnSelectTarget:
-                    _profileGetTarget.End();
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
                 case MonaBrainBroadcastType.MySpawner:
-                    _profileGetTarget.End();
                     return _brain.Body.Spawner;
                 case MonaBrainBroadcastType.LastSpawnedByMe:
-                    _profileGetTarget.End();
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
                 case MonaBrainBroadcastType.MyPoolPreviouslySpawned:
-                    _profileGetTarget.End();
                     return _brain.Body.PoolBodyPrevious;
                 case MonaBrainBroadcastType.MyPoolNextSpawned:
-                    _profileGetTarget.End();
                     return _brain.Body.PoolBodyNext;
+                case MonaBrainBroadcastType.LastSkin:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SKIN);
             }
-            _profileGetTarget.End();
             return null;
         }
 
