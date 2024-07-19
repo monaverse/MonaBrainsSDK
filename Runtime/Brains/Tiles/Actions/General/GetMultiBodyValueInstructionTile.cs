@@ -386,7 +386,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             switch (_targetBody)
             {
                 case MonaBrainBroadcastType.Tag:
-                    return originBody.GetClosestTag(_originTag);
+                    return originBody.GetClosestTag(_targetTag);
                 case MonaBrainBroadcastType.Self:
                 case MonaBrainBroadcastType.ThisBodyOnly:
                     return originBody;
