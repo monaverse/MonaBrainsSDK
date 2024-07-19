@@ -23,6 +23,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainProperty(true)] public Vector3 DirectionValue { get => _directionValue; set => _directionValue = value; }
         [BrainPropertyValueName(nameof(DirectionValue), typeof(IMonaVariablesVector3Value))] public string[] DirectionValueName { get => _directionValueValueName; set => _directionValueValueName = value; }
 
+        [BrainProperty(false)] public bool LookStraightAhead { get => _lookStraightAhead; set => _lookStraightAhead = value; }
+
         private Quaternion _look;
         protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress, bool immediate)
         {
@@ -30,6 +32,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             var rot = _brain.Body.GetRotation();
             if (HasVector3Values(_directionValueValueName))
                 fwd = GetVector3Value(_brain, _directionValueValueName);
+
+            if (_lookStraightAhead)
+                fwd.y = 0;
 
             if (immediate)
             {

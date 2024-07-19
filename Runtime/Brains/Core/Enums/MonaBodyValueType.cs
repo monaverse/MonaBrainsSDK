@@ -16,6 +16,7 @@
         PlayerId = 19,
         ClientId = 20,
         PlayerName = 21,
+        IsLocalPlayer = 23,
         ReadMe = 22,
         BoundsExtents = 30,
         BoundsCenter = 40

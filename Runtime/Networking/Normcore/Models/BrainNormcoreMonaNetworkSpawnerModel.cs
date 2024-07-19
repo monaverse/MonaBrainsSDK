@@ -1,5 +1,5 @@
 #if BRAINS_NORMCORE
-[RealtimeModel]
+[RealtimeModel(createMetaModel:true)]
 public partial class BrainNormcoreMonaNetworkSpawnerModel
 {
     [RealtimeProperty(1, true, true)]

@@ -61,6 +61,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(TrueTargetType), (int)TargetVariableType.String)]
         [BrainPropertyValue(typeof(IMonaVariablesStringValue), true)] public string TargetString { get => _targetString; set => _targetString = value; }
 
+        [SerializeField] private string _targetBool;
+        [BrainPropertyShow(nameof(TrueTargetType), (int)TargetVariableType.Bool)]
+        [BrainPropertyValue(typeof(IMonaVariablesBoolValue), true)] public string TargetBool { get => _targetBool; set => _targetBool = value; }
+
         [SerializeField] private StringCopyType _copyType;
         [BrainPropertyShow(nameof(TrueTargetType), (int)TargetVariableType.String)]
         [BrainPropertyEnum(false)]
@@ -93,6 +97,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         return TargetVariableType.Number;
                     case MonaBodyValueType.PlayerName:
                         return TargetVariableType.String;
+                    case MonaBodyValueType.IsLocalPlayer:
+                        return TargetVariableType.Bool;
                     case MonaBodyValueType.ReadMe:
                         return TargetVariableType.String;
                 }
@@ -105,7 +111,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             Vector3 = 0,
             Number = 10,
-            String = 20
+            String = 20,
+            Bool = 30
         }
 
         public enum StringCopyType
@@ -201,6 +208,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     SetVariable((float)body.ClientId); break;
                 case MonaBodyValueType.PlayerName:
                     SetVariable(body.PlayerName); break;
+                case MonaBodyValueType.IsLocalPlayer:
+                    SetVariable(body.IsAttachedToLocalPlayer()); break;
                 case MonaBodyValueType.ReadMe:
                     var runner = body.Transform.GetComponent<IMonaBrainRunner>();
                     if (runner != null)
@@ -257,6 +266,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
         }
 
+        private void SetVariable(bool result)
+        {
+            switch (TrueTargetType)
+            {
+                case TargetVariableType.Vector3:
+                    _brain.Variables.Set(_targetValue, result ? Vector3.one : Vector3.zero);
+                    break;
+                case TargetVariableType.Number:
+                    _brain.Variables.Set(_targetNumber, result ? 1 : 0);
+                    break;
+                case TargetVariableType.String:
+                    _brain.Variables.Set(_targetString, result ? "True" : "False");
+                    break;
+                case TargetVariableType.Bool:
+                    _brain.Variables.Set(_targetBool, result);
+                    break;
+            }
+        }
+
         private void SetVariable(float result)
         {
             switch (TrueTargetType)
@@ -269,6 +297,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     break;
                 case TargetVariableType.String:
                     _brain.Variables.Set(_targetString, result.ToString());
+                    break;
+                case TargetVariableType.Bool:
+                    _brain.Variables.Set(_targetBool, result > 0f ? true : false);
                     break;
             }
         }
@@ -288,6 +319,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         _brain.Variables.Set(_targetString, result.ToString());
                     else
                         _brain.Variables.Set(_targetString, GetAxisValue(result).ToString());
+                    break;
+                case TargetVariableType.Bool:
+                    _brain.Variables.Set(_targetBool, result.magnitude > Mathf.Epsilon ? true : false);
                     break;
             }
         }

@@ -133,7 +133,7 @@ namespace Mona.Networking
 
             Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(PlayerLeft)} playerid {player} who has authority {ownerIDSelf}");
             var authPlayerId = ownerIDSelf;
-            if ((authPlayerId == player) && authPlayerId != realtime.clientID)
+            if ((authPlayerId == player || authPlayerId == -1) && authPlayerId != realtime.clientID)
             {
                 Debug.Log($"{nameof(PlayerLeft)} take control of NetworkSpawner");
                 realtimeView.RequestOwnershipOfSelfAndChildren();

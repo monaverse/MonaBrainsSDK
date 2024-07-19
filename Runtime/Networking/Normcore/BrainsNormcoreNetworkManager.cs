@@ -95,7 +95,7 @@ namespace Mona.Networking
 
             if (isUnownedInHierarchy)
             {
-                RequestOwnership();
+                realtimeView.RequestOwnershipOfSelfAndChildren();
             }
             else
             {
@@ -189,6 +189,7 @@ namespace Mona.Networking
         private void ClaimHost()
         {
             Debug.Log($"{nameof(ClaimHost)}");
+            realtimeView.RequestOwnershipOfSelfAndChildren();
             MakeMonaBodiesUnique();
             CreateNetworkSpawner();
             SpawnAvatar(true);
@@ -328,6 +329,13 @@ namespace Mona.Networking
 
         public void UnregisterPlayerBody(int clientID)
         {
+            Debug.Log($"{nameof(UnregisterPlayerBody)} {clientID} player left, me: {realtime.clientID}");
+            if (clientID != realtime.clientID && MonaGlobalBrainRunner.Instance != null && MonaGlobalBrainRunner.Instance.NetworkSpawner != null)
+                MonaGlobalBrainRunner.Instance.NetworkSpawner.PlayerLeft(clientID);
+
+            if (isUnownedInHierarchy && clientID != realtime.clientID && realtime.clientID != -1)
+                RequestOwnership();
+
             if (!isOwnedLocallyInHierarchy)
             {
                 Debug.Log($"{nameof(UnregisterPlayerBody)} {clientID} not on host");
@@ -346,7 +354,7 @@ namespace Mona.Networking
             if(playerLeft != null)
             {
                 model.players.Remove(playerLeft);
-                model.PLAYER_ID = model.players.Count;
+                //model.PLAYER_ID = model.players.Count+1;
                 Debug.Log($"{nameof(UnregisterPlayerBody)} {playerLeft.name} {playerLeft.clientID} player left");
             }
         }
