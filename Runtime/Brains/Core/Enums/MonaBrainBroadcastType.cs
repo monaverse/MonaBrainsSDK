@@ -17,7 +17,22 @@ namespace Mona.SDK.Brains.Core.Enums
         MyPoolPreviouslySpawned = 100,
         MyPoolNextSpawned = 110,
         MyBodyArray = 120,
-        LastSkin = 130,
+        LastSkin = 130
+    }
+
+    public enum MonaBrainBroadcastTypeSingleTarget
+    {
+        Tag = 0,
+        Self = 10,
+        Parent = 20,
+        MessageSender = 40,
+        OnConditionTarget = 50,
+        OnSelectTarget = 60,
+        MySpawner = 70,
+        LastSpawnedByMe = 80,
+        MyPoolPreviouslySpawned = 100,
+        MyPoolNextSpawned = 110,
+        LastSkin = 130
     }
 
     public enum MonaBrainExportType
@@ -35,7 +50,7 @@ namespace Mona.SDK.Brains.Core.Enums
         MyPoolPreviouslySpawned = 100,
         MyPoolNextSpawned = 110,
         MyBodyArray = 120,
-        LastSkin = 130,
+        LastSkin = 130
     }
 
     public enum MonaBrainTransformTargetType

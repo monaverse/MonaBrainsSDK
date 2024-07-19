@@ -252,6 +252,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     return _brain.Body.PoolBodyPrevious;
                 case MonaBrainBroadcastType.MyPoolNextSpawned:
                     return _brain.Body.PoolBodyNext;
+                case MonaBrainBroadcastType.LastSkin:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SKIN);
             }
             return null;
         }

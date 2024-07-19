@@ -19,11 +19,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public const string CATEGORY = "General";
         public override Type TileType => typeof(CopyBodyValueInstructionTile);
 
-        [SerializeField] private TargetBodyType _body = TargetBodyType.Self;
-        [BrainPropertyEnum(true)] public TargetBodyType Body { get => _body; set => _body = value; }
+        [SerializeField] private MonaBrainBroadcastTypeSingleTarget _body = MonaBrainBroadcastTypeSingleTarget.Self;
+        [BrainPropertyEnum(true)] public MonaBrainBroadcastTypeSingleTarget Body { get => _body; set => _body = value; }
 
         [SerializeField] private string _tag;
-        [BrainPropertyShow(nameof(Body), (int)TargetBodyType.Tag)]
+        [BrainPropertyShow(nameof(Body), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string Tag { get => _tag; set => _tag = value; }
 
         [SerializeField] private MonaBodyValueType _source = MonaBodyValueType.Position;
@@ -229,24 +229,29 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             switch (_body)
             {
-                case TargetBodyType.Tag:
-                    var tagBodies = MonaBody.FindByTag(_tag);
-                    return tagBodies.Count > 0 ? tagBodies[0] : null;
-                case TargetBodyType.Self:
+                case MonaBrainBroadcastTypeSingleTarget.Tag:
+                    return _brain.Body.GetClosestTag(_tag);
+                case MonaBrainBroadcastTypeSingleTarget.Self:
                     return _brain.Body;
-                case TargetBodyType.Parent:
+                case MonaBrainBroadcastTypeSingleTarget.Parent:
                     return _brain.Body.Parent;
-                case TargetBodyType.MessageSender:
+                case MonaBrainBroadcastTypeSingleTarget.MessageSender:
                     var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
                     return brain != null ? brain.Body : null;
-                case TargetBodyType.OnConditionTarget:
+                case MonaBrainBroadcastTypeSingleTarget.OnConditionTarget:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
-                case TargetBodyType.OnHitTarget:
+                case MonaBrainBroadcastTypeSingleTarget.OnSelectTarget:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
-                case TargetBodyType.MySpawner:
+                case MonaBrainBroadcastTypeSingleTarget.MySpawner:
                     return _brain.Body.Spawner;
-                case TargetBodyType.LastSpawnedByMe:
+                case MonaBrainBroadcastTypeSingleTarget.LastSpawnedByMe:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
+                case MonaBrainBroadcastTypeSingleTarget.MyPoolPreviouslySpawned:
+                    return _brain.Body.PoolBodyPrevious;
+                case MonaBrainBroadcastTypeSingleTarget.MyPoolNextSpawned:
+                    return _brain.Body.PoolBodyNext;
+                case MonaBrainBroadcastTypeSingleTarget.LastSkin:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SKIN);
                 default:
                     return null;
             }

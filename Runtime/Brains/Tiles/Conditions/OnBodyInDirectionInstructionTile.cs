@@ -11,7 +11,6 @@ using Mona.SDK.Core.State.Structs;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static Mona.SDK.Brains.Tiles.Conditions.Behaviours.SphereColliderTriggerBehaviour;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -24,7 +23,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public const string CATEGORY = "Vision";
         public override Type TileType => typeof(OnBodyInDirectionInstructionTile);
 
+        [SerializeField] private MonaBrainBroadcastTypeSingleTarget _target = MonaBrainBroadcastTypeSingleTarget.Tag;
+        [BrainPropertyEnum(true)] public MonaBrainBroadcastTypeSingleTarget Target { get => _target; set => _target = value; }
+
         [SerializeField] private string _tag = "Default";
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string MonaTag { get => _tag; set => _tag = value; }
 
         [SerializeField] private BodyDirectionType _direction = BodyDirectionType.Forward;
@@ -41,10 +44,15 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainProperty(true)] public bool Negate { get => _negate; set => _negate = value; }
         [BrainPropertyValueName("Negate", typeof(IMonaVariablesBoolValue))] public string NegateName { get => _negateName; set => _negateName = value; }
 
-        [SerializeField] private float _distance = 100f;
-        [SerializeField] private string _distanceValueName;
-        [BrainProperty(false)] public float Distance { get => _distance; set => _distance = value; }
-        [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))] public string DistanceValue { get => _distanceValueName; set => _distanceValueName = value; }
+        [SerializeField] private float _rangeMin = 1f;
+        [SerializeField] private string _rangeMinName;
+        [BrainProperty(false)] public float RangeMin { get => _rangeMin; set => _rangeMin = value; }
+        [BrainPropertyValueName("RangeMin", typeof(IMonaVariablesFloatValue))] public string RangeMinName { get => _rangeMinName; set => _rangeMinName = value; }
+
+        [SerializeField] private float _rangeMax = 100f;
+        [SerializeField] private string _rangeMaxName;
+        [BrainProperty(false)] public float RangeMax { get => _rangeMax; set => _rangeMax = value; }
+        [BrainPropertyValueName("RangeMax", typeof(IMonaVariablesFloatValue))] public string RangeMaxName { get => _rangeMaxName; set => _rangeMaxName = value; }
 
         [SerializeField] private SpaceType _space = SpaceType.Local;
         [BrainPropertyEnum(false)] public SpaceType Space { get => _space; set => _space = value; }
@@ -96,44 +104,91 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (HasVector3Values(_customDirectionName))
                 _customDirection = GetVector3Value(_brain, _customDirectionName);
 
-            if (!string.IsNullOrEmpty(_distanceValueName))
-                _distance = _brain.Variables.GetFloat(_distanceValueName);
+            if (!string.IsNullOrEmpty(_rangeMinName))
+                _rangeMin = _brain.Variables.GetFloat(_rangeMinName);
+
+            if (!string.IsNullOrEmpty(_rangeMaxName))
+                _rangeMax = _brain.Variables.GetFloat(_rangeMaxName);
 
             if (!string.IsNullOrEmpty(_negateName))
                 _negate = _brain.Variables.GetBool(_negateName);
 
-            bool result = _negate ? !TargetFoundInDirection(_brain.Body) : TargetFoundInDirection(_brain.Body);
-
             if (_brain == null)
                 Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            IMonaBody targetBody = GetBody();
+
+            if (targetBody == null)
+                Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            bool result = _negate ? !TargetFoundInDirection(_brain.Body, targetBody) : TargetFoundInDirection(_brain.Body, targetBody);
 
             return result ?
                 Complete(InstructionTileResult.Success) :
                 Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
         }
 
-        private bool TargetFoundInDirection(IMonaBody body)
+        private IMonaBody GetBody()
+        {
+            switch (_target)
+            {
+                case MonaBrainBroadcastTypeSingleTarget.Tag:
+                    return _brain.Body.GetClosestTag(_tag);
+                case MonaBrainBroadcastTypeSingleTarget.Self:
+                    return _brain.Body;
+                case MonaBrainBroadcastTypeSingleTarget.Parent:
+                    return _brain.Body.Parent;
+                case MonaBrainBroadcastTypeSingleTarget.MessageSender:
+                    var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
+                    return brain != null ? brain.Body : null;
+                case MonaBrainBroadcastTypeSingleTarget.OnConditionTarget:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_TARGET);
+                case MonaBrainBroadcastTypeSingleTarget.OnSelectTarget:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_HIT_TARGET);
+                case MonaBrainBroadcastTypeSingleTarget.MySpawner:
+                    return _brain.Body.Spawner;
+                case MonaBrainBroadcastTypeSingleTarget.LastSpawnedByMe:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SPAWNED);
+                case MonaBrainBroadcastTypeSingleTarget.MyPoolPreviouslySpawned:
+                    return _brain.Body.PoolBodyPrevious;
+                case MonaBrainBroadcastTypeSingleTarget.MyPoolNextSpawned:
+                    return _brain.Body.PoolBodyNext;
+                case MonaBrainBroadcastTypeSingleTarget.LastSkin:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SKIN);
+                default:
+                    return null;
+            }
+        }
+
+        private bool TargetFoundInDirection(IMonaBody originBody, IMonaBody targetBody)
         {
             _bodyLayers.Clear();
-            SetOriginalBodyLayers(body);
-            SetBodyLayer(body, LayerMask.NameToLayer(_ignoreRaycastLayer));
+            SetOriginalBodyLayers(originBody);
+            SetBodyLayer(originBody, LayerMask.NameToLayer(_ignoreRaycastLayer));
 
             Vector3 direction = _space == SpaceType.Local ?
-                body.Transform.TransformDirection(TrueDirection) :
+                originBody.Transform.TransformDirection(TrueDirection) :
                 TrueDirection;
 
-            Ray ray = new Ray(body.GetPosition(), direction);
+            Ray ray = new Ray(originBody.GetPosition(), direction);
             RaycastHit hit;
 
-            if (UnityEngine.Physics.Raycast(ray, out hit, _distance, _checkLayerMask))
+            if (UnityEngine.Physics.Raycast(ray, out hit, _rangeMax, _checkLayerMask))
             {
                 IMonaBody hitBody = hit.transform.GetComponent<IMonaBody>();
 
-                ResetOriginalBodyLayers(body);
-                return hitBody == null || !hitBody.HasMonaTag(_tag) ? false : true;
+                ResetOriginalBodyLayers(originBody);
+
+                if (hitBody == null || hit.distance < _rangeMin)
+                    return false;
+
+                if (_target == MonaBrainBroadcastTypeSingleTarget.Tag)
+                    return hitBody.HasMonaTag(_tag);
+
+                return hitBody == targetBody;
             }
 
-            ResetOriginalBodyLayers(body);
+            ResetOriginalBodyLayers(originBody);
             return false;
         }
 

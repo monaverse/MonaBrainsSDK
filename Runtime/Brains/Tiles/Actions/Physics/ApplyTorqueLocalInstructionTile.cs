@@ -105,6 +105,29 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainProperty(false)] public float AlignVelocity { get => _alignVelocity; set => _alignVelocity = value; }
         [BrainPropertyValueName(nameof(AlignVelocity), typeof(IMonaVariablesFloatValue))] public string AlignVelocityName { get => _alignVelocityName; set => _alignVelocityName = value; }
 
+        [SerializeField] private DistanceSampling _sampling = DistanceSampling.SingleSample;
+        [BrainPropertyShow(nameof(DisplayRaySampling), (int)DisplayType.Display)]
+        [BrainPropertyEnum(false)] public DistanceSampling Sampling { get => _sampling; set => _sampling = value; }
+
+        [SerializeField] private float _samplingRadius = 1f;
+        [SerializeField] private string _samplingRadiusName;
+        [BrainPropertyShow(nameof(DisplaySamplingVars), (int)DisplayType.Display)]
+        [BrainProperty(false)] public float SamplingRadius { get => _samplingRadius; set => _samplingRadius = value; }
+        [BrainPropertyValueName("SamplingRadius", typeof(IMonaVariablesFloatValue))] public string SamplingRadiusName { get => _samplingRadiusName; set => _samplingRadiusName = value; }
+
+        [SerializeField] private float _sampleCount = 10f;
+        [SerializeField] private string _sampleCountName;
+        [BrainPropertyShow(nameof(DisplaySamplingVars), (int)DisplayType.Display)]
+        [BrainProperty(false)] public float SampleCount { get => _sampleCount; set => _sampleCount = value; }
+        [BrainPropertyValueName("SampleCount", typeof(IMonaVariablesFloatValue))] public string SampleCountName { get => _sampleCountName; set => _sampleCountName = value; }
+
+        [SerializeField] private SamplingType _sampleToUse = SamplingType.Closest;
+        [BrainPropertyShow(nameof(DisplaySamplingVars), (int)DisplayType.Display)]
+        [BrainPropertyEnum(false)] public SamplingType SampleToUse { get => _sampleToUse; set => _sampleToUse = value; }
+
+        [SerializeField] private ApplyForceType _forceType = ApplyForceType.Impulse;
+        [BrainPropertyEnum(false)] public ApplyForceType ForceType { get => _forceType; set => _forceType = value; }
+
         private Vector3 _direction;
 
         protected IMonaBrain _brain;
@@ -117,10 +140,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private bool _active;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
+        protected Dictionary<int, RaycastResult> _raycastResults = new Dictionary<int, RaycastResult>();
 
         private bool _listenToInput;
 
+        public ForceMode ForceModeToUse => _forceType == ApplyForceType.Impulse ? ForceMode.Impulse : ForceMode.Acceleration;
         public TargetAlignmentGeometry TrueGeometryAlignment => AlignmentMode != TorqueAlignmentMode.GeometryInDirection ? TargetAlignmentGeometry.Any : _alignmentGeometry;
+
         public DisplayType DisplayMaxSpeed => DirectionType != PushDirectionType.TorqueAlignment ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayAlignmentDirection => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode == TorqueAlignmentMode.GeometryInDirection ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayGeometryAlignment => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode == TorqueAlignmentMode.GeometryInDirection ? DisplayType.Display : DisplayType.Hide;
@@ -128,6 +154,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public DisplayType DisplayDirectionTag => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode == TorqueAlignmentMode.GeometryInDirection && AlignmentDirection == BodyAlignmentDirection.TagDirection ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayDirectionVector => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode == TorqueAlignmentMode.GeometryInDirection && (AlignmentDirection == BodyAlignmentDirection.LocalDirection || AlignmentDirection == BodyAlignmentDirection.GlobalDirection) ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayTargetAngleThree => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode == TorqueAlignmentMode.TargetAngles && AlignmentAxis == AlignmentAxes.XYZ ? DisplayType.Display : DisplayType.Hide;
+        public DisplayType DisplayRaySampling => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode != TorqueAlignmentMode.TargetAngles ? DisplayType.Display : DisplayType.Hide;
+        public DisplayType DisplaySamplingVars => DisplayRaySampling == DisplayType.Display && Sampling == DistanceSampling.MultipleSamples ? DisplayType.Display : DisplayType.Hide;
 
         public DisplayType DisplayTargetAngleOne
         {
@@ -210,6 +238,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             GroundAngle = 0,
             TargetAngles = 10,
             GeometryInDirection = 20
+        }
+
+        public enum DistanceSampling
+        {
+            SingleSample = 0,
+            MultipleSamples = 10
+        }
+
+        public enum SamplingType
+        {
+            Closest = 0,
+            Furthest = 10,
+            Average = 20
+        }
+
+        public struct RaycastResult
+        {
+            public float distance;
+            public Vector3 normal;
         }
 
         public ApplyTorqueLocalInstructionTile() { }
@@ -385,6 +432,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             if (!string.IsNullOrEmpty(_alignVelocityName))
                 _alignVelocity = _brain.Variables.GetFloat(_alignVelocityName);
 
+            if (!string.IsNullOrEmpty(_sampleCountName))
+                _sampleCount = _brain.Variables.GetFloat(_sampleCountName);
+
+            if (!string.IsNullOrEmpty(_samplingRadiusName))
+                _samplingRadius = _brain.Variables.GetFloat(_samplingRadiusName);
+
             if (_movingState == MovingStateType.Stopped)
             {
                 _time = 0;
@@ -422,13 +475,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
                 if (DirectionType == PushDirectionType.TorqueAlignment)
                 {
-                    body.ApplyTorque(GetAlignmentForce(body, evt.DeltaTime), ForceMode.Impulse, true);
+                    body.ApplyTorque(GetAlignmentForce(body, evt.DeltaTime), ForceModeToUse, true);
                     AlignVelocityWithTorque(body);
                 }
                 else
                 {
                     float torque = _torque * GetMassScaler(body);
-                    body.ApplyTorque(_direction.normalized * torque, ForceMode.Impulse, true);
+                    body.ApplyTorque(_direction.normalized * torque, ForceModeToUse, true);
                     body.ActiveRigidbody.maxAngularVelocity = _maxSpeed;
                     if (!body.ActiveRigidbody.isKinematic)
                         body.ActiveRigidbody.angularVelocity = Vector3.ClampMagnitude(body.ActiveRigidbody.angularVelocity, _maxSpeed);
@@ -471,19 +524,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 
                 body.SetKinematic(false, true);
 
-                //if (_brain.LoggingEnabled)
+                if (_brain.LoggingEnabled)
                     Debug.Log($"ApplyTorque to Body over time {_duration} {body.ActiveTransform.name} {_direction.normalized * _torque} {body.ActiveRigidbody.angularVelocity.magnitude}", body.ActiveTransform.gameObject);
 
 
                 if (DirectionType == PushDirectionType.TorqueAlignment)
                 {
-                    body.ApplyTorque(GetAlignmentForce(body, deltaTime), ForceMode.Impulse, true);
+                    body.ApplyTorque(GetAlignmentForce(body, deltaTime), ForceModeToUse, true);
                     AlignVelocityWithTorque(body);
                 }
                 else
                 {
                     float torque = _torque * GetMassScaler(body);
-                    body.ApplyTorque(_direction.normalized * torque, ForceMode.Impulse, true);
+                    body.ApplyTorque(_direction.normalized * torque, ForceModeToUse, true);
                     body.ActiveRigidbody.maxAngularVelocity = _maxSpeed;
                     if (!body.ActiveRigidbody.isKinematic)
                         body.ActiveRigidbody.angularVelocity = Vector3.ClampMagnitude(body.ActiveRigidbody.angularVelocity, _maxSpeed);
@@ -584,52 +637,148 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         protected Vector3 GetDirectionVectorRotation(IMonaBody body, Vector3 rayOrigin, Vector3 direction, float deltaTime)
         {
+            Vector3 targetUp = _sampling == DistanceSampling.SingleSample ?
+                GetNormalFromRay(rayOrigin, direction) :
+                GetNormalFromPlane(rayOrigin, direction);
+
+            Vector3 currentUp = body.Transform.up;
+            Vector3 torque = Vector3.Cross(currentUp, targetUp) * _torque;
+
+            switch (_alignmentAxis)
+            {
+                case AlignmentAxes.X:
+                    torque = new Vector3(torque.x, 0, 0);
+                    break;
+                case AlignmentAxes.Y:
+                    torque = new Vector3(0, torque.y, 0);
+                    break;
+                case AlignmentAxes.Z:
+                    torque = new Vector3(0, 0, torque.z);
+                    break;
+                case AlignmentAxes.XY:
+                    torque = new Vector3(torque.x, torque.y, 0);
+                    break;
+                case AlignmentAxes.XZ:
+                    torque = new Vector3(torque.x, 0, torque.z);
+                    break;
+                case AlignmentAxes.YZ:
+                    torque = new Vector3(0, torque.y, torque.z);
+                    break;
+            }
+
+            float massScaler = GetMassScaler(body);
+            float damping = _damping * massScaler;
+            torque *= massScaler;
+
+            Vector3 dampingTorque = damping * deltaTime * -body.ActiveRigidbody.angularVelocity;
+            return torque + dampingTorque;
+        }
+
+        protected Vector3 GetNormalFromRay(Vector3 position, Vector3 direction)
+        {
+            Ray ray = new Ray(position, direction);
             RaycastHit hit;
-            if (UnityEngine.Physics.Raycast(rayOrigin, direction, out hit))
+
+            if (UnityEngine.Physics.Raycast(ray, out hit, Mathf.Infinity))
             {
                 if (TrueGeometryAlignment == TargetAlignmentGeometry.Tag)
                 {
                     IMonaBody hitBody = hit.transform.GetComponent<IMonaBody>();
 
                     if (hitBody == null || !hitBody.HasMonaTag(_geometryTag))
+                    {
                         return Vector3.zero;
+                    }
                 }
 
-                Vector3 targetUp = hit.normal;
-                Vector3 currentUp = body.Transform.up;
-                Vector3 torque = Vector3.Cross(currentUp, targetUp) * _torque;
-
-                switch (_alignmentAxis)
-                {
-                    case AlignmentAxes.X:
-                        torque = new Vector3(torque.x, 0, 0);
-                        break;
-                    case AlignmentAxes.Y:
-                        torque = new Vector3(0, torque.y, 0);
-                        break;
-                    case AlignmentAxes.Z:
-                        torque = new Vector3(0, 0, torque.z);
-                        break;
-                    case AlignmentAxes.XY:
-                        torque = new Vector3(torque.x, torque.y, 0);
-                        break;
-                    case AlignmentAxes.XZ:
-                        torque = new Vector3(torque.x, 0, torque.z);
-                        break;
-                    case AlignmentAxes.YZ:
-                        torque = new Vector3(0, torque.y, torque.z);
-                        break;
-                }
-
-                float massScaler = GetMassScaler(body);
-                float damping = _damping * massScaler;
-                torque *= massScaler;
-
-                Vector3 dampingTorque = damping * deltaTime * -body.ActiveRigidbody.angularVelocity;
-                return torque + dampingTorque;
+                return hit.normal;
             }
 
             return Vector3.zero;
+        }
+
+        protected Vector3 GetNormalFromPlane(Vector3 position, Vector3 direction)
+        {
+            _raycastResults.Clear();
+
+            Vector3 perp1 = Vector3.Cross(direction, Vector3.up).normalized;
+
+            if (perp1.magnitude < 0.1f)
+                perp1 = Vector3.Cross(direction, Vector3.right).normalized;
+
+            Vector3 perp2 = Vector3.Cross(direction, perp1).normalized;
+
+            for (int i = 0; i < _sampleCount; i++)
+            {
+                Vector2 randomPoint = UnityEngine.Random.insideUnitCircle * _samplingRadius;
+                Vector3 sampleOrigin = position + (perp1 * randomPoint.x) + (perp2 * randomPoint.y);
+
+                Ray ray = new Ray(sampleOrigin, direction);
+                RaycastHit hit;
+
+                if (UnityEngine.Physics.Raycast(ray, out hit, Mathf.Infinity))
+                {
+                    if (TrueGeometryAlignment == TargetAlignmentGeometry.Tag)
+                    {
+                        IMonaBody hitBody = hit.transform.GetComponent<IMonaBody>();
+
+                        if (hitBody == null || !hitBody.HasMonaTag(_geometryTag))
+                            continue;
+                    }
+                    _raycastResults.Add(i, new RaycastResult { distance = hit.distance, normal = hit.normal });
+                }
+            }
+
+            Vector3 result = Vector3.zero;
+            float closestDistance = float.MaxValue;
+            float furthestDistance = float.MinValue;
+            Vector3 sumOfNormals = Vector3.zero;
+
+            int[] keys = new int[_raycastResults.Count];
+            _raycastResults.Keys.CopyTo(keys, 0);
+
+            switch (_sampleToUse)
+            {
+                case SamplingType.Closest:
+                    for (int i = 0; i < keys.Length; i++)
+                    {
+                        RaycastResult currentResult = _raycastResults[keys[i]];
+
+                        if (currentResult.distance < closestDistance)
+                        {
+                            closestDistance = currentResult.distance;
+                            result = currentResult.normal;
+                        }
+                    }
+                    break;
+                case SamplingType.Furthest:
+                    for (int i = 0; i < keys.Length; i++)
+                    {
+                        RaycastResult currentResult = _raycastResults[keys[i]];
+
+                        if (currentResult.distance > furthestDistance)
+                        {
+                            furthestDistance = currentResult.distance;
+                            result = currentResult.normal;
+                        }
+                    }
+                    break;
+                case SamplingType.Average:
+
+                    if (_raycastResults.Count < 1)
+                        break;
+
+                    for (int i = 0; i < keys.Length; i++)
+                    {
+                        RaycastResult currentResult = _raycastResults[keys[i]];
+                        sumOfNormals += currentResult.normal;
+                    }
+                    
+                    result = sumOfNormals / _raycastResults.Count;
+                    break;
+            }
+
+            return result;
         }
 
         protected Vector3 GetAlignmentDirectionVector(IMonaBody body)
