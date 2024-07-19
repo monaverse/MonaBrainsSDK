@@ -19,6 +19,8 @@ namespace Mona.Networking
 {
     public class BrainsNormcoreNetworkManager : RealtimeComponent<BrainsRoomModel>
     {
+        public Action<Room> OnRoomJoined = delegate { };
+
         private Realtime _realtime;
 
         public GameObject _networkSpawner;
@@ -31,6 +33,9 @@ namespace Mona.Networking
         public Button _startButton;
         public Button _carButton;
         public Button _ballButton;
+        public Image _mainPanel;
+        public Image _bigLogo;
+        public Image _smallLogo;
         public Camera _titleCamera;
         public GameObject _panel;
         public MonaBody _statusPanel;
@@ -39,6 +44,10 @@ namespace Mona.Networking
         private Action<NetworkSpawnerInitializedEvent> OnNetworkSpawnerInitialized;
 
         public static BrainsNormcoreNetworkManager Instance;
+
+        public int PlayerCount => model.players.Count;
+
+        private string _playerName;
 
         private void Awake()
         {
@@ -82,6 +91,7 @@ namespace Mona.Networking
             // Update the mesh render to match the new model
             //if (isUnownedInHierarchy)
             //    realtimeView.RequestOwnershipOfSelfAndChildren();
+            OnRoomJoined?.Invoke(realtime.room);
 
             if (isUnownedInHierarchy)
             {
@@ -136,6 +146,8 @@ namespace Mona.Networking
         {
             if (model.clientID == realtime.clientID)
             {
+                model.nameDidChange += HandlePlayerNameChanged;
+
                 var position = _spawnPoints[model.playerID % _spawnPoints.Length].transform.position;
                 var rotation = _spawnPoints[model.playerID % _spawnPoints.Length].transform.rotation;
 
@@ -151,9 +163,15 @@ namespace Mona.Networking
 
         private void HandlePlayerRemoved(RealtimeSet<BrainsPlayerModel> set, BrainsPlayerModel model, bool remote)
         {
+            model.nameDidChange -= HandlePlayerNameChanged;
 
             Debug.Log($"{nameof(HandlePlayerRemoved)} Teleport: {model.playerID} {model.name}");
 
+        }
+
+        private void HandlePlayerNameChanged(BrainsPlayerModel model, string name)
+        {
+            Debug.Log($"Player {model.playerID} changed their name to {name}");
         }
 
         private void HandleOwnerIDChanged(RealtimeModel model, int id)
@@ -199,6 +217,9 @@ namespace Mona.Networking
             _carButton.gameObject.SetActive(false);
             _ballButton.gameObject.SetActive(false);
             _panel.gameObject.SetActive(true);
+            _smallLogo.gameObject.SetActive(false);
+            _bigLogo.gameObject.SetActive(true);
+            _mainPanel.enabled = true;
         }
 
         public void ShowStart()
@@ -210,6 +231,9 @@ namespace Mona.Networking
             _carButton.gameObject.SetActive(true);
             _ballButton.gameObject.SetActive(true);
             _titleCamera.gameObject.SetActive(false);
+            _smallLogo.gameObject.SetActive(true);
+            _bigLogo.gameObject.SetActive(false);
+            _mainPanel.enabled = false;
         }
 
         public void HideStart()
@@ -218,6 +242,9 @@ namespace Mona.Networking
             _startButton.gameObject.SetActive(false);
             _carButton.gameObject.SetActive(false);
             _ballButton.gameObject.SetActive(false);
+            _smallLogo.gameObject.SetActive(false);
+            _bigLogo.gameObject.SetActive(false);
+            _mainPanel.enabled = false;
         }
 
         private void UpdateStatus(string text)
@@ -289,7 +316,7 @@ namespace Mona.Networking
                 var player = new BrainsPlayerModel();
                 player.clientID = body.ClientId;
                 player.playerID = model.PLAYER_ID;
-                player.name = $"Player {player.playerID}";
+                player.name = !string.IsNullOrEmpty(_playerName) ? _playerName : $"Player {player.playerID}";
 
                 Debug.Log($"{nameof(RegisterPlayerBody)} update player id {player.playerID} {player.name} {player.clientID}");
 
@@ -321,6 +348,21 @@ namespace Mona.Networking
                 model.players.Remove(playerLeft);
                 model.PLAYER_ID = model.players.Count;
                 Debug.Log($"{nameof(UnregisterPlayerBody)} {playerLeft.name} {playerLeft.clientID} player left");
+            }
+        }
+
+        public void SetPlayerName(string name)
+        {
+            _playerName = name;
+            foreach (var player in model.players)
+            {
+                if (player.clientID == realtime.clientID)
+                {
+                    player.name = name;
+                    var body = MonaGlobalBrainRunner.Instance.PlayerBody;
+                    body.SetPlayer(body.PlayerId, body.ClientId, name, true);
+                    return;
+                }
             }
         }
 
