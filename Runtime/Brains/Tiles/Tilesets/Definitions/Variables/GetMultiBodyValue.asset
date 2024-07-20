@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 7445142201185861649
   _id: GetMultiBodyValue
-  _name: Get Multi Body Value
+  _name: Get Multi-Body Value
   _category: Variables
   references:
     version: 2
@@ -24,9 +24,9 @@ MonoBehaviour:
       type: {class: GetMultiBodyValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: GetMultiBodyValue
+        _name: Get Multi-Body Value
+        _category: Variables
         _muted: 0
         _valueType: 0
         _originBody: 10
@@ -34,19 +34,21 @@ MonoBehaviour:
         _targetBody: 0
         _targetTag: Default
         _bodyArray: 
-        _axis: 1
+        _directionValue: 0
         _targetType: 0
         _targetVector: 
         _targetNumber: 
         _targetString: 
         _copyType: 0
+        _axis: 1
         _distanceType: 0
-        _directionValue: 0
         _direction: 0
         _customDirection: {x: 0, y: 0, z: 1}
         _customDirectionName: []
         _space: 0
-        _rangeMin: 1
+        _rangeMin: 0
         _rangeMinName: 
         _rangeMax: 100
         _rangeMaxName: 
+        _rayHitOffset: 0
+        _rayHitOffsetName: 

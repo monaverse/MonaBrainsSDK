@@ -13,7 +13,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     {
         public const string ID = "OnIsHost";
         public const string NAME = "IsHost";
-        public const string CATEGORY = "General";
+        public const string CATEGORY = "Multiplayer";
         public override Type TileType => typeof(OnIsHostInstructionTile);
 
         private IMonaBrain _brain;
