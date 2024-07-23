@@ -80,7 +80,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyValueName("Offset", typeof(IMonaVariablesVector3Value))] public string[] MyVector3Name { get => _offsetName; set => _offsetName = value; }
 
         public bool SourceIsStringOnly => Source == MonaBodyValueType.PlayerName || Source == MonaBodyValueType.ReadMe;
-        public bool SourceNumberIsSingleNumber => Source != MonaBodyValueType.ChildIndex || Source != MonaBodyValueType.ChildCount || Source != MonaBodyValueType.SiblingIndex || Source == MonaBodyValueType.Velocity;
+        public bool SourceNumberIsSingleNumber => Source == MonaBodyValueType.ChildIndex || Source == MonaBodyValueType.ChildCount || Source == MonaBodyValueType.SiblingIndex || Source == MonaBodyValueType.Velocity;
 
         public TargetVariableType TrueTargetType
         {

@@ -50,6 +50,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(ValueType), (int)MultiBodyValueType.Direction)]
         [BrainPropertyShow(nameof(ValueType), (int)MultiBodyValueType.RayHitPosition)]
         [BrainPropertyShow(nameof(ValueType), (int)MultiBodyValueType.RayHitNormal)]
+        [BrainPropertyShow(nameof(ValueType), (int)MultiBodyValueType.HitNormalAlignAngle)]
         [BrainPropertyEnum(false)] public TargetVariableType TargetType { get => _targetType; set => _targetType = value; }
 
         [SerializeField] string _targetVector;
@@ -112,7 +113,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainProperty(false)] public float RayHitOffset { get => _rayHitOffset; set => _rayHitOffset = value; }
         [BrainPropertyValueName("RayHitOffset", typeof(IMonaVariablesFloatValue))] public string RayHitOffsetName { get => _rayHitOffsetName; set => _rayHitOffsetName = value; }
 
-        public UIDisplayType DirectionDisplay => ValueType == MultiBodyValueType.DotProduct || ValueType == MultiBodyValueType.RayHitPosition || ValueType == MultiBodyValueType.RayHitNormal || (ValueType == MultiBodyValueType.Distance && DistanceType == BodyDistanceType.FromRaycast) ? UIDisplayType.Show : UIDisplayType.Hide;
+        public UIDisplayType DirectionDisplay => ValueType == MultiBodyValueType.DotProduct || ValueType == MultiBodyValueType.RayHitPosition || ValueType == MultiBodyValueType.RayHitNormal || _valueType == MultiBodyValueType.HitNormalAlignAngle || (ValueType == MultiBodyValueType.Distance && DistanceType == BodyDistanceType.FromRaycast) ? UIDisplayType.Show : UIDisplayType.Hide;
         public UIDisplayType CustomDirectionDisplay => DirectionDisplay == UIDisplayType.Show && Direction == BodyDirectionType.Custom ? UIDisplayType.Show : UIDisplayType.Hide;
 
         private const float _defaultDistance = -1f;
@@ -141,7 +142,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             get
             {
-                if (_valueType == MultiBodyValueType.Direction || _valueType == MultiBodyValueType.RayHitPosition || _valueType == MultiBodyValueType.RayHitNormal)
+                if (_valueType == MultiBodyValueType.Direction || _valueType == MultiBodyValueType.RayHitPosition || _valueType == MultiBodyValueType.RayHitNormal || _valueType == MultiBodyValueType.HitNormalAlignAngle)
                 {
                     if (TargetType == TargetVariableType.Number)
                         return UIDisplayType.Show;
@@ -268,6 +269,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     if (TryRayHit(bodyA, bodyB, out _, out _, out Vector3 hitNormal))
                         SetVariable(hitNormal);
                     break;
+                case MultiBodyValueType.HitNormalAlignAngle:
+                    if (TryRayHit(bodyA, bodyB, out _, out _, out Vector3 objectBNormal))
+                    {
+                        Vector3 rotationAngle = (Quaternion.FromToRotation(bodyA.Transform.up, objectBNormal) * bodyA.GetRotation()).eulerAngles;
+                        SetVariable(rotationAngle);
+                    }
+                    break;
             }
 
             return Complete(InstructionTileResult.Success);
@@ -300,7 +308,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 IMonaBody hitBody = hit.transform.GetComponent<IMonaBody>();
 
                 ResetOriginalBodyLayers(bodyA);
-
                 distance = hit.distance;
                 hitPosition = _valueType == MultiBodyValueType.RayHitPosition ?
                     hit.point + (direction.normalized * _rayHitOffset * -1f) :

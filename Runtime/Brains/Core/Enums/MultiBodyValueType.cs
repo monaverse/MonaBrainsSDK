@@ -6,6 +6,7 @@
         Direction = 10,
         DotProduct = 20,
         RayHitPosition = 30,
-        RayHitNormal = 40
+        RayHitNormal = 40,
+        HitNormalAlignAngle = 50
     }
 }
