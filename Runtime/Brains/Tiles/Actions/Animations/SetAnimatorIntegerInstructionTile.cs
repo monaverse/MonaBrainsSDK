@@ -123,7 +123,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
         {
             if(_brain.Body.Animator != null && evt.Value is IMonaVariablesFloatValue && evt.Name == _integerName)
             {
-                _brain.Body.Animator.SetInteger(_integerName, (int)((IMonaVariablesFloatValue)evt.Value).Value);
+                _brain.Body.Animator.SetInteger(_integerName, (int)((IMonaVariablesFloatValue)evt.Value).ValueToReturnFromTile);
             }
             //Debug.Log($"{nameof(HandleMonaValueChanged)}", _brain.Body.Transform.gameObject);
         }

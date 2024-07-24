@@ -45,7 +45,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         {
             var variable = state.GetVariable(_valueName);
             if (variable is IMonaVariablesFloatValue)
-                _lastFloat = ((IMonaVariablesFloatValue)variable).Value;
+                _lastFloat = ((IMonaVariablesFloatValue)variable).ValueToReturnFromTile;
             else if (variable is IMonaVariablesStringValue)
                 _lastString = ((IMonaVariablesStringValue)variable).Value;
             else if (variable is IMonaVariablesBoolValue)

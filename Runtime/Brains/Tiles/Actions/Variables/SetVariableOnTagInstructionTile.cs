@@ -76,7 +76,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
                 if (myValue is IMonaVariablesFloatValue && tagValue is IMonaVariablesFloatValue)
                 {
-                    brainVariables.Set(_tagVariable, ((IMonaVariablesFloatValue)myValue).Value);
+                    brainVariables.Set(_tagVariable, ((IMonaVariablesFloatValue)myValue).ValueToReturnFromTile);
                 }
                 else if (myValue is IMonaVariablesStringValue && tagValue is IMonaVariablesStringValue)
                 {

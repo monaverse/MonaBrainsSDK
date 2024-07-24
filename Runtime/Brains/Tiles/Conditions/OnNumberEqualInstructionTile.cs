@@ -61,10 +61,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                 case ValueOperatorType.GreaterThan: return state.GetFloat(_valueName) > _amount;
                 case ValueOperatorType.LessThanEqual: return state.GetFloat(_valueName) <= _amount;
                 case ValueOperatorType.LessThan: return state.GetFloat(_valueName) < _amount;
-                case ValueOperatorType.NotEqual: return state.GetFloat(_valueName) != _amount;
-                default: return state.GetFloat(_valueName) == _amount;
+                case ValueOperatorType.NotEqual: return !Mathf.Approximately(state.GetFloat(_valueName), _amount);
+                default: return Mathf.Approximately(state.GetFloat(_valueName), _amount);
             }
         }
-
     }
 }

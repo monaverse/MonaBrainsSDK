@@ -117,7 +117,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             if (myValue is IMonaVariablesFloatValue)
             {
                 string storageKey = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Number, keyName, brainName, string.Empty);
-                PlayerPrefs.SetFloat(storageKey, ((IMonaVariablesFloatValue)myValue).Value);
+                PlayerPrefs.SetFloat(storageKey, ((IMonaVariablesFloatValue)myValue).ValueToReturnFromTile);
             }
             else if (myValue is IMonaVariablesBoolValue)
             {

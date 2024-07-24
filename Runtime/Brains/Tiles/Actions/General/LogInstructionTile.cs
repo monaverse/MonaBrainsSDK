@@ -44,7 +44,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             {
                 var variable = _brain.Variables.GetVariable(_messageValueName);
                 if (variable is IMonaVariablesStringValue) _message = string.Format(_variableLog, _prefix, _messageValueName, ((IMonaVariablesStringValue)variable).Value);
-                if (variable is IMonaVariablesFloatValue) _message = string.Format(_variableLog, _prefix, _messageValueName, ((IMonaVariablesFloatValue)variable).Value.ToString());
+                if (variable is IMonaVariablesFloatValue) _message = string.Format(_variableLog, _prefix, _messageValueName, ((IMonaVariablesFloatValue)variable).ValueToReturnFromTile.ToString());
                 if (variable is IMonaVariablesBoolValue) _message = string.Format(_variableLog, _prefix, _messageValueName, ((IMonaVariablesBoolValue)variable).Value.ToString());
                 if (variable is IMonaVariablesVector2Value) _message = string.Format(_variableLog, _prefix, _messageValueName, ((IMonaVariablesVector2Value)variable).Value.ToString());
                 if (variable is IMonaVariablesVector3Value) _message = string.Format(_variableLog, _prefix, _messageValueName, ((IMonaVariablesVector3Value)variable).Value.ToString());

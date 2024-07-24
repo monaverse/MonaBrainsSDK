@@ -172,7 +172,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 _numberName : _storeResultOn;
 
             if (variable is IMonaVariablesFloatValue)
-                ChangeFloatValue(state, nameOfVariableToSet, ((IMonaVariablesFloatValue)variable).Value, GetOperator(), AmountToUse);
+                ChangeFloatValue(state, nameOfVariableToSet, ((IMonaVariablesFloatValue)variable).ValueToReturnFromTile, GetOperator(), AmountToUse);
             else if(variable is IMonaVariablesVector2Value)
                 ChangeVector2Value(state, nameOfVariableToSet, ((IMonaVariablesVector2Value)variable).Value, GetOperator(), AmountToUse);
             else if (variable is IMonaVariablesVector3Value)
