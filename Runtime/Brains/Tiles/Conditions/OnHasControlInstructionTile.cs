@@ -14,7 +14,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     {
         public const string ID = "OnHasControl";
         public const string NAME = "Has Control";
-        public const string CATEGORY = "General";
+        public const string CATEGORY = "Multiplayer";
         public override Type TileType => typeof(OnHasControlInstructionTile);
 
         private IMonaBrain _brain;

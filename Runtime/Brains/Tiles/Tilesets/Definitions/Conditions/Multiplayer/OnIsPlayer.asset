@@ -16,16 +16,17 @@ MonoBehaviour:
     rid: 2634612668883796052
   _id: OnIsPlayer
   _name: Is Player
-  _category: General
+  _category: Multiplayer
   references:
     version: 2
     RefIds:
     - rid: 2634612668883796052
-      type: {class: OnIsPlayerInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: OnIsPlayerInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnIsPlayer
+        _name: Is Player
+        _category: Multiplayer
         _muted: 0
         _playerId: 0
         _playerIdName: 

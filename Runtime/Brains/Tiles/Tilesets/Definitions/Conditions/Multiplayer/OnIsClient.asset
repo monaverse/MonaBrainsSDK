@@ -15,15 +15,16 @@ MonoBehaviour:
   _tile:
     rid: 2634612666058408027
   _id: OnIsClient
-  _name: IsClient
-  _category: General
+  _name: Is Client
+  _category: Multiplayer
   references:
     version: 2
     RefIds:
     - rid: 2634612666058408027
-      type: {class: OnIsClientInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: OnIsClientInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnIsClient
+        _name: Is Client
+        _category: Multiplayer
         _muted: 0

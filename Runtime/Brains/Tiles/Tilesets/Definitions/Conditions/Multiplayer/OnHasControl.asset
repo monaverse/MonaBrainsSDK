@@ -16,14 +16,17 @@ MonoBehaviour:
     rid: 2634612596463632620
   _id: OnHasControl
   _name: Has Control
-  _category: General
+  _category: Multiplayer
   references:
     version: 2
     RefIds:
     - rid: 2634612596463632620
-      type: {class: OnHasControlInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: OnHasControlInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: OnHasControl
+        _name: Has Control
+        _category: Multiplayer
         _muted: 0
+        _negate: 0
+        _negateName: 

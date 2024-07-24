@@ -19,20 +19,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public const string CATEGORY = "General";
         public override Type TileType => typeof(CopyBodyValueInstructionTile);
 
+        [SerializeField] private MonaBodyValueType _source = MonaBodyValueType.Position;
+        [BrainPropertyEnum(true)] public MonaBodyValueType Source { get => _source; set => _source = value; }
+
         [SerializeField] private MonaBrainBroadcastTypeSingleTarget _body = MonaBrainBroadcastTypeSingleTarget.Self;
         [BrainPropertyEnum(true)] public MonaBrainBroadcastTypeSingleTarget Body { get => _body; set => _body = value; }
 
         [SerializeField] private string _tag;
         [BrainPropertyShow(nameof(Body), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string Tag { get => _tag; set => _tag = value; }
-
-        [SerializeField] private MonaBodyValueType _source = MonaBodyValueType.Position;
-        [BrainPropertyEnum(true)] public MonaBodyValueType Source { get => _source; set => _source = value; }
-
-        [SerializeField] private VectorThreeAxis _axis = VectorThreeAxis.Y;
-        [BrainPropertyShow(nameof(AxisDisplay), (int)UIDisplayType.Show)]
-        [BrainPropertyEnum(true)]
-        public VectorThreeAxis Axis { get => _axis; set => _axis = value; }
 
         [SerializeField] private TargetVariableType _targetType;
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Velocity)]
@@ -66,9 +61,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyValue(typeof(IMonaVariablesBoolValue), true)] public string TargetBool { get => _targetBool; set => _targetBool = value; }
 
         [SerializeField] private StringCopyType _copyType;
-        [BrainPropertyShow(nameof(TrueTargetType), (int)TargetVariableType.String)]
+        [BrainPropertyShow(nameof(CopyTypeDisplay), (int)UIDisplayType.Show)]
         [BrainPropertyEnum(false)]
         public StringCopyType CopyType { get => _copyType; set => _copyType = value; }
+
+        [SerializeField] private VectorThreeAxis _axis = VectorThreeAxis.Y;
+        [BrainPropertyShow(nameof(AxisDisplay), (int)UIDisplayType.Show)]
+        [BrainPropertyEnum(true)]
+        public VectorThreeAxis Axis { get => _axis; set => _axis = value; }
 
         [SerializeField] private bool _includeChildren = true;
         [SerializeField] private string _includeChildrenName;
@@ -83,6 +83,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainProperty(false)] public Vector3 Offset { get => _offset; set => _offset = value; }
         [BrainPropertyValueName("Offset", typeof(IMonaVariablesVector3Value))] public string[] MyVector3Name { get => _offsetName; set => _offsetName = value; }
 
+        public bool SourceIsStringOnly => Source == MonaBodyValueType.PlayerName || Source == MonaBodyValueType.ReadMe;
+        public bool SourceNumberIsSingleNumber => Source == MonaBodyValueType.ChildIndex || Source == MonaBodyValueType.ChildCount || Source == MonaBodyValueType.SiblingIndex || Source == MonaBodyValueType.Velocity;
+
         public TargetVariableType TrueTargetType
         {
             get
@@ -90,9 +93,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 switch (Source)
                 {
                     case MonaBodyValueType.ChildCount:
-                        return TargetVariableType.Number;
                     case MonaBodyValueType.PlayerId:
-                        return TargetVariableType.Number;
                     case MonaBodyValueType.ClientId:
                         return TargetVariableType.Number;
                     case MonaBodyValueType.PlayerName:
@@ -104,6 +105,32 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 }
 
                 return _targetType;
+            }
+        }
+
+        public UIDisplayType CopyTypeDisplay
+        {
+            get
+            {
+                if (SourceIsStringOnly)
+                    return UIDisplayType.Hide;
+
+                return TrueTargetType == TargetVariableType.String ? UIDisplayType.Show : UIDisplayType.Hide;
+            }
+        }
+
+        public UIDisplayType AxisDisplay
+        {
+            get
+            {
+                if (SourceIsStringOnly || SourceNumberIsSingleNumber)
+                    return UIDisplayType.Hide;
+                else if (TargetType == TargetVariableType.Number)
+                    return Source != MonaBodyValueType.Velocity ? UIDisplayType.Show : UIDisplayType.Hide;
+                else if (TargetType == TargetVariableType.String && CopyType == StringCopyType.SingleAxis)
+                    return UIDisplayType.Show;
+
+                return UIDisplayType.Hide;
             }
         }
 
@@ -127,37 +154,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             Hide = 10
         }
 
-        public enum TargetBodyType
-        {
-            Tag = 0,
-            Self = 10,
-            Parent = 20,
-            MessageSender = 40,
-            OnConditionTarget = 50,
-            OnHitTarget = 60,
-            MySpawner = 70,
-            LastSpawnedByMe = 80,
-            MyPoolPreviouslySpawned = 100,
-            MyPoolNextSpawned = 110
-        }
-
         private IMonaBrain _brain;
-
-        public UIDisplayType AxisDisplay
-        {
-            get
-            {
-                if (_source != MonaBodyValueType.ChildIndex && _source != MonaBodyValueType.ChildCount && _source != MonaBodyValueType.SiblingIndex)
-                {
-                    if (TargetType == TargetVariableType.Number && _source != MonaBodyValueType.Velocity)
-                        return UIDisplayType.Show;
-                    else if (TargetType == TargetVariableType.String && CopyType == StringCopyType.SingleAxis)
-                        return UIDisplayType.Show;
-                }
-
-                return UIDisplayType.Hide;
-            }
-        }
 
         public CopyBodyValueInstructionTile() { }
 

@@ -58,6 +58,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyEnum(false)] public SpaceType Space { get => _space; set => _space = value; }
 
         private IMonaBrain _brain;
+        private IMonaBody _trueTargetBody;
         private string _ignoreRaycastLayer = "Ignore Raycast";
         private LayerMask _checkLayerMask;
         private List<LayerMask> _bodyLayers = new List<LayerMask>();
@@ -116,16 +117,18 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (_brain == null)
                 Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-            IMonaBody targetBody = GetBody();
+            _trueTargetBody = GetBody();
 
-            if (targetBody == null)
+            if (_trueTargetBody == null)
                 Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-            bool result = _negate ? !TargetFoundInDirection(_brain.Body, targetBody) : TargetFoundInDirection(_brain.Body, targetBody);
+            bool result = _negate ? !TargetFoundInDirection(_brain.Body, _trueTargetBody) : TargetFoundInDirection(_brain.Body, _trueTargetBody);
 
-            return result ?
-                Complete(InstructionTileResult.Success) :
-                Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
+            if (!result)
+                return Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
+
+            _brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, _trueTargetBody);
+            return Complete(InstructionTileResult.Success);
         }
 
         private IMonaBody GetBody()
@@ -181,6 +184,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
                 if (hitBody == null || hit.distance < _rangeMin)
                     return false;
+
+                _trueTargetBody = hitBody;
 
                 if (_target == MonaBrainBroadcastTypeSingleTarget.Tag)
                     return hitBody.HasMonaTag(_tag);

@@ -14,7 +14,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
     {
         public const string ID = "OnIsPlayer";
         public const string NAME = "Is Player";
-        public const string CATEGORY = "General";
+        public const string CATEGORY = "Multiplayer";
         public override Type TileType => typeof(OnIsPlayerInstructionTile);
 
         [SerializeField] private float _playerId;

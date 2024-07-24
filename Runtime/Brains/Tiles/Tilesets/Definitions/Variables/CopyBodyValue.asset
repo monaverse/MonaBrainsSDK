@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 8514828729091621463
   _id: CopyBodyValue
-  _name: Copy Body Value
+  _name: Get Body Value
   _category: Variables
   references:
     version: 2
@@ -25,18 +25,18 @@ MonoBehaviour:
         asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: CopyBodyValue
-        _name: Copy Body Value
+        _name: Get Body Value
         _category: Variables
         _muted: 0
+        _source: 0
         _body: 10
         _tag: 
-        _source: 0
-        _axis: 1
         _targetType: 0
         _targetValue: 
         _targetNumber: 
         _targetString: 
         _copyType: 0
+        _axis: 1
         _includeChildren: 1
         _includeChildrenName: 
         _offset: {x: 0, y: 0, z: 0}

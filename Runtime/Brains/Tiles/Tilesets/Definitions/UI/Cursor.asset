@@ -15,16 +15,17 @@ MonoBehaviour:
   _tile:
     rid: 2634612620581929037
   _id: Cursor
-  _name: Cursor
-  _category: General
+  _name: Set Cursor Mode
+  _category: User Interface
   references:
     version: 2
     RefIds:
     - rid: 2634612620581929037
-      type: {class: CursorInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: CursorInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: Cursor
+        _name: Set Cursor Mode
+        _category: User Interface
         _muted: 0
         _cursorLockMode: 0
