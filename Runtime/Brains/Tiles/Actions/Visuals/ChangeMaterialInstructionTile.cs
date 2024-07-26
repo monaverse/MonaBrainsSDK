@@ -78,6 +78,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         [SerializeField] private string _newTextureSlot = "_MainTex";
         [BrainProperty(false)] public string NewTextureSlot { get => _newTextureSlot; set => _newTextureSlot = value; }
 
+        [SerializeField] private bool _onlyBodies = true;
+        [BrainProperty(false)] public bool OnlyBodies { get => _onlyBodies; set => _onlyBodies = value; }
+
         private List<Texture> _textures = new List<Texture>();
         private Renderer[] _renderers;
         private Material[] _materials;
@@ -301,10 +304,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
                 material = _cachedMaterials[_monaAsset];
             }
 
-            if (sharedMaterial)
-                body.SetBodyMaterial(material, true);
+            if (_onlyBodies)
+            {
+                if (sharedMaterial)
+                    body.SetBodyMaterial(material, true);
+                else
+                    body.SetBodyMaterial(material);
+            }
             else
-                body.SetBodyMaterial(material);
+            {
+                if (sharedMaterial)
+                    body.SetSharedMaterial(material);
+                else
+                    body.SetMaterial(material);
+            }
         }
 
         private void OperateOnTextures(IMonaBody body, bool storeTextures)
@@ -317,7 +330,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
             string textureSlot = storeTextures ? _sourceTextureSlot : _newTextureSlot;
 
-            _renderers = body.BodyRenderers;
+            _renderers = _onlyBodies ? body.BodyRenderers : body.Renderers;
 
             for (int i = 0; i < _renderers.Length; i++)
             {
