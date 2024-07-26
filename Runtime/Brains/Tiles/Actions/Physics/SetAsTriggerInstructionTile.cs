@@ -10,8 +10,7 @@ using System.Collections.Generic;
 namespace Mona.SDK.Brains.Tiles.Actions.Physics
 {
     [Serializable]
-    public class SetAsTriggerInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload,
-        IRigidbodyInstructionTile
+    public class SetAsTriggerInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
     {
         public const string ID = "SetAsTrigger";
         public const string NAME = "Is Trigger Volume";
