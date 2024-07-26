@@ -16,8 +16,9 @@
         PlayerId = 19,
         ClientId = 20,
         PlayerName = 21,
-        IsLocalPlayer = 23,
         ReadMe = 22,
+        IsLocalPlayer = 23,
+        BodyName = 24,
         BoundsExtents = 30,
         BoundsCenter = 40
     }

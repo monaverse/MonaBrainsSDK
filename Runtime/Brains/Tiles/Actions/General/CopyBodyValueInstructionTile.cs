@@ -83,7 +83,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainProperty(false)] public Vector3 Offset { get => _offset; set => _offset = value; }
         [BrainPropertyValueName("Offset", typeof(IMonaVariablesVector3Value))] public string[] MyVector3Name { get => _offsetName; set => _offsetName = value; }
 
-        public bool SourceIsStringOnly => Source == MonaBodyValueType.PlayerName || Source == MonaBodyValueType.ReadMe;
+        public bool SourceIsStringOnly => Source == MonaBodyValueType.PlayerName || Source == MonaBodyValueType.ReadMe || Source == MonaBodyValueType.BodyName;
         public bool SourceNumberIsSingleNumber => Source == MonaBodyValueType.ChildIndex || Source == MonaBodyValueType.ChildCount || Source == MonaBodyValueType.SiblingIndex || Source == MonaBodyValueType.Velocity;
 
         public TargetVariableType TrueTargetType
@@ -97,11 +97,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     case MonaBodyValueType.ClientId:
                         return TargetVariableType.Number;
                     case MonaBodyValueType.PlayerName:
+                    case MonaBodyValueType.ReadMe:
+                    case MonaBodyValueType.BodyName:
                         return TargetVariableType.String;
                     case MonaBodyValueType.IsLocalPlayer:
                         return TargetVariableType.Bool;
-                    case MonaBodyValueType.ReadMe:
-                        return TargetVariableType.String;
                 }
 
                 return _targetType;
@@ -220,6 +220,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         SetVariable(readme.ToString());
                     }
                     break;
+                case MonaBodyValueType.BodyName:
+                    SetVariable(body.Transform.gameObject.name); break;
                 case MonaBodyValueType.BoundsExtents:
                     SetBoundsValue(body); break;
                 case MonaBodyValueType.BoundsCenter:

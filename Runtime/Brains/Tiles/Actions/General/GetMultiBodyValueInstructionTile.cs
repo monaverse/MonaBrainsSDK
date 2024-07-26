@@ -308,16 +308,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 IMonaBody hitBody = hit.transform.GetComponent<IMonaBody>();
 
                 ResetOriginalBodyLayers(bodyA);
+
+                if (hitBody == null || hit.distance < _rangeMin)
+                    return false;
+
+                if (!HitTargetIsTargetBody(bodyA, bodyB, hitBody))
+                    return false;
+
                 distance = hit.distance;
                 hitPosition = _valueType == MultiBodyValueType.RayHitPosition ?
                     hit.point + (direction.normalized * _rayHitOffset * -1f) :
                     hit.point;
                 hitNormal = hit.normal;
 
-                if (hitBody == null || hit.distance < _rangeMin)
-                    return false;
-
-                return HitTargetIsTargetBody(bodyA, bodyB, hitBody);
+                return true;
             }
 
             ResetOriginalBodyLayers(bodyA);
