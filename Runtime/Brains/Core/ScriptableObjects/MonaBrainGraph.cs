@@ -122,7 +122,8 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
             _assets.Clear();
             for (var i = 0; i < _monaAssets.Count; i++)
             {
-                _assets.AddRange(_monaAssets[i].AllAssets);
+                if(_monaAssets[i] != null)
+                    _assets.AddRange(_monaAssets[i].AllAssets);
             }
             return _assets;
         }

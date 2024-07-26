@@ -441,7 +441,7 @@ namespace Mona.SDK.Brains.UIElements
                     List<string> values;
                     if(isAsset.UseProviders)
                         values = _brain.GetAllMonaAssetProviders().FindAll(x => {
-                            if (x.AllAssets.Count > 0)
+                            if (x != null && x.AllAssets.Count > 0 && x.GetMonaAssetByIndex(0) != null)
                                 return isAsset.Type.IsAssignableFrom(x.GetMonaAssetByIndex(0).GetType());
                             return false;
                         }).ConvertAll<string>(x => x.Name);
