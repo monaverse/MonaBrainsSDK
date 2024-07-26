@@ -20,8 +20,8 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         public override Type TileType => typeof(OnInputMonaInstructionTile);
 
         [SerializeField]
-        private MonaInputType _inputType = MonaInputType.Move;
+        private MonaInputType _monaInputType = MonaInputType.Action;
         [BrainPropertyEnum(true)]
-        public override MonaInputType InputType { get => _inputType; set => _inputType = value; }
+        public override MonaInputType InputType { get => _monaInputType; set => _monaInputType = value; }
     }
 }
