@@ -165,8 +165,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             Z = 5
         }
 
+        private Transform _proxy;
+
         public virtual void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
+            _proxy = (new GameObject("Proxy")).transform;
             _brain = brainInstance;
             _instruction = instruction;
             _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();
@@ -177,6 +180,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override void Unload(bool destroyed = false)
         {
+            GameObject.Destroy(_proxy);
+            _proxy = null;
             if (_device != OrbitInputDeviceType.Vector2)
                 _brainInput.StopListening(this);
         }
@@ -299,13 +304,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (cameraRelative || (int)_rotationAxis < 3)
             {
                 Vector3 horizontalAxis = cameraRelative ? Vector3.up : GetGlobalHorizontalAxis();
-                body.Transform.Rotate(horizontalAxis, deviceVector.x, Space.World);
-                body.Transform.Rotate(verticalAxis, deviceVector.y, Space.World);
+                _proxy.rotation = body.Transform.rotation;
+                _proxy.Rotate(horizontalAxis, deviceVector.x, Space.World);
+                _proxy.Rotate(verticalAxis, deviceVector.y, Space.World);
+                body.TeleportRotation(_proxy.rotation);
             }
             else
             {
                 float rotation = GreatestVectorValue(deviceVector);
-                body.Transform.Rotate(verticalAxis, rotation, Space.World);
+                _proxy.rotation = body.Transform.rotation;
+                _proxy.Rotate(verticalAxis, rotation, Space.World);
+                body.TeleportRotation(_proxy.rotation);
             }
         }
 
