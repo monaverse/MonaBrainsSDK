@@ -153,7 +153,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
         private bool _listenToInput;
-        private IInstruction _instruction;
 
         public TargetAlignmentGeometry TrueGeometryAlignment => AlignmentMode != PositionalAlignmentMode.Direction ? TargetAlignmentGeometry.Any : _alignmentGeometry;
         public DisplayType DisplayDistance => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode != PositionalAlignmentMode.TargetPosition ? DisplayType.Display : DisplayType.Hide;

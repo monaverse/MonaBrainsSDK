@@ -43,12 +43,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         }
 
         private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
-        public List<IMonaBody> GetBodiesToControl()
-        {
-            if (_bodiesToControl.Count == 0)
-                _bodiesToControl.Add(_brain.Body);
-            return _bodiesToControl;
-        }
 
         protected override bool ApplyForceToTarget()
         {

@@ -6,7 +6,6 @@ using UnityEngine;
 using System;
 using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Brain;
-using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core;
@@ -69,7 +68,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private Vector3 _direction;
 
         private IMonaBrain _brain;
-        private IInstruction _instruction;
         private string _progressName;
 
 

@@ -199,8 +199,6 @@ namespace Mona.SDK.Brains.Core.Brain
         private bool _began;
         public bool Began => _began;
 
-        private int _beginBrainsAfterFrame = 0;
-
         public bool LegacyMonaPlatforms {
             get
             {

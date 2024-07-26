@@ -27,7 +27,6 @@ namespace Mona.SDK.Brains.Core.Tiles
         protected MonaInputState _currentLocalInputState;
 
         protected IMonaBrain _brain;
-        protected IInstruction _instruction;
         public IMonaBrain Brain => _brain;
 
         protected IMonaBrainInput _brainInput;

@@ -31,7 +31,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
             _brain = brainInstance;
         }
 
-        public InstructionTileResult Do()
+        public override InstructionTileResult Do()
         {
             var senderAsTarget = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
             if(senderAsTarget != null)

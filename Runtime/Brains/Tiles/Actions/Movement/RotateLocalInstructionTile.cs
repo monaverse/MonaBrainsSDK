@@ -54,7 +54,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Quaternion _direction;
 
         protected IMonaBrain _brain;
-        private IInstruction _instruction;
         private string _progressName;
 
         private Quaternion _start;

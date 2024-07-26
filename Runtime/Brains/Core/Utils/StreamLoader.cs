@@ -1,7 +1,5 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.Networking;
 using UnityGLTF.Loader;
 
 namespace Mona.SDK.Brains.Core.Utils

@@ -29,8 +29,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
 
         public PathFindToFilteredInstructionTile() { }
 
-        private int _lastIndex = -1;
-
         public override InstructionTileResult Do()
         {
             _bodies = _instruction.InstructionBodies;

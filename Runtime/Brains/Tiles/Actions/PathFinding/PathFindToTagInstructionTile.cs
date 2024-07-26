@@ -32,8 +32,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
 
         public PathFindToTagInstructionTile() { }
 
-        private int _lastIndex = -1;
-
         public override InstructionTileResult Do()
         {
             if (_movingState == MovingStateType.Stopped || _followWhileMoving)

@@ -2,20 +2,17 @@
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.Tiles;
-using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Input;
-using Mona.SDK.Core.Network.Enums;
 using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using Mona.SDK.Core.Utils;
 using Mona.SDK.Brains.Core.Utils.Structs;
-using Unity.Profiling;
 
 namespace Mona.SDK.Brains.Core.Control
 {
@@ -73,7 +70,6 @@ namespace Mona.SDK.Brains.Core.Control
 
         private bool _hasConditionalTile;
         private bool _hasTickAfterTile;
-        private bool _hasRigidbodyTile;
         private bool _hasAnimationTile;
         private bool _hasOnMessageTile;
 
@@ -179,11 +175,6 @@ namespace Mona.SDK.Brains.Core.Control
 
                 if (InstructionTiles[i] is ITickAfterInstructionTile)
                     _hasTickAfterTile = true;
-
-
-                if (InstructionTiles[i] is IRigidbodyInstructionTile)
-                    _hasRigidbodyTile = true;
-                
             }
         }
 

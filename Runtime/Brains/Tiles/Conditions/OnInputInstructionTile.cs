@@ -138,8 +138,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         protected override MonaInputState GetInputState() => _inputState;
 
-        private float _mouseLookSensitivity = 30f;
-
         protected MonaInput _bodyInput;
 
         private int GetPixelSizeFromPercentage(float percentage)

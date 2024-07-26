@@ -137,7 +137,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         state.Set(name, value / amount); 
                     break;
                 case ValueChangeType.Multiply:
-                    state.Set(name, value * amount); break;
+                    state.Set(name, value * amount);
                     break;
                 default: 
                     state.Set(name, vectorAmount); 

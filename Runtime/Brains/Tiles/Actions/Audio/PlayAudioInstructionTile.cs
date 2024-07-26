@@ -259,9 +259,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
                         else
                             return Complete(InstructionTileResult.Success);
                     }
-                    catch (Exception e)
+                    catch
                     {
-                        //Debug.LogError($"{nameof(PlayAudioInstructionTile)} could not player audio {e.Message}");
                         return Complete(InstructionTileResult.Success);
                     }
                 }
