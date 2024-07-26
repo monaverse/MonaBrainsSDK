@@ -102,6 +102,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
         [SerializeField] private bool _importLights;
         [BrainProperty(false)] public bool ImportLights { get => _importLights; set => _importLights = value; }
 
+        [SerializeField] private bool _removeAllColliders;
+        [BrainProperty(false)] public bool RemoveAllColliders { get => _removeAllColliders; set => _removeAllColliders = value; }
+
         [SerializeField] private bool _includeAttached = true;
         [SerializeField] private string _includeAttachedName;
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
@@ -477,6 +480,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 if (_avatarAsset.Value != null)
                 {
                     var avatar = GameObject.Instantiate(_avatarAsset.Value);
+
+                    if(_removeAllColliders)
+                    {
+                        var colliders = avatar.GetComponentsInChildren<Collider>(true);
+                        for(var i = 0;i < colliders.Length; i++)
+                            GameObject.DestroyImmediate(colliders[i]);
+                    }
+
                     var avatarBody = avatar.GetComponent<IMonaBody>();
 
                     var root = body.Transform.Find("Root");
@@ -560,6 +571,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             {
                 var avatarBody = body.Skin.GetComponent<IMonaBody>();
                 _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SKIN, avatarBody);
+                _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SPAWNED, avatarBody);
 
                 _shouldWait = false;
                 return;
@@ -570,6 +582,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             {
                 if (avatar != null)
                 {
+                    if (_removeAllColliders)
+                    {
+                        var colliders = avatar.GetComponentsInChildren<Collider>(true);
+                        for (var i = 0; i < colliders.Length; i++)
+                            GameObject.DestroyImmediate(colliders[i]);
+                    }
+
                     var bodies = avatar.GetComponentsInChildren<IMonaBody>();
                     for(var i = 0;i < bodies.Length; i++)
                     {
@@ -797,9 +816,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 }
             }
 
-            var avatarBody = avatarGameObject.GetComponentInChildren<IMonaBody>();
-            _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SKIN, avatarBody);
-
             root.localScale = Vector3.one;
             root.localPosition = Vector3.zero;
             root.localRotation = Quaternion.identity;
@@ -830,6 +846,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 if (boneMappings != null)
                 {
                     var avatarTransforms = new List<Transform>(_avatarInstance.transform.GetComponentsInChildren<Transform>());
+
+                    var avatarPart = _avatarInstance.transform.GetComponent<IMonaBody>();
+                    if (avatarPart == null)
+                    {
+                        avatarPart = _avatarInstance.transform.AddComponent<MonaBody>();
+                        avatarPart.SyncType = MonaBodyNetworkSyncType.NotNetworked;
+                        avatarPart.AddTag("Avatar");
+                    }
 
                     AvatarDescription description = boneMappings.GetDescription(out bool isCreated);
                     var avatar = description.ToHumanDescription(_avatarInstance.transform);
@@ -899,6 +923,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     body = body.Parent;
                 }
             }
+
+            var avatarBody = avatarGameObject.GetComponentInChildren<IMonaBody>();
+            _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SKIN, avatarBody);
+            _brain.Variables.Set(MonaBrainConstants.RESULT_LAST_SPAWNED, avatarBody);
 
             RecalculateSize(avatarGameObject, root, animator.avatar != null);
                                        
@@ -992,12 +1020,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             if (_scaleToFit)
             {
                 root.localScale = Vector3.one * maxBoxScale;
-                root.localPosition = (root.InverseTransformDirection(_offset) - offsetY) * maxBoxScale;
+                root.localPosition = (-offsetY) * maxBoxScale + _offset;
             }
             else
             {
                 root.localScale = _scale;
-                root.localPosition = (root.InverseTransformDirection(_offset) - offsetY) * _scale.y;
+                root.localPosition = (-offsetY) * _scale.y + _offset;
             }
 
         }
