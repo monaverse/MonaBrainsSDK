@@ -147,7 +147,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public ForceMode ForceModeToUse => _forceType == ApplyForceType.Impulse ? ForceMode.Impulse : ForceMode.Acceleration;
         public TargetAlignmentGeometry TrueGeometryAlignment => AlignmentMode != TorqueAlignmentMode.GeometryInDirection ? TargetAlignmentGeometry.Any : _alignmentGeometry;
 
-        public DisplayType DisplayMaxSpeed => DirectionType != PushDirectionType.TorqueAlignment ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayAlignmentDirection => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode == TorqueAlignmentMode.GeometryInDirection ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayGeometryAlignment => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode == TorqueAlignmentMode.GeometryInDirection ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayGeometryTag => DirectionType == PushDirectionType.TorqueAlignment && TrueGeometryAlignment == TargetAlignmentGeometry.Tag ? DisplayType.Display : DisplayType.Hide;
@@ -156,6 +155,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public DisplayType DisplayTargetAngleThree => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode == TorqueAlignmentMode.TargetAngles && AlignmentAxis == AlignmentAxes.XYZ ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayRaySampling => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode != TorqueAlignmentMode.TargetAngles ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplaySamplingVars => DisplayRaySampling == DisplayType.Display && Sampling == DistanceSampling.MultipleSamples ? DisplayType.Display : DisplayType.Hide;
+
+        // ** SUPPORT FOR OLD TILES **
+        public DisplayType DisplayMaxSpeed => DirectionType != PushDirectionType.TorqueAlignment && (MaxSpeed > 0 || !string.IsNullOrEmpty(MaxSpeedName)) ? DisplayType.Display : DisplayType.Hide;
+        // ** END **
 
         public DisplayType DisplayTargetAngleOne
         {
@@ -476,19 +479,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 if (DirectionType == PushDirectionType.TorqueAlignment)
                 {
                     body.ApplyTorque(GetAlignmentForce(body, evt.DeltaTime), ForceModeToUse, true);
-                    AlignVelocityWithTorque(body);
                 }
                 else
                 {
                     float torque = _torque * GetMassScaler(body);
                     body.ApplyTorque(_direction.normalized * torque, ForceModeToUse, true);
-                    body.ActiveRigidbody.maxAngularVelocity = _maxSpeed;
-                    if (!body.ActiveRigidbody.isKinematic)
-                        body.ActiveRigidbody.angularVelocity = Vector3.ClampMagnitude(body.ActiveRigidbody.angularVelocity, _maxSpeed);
 
-                    AlignVelocityWithTorque(body);
+                    // ** SUPPORT FOR OLD TILES **
+                    if (_maxSpeed > 0f)
+                    {
+                        body.ActiveRigidbody.maxAngularVelocity = _maxSpeed;
+                        if (!body.ActiveRigidbody.isKinematic)
+                            body.ActiveRigidbody.angularVelocity = Vector3.ClampMagnitude(body.ActiveRigidbody.angularVelocity, _maxSpeed);
+                    }
+                    // ** END **
                 }
-                
+
+                AlignVelocityWithTorque(body);
                 StopPushing();
             }
         }
@@ -531,18 +538,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 if (DirectionType == PushDirectionType.TorqueAlignment)
                 {
                     body.ApplyTorque(GetAlignmentForce(body, deltaTime), ForceModeToUse, true);
-                    AlignVelocityWithTorque(body);
                 }
                 else
                 {
                     float torque = _torque * GetMassScaler(body);
                     body.ApplyTorque(_direction.normalized * torque, ForceModeToUse, true);
-                    body.ActiveRigidbody.maxAngularVelocity = _maxSpeed;
-                    if (!body.ActiveRigidbody.isKinematic)
-                        body.ActiveRigidbody.angularVelocity = Vector3.ClampMagnitude(body.ActiveRigidbody.angularVelocity, _maxSpeed);
 
-                    AlignVelocityWithTorque(body);
+                    // ** SUPPORT FOR OLD TILES **
+                    if (_maxSpeed > 0f)
+                    {
+                        body.ActiveRigidbody.maxAngularVelocity = _maxSpeed;
+                        if (!body.ActiveRigidbody.isKinematic)
+                            body.ActiveRigidbody.angularVelocity = Vector3.ClampMagnitude(body.ActiveRigidbody.angularVelocity, _maxSpeed);
+                    }
+                    // ** END **
                 }
+
+                AlignVelocityWithTorque(body);
 
                 if (_time >= 1f)
                 {

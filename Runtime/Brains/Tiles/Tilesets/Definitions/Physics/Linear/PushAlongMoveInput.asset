@@ -9,23 +9,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce3517052b18f1e408812780a3ffdd1d, type: 3}
-  m_Name: ApplyForceAway
+  m_Script: {fileID: 11500000, guid: c3f8ed1285d045c488eae7e7af5bbbb1, type: 3}
+  m_Name: PushAlongMoveInput
   m_EditorClassIdentifier: 
   _tile:
-    rid: 3250164677034377633
-  _id: ApplyForceAway
-  _name: Apply Force Away
-  _category: Adv Forces
+    rid: 3250164677034377575
+  _id: PushAlongMoveInput
+  _name: Push Along Move Input
+  _category: Push / Pull
   references:
     version: 2
     RefIds:
-    - rid: 3250164677034377633
-      type: {class: ApplyForceAwayInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+    - rid: 3250164677034377575
+      type: {class: PushAlongMoveInputInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: ApplyForceAway
-        _name: Apply Force Away
-        _category: Adv Forces
+        _id: PushAlongMoveInput
+        _name: Push Along Move Input
+        _category: Push / Pull
         _muted: 0
         _force: 5
         _forceValueName: 
@@ -50,6 +51,13 @@ MonoBehaviour:
         _targetPositionName: []
         _scaleWith: 20
         _forceSpace: 1
-        _maxSpeed: 0.2
+        _maxSpeed: 0
         _maxSpeedName: 
-        _yFactor: 1
+        _sampling: 0
+        _samplingRadius: 1
+        _samplingRadiusName: 
+        _sampleCount: 10
+        _sampleCountName: 
+        _sampleToUse: 0
+        _linearForce: 0
+        _positionalForce: 10

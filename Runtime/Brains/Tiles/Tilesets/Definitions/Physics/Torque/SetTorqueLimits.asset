@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5c225b3e355a488d81eea43ca49b763, type: 3}
+  m_Name: SetTorqueLimits
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 7445142385685954773
+  _id: SetTorqueLimits
+  _name: Set Torque Limits
+  _category: Adv Torque
+  references:
+    version: 2
+    RefIds:
+    - rid: 7445142385685954773
+      type: {class: ApplyTorqueSetLimitsInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+        asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: SetTorqueLimits
+        _name: Set Torque Limits
+        _category: Adv Torque
+        _muted: 0
+        _limitTorqueVelocity: 1
+        _limitTorqueVelocityName: 
+        _maxVelocity: 2
+        _maxVelocityName: 

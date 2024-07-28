@@ -9,26 +9,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d10f8b9574d24b7d8c2aa9a56752bd2, type: 3}
-  m_Name: ApplyForceAlignToPosition
+  m_Script: {fileID: 11500000, guid: 890c8af8c6456ea42b7012c0b8dda550, type: 3}
+  m_Name: PushTarget
   m_EditorClassIdentifier: 
   _tile:
-    rid: 1597717309468705026
-  _id: ApplyForceAlignToPosition
-  _name: Stabilize Position
-  _category: Adv Forces
+    rid: 3250164786554994691
+  _id: PushTarget
+  _name: Push Target
+  _category: Push / Pull
   references:
     version: 2
     RefIds:
-    - rid: 1597717309468705026
-      type: {class: ApplyForceAlignToPositionInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+    - rid: 3250164786554994691
+      type: {class: PushTargetInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: ApplyForceAlignToPosition
-        _name: Stabilize Position
-        _category: Adv Forces
+        _id: PushTarget
+        _name: Push Target
+        _category: Push / Pull
         _muted: 0
-        _force: 10
+        _force: 5
         _forceValueName: 
         _distance: 5
         _distanceName: 
@@ -61,3 +61,5 @@ MonoBehaviour:
         _sampleToUse: 0
         _linearForce: 0
         _positionalForce: 10
+        _source: 1
+        _target: 

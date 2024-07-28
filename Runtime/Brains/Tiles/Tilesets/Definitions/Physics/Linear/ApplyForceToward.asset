@@ -9,26 +9,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d10f8b9574d24b7d8c2aa9a56752bd2, type: 3}
-  m_Name: ApplyForceAlignToPosition
+  m_Script: {fileID: 11500000, guid: ccf7596b3a07d2b4b8659bf2cc1b02a0, type: 3}
+  m_Name: ApplyForceToward
   m_EditorClassIdentifier: 
   _tile:
-    rid: 1597717309468705026
-  _id: ApplyForceAlignToPosition
-  _name: Stabilize Position
+    rid: 3250164677034377635
+  _id: ApplyForceToward
+  _name: Apply Force Toward
   _category: Adv Forces
   references:
     version: 2
     RefIds:
-    - rid: 1597717309468705026
-      type: {class: ApplyForceAlignToPositionInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+    - rid: 3250164677034377635
+      type: {class: ApplyForceTowardInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: ApplyForceAlignToPosition
-        _name: Stabilize Position
+        _id: ApplyForceToward
+        _name: Apply Force Toward
         _category: Adv Forces
         _muted: 0
-        _force: 10
+        _force: 5
         _forceValueName: 
         _distance: 5
         _distanceName: 

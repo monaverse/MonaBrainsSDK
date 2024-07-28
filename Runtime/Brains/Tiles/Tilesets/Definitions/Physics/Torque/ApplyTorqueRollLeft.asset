@@ -21,7 +21,8 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 1597717129070117277
-      type: {class: ApplyTorqueRollLeftInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: ApplyTorqueRollLeftInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ApplyTorqueRollLeft
         _name: Torque Roll Left
@@ -47,5 +48,14 @@ MonoBehaviour:
         _directionVector: {x: 0, y: 0, z: 0}
         _directionVectorName: []
         _scaleForceWith: 20
-        _maxSpeed: 2
+        _maxSpeed: 0
         _maxSpeedName: 
+        _alignVelocity: 0.5
+        _alignVelocityName: 
+        _sampling: 0
+        _samplingRadius: 1
+        _samplingRadiusName: 
+        _sampleCount: 10
+        _sampleCountName: 
+        _sampleToUse: 0
+        _forceType: 0

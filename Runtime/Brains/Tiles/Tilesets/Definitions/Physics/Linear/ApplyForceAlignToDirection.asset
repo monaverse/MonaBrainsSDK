@@ -21,7 +21,8 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 1597717309468705027
-      type: {class: ApplyForceAlignToDirectionInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: ApplyForceAlignToDirectionInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ApplyForceAlignToDirection
         _name: Maintain Distance
@@ -50,5 +51,13 @@ MonoBehaviour:
         _targetPositionName: []
         _scaleWith: 20
         _forceSpace: 1
-        _maxSpeed: 0.2
+        _maxSpeed: 0
         _maxSpeedName: 
+        _sampling: 0
+        _samplingRadius: 1
+        _samplingRadiusName: 
+        _sampleCount: 10
+        _sampleCountName: 
+        _sampleToUse: 0
+        _linearForce: 0
+        _positionalForce: 10

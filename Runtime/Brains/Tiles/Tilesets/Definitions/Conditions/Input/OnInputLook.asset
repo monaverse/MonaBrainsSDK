@@ -21,7 +21,8 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 2811961450262954952
-      type: {class: OnInputLookInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: OnInputLookInstructionTile, ns: Mona.SDK.Brains.Tiles.Conditions,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: OnInputLook
         _name: On Look Control
