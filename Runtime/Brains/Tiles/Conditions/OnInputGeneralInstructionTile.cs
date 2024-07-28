@@ -318,7 +318,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_moveDirection} {input} {xDown} {yDown}");
 
-            if (shouldClear)
+            if (shouldClear && _inputState != MonaInputState.Up)
             {
                 ClearInput();
             }
