@@ -72,6 +72,7 @@ namespace Mona.SDK.Brains.Core.Control
         private bool _hasTickAfterTile;
         private bool _hasAnimationTile;
         private bool _hasOnMessageTile;
+        private bool _hasOrTile;
 
         private EventHook _brainEventHook;
 
@@ -175,6 +176,9 @@ namespace Mona.SDK.Brains.Core.Control
 
                 if (InstructionTiles[i] is ITickAfterInstructionTile)
                     _hasTickAfterTile = true;
+
+                if (InstructionTiles[i] is IKeywordOrInstructionTile)
+                    _hasOrTile = true;
             }
         }
 
@@ -211,6 +215,11 @@ namespace Mona.SDK.Brains.Core.Control
         public bool HasTickAfter()
         {
             return _hasTickAfterTile;
+        }
+
+        public bool HasOrTile()
+        {
+            return _hasOrTile;
         }
 
         public bool HasAnimationTiles()
@@ -337,20 +346,33 @@ namespace Mona.SDK.Brains.Core.Control
             }
 
             var result = ExecuteFirstTile(eventType, evt);
-            if (result == InstructionTileResult.Success)
+
+            if (_hasOrTile)
             {
-                //OnReset?.Invoke(this);
-                if (ExecuteRemainingConditionals() == InstructionTileResult.Success)
+                _result = ExecuteOrConditionals(result);
+
+                if (_result == InstructionTileResult.Success)
                     ExecuteActions();
+                else if (HasTickAfter())
+                    MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
             }
-            else if (result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
+            else
             {
-                //if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
-                _result = result;
-                MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
+                if (result == InstructionTileResult.Success)
+                {
+                    //OnReset?.Invoke(this);
+                    if (ExecuteRemainingConditionals() == InstructionTileResult.Success)
+                        ExecuteActions();
+                }
+                else if (result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
+                {
+                    //if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
+                    _result = result;
+                    MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
+                }
+                else if (result == InstructionTileResult.Failure)
+                    _result = result;
             }
-            else if (result == InstructionTileResult.Failure)
-                _result = result;
 
             ClearInputs();
         }
@@ -539,6 +561,37 @@ namespace Mona.SDK.Brains.Core.Control
             return InstructionTileResult.Success;
         }
 
+        private InstructionTileResult ExecuteOrConditionals(InstructionTileResult firstTileResult)
+        {
+            bool currentGroupSuccess = true;
+            bool anyGroupSuccess = false;
+
+            for (var i = 0; i < InstructionTiles.Count; i++)
+            {
+                var tile = InstructionTiles[i];
+
+                if (tile is not IConditionInstructionTile)
+                    break;
+
+                if (tile is IKeywordOrInstructionTile)
+                {
+                    if (i == 0)
+                        continue;
+
+                    anyGroupSuccess |= currentGroupSuccess;
+                    currentGroupSuccess = true;
+                }
+                else
+                {
+                    var result = i == 0 ? firstTileResult : ExecuteTile(tile);
+                    currentGroupSuccess &= (result == InstructionTileResult.Success);
+                }
+            }
+
+            anyGroupSuccess |= currentGroupSuccess;
+
+            return anyGroupSuccess ? InstructionTileResult.Success : InstructionTileResult.Failure;
+        }
 
         private bool _hasInputWaitingForAuthorization;
         private MonaInput _inputWaitingForAuthorization;
