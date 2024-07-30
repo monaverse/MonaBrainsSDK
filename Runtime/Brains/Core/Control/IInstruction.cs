@@ -47,6 +47,7 @@ namespace Mona.SDK.Brains.Core.Control
         void MoveTileRight(int i);
         void MoveTileLeft(int i);
         bool HasConditional();
+        bool HasOrTile();
         void Select();
         void Deselect();
         void Unload(bool destroy = false);

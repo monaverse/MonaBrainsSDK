@@ -4,7 +4,6 @@ using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.ScriptableObjects;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Body;
-using Mona.SDK.Core.Body.Enums;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Network;
 using Mona.SDK.Core.Network.Enums;
@@ -17,7 +16,6 @@ using UnityEngine.InputSystem;
 using Mona.SDK.Brains.EasyUI;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Core.Utils;
-using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Core.Brain
@@ -41,7 +39,6 @@ namespace Mona.SDK.Brains.Core.Brain
         private List<IMonaBrain> _brains = new List<IMonaBrain>();
         public List<IMonaBrain> Brains => _brains;
 
-        private int _currentBrainIndex = 0;
         private bool _tickLateUpdate;
 
         private Action<MonaBodyInstantiatedEvent> OnMonaBodyInstantiated;
@@ -145,7 +142,7 @@ namespace Mona.SDK.Brains.Core.Brain
                     {
                         go.transform.SetParent(GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE)?.transform);
                     }
-                    catch(Exception e)
+                    catch
                     {
                         Debug.Log($"{nameof(MonaGlobalBrainRunner)} init no space tag present");
                     }

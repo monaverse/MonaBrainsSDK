@@ -55,5 +55,10 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
         {
             return ChainId == other.ChainId && Contract == other.Contract && TokenId == other.TokenId;
         }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

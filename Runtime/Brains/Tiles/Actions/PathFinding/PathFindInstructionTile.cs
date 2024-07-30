@@ -207,7 +207,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
             //Debug.Log($"INPUT stopmoving: {Name} {_progressName} {Progress}");
             _agent.isStopped = true;
 
-            _timeMoving = 0;
             _movingState = MovingStateType.Stopped;
             StoppedMoving();
             Complete(InstructionTileResult.Success, true);
@@ -272,7 +271,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
             }
         }
 
-        private float _timeMoving;
         private float _currentSpeed;
         private Vector3 _lastPosition;
         protected virtual void Tick(float deltaTime)

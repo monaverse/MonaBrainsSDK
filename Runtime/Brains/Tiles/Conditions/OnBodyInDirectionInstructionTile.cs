@@ -1,9 +1,7 @@
 using Mona.SDK.Brains.Core;
 using Mona.SDK.Brains.Core.Brain;
-using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Tiles;
-using Mona.SDK.Brains.Tiles.Conditions.Behaviours;
 using Mona.SDK.Brains.Tiles.Conditions.Interfaces;
 using Mona.SDK.Brains.Tiles.Conditions.Enums;
 using Mona.SDK.Core.Body;

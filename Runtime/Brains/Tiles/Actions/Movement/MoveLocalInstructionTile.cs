@@ -65,7 +65,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Vector3 _startPosition;
 
         protected IMonaBrain _brain;
-        private IInstruction _instruction;
         private int _tileIndex;
 
         private Vector3 _start;
@@ -406,8 +405,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         }
 
-
-        private float _timeMoving;
         private float _currentSpeed;
         private Vector3 _lastPosition;
         protected virtual void Tick(float deltaTime)
@@ -553,7 +550,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private void StopMoving()
         {
             //Debug.Log($"INPUT stopmoving: {Name} {_progressName} {Progress}");
-            _timeMoving = 0;
             _bodyInput = default;
             _movingState = MovingStateType.Stopped;
             StoppedMoving();

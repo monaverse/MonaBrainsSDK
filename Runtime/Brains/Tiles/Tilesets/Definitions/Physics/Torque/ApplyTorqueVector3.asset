@@ -21,7 +21,8 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 5156608922757628673
-      type: {class: ApplyTorqueVector3InstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: ApplyTorqueVector3InstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ApplyTorqueVector3
         _name: Apply Torque Vector3
@@ -47,9 +48,16 @@ MonoBehaviour:
         _directionVector: {x: 0, y: 0, z: 0}
         _directionVectorName: []
         _scaleForceWith: 20
-        _maxSpeed: 2
+        _maxSpeed: 0
         _maxSpeedName: 
         _alignVelocity: 0
         _alignVelocityName: 
+        _sampling: 0
+        _samplingRadius: 1
+        _samplingRadiusName: 
+        _sampleCount: 10
+        _sampleCountName: 
+        _sampleToUse: 0
+        _forceType: 0
         _directionValue: {x: 0, y: 0, z: 0}
         _directionName: []

@@ -3,11 +3,9 @@ using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Tiles;
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Input.Enums;
 using Mona.SDK.Core.Input;
-using Mona.SDK.Brains.Core.Brain;
 
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
@@ -132,8 +130,6 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         }
 
         protected override MonaInputState GetInputState() => _inputState;
-
-        private float _mouseLookSensitivity = 30f;
 
         protected MonaInput _bodyInput;
 
@@ -322,7 +318,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
             //Debug.Log($"{nameof(OnInputInstructionTile)} {_inputType} {_moveDirection} {input} {xDown} {yDown}");
 
-            if (shouldClear)
+            if (shouldClear && _inputState != MonaInputState.Up)
             {
                 ClearInput();
             }

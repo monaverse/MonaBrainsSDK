@@ -21,7 +21,8 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 1597717309468705026
-      type: {class: ApplyForceAlignToPositionInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: ApplyForceAlignToPositionInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: ApplyForceAlignToPosition
         _name: Stabilize Position
@@ -31,10 +32,16 @@ MonoBehaviour:
         _forceValueName: 
         _distance: 5
         _distanceName: 
+        _alignmentDirection: 0
+        _directionTag: Player
+        _directionVector: {x: 0, y: -1, z: 0}
+        _directionVectorName: []
         _duration: 0
         _durationValueName: 
         _damping: 5
         _dampingName: 
+        _alignmentGeometry: 0
+        _geometryTag: Player
         _alignmentAxis: 4
         _targetAxisValue: 0
         _targetAxisValueName: 
@@ -42,11 +49,15 @@ MonoBehaviour:
         _targetPlaneName: []
         _targetPosition: {x: 0, y: 0, z: 0}
         _targetPositionName: []
-        _alignmentDirection: 0
-        _directionTag: Player
-        _directionVector: {x: 0, y: -1, z: 0}
-        _directionVectorName: []
         _scaleWith: 20
         _forceSpace: 1
-        _maxSpeed: 0.2
+        _maxSpeed: 0
         _maxSpeedName: 
+        _sampling: 0
+        _samplingRadius: 1
+        _samplingRadiusName: 
+        _sampleCount: 10
+        _sampleCountName: 
+        _sampleToUse: 0
+        _linearForce: 0
+        _positionalForce: 10

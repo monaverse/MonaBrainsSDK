@@ -43,7 +43,6 @@ namespace Mona.SDK.Brains.Core.Brain
         
         IMonaBrainVariables DefaultVariables { get; }
 
-        List<string> MonaTags { get; }
         List<IMonaAssetProvider> MonaAssets { get; }
 
         IMonaAssetItem GetMonaAsset(string id);

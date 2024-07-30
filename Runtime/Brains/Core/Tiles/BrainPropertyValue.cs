@@ -5,7 +5,6 @@ namespace Mona.SDK.Brains.Core
     public class BrainPropertyValue : BrainProperty
     {
         public Type Type;
-        public bool ShowOnTile;
 
         public BrainPropertyValue(bool showOnTile = true)
         {

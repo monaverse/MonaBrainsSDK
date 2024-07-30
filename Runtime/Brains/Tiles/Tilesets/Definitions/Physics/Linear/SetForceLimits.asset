@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d581e4d9f531149a2b1b0c93b294d292, type: 3}
+  m_Name: SetForceLimits
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 7445142385685954771
+  _id: SetForceLimits
+  _name: Set Force Limits
+  _category: Adv Forces
+  references:
+    version: 2
+    RefIds:
+    - rid: 7445142385685954771
+      type: {class: ApplyForceSetLimitsInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+        asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: SetForceLimits
+        _name: Set Force Limits
+        _category: Adv Forces
+        _muted: 0
+        _limitForceVelocity: 1
+        _limitForceVelocityName: 
+        _maxVelocity: 0.2
+        _maxVelocityName: 

@@ -234,11 +234,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         public override InstructionTileResult Do()
         {
-            switch (_brain.PropertyType)
-            {
-
-                default: return DefaultDo(); break;
-            }
+            return DefaultDo();
         }
 
         private InstructionTileResult DefaultDo()

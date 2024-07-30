@@ -13,7 +13,6 @@ using Unity.VisualScripting;
 using Mona.SDK.Brains.Core.Control;
 using UnityEditor;
 using Mona.SDK.Core.State.Structs;
-using Mona.SDK.Core.Assets.Interfaces;
 using Mona.SDK.Core.Utils;
 
 #if UNITY_EDITOR
@@ -25,8 +24,6 @@ namespace Mona.SDK.Brains.UIElements
     public class MonaInstructionTileVisualElement : VisualElement
     {
         public event Action<int, bool> OnClicked;
-
-        public event Action OnHeight;
 
         private IMonaBrain _brain;
         public IMonaBrain Brain => _brain;

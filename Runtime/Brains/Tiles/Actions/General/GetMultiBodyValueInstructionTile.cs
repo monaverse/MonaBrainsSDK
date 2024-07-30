@@ -81,8 +81,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         [SerializeField] private BodyDirectionType _direction = BodyDirectionType.Forward;
         [BrainPropertyShow(nameof(DirectionDisplay), (int)UIDisplayType.Show)]
-        [BrainPropertyShow(nameof(ValueType), (int)MultiBodyValueType.RayHitPosition)]
-        [BrainPropertyShow(nameof(ValueType), (int)MultiBodyValueType.RayHitNormal)]
         [BrainPropertyEnum(false)] public BodyDirectionType Direction { get => _direction; set => _direction = value; }
 
         [SerializeField] private Vector3 _customDirection = Vector3.forward;
@@ -113,7 +111,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainProperty(false)] public float RayHitOffset { get => _rayHitOffset; set => _rayHitOffset = value; }
         [BrainPropertyValueName("RayHitOffset", typeof(IMonaVariablesFloatValue))] public string RayHitOffsetName { get => _rayHitOffsetName; set => _rayHitOffsetName = value; }
 
-        public UIDisplayType DirectionDisplay => ValueType == MultiBodyValueType.DotProduct || ValueType == MultiBodyValueType.RayHitPosition || ValueType == MultiBodyValueType.RayHitNormal || _valueType == MultiBodyValueType.HitNormalAlignAngle || (ValueType == MultiBodyValueType.Distance && DistanceType == BodyDistanceType.FromRaycast) ? UIDisplayType.Show : UIDisplayType.Hide;
         public UIDisplayType CustomDirectionDisplay => DirectionDisplay == UIDisplayType.Show && Direction == BodyDirectionType.Custom ? UIDisplayType.Show : UIDisplayType.Hide;
 
         private const float _defaultDistance = -1f;
@@ -122,6 +119,29 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private LayerMask _checkLayerMask;
         private List<LayerMask> _bodyLayers = new List<LayerMask>();
         private List<IMonaBody> _targetBodies = new List<IMonaBody>();
+
+        public UIDisplayType DirectionDisplay
+        {
+            get
+            {
+                switch (_valueType)
+                {
+                    case MultiBodyValueType.Distance:
+                        return _distanceType == BodyDistanceType.FromRaycast ?
+                            UIDisplayType.Show : UIDisplayType.Hide;
+
+                    case MultiBodyValueType.DotProduct:
+                    case MultiBodyValueType.RayHitPosition:
+                    case MultiBodyValueType.RayHitNormal:
+                    case MultiBodyValueType.HitNormalAlignAngle:
+                        return UIDisplayType.Show;
+
+                    case MultiBodyValueType.Direction:
+                    default:
+                        return UIDisplayType.Hide;
+                }
+            }
+        }
 
         public TargetVariableType TrueTargetType
         {

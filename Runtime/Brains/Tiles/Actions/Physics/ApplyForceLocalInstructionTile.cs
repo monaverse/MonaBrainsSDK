@@ -153,11 +153,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
         private bool _listenToInput;
-        private IInstruction _instruction;
 
         public TargetAlignmentGeometry TrueGeometryAlignment => AlignmentMode != PositionalAlignmentMode.Direction ? TargetAlignmentGeometry.Any : _alignmentGeometry;
         public DisplayType DisplayDistance => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode != PositionalAlignmentMode.TargetPosition ? DisplayType.Display : DisplayType.Hide;
-        public DisplayType DisplayMaxSpeed => DirectionType != PushDirectionType.PositionalAlignment ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayForceSpace => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.TargetPosition ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayAlignmentAxis => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.TargetPosition ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayAlignmentDirection => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.Direction ? DisplayType.Display : DisplayType.Hide;
@@ -169,6 +167,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public DisplayType DisplayDirectionVector => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.Direction && (AlignmentDirection == BodyAlignmentDirection.LocalDirection || AlignmentDirection == BodyAlignmentDirection.GlobalDirection) ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayTargetPosition => DirectionType == PushDirectionType.PositionalAlignment && AlignmentMode == PositionalAlignmentMode.TargetPosition && AlignmentAxis == AlignmentAxes.XYZ ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayLinearForce => DirectionType != PushDirectionType.PositionalAlignment ? DisplayType.Display : DisplayType.Hide;
+
+        // ** SUPPORT FOR OLD TILES **
+        public DisplayType DisplayMaxSpeed => DirectionType != PushDirectionType.PositionalAlignment && (MaxSpeed > 0 || !string.IsNullOrEmpty(MaxSpeedName)) ? DisplayType.Display : DisplayType.Hide;
+        // ** END **
 
         public DisplayType DisplayTargetAxis
         {
@@ -502,8 +504,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 {
                     float force = _force * GetMassScaler(body);
                     body.ApplyForce(_direction.normalized * force, ForceModeToUse, true);
-                    if (!body.ActiveRigidbody.isKinematic)
-                        body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
+
+                    // ** SUPPORT FOR OLD TILES **
+                    if (_maxSpeed > 0f)
+                    {
+                        if (!body.ActiveRigidbody.isKinematic)
+                            body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
+                    }
+                    // ** END **
                 }
                 
                 StopPushing();
@@ -553,8 +561,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 {
                     float force = _force * GetMassScaler(body);
                     body.ApplyForce(_direction.normalized * force, ForceModeToUse, true);
-                    if (!body.ActiveRigidbody.isKinematic)
-                        body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
+
+                    // ** SUPPORT FOR OLD TILES **
+                    if (_maxSpeed > 0f)
+                    {
+                        if (!body.ActiveRigidbody.isKinematic)
+                            body.ActiveRigidbody.velocity = Vector3.ClampMagnitude(body.ActiveRigidbody.velocity, _maxSpeed);
+                    }
+                    // ** END **
                 }
 
                 if (_time >= 1f)

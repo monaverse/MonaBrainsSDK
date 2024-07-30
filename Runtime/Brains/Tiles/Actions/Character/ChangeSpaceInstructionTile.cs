@@ -78,7 +78,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         private Transform _root;
         private IMonaAnimationController _monaAnimationController;
         private IMonaAvatarAssetItem _avatarAsset;
-        private Animator _avatarInstance;
         private List<Transform> _wearableTransforms;
 
         private Action<MonaBodyAnimationControllerChangedEvent> OnAnimationControllerChanged;
@@ -324,10 +323,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             UnloadLoadedScenesAsync();
 
             MonaEventBus.Unregister(new EventHook(MonaBrainConstants.BODY_ANIMATION_CONTROLLER_CHANGED_EVENT, _brain.Body), OnAnimationControllerChanged);
-
-            //if(_avatarInstance != null)
-            //    GameObject.Destroy(_avatarInstance.transform.gameObject);
-            _avatarInstance = null;
         }
 
     }

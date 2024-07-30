@@ -9,23 +9,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ccf7596b3a07d2b4b8659bf2cc1b02a0, type: 3}
-  m_Name: ApplyForceToward
+  m_Script: {fileID: 11500000, guid: 862d9c2992077564c8637731b179dbe5, type: 3}
+  m_Name: ApplyForceUp
   m_EditorClassIdentifier: 
   _tile:
-    rid: 3250164677034377635
-  _id: ApplyForceToward
-  _name: Apply Force Toward
-  _category: Adv Forces
+    rid: 3250164677034377631
+  _id: ApplyForceUp
+  _name: "Apply Force \u2191 Up"
+  _category: Forces
   references:
     version: 2
     RefIds:
-    - rid: 3250164677034377635
-      type: {class: ApplyForceTowardInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+    - rid: 3250164677034377631
+      type: {class: ApplyForceUpInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: ApplyForceToward
-        _name: Apply Force Toward
-        _category: Adv Forces
+        _id: ApplyForceUp
+        _name: "Apply Force \u2191 Up"
+        _category: Forces
         _muted: 0
         _force: 5
         _forceValueName: 
@@ -50,5 +51,13 @@ MonoBehaviour:
         _targetPositionName: []
         _scaleWith: 20
         _forceSpace: 1
-        _maxSpeed: 0.2
+        _maxSpeed: 0
         _maxSpeedName: 
+        _sampling: 0
+        _samplingRadius: 1
+        _samplingRadiusName: 
+        _sampleCount: 10
+        _sampleCountName: 
+        _sampleToUse: 0
+        _linearForce: 0
+        _positionalForce: 10
