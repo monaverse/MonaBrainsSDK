@@ -42,7 +42,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         [SerializeField] private Vector3 _forwardVector;
         [SerializeField] private string[] _forwardVectorName;
-        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.DotProduct)]
+        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.DotProductWithForward)]
         [BrainProperty(true)] public Vector3 ForwardVector { get => _forwardVector; set => _forwardVector = value; }
         [BrainPropertyValueName("ForwardVector", typeof(IMonaVariablesVector3Value))] public string[] ForwardVectorName { get => _forwardVectorName; set => _forwardVectorName = value; }
 
@@ -50,6 +50,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [SerializeField] private string[] _positionAName;
         [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Distance)]
         [BrainPropertyShow(nameof(Operation), (int)VectorOperation.DotProduct)]
+        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.DotProductWithForward)]
         [BrainProperty(true)] public Vector3 PositionA { get => _positionA; set => _positionA = value; }
         [BrainPropertyValueName("PositionA", typeof(IMonaVariablesVector3Value))] public string[] PositionAName { get => _positionAName; set => _positionAName = value; }
 
@@ -57,6 +58,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [SerializeField] private string[] _positionBName;
         [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Distance)]
         [BrainPropertyShow(nameof(Operation), (int)VectorOperation.DotProduct)]
+        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.DotProductWithForward)]
         [BrainProperty(true)] public Vector3 PositionB { get => _positionB; set => _positionB = value; }
         [BrainPropertyValueName("PositionB", typeof(IMonaVariablesVector3Value))] public string[] PositionBName { get => _positionBName; set => _positionBName = value; }
 
@@ -66,7 +68,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             Magnitude = 0,
             Distance = 10,
             Angle = 20,
-            DotProduct = 30
+            DotProduct = 30,
+            DotProductWithForward = 40
         }
 
         protected IMonaBrain _brain;
@@ -110,6 +113,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     _brain.Variables.Set(_numberName, Vector3.Angle(_mainVector, _secondVector));
                     break;
                 case VectorOperation.DotProduct:
+                    _brain.Variables.Set(_numberName, Vector3.Dot(_positionA, _positionB));
+                    break;
+                case VectorOperation.DotProductWithForward:
                     _brain.Variables.Set(_numberName, Vector3.Dot(_forwardVector, Vector3.Normalize(_positionB - _positionA)));
                     break;
             }

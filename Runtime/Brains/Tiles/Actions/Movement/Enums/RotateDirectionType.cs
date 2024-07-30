@@ -9,6 +9,7 @@
         RollLeft=4,
         SpinLeft=5,
         SpinRight=6,
-        InputLeftRight=7
+        InputLeftRight=7,
+        EulerAngles = 20
     }
 }

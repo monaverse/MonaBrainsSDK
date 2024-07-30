@@ -8,6 +8,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Enums;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Tiles.Actions.Movement.Interfaces;
+using Mona.SDK.Brains.Tiles.Conditions.Enums;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Mona.SDK.Core.Body;
@@ -30,6 +31,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public virtual RotateDirectionType DirectionType => RotateDirectionType.SpinRight;
 
+        [SerializeField] private Vector3 _rotationAngles;
+        [SerializeField] private string[] _rotationAnglesName;
+        [BrainPropertyShow(nameof(DirectionType), (int)RotateDirectionType.EulerAngles)]
+        [BrainProperty(true)] public Vector3 RotationAngles { get => _rotationAngles; set => _rotationAngles = value; }
+        [BrainPropertyValueName("RotationAngles", typeof(IMonaVariablesVector3Value))] public string[] RotationAnglesName { get => _rotationAnglesName; set => _rotationAnglesName = value; }
+
         [SerializeField] protected float _angle = 90f;
         [SerializeField] protected string _angleValueName;
 
@@ -50,6 +57,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Time)]
         [BrainPropertyEnum(false)] public EasingType Easing { get => _easing; set => _easing = value; }
+
+        [SerializeField] private SpaceType _space = SpaceType.Local;
+        [BrainPropertyShow(nameof(DirectionType), (int)RotateDirectionType.EulerAngles)]
+        [BrainPropertyEnum(false)] public SpaceType Space { get => _space; set => _space = value; }
 
         private Quaternion _direction;
 
@@ -238,6 +249,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (!string.IsNullOrEmpty(_valueValueName))
                 _value = _brain.Variables.GetFloat(_valueValueName);
+
+            if (HasVector3Values(_rotationAnglesName))
+                _rotationAngles = GetVector3Value(_brain, _rotationAnglesName);
 
             UpdateInput();
 
@@ -456,9 +470,33 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case RotateDirectionType.RollRight: return Quaternion.AngleAxis(-angle, Vector3.forward);
                 case RotateDirectionType.SpinRight: return Quaternion.AngleAxis(angle, Vector3.up);
                 case RotateDirectionType.SpinLeft: return Quaternion.AngleAxis(-angle, Vector3.up);
+                case RotateDirectionType.EulerAngles: return GetRotationToVectorThreeTarget(_brain.Body, angle);
                 default: return Quaternion.identity;
             }
         }
 
+        protected virtual Quaternion GetRotationToVectorThreeTarget(IMonaBody body, float step)
+        {
+            Vector3 currentRotation = body.GetRotation().eulerAngles;
+            Quaternion totalRotation = Quaternion.identity;
+
+            for (int i = 0; i < 3; i++)
+            {
+                float angleDifference = Mathf.DeltaAngle(currentRotation[i], _rotationAngles[i]);
+                float rotation = Mathf.MoveTowards(0, angleDifference, step);
+
+                Vector3 axis = Vector3.zero;
+                axis[i] = 1f;
+
+                if (_space == SpaceType.Local)
+                    axis = body.ActiveTransform.TransformDirection(axis);
+
+                Quaternion axisRotation = Quaternion.AngleAxis(rotation, axis);
+                totalRotation *= axisRotation;
+                //currentRotation[i] += rotation;
+            }
+
+            return totalRotation;
+        }
     }
 }
