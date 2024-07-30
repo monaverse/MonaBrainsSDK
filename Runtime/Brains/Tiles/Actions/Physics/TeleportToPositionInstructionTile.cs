@@ -107,10 +107,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
             if (OffsetType == ObjectOffsetType.NoOffset)
             {
-                _brain.Body.OnTeleported -= HandleTeleported;
-                _brain.Body.OnTeleported += HandleTeleported;
-                _brain.Body.TeleportPosition(_value, true, _target == MonaBrainTransformType.LocalSpace);
-                return Complete(InstructionTileResult.Running);
+                if (_brain.Body.ActiveRigidbody != null)
+                {
+                    _brain.Body.OnTeleported -= HandleTeleported;
+                    _brain.Body.OnTeleported += HandleTeleported;
+                    _brain.Body.TeleportPosition(_value, true, _target == MonaBrainTransformType.LocalSpace);
+                    return Complete(InstructionTileResult.Running);
+                }
+                else
+                {
+                    _brain.Body.TeleportPosition(_value, true, _target == MonaBrainTransformType.LocalSpace);
+                    return Complete(InstructionTileResult.Success);
+                }
             }
 
             GetTargetPosition(out Vector3 position, out bool targetFound, out bool useLocalSpace);
@@ -118,10 +126,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             if (!targetFound)
                 return Complete(InstructionTileResult.Success);
 
-            _brain.Body.OnTeleported -= HandleTeleported;
-            _brain.Body.OnTeleported += HandleTeleported;
-            _brain.Body.TeleportPosition(position + _offset, true, useLocalSpace);
-            return Complete(InstructionTileResult.Running);
+            if (_brain.Body.ActiveRigidbody != null)
+            {
+                _brain.Body.OnTeleported -= HandleTeleported;
+                _brain.Body.OnTeleported += HandleTeleported;
+                _brain.Body.TeleportPosition(position + _offset, true, useLocalSpace);
+                return Complete(InstructionTileResult.Running);
+            }
+            else
+            {
+                _brain.Body.TeleportPosition(position + _offset, true, useLocalSpace);
+                return Complete(InstructionTileResult.Success);
+            }
         }
 
         private void HandleTeleported()

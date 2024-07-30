@@ -117,7 +117,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     return _runtimePlatform == RuntimePlatform.VisionOS || XRSettings.isDeviceActive;
 #endif
                 case PlatformType.Handheld:
-                    return _runtimeDevice == DeviceType.Handheld;
+                    return _runtimeDevice == DeviceType.Handheld || (Application.isMobilePlatform && _runtimePlatform == RuntimePlatform.WebGLPlayer);
                 case PlatformType.SpecificOS:
                     return IsSpecifiedOS();
             }
