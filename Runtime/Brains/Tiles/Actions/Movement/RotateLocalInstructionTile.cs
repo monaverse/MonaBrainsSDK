@@ -71,6 +71,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Quaternion _end;
 
         private bool _active;
+        private const float _maximumVectorStep = 1.0f;
 
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
@@ -470,33 +471,34 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case RotateDirectionType.RollRight: return Quaternion.AngleAxis(-angle, Vector3.forward);
                 case RotateDirectionType.SpinRight: return Quaternion.AngleAxis(angle, Vector3.up);
                 case RotateDirectionType.SpinLeft: return Quaternion.AngleAxis(-angle, Vector3.up);
-                case RotateDirectionType.EulerAngles: return GetRotationToVectorThreeTarget(_brain.Body, angle);
+                case RotateDirectionType.EulerAngles: return GetQuaternionRotationFromVector(_brain.Body, _rotationAngles, diff);
                 default: return Quaternion.identity;
             }
         }
 
-        protected virtual Quaternion GetRotationToVectorThreeTarget(IMonaBody body, float step)
+        protected Quaternion GetQuaternionRotationFromVector(IMonaBody body, Vector3 targetAngles, float step)
         {
-            Vector3 currentRotation = body.GetRotation().eulerAngles;
+            Quaternion currentRotation = body.GetRotation();
+
+            if (step <= _maximumVectorStep)
+                return ConvertVectorRotationToQuaternion(currentRotation, targetAngles, step);
+
+            int steps = Mathf.CeilToInt(step / _maximumVectorStep);
+            float remainder = step % 1f;
             Quaternion totalRotation = Quaternion.identity;
+            
+            for (int i = 0; i < steps; i++)
+                totalRotation *= ConvertVectorRotationToQuaternion(currentRotation, targetAngles, _maximumVectorStep);
 
-            for (int i = 0; i < 3; i++)
-            {
-                float angleDifference = Mathf.DeltaAngle(currentRotation[i], _rotationAngles[i]);
-                float rotation = Mathf.MoveTowards(0, angleDifference, step);
-
-                Vector3 axis = Vector3.zero;
-                axis[i] = 1f;
-
-                if (_space == SpaceType.Local)
-                    axis = body.ActiveTransform.TransformDirection(axis);
-
-                Quaternion axisRotation = Quaternion.AngleAxis(rotation, axis);
-                totalRotation *= axisRotation;
-                //currentRotation[i] += rotation;
-            }
+            if (!Mathf.Approximately(0, remainder))
+                totalRotation *= ConvertVectorRotationToQuaternion(currentRotation, targetAngles, remainder);
 
             return totalRotation;
+        }
+
+        protected Quaternion ConvertVectorRotationToQuaternion(Quaternion currentRotation, Vector3 targetAngles, float step = 1.0f)
+        {
+            return Quaternion.Inverse(currentRotation) * Quaternion.Slerp(currentRotation, Quaternion.Euler(targetAngles), step);
         }
     }
 }
