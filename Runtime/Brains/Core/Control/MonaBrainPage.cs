@@ -110,7 +110,6 @@ namespace Mona.SDK.Brains.Core.Control
         {
             bool prevInstructionSucceeded = false;
             bool prevInstructionHadElse = false;
-            bool elseSequenceSuccessful = false;
 
             for (var i = 0; i < Instructions.Count; i++)
             {
@@ -118,32 +117,19 @@ namespace Mona.SDK.Brains.Core.Control
                     break;
 
                 var instruction = Instructions[i];
+                bool hasElse = instruction.HasElseTile;
 
-                // No ELSE
-
-                if (!instruction.HasElseTile)
+                if (hasElse && prevInstructionSucceeded)
                 {
-                    instruction.Execute(eventType, out prevInstructionSucceeded, evt);
-
-                    // Reset Else Tracking Values
-                    prevInstructionHadElse = false;
-                    elseSequenceSuccessful = false;
                     continue;
                 }
 
-                // Has ELSE
+                //Debug.Log($"Frame Count {Time.frameCount} | i {i} | prevInstructionHadElse {prevInstructionHadElse}, elseSequenceSuccessful {elseSequenceSuccessful}, prevInstructionSucceeded {prevInstructionSucceeded}");
 
-                if (prevInstructionHadElse && elseSequenceSuccessful)
-                    continue;
+                bool elseOkay = hasElse && (!prevInstructionHadElse || !prevInstructionSucceeded);
 
-                if (prevInstructionSucceeded)
-                {
-                    elseSequenceSuccessful = true;
-                    continue;
-                }
-
-                instruction.Execute(eventType, out prevInstructionSucceeded, evt);
-                prevInstructionHadElse = true;
+                instruction.Execute(eventType, elseOkay, out prevInstructionSucceeded, evt);
+                prevInstructionHadElse = hasElse;
             }
         }
 

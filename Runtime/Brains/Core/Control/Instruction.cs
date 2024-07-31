@@ -318,7 +318,7 @@ namespace Mona.SDK.Brains.Core.Control
             return _result;
         }
 
-        public void Execute(InstructionEventTypes eventType, out bool instructionSucceeded, InstructionEvent evt = default)
+        public void Execute(InstructionEventTypes eventType, bool elseOkay, out bool instructionSucceeded, InstructionEvent evt = default)
         {
             //Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction received event {eventType}", _brain.Body.ActiveTransform.gameObject);
             if (_unloaded || _paused || _muted)
@@ -352,13 +352,11 @@ namespace Mona.SDK.Brains.Core.Control
                 return;
             }
 
-            var firstTileResult = ExecuteFirstTile(eventType, evt);
+            var firstTileResult = ExecuteFirstTile(eventType, elseOkay, evt);
 
             if (_hasOrTile)
             {
-                _result = ExecuteOrConditionals(firstTileResult);
-
-                if (_result == InstructionTileResult.Success)
+                if (ExecuteOrConditionals(firstTileResult) == InstructionTileResult.Success)
                     ExecuteActions();
                 else if (HasTickAfter())
                     MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
@@ -367,10 +365,11 @@ namespace Mona.SDK.Brains.Core.Control
             {
                 if (firstTileResult == InstructionTileResult.Success)
                 {
-                    _result = ExecuteRemainingConditionals();
-
-                    if (_result == InstructionTileResult.Success)
+                    var remainingResult = ExecuteRemainingConditionals();
+                    if (remainingResult == InstructionTileResult.Success)
                         ExecuteActions();
+                    else if (remainingResult == InstructionTileResult.Failure)
+                        _result = InstructionTileResult.Failure;
                 }
                 else if (firstTileResult == InstructionTileResult.Failure)
                 {
@@ -400,7 +399,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, InstructionEvent evt = default)
+        private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, bool elseOkay, InstructionEvent evt = default)
         {
             if (_unloaded) return InstructionTileResult.Failure;
             if (_paused) return InstructionTileResult.Failure;
@@ -439,12 +438,17 @@ namespace Mona.SDK.Brains.Core.Control
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Tick:
-                        if ((tile is IActionInstructionTile || HasTickAfter()) && (evt.Instruction == this)) //_brain.Body.HasControl() && 
+                        //if ((tile is IActionInstructionTile || HasTickAfter()) && (evt.Instruction == this)) //_brain.Body.HasControl() &&
+                        if ((tile is IActionInstructionTile) && (evt.Instruction == this)) //_brain.Body.HasControl() && 
                         {
                             //_result = InstructionTileResult.Running;
                             //Debug.Log($"execute tick");
                             ExecuteActionTile(tile);
                         }
+                        else if ((tile is IConditionInstructionTile || HasTickAfter()) && (evt.Instruction == this || (_hasElseTile && elseOkay))) 
+                        {
+                            return ExecuteTile(tile);
+                        }    
                         break;
                     case InstructionEventTypes.Blockchain:
                         if (BlockchainTiles.Count > 0)
