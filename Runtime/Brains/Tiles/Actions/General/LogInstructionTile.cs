@@ -49,7 +49,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyValueName("LogTimeData", typeof(IMonaVariablesBoolValue))] public string LogTimeDataName { get => _logTimeDataName; set => _logTimeDataName = value; }
 
         private const string _variableLog = "{0}Variable: '{1}' = '{2}'";
-        private const string _nonVariableLog = "{0}{1} {2}";
+        private const string _nonVariableLog = "{0}{1}";
         private const string _prefixLog = "{0}: ";
         private const string _bodyLog = " | Body = '{0}'";
         private const string _brainLog = " | Brain = '{0};";
@@ -99,13 +99,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 if (variable is IMonaVariablesVector2Value) _message = string.Format(_variableLog, prefix, _messageValueName, ((IMonaVariablesVector2Value)variable).Value.ToString());
                 if (variable is IMonaVariablesVector3Value) _message = string.Format(_variableLog, prefix, _messageValueName, ((IMonaVariablesVector3Value)variable).Value.ToString());
 
-                fullLog = _message + frames + time + bodyObject + brainData;
+                fullLog = _message;
             }
             else
             {
-                fullLog = string.Format(_nonVariableLog, prefix, _message, _brain.Body.Transform.gameObject) + frames + time + bodyObject + brainData;
+                fullLog = string.Format(_nonVariableLog, prefix, _message);
             }
 
+            fullLog += frames + time + bodyObject + brainData;
             Debug.Log(fullLog);
 
             return Complete(InstructionTileResult.Success);
