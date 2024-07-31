@@ -483,12 +483,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (step <= _maximumVectorStep)
                 return ConvertVectorRotationToQuaternion(currentRotation, targetAngles, step);
 
-            int steps = Mathf.CeilToInt(step / _maximumVectorStep);
+            int steps = Mathf.CeilToInt(step);
             float remainder = step % _maximumVectorStep;
             Quaternion totalRotation = Quaternion.identity;
-            
+            Quaternion stepRotation = ConvertVectorRotationToQuaternion(currentRotation, targetAngles, _maximumVectorStep);
+
             for (int i = 0; i < steps; i++)
-                totalRotation *= ConvertVectorRotationToQuaternion(currentRotation, targetAngles, _maximumVectorStep);
+                totalRotation *= stepRotation;
 
             if (!Mathf.Approximately(0, remainder))
                 totalRotation *= ConvertVectorRotationToQuaternion(currentRotation, targetAngles, remainder);
