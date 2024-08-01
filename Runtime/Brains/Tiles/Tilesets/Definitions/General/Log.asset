@@ -21,10 +21,23 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 3250164504517148718
-      type: {class: LogInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
+      type: {class: LogInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: Log
         _name: Log
         _category: Adv Coding
+        _tileVersion: 0
+        _muted: 0
+        _prefix: 
+        _prefixName: 
         _message: 
         _messageValueName: 
+        _logBodyData: 1
+        _logBodyDataName: 
+        _logBrainData: 0
+        _logBrainDataName: 
+        _logFrameData: 0
+        _logFrameDataName: 
+        _logTimeData: 0
+        _logTimeDataName: 

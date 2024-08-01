@@ -108,13 +108,28 @@ namespace Mona.SDK.Brains.Core.Control
 
         public void ExecuteInstructions(InstructionEventTypes eventType, InstructionEvent evt = default)
         {
-            for (var i = 0; i < Instructions.Count;i++)
+            bool prevInstructionSucceeded = false;
+            bool prevInstructionHadElse = false;
+
+            for (var i = 0; i < Instructions.Count; i++)
             {
                 if (!_isActive)
                     break;
 
                 var instruction = Instructions[i];
-                instruction.Execute(eventType, evt);
+                bool hasElse = instruction.HasElseTile;
+
+                if (hasElse && prevInstructionSucceeded)
+                {
+                    continue;
+                }
+
+                //Debug.Log($"Frame Count {Time.frameCount} | i {i} | prevInstructionHadElse {prevInstructionHadElse}, elseSequenceSuccessful {elseSequenceSuccessful}, prevInstructionSucceeded {prevInstructionSucceeded}");
+
+                bool elseOkay = hasElse && (!prevInstructionHadElse || !prevInstructionSucceeded);
+
+                instruction.Execute(eventType, elseOkay, out prevInstructionSucceeded, evt);
+                prevInstructionHadElse = hasElse;
             }
         }
 

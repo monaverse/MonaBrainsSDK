@@ -44,10 +44,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [SerializeField] private float _value = 1f;
         [SerializeField] private string _valueValueName = null;
 
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.SpeedOnly)]
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
         [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Time)]
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Time, "Seconds")]
         [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Meters/Sec")]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.SpeedOnly, "Meters/Sec")]
         [BrainProperty(false)] public float Value { get => _value; set => _value = value; }
 
         [BrainPropertyValueName("Value", typeof(IMonaVariablesFloatValue))]

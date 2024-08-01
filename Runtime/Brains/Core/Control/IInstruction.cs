@@ -31,6 +31,7 @@ namespace Mona.SDK.Brains.Core.Control
         MonaInput InstructionInput { get; set; }
         List<IMonaBody> InstructionBodies { get; set; }
         bool Muted { get; set; }
+        bool HasElseTile { get; }
         InstructionTileResult Result { get; set; }
 
         List<Token> Tokens { get; set; }
@@ -40,14 +41,13 @@ namespace Mona.SDK.Brains.Core.Control
         void ToggleMute();
 
         void Preload(IMonaBrain brain, IMonaBrainPage page);
-        void Execute(InstructionEventTypes eventType, InstructionEvent evt);
+        void Execute(InstructionEventTypes eventType, bool elseOkay, out bool executing, InstructionEvent evt);
         void AddTile(IInstructionTile tile, int i, IMonaBrainPage page);
         void ReplaceTile(int i, IInstructionTile tile);
         void DeleteTile(int i);
         void MoveTileRight(int i);
         void MoveTileLeft(int i);
         bool HasConditional();
-        bool HasOrTile();
         void Select();
         void Deselect();
         void Unload(bool destroy = false);

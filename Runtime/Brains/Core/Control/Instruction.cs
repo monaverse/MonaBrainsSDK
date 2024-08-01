@@ -74,6 +74,9 @@ namespace Mona.SDK.Brains.Core.Control
         private bool _hasOnMessageTile;
         private bool _hasOrTile;
 
+        [SerializeField] private bool _hasElseTile;
+        public bool HasElseTile { get => _hasElseTile; }
+
         private EventHook _brainEventHook;
 
         public IInstructionTile CurrentTile {
@@ -179,6 +182,9 @@ namespace Mona.SDK.Brains.Core.Control
 
                 if (InstructionTiles[i] is IKeywordOrInstructionTile)
                     _hasOrTile = true;
+
+                if (InstructionTiles[i] is IKeywordElseInstructionTile)
+                    _hasElseTile = true;
             }
         }
 
@@ -215,11 +221,6 @@ namespace Mona.SDK.Brains.Core.Control
         public bool HasTickAfter()
         {
             return _hasTickAfterTile;
-        }
-
-        public bool HasOrTile()
-        {
-            return _hasOrTile;
         }
 
         public bool HasAnimationTiles()
@@ -317,64 +318,73 @@ namespace Mona.SDK.Brains.Core.Control
             return _result;
         }
 
-        public void Execute(InstructionEventTypes eventType, InstructionEvent evt = default)
+        public void Execute(InstructionEventTypes eventType, bool elseOkay, out bool instructionSucceeded, InstructionEvent evt = default)
         {
             //Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction received event {eventType}", _brain.Body.ActiveTransform.gameObject);
-            if (_unloaded) return;
-            if (_paused) return;
-            if (_muted) return;
+            if (_unloaded || _paused || _muted)
+            {
+                instructionSucceeded = false;
+                return;
+            }
 
             if (_result == InstructionTileResult.WaitingForAuthority)
             {
+                instructionSucceeded = true;
+                return;
             }
             else if (IsRunning())
             {
                 //if (_brain.LoggingEnabled)
-                //  Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction still running", _brain.Body.ActiveTransform.gameObject);
 
                 /*if (!HasConditional())
                 {
                     Debug.Log($"tick while runnin' {_result}");
                     MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain), new MonaBrainTickEvent(InstructionEventTypes.Tick));
                 }*/
+                instructionSucceeded = true;
                 return;
             }
 
             if (_instructionTiles.Count == 0)
             {
+                _result = InstructionTileResult.Success;
+                instructionSucceeded = true;
                 return;
             }
 
-            var result = ExecuteFirstTile(eventType, evt);
+            var firstTileResult = ExecuteFirstTile(eventType, elseOkay, evt);
 
             if (_hasOrTile)
             {
-                _result = ExecuteOrConditionals(result);
-
-                if (_result == InstructionTileResult.Success)
+                if (ExecuteOrConditionals(firstTileResult) == InstructionTileResult.Success)
                     ExecuteActions();
                 else if (HasTickAfter())
                     MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
             }
             else
             {
-                if (result == InstructionTileResult.Success)
+                if (firstTileResult == InstructionTileResult.Success)
                 {
-                    //OnReset?.Invoke(this);
-                    if (ExecuteRemainingConditionals() == InstructionTileResult.Success)
+                    var remainingResult = ExecuteRemainingConditionals();
+                    if (remainingResult == InstructionTileResult.Success)
                         ExecuteActions();
+                    else if (remainingResult == InstructionTileResult.Failure)
+                        _result = InstructionTileResult.Failure;
                 }
-                else if (result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
+                else if (firstTileResult == InstructionTileResult.Failure)
                 {
-                    //if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
-                    _result = result;
-                    MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
+                    _result = firstTileResult;
+
+                    if (!HasConditional() || HasTickAfter())
+                    {
+                        //if(_brain.LoggingEnabled) Debug.Log($"TICK IT needed first file failed #{_page.Instructions.IndexOf(this)}  {_result} {Time.frameCount} {_instructionTiles[0]}", _brain.Body.Transform.gameObject);
+                        MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
+                    }
                 }
-                else if (result == InstructionTileResult.Failure)
-                    _result = result;
             }
 
             ClearInputs();
+            instructionSucceeded = _result != InstructionTileResult.Failure;
         }
 
         private void ClearInputs()
@@ -389,7 +399,7 @@ namespace Mona.SDK.Brains.Core.Control
             }
         }
 
-        private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, InstructionEvent evt = default)
+        private InstructionTileResult ExecuteFirstTile(InstructionEventTypes eventType, bool elseOkay, InstructionEvent evt = default)
         {
             if (_unloaded) return InstructionTileResult.Failure;
             if (_paused) return InstructionTileResult.Failure;
@@ -428,12 +438,17 @@ namespace Mona.SDK.Brains.Core.Control
                             return ExecuteTile(tile);
                         break;
                     case InstructionEventTypes.Tick:
-                        if ((tile is IActionInstructionTile || HasTickAfter()) && (evt.Instruction == this)) //_brain.Body.HasControl() && 
+                        //if ((tile is IActionInstructionTile || HasTickAfter()) && (evt.Instruction == this)) //_brain.Body.HasControl() &&
+                        if ((tile is IActionInstructionTile) && (evt.Instruction == this)) //_brain.Body.HasControl() && 
                         {
                             //_result = InstructionTileResult.Running;
                             //Debug.Log($"execute tick");
                             ExecuteActionTile(tile);
                         }
+                        else if ((tile is IConditionInstructionTile || HasTickAfter()) && (evt.Instruction == this || (_hasElseTile && elseOkay))) 
+                        {
+                            return ExecuteTile(tile);
+                        }    
                         break;
                     case InstructionEventTypes.Blockchain:
                         if (BlockchainTiles.Count > 0)
