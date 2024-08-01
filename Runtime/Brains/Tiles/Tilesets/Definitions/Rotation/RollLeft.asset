@@ -13,25 +13,29 @@ MonoBehaviour:
   m_Name: RollLeft
   m_EditorClassIdentifier: 
   _tile:
-    rid: 3250164503775543335
+    rid: 7806237917450338465
   _id: Roll Left
-  _name: "Rotate \u21B6 Roll Left"
+  _name: Roll Left
   _category: Rotation
   references:
     version: 2
     RefIds:
-    - rid: 3250164503775543335
-      type: {class: RollLeftInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement, asm: com.monaverse.sdk.brains.runtime}
+    - rid: 7806237917450338465
+      type: {class: RollLeftInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Movement,
+        asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: Roll Left
-        _name: "Rotate \u21B6 Roll Left"
-        _category: Rotation
+        _id: 
+        _name: 
+        _category: 
+        _muted: 0
+        _rotationAngles: {x: 0, y: 0, z: 0}
+        _rotationAnglesName: []
         _angle: 90
         _angleValueName: 
-        _easing: 1
         _mode: 1
         _value: 1
         _valueValueName: 
-        _usePhysics: 0
+        _easing: 1
+        _space: 0
         _onlyTurnWhenMoving: 0
         _lookStraightAhead: 0
