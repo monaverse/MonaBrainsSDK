@@ -161,8 +161,18 @@ namespace Mona.Networking
             while (!monaBody.Started)
                 await new WaitForSeconds(.1f);
 
+            if(monaBody.IsSceneObject && !MonaGlobalBrainRunner.Instance.IsHost)
+            {
+                while(BrainsNormcoreMonaBodyNetworkBehaviour.FindByLocalId(monaBody.LocalId) == null)
+                {
+                    Debug.Log($"waiting for network object to spawn; {monaBody.LocalId}");
+                    await new WaitForSeconds(.1f);
+                }
+
+            }
+
             //Debug.Log($"{nameof(MonaNetworkSpawner)} spawning {monaBody.name}");
-            //Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(RegisterMonaBody)} {monaBody.name} {monaBody.LocalId}");
+            Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(RegisterMonaBody)} {monaBody.name} {monaBody.LocalId}");
             ReconcileNetworkMonaBody(monaBody);
         }
 
@@ -235,7 +245,8 @@ namespace Mona.Networking
                        monaBody.PlayerSet,
                        monaBody.PlayerId,
                        monaBody.ClientId,
-                       monaBody.PlayerName);
+                       monaBody.PlayerName,
+                       monaBody.Audience);
             }
             else
             {
@@ -253,7 +264,8 @@ namespace Mona.Networking
                     monaBody.PlayerSet,
                     monaBody.PlayerId,
                     monaBody.ClientId,
-                    monaBody.PlayerName);
+                    monaBody.PlayerName,
+                    monaBody.Audience);
             }
         }
 
@@ -366,12 +378,12 @@ namespace Mona.Networking
         
         }
 
-        public void SpawnNetworkMonaBodyRPC(string localId, bool isSceneObject, bool locallyOwnedMonaBody, string prefabId, MonaBodyNetworkSyncType syncType, bool syncPositionAndRotation, Vector3 position, Quaternion rotation, Vector3 scale, int variablesCount = 0, string name = null, bool playerSet = false, int playerId = 0, int clientId = 0, string playerName = null)
+        public void SpawnNetworkMonaBodyRPC(string localId, bool isSceneObject, bool locallyOwnedMonaBody, string prefabId, MonaBodyNetworkSyncType syncType, bool syncPositionAndRotation, Vector3 position, Quaternion rotation, Vector3 scale, int variablesCount = 0, string name = null, bool playerSet = false, int playerId = 0, int clientId = 0, string playerName = null, bool audicence = false)
         {
             SpawnNetworkMonaBody(localId, isSceneObject, locallyOwnedMonaBody, prefabId, syncType, syncPositionAndRotation, position, rotation, scale, variablesCount, name, playerSet, playerId, clientId, playerName);
         }
 
-        public void SpawnNetworkMonaBody(string localId, bool isSceneObject, bool locallyOwnedMonaBody, string prefabId, MonaBodyNetworkSyncType syncType, bool syncPositionAndRotation, Vector3 position, Quaternion rotation, Vector3 scale, int variablesCount = 0, string name = null, bool playerSet = false, int playerId = 0, int clientId = 0, string playerName = null)
+        public void SpawnNetworkMonaBody(string localId, bool isSceneObject, bool locallyOwnedMonaBody, string prefabId, MonaBodyNetworkSyncType syncType, bool syncPositionAndRotation, Vector3 position, Quaternion rotation, Vector3 scale, int variablesCount = 0, string name = null, bool playerSet = false, int playerId = 0, int clientId = 0, string playerName = null, bool audience = false)
         {
             //Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(SpawnNetworkMonaBodyRPC)} {localId} {prefabId} me: {realtime.clientID}");
             var existingNetworkMonaBody = BrainsNormcoreMonaBodyNetworkBehaviour.FindByLocalId(localId);
@@ -416,7 +428,7 @@ namespace Mona.Networking
                 networkObject.GetComponent<INetworkMonaBodyClient>().SetSyncPositionAndRigidbody(syncPositionAndRotation);
 
                 if(playerSet)
-                    networkObject.GetComponent<INetworkMonaBodyClient>().SetPlayer(playerId, clientId, playerName);
+                    networkObject.GetComponent<INetworkMonaBodyClient>().SetPlayer(playerId, clientId, playerName, audience);
                 //if (networkObject.GetComponent<INetworkMonaVariables>() != null)
                 //    networkObject.GetComponent<INetworkMonaVariables>().SetIdentifier(localId, 0, isSceneObject ? null : prefabId, locallyOwnedMonaBody);
             }

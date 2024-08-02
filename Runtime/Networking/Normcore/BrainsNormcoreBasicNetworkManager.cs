@@ -15,47 +15,49 @@ using UnityEngine.UI;
 using Mona.SDK.Brains.ThirdParty.Redcode.Awaiting;
 using Normal.Realtime.Serialization;
 using System.Threading.Tasks;
+using UnityEngine.Events;
 
 namespace Mona.Networking
 {
-    public interface IBrainsNormcoreNetworkManager
+    public class BrainsNormcoreBasicNetworkManager : RealtimeComponent<BrainsRoomModel>, IBrainsNormcoreNetworkManager
     {
-        void RegisterPlayerBody(IMonaBody body);
-        void UnregisterPlayerBody(int clientId);
-        void Join(string room);
-        void SpawnPlayer();
-    }
-
-    public class BrainsNormcoreNetworkManager : RealtimeComponent<BrainsRoomModel>, IBrainsNormcoreNetworkManager
-    {
-        public Action<Room> OnRoomJoined = delegate { };
+        public int MaxPlayers = 10;
+        public Vector3 AvatarStartPosition;
 
         private Realtime _realtime;
         
-
         public GameObject _networkSpawner;
         public GameObject _avatarLocalPrefab;
         public GameObject _avatarRemotePrefab;
         public GameObject[] _spawnPoints;
-        public TMPro.TMP_InputField _roomInput;
-        public bool _joinOnStart;
-        public Button _joinButton;
-        public Button _startButton;
-        public Button _carButton;
-        public Button _ballButton;
-        public Image _mainPanel;
-        public Image _bigLogo;
-        public Image _smallLogo;
-        public Camera _titleCamera;
-        public GameObject _panel;
-        public MonaBody _statusPanel;
-        public TMPro.TextMeshProUGUI _statusText;
         public BrainsNetworkPlayerService _networkPlayerService;
+
+        public bool _joinOnStart;
+        public bool _showRoomUIOnStart;
+        public bool _spawnAvatarOnConnect = true;
+
+        public Action<Room> OnRoomJoined = delegate { };
+        public UnityEvent<string> OnRoomJoinedUnityEvent;
+
+        public Action OnShowRoomUI = delegate { };
+        public Action OnHideRoomUI = delegate { };
+
+        public UnityEvent OnShowRoomUIUnityEvent;
+        public UnityEvent OnHideRoomUIUnityEvent;
+
+        public Action OnShowStartUI = delegate { };
+        public Action OnHideStartUI = delegate { };
+
+        public UnityEvent OnShowStartUIUnityEvent;
+        public UnityEvent OnHideStartUIUnityEvent;
+
+        public Action<string> OnStatusChanged = delegate { };
+        public UnityEvent<string> OnStatusChangedUnityEvent;
+
+
 
         private Action<NetworkSpawnerInitializedEvent> OnNetworkSpawnerInitialized;
         private Action<MonaPlayerChangedEvent> OnPlayerChangedEvent;
-
-        public static IBrainsNormcoreNetworkManager Instance;
 
         public int PlayerCount => model.players.Count;
 
@@ -64,8 +66,8 @@ namespace Mona.Networking
 
         private void Awake()
         {
-            if (Instance == null)
-                Instance = this;
+            if (BrainsNormcoreNetworkManager.Instance == null)
+                BrainsNormcoreNetworkManager.Instance = this;
 
             _realtime = GetComponent<Realtime>();
             _realtime.didConnectToRoom += DidConnectToRoom;
@@ -93,31 +95,26 @@ namespace Mona.Networking
                 {
                     _realtime.Connect(_realtime.roomToJoinOnStart);
                 }
-                ShowRoom();
+                if(_showRoomUIOnStart)
+                    ShowRoomUI();
             }
         }
 
         public void Join(string room)
         {
             UpdateStatus("Connecting...");
-            HideRoomConnect();
+            HideRoomUI();
 
             _ready = false;
-
-            if (!string.IsNullOrEmpty(_roomInput.text))
-                _realtime.Connect(_roomInput.text);
-            else
-                _realtime.Connect(_realtime.roomToJoinOnStart);
+            _realtime.Connect(room);
         }
 
         private void DidConnectToRoom(Realtime realtime)
         {
             Debug.Log($"{nameof(DidConnectToRoom)}");
 
-            // Update the mesh render to match the new model
-            //if (isUnownedInHierarchy)
-            //    realtimeView.RequestOwnershipOfSelfAndChildren();
             OnRoomJoined?.Invoke(realtime.room);
+            OnRoomJoinedUnityEvent?.Invoke(realtime.room.name);
 
             if (isUnownedInHierarchy)
             {
@@ -128,12 +125,12 @@ namespace Mona.Networking
                 ClaimClient();
             }
 
-            ShowStart();
+            ShowStartUI();
         }
 
         private void DidDisconnectFromRoom(Realtime realtime)
         {
-            ShowRoom();
+            ShowRoomUI();
         }
 
         public bool _ready;
@@ -171,6 +168,7 @@ namespace Mona.Networking
         private void HandlePlayerAdded(RealtimeSet<BrainsPlayerModel> set, BrainsPlayerModel model, bool remote)
         {
             model.nameDidChange += HandlePlayerNameChanged;
+            model.audienceDidChange += HandleAudienceChanged;
 
             if (model.clientID == realtime.clientID)
             {
@@ -183,13 +181,13 @@ namespace Mona.Networking
                 MonaGlobalBrainRunner.Instance.PlayerBody.SetInitialTransforms(position, rotation);
                 MonaGlobalBrainRunner.Instance.PlayerBody.TeleportPosition(position);
                 MonaGlobalBrainRunner.Instance.PlayerBody.TeleportRotation(rotation);
-
             }
         }
 
         private void HandlePlayerRemoved(RealtimeSet<BrainsPlayerModel> set, BrainsPlayerModel model, bool remote)
         {
             model.nameDidChange -= HandlePlayerNameChanged;
+            model.audienceDidChange -= HandleAudienceChanged;
 
             Debug.Log($"{nameof(HandlePlayerRemoved)} Teleport: {model.playerID} {model.name}");
 
@@ -198,6 +196,16 @@ namespace Mona.Networking
         private void HandlePlayerNameChanged(BrainsPlayerModel model, string name)
         {
             Debug.Log($"Player {model.playerID} changed their name to {name}");
+        }
+
+        private void HandleAudienceChanged(BrainsPlayerModel model, bool audience)
+        {
+            if(model.clientID == realtime.clientID)
+            {
+                //it me!
+                MonaGlobalBrainRunner.Instance.PlayerBody.SetPlayer(model.playerID, model.clientID, model.name, model.audience, true);
+            }
+            Debug.Log($"Player {model.playerID} audience value is {audience}");
         }
 
         private void HandleOwnerIDChanged(RealtimeModel model, int id)
@@ -218,70 +226,54 @@ namespace Mona.Networking
             realtimeView.RequestOwnershipOfSelfAndChildren();
             MakeMonaBodiesUnique();
             CreateNetworkSpawner();
+
             _isHost = true;
             MonaGlobalBrainRunner.Instance.IsHost = _isHost;
-            SpawnAvatar(true);
+
+            if(_spawnAvatarOnConnect)
+                SpawnAvatar(true);
         }
 
         private void ClaimClient()
         {
-            Debug.Log($"{nameof(ClaimClient)}");
-            MakeMonaBodiesUnique();
             _isHost = false;
             MonaGlobalBrainRunner.Instance.IsHost = _isHost;
-            SpawnAvatar();
+
+            Debug.Log($"{nameof(ClaimClient)}");
+            MakeMonaBodiesUnique();
+
+            if (_spawnAvatarOnConnect)
+                SpawnAvatar();
         }
 
-        private void HideRoomConnect()
+        private void HideRoomUI()
         {
-            _roomInput.gameObject.SetActive(false);
-            _joinButton.gameObject.SetActive(false);
+            OnHideRoomUI?.Invoke();
+            OnHideRoomUIUnityEvent?.Invoke();
         }
 
-        private void ShowRoom()
+        private void ShowRoomUI()
         {
-            _statusPanel?.gameObject.SetActive(false);
-            _roomInput.gameObject.SetActive(true);
-            _joinButton.gameObject.SetActive(true);
-            _startButton.gameObject.SetActive(false);
-            _titleCamera.gameObject.SetActive(true);
-            _carButton.gameObject.SetActive(false);
-            _ballButton.gameObject.SetActive(false);
-            _panel.gameObject.SetActive(true);
-            _smallLogo.gameObject.SetActive(false);
-            _bigLogo.gameObject.SetActive(true);
-            _mainPanel.enabled = true;
+            OnShowRoomUI?.Invoke();
+            OnShowRoomUIUnityEvent?.Invoke();
         }
 
-        public void ShowStart()
+        public void ShowStartUI()
         {
-            _statusPanel?.gameObject.SetActive(false);
-            _joinButton.gameObject.SetActive(false);
-            _roomInput.gameObject.SetActive(false);
-            _startButton.gameObject.SetActive(true);
-            _carButton.gameObject.SetActive(true);
-            _ballButton.gameObject.SetActive(true);
-            _titleCamera.gameObject.SetActive(false);
-            _smallLogo.gameObject.SetActive(true);
-            _bigLogo.gameObject.SetActive(false);
-            _mainPanel.enabled = false;
+            OnShowStartUI?.Invoke();
+            OnShowStartUIUnityEvent?.Invoke();
         }
 
-        public void HideStart()
+        public void HideStartUI()
         {
-            _panel.gameObject.SetActive(false);
-            _startButton.gameObject.SetActive(false);
-            _carButton.gameObject.SetActive(false);
-            _ballButton.gameObject.SetActive(false);
-            _smallLogo.gameObject.SetActive(false);
-            _bigLogo.gameObject.SetActive(false);
-            _mainPanel.enabled = false;
+            OnHideStartUI?.Invoke();
+            OnHideStartUIUnityEvent?.Invoke();
         }
 
         private void UpdateStatus(string text)
         {
-            _statusPanel?.gameObject.SetActive(true);
-            _statusText.text = text;
+            OnStatusChanged?.Invoke(text);
+            OnStatusChangedUnityEvent?.Invoke(text);
         }
 
         private bool _spawned;
@@ -297,10 +289,10 @@ namespace Mona.Networking
             _spawned = true;
 
             var player = await AddPlayer();
-            
+
             if (_avatarLocalPrefab != null)
             {
-                var position = Vector3.up * 10f;
+                var position = AvatarStartPosition;
                 var avatar = GameObject.Instantiate(_avatarLocalPrefab, position, Quaternion.identity);
                 avatar.GetComponent<MonaBodyBase>().MakeUnique(player.clientID, true);
                 avatar.GetComponent<MonaBodyBase>().PrefabId = _avatarRemotePrefab.name;
@@ -311,7 +303,7 @@ namespace Mona.Networking
             }
 
             MonaGlobalBrainRunner.Instance.PlayerId = player.clientID;
-            MonaGlobalBrainRunner.Instance.IsHost = isHost;
+            MonaGlobalBrainRunner.Instance.IsHost = isHost;           
 
         }
 
@@ -361,6 +353,7 @@ namespace Mona.Networking
                 var player = new BrainsPlayerModel();
                 player.clientID = body.ClientId;
                 player.playerID = model.PLAYER_ID;
+                player.audience = (model.players.Count > MaxPlayers);
 
                 if (!string.IsNullOrEmpty(body.PlayerName))
                     player.name = body.PlayerName;
@@ -404,6 +397,26 @@ namespace Mona.Networking
                 model.players.Remove(playerLeft);
                 //model.PLAYER_ID = model.players.Count+1;
                 Debug.Log($"{nameof(UnregisterPlayerBody)} {playerLeft.name} {playerLeft.clientID} player left");
+                RecalculateAudience();
+            }
+        }
+
+        private void RecalculateAudience()
+        {
+            var players = model.players.GetEnumerator();
+            var playerList = new List<BrainsPlayerModel>();
+            while (players.MoveNext())
+                playerList.Add(players.Current);
+
+            playerList.Sort((a, b) => a.playerID.CompareTo(b.playerID));
+
+            for (var i = 0; i < playerList.Count; i++)
+            {
+                var player = playerList[i];
+                if (i < MaxPlayers)
+                    player.audience = false;
+                else
+                    player.audience = true;
             }
         }
 
@@ -416,7 +429,7 @@ namespace Mona.Networking
                 {
                     player.name = name;
                     var body = MonaGlobalBrainRunner.Instance.PlayerBody;
-                    body.SetPlayer(body.PlayerId, body.ClientId, name, true);
+                    body.SetPlayer(body.PlayerId, body.ClientId, name, player.audience, true);
                     return;
                 }
             }

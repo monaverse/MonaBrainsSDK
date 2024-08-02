@@ -54,6 +54,7 @@ namespace Mona.Networking
         private bool _playerSet;
         private bool _isPlayer;
         private string _playerName;
+        private bool _audience;
         private int _playerId;
         private int _clientId;
         private bool _isRemote;
@@ -104,7 +105,7 @@ namespace Mona.Networking
                 MonaBody.AddTag(MonaBrainConstants.TAG_PLAYER);
             }
 
-            MonaBody.SetPlayer(_playerId, _clientId, _playerName, isNetworked: false);
+            MonaBody.SetPlayer(_playerId, _clientId, _playerName, _audience, isNetworked: false);
 
             BrainsNormcoreNetworkManager.Instance.RegisterPlayerBody(MonaBody);
         }
@@ -177,11 +178,11 @@ namespace Mona.Networking
             MonaBody.SetLayer(model.currentLayer.layer.ToString(), model.currentLayer.includeChildren, isNetworked: false);
         }
 
-        public void SetPlayer(int playerId, int clientId, string name)
+        public void SetPlayer(int playerId, int clientId, string name, bool audience)
         {
-            Debug.Log($"{nameof(SetPlayer)} playerId {playerId} clientId {clientId} name {name}");
+            Debug.Log($"{nameof(SetPlayer)} playerId {playerId} clientId {clientId} name {name} audience {audience}");
             _playerSet = true;
-            model.player.SetPlayer(playerId, clientId, name);
+            model.player.SetPlayer(playerId, clientId, name, audience);
         }
 
         public void SetIdentifier(string localId, string prefabId, bool locallyOwnedMonaBody)

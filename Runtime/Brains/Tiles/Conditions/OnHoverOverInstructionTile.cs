@@ -293,14 +293,31 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             if (Mouse.current != null)
                 pos = Mouse.current.position.ReadValue();
 
-            Ray ray = MonaGlobalBrainRunner.Instance.PlayerCamera.ScreenPointToRay(pos);
-
+            Ray ray;
+            if (MonaGlobalBrainRunner.Instance.PlayerCamera != null)
+                ray = MonaGlobalBrainRunner.Instance.PlayerCamera.ScreenPointToRay(pos);
+            else if (Camera.main != null)
+                ray = Camera.main.ScreenPointToRay(pos);
+            else
+                return false;
             //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
 
             if (Physics.Raycast(ray, out hit, _distance))
             {
-                if (hit.transform == targetBody.Transform)
+                bool found = false;
+                Transform t = hit.collider.transform;
+                while (t != null)
+                {
+                    if (t == targetBody.Transform)
+                    {
+                        found = true;
+                        break;
+                    }
+                    t = t.parent;
+                }
+
+                if (found)
                 {
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_TARGET, targetBody);
                     _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);

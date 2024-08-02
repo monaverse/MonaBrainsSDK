@@ -18,13 +18,17 @@ namespace Mona.Networking
         [RealtimeProperty(4, true, true)]
         private string _name;
 
+        [RealtimeProperty(5, true, true)]
+        private bool _audience;
+
         // Used to fire an event on all clients
-        public void SetPlayer(int playerID, int clientID, string name)
+        public void SetPlayer(int playerID, int clientID, string name, bool audience = false)
         {
             this.trigger++;
             this.playerID = playerID;
             this.clientID = clientID;
             this.name = name;
+            this.audience = audience;
         }
 
         // An event that consumers of this model can subscribe to in order to respond to the event
