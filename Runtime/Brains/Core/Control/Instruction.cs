@@ -302,6 +302,9 @@ namespace Mona.SDK.Brains.Core.Control
                 //Debug.Log($"{nameof(HandleStateAuthorityChanged)} {_result}");
                 MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain.Body), new InstructionEvent(InstructionEventTypes.Authority));
             }
+            else
+                Debug.Log($"{nameof(HandleStateAuthorityChanged)} NOT IN CONTROL", _brain.Body.Transform);
+            }
         }
 
         private Func<InstructionTileCallback, InstructionTileResult> _executeCallbackDelegate;
@@ -329,8 +332,8 @@ namespace Mona.SDK.Brains.Core.Control
 
             if (_result == InstructionTileResult.WaitingForAuthority)
             {
-                instructionSucceeded = true;
-                return;
+                //instructionSucceeded = true;
+                //return;
             }
             else if (IsRunning())
             {
@@ -455,11 +458,12 @@ namespace Mona.SDK.Brains.Core.Control
                             ExecuteActionTile(tile);
                         break;
                     case InstructionEventTypes.Authority:
+
+                        if (_brain.Body.HasControl())
+                            ResetExecutionLinks();
+
                         if (HasTilesNeedingAuthority())
                         {
-                            if (_brain.Body.HasControl())
-                                ResetExecutionLinks();
-
                             _result = InstructionTileResult.Running;
 
                             if (!HasConditional())
@@ -643,7 +647,7 @@ namespace Mona.SDK.Brains.Core.Control
                 if (!_brain.Body.HasControl())
                 {
                     //if(_brain.LoggingEnabled)
-                    Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority to run this instruction. {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
+                    //Debug.Log($"{nameof(Instruction)}.{nameof(ExecuteActions)} i need authority to run this instruction. {_brain.Body.ActiveTransform.name}", _brain.Body.ActiveTransform.gameObject);
 
                     if (!HasTilesTakingAuthority())
                     {
@@ -715,7 +719,7 @@ namespace Mona.SDK.Brains.Core.Control
                 if (!HasConditional() || HasTickAfter())
                 {
                     //if(HasTickAfter())
-                    //    Debug.Log($"TICK IT success {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
+                    //Debug.Log($"TICK IT success {_result} #{_page.Instructions.IndexOf(this)} frame {Time.frameCount}", _brain.Body.Transform.gameObject);
              
                     MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
                 }
@@ -732,7 +736,7 @@ namespace Mona.SDK.Brains.Core.Control
                 if (_result == InstructionTileResult.Failure && (!HasConditional() || HasTickAfter()))
                 {
                     //if (HasTickAfter() && _brain.LoggingEnabled)
-                    //    Debug.Log($"TICK IT failure {_result} #{_page.Instructions.IndexOf(this)} ", _brain.Body.Transform.gameObject);
+                    //Debug.Log($"TICK IT failure {_result} #{_page.Instructions.IndexOf(this)} frame {Time.frameCount}", _brain.Body.Transform.gameObject);
                     MonaEventBus.Trigger(_brainEventHook, _instructionTickEvent);
                 }
                 
