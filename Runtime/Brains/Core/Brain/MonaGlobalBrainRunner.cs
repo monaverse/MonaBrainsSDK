@@ -99,6 +99,9 @@ namespace Mona.SDK.Brains.Core.Brain
         private PlayerInput _playerInput;
         public PlayerInput PlayerInput { get => _playerInput; set => _playerInput = value; }
 
+        public void EnablePlayerInput() => GetBrainInput().EnableInput();
+        public void DisablePlayerInput() => GetBrainInput().DisableInput();
+
         [SerializeField]
         private List<MonaBrainGraph> _playerBrainGraphs = new List<MonaBrainGraph>();
         public List<MonaBrainGraph> PlayerBrainGraphs => _playerBrainGraphs;

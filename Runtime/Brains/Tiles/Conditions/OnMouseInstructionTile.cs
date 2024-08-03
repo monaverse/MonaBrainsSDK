@@ -64,6 +64,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         public override InstructionTileResult Do()
         {
+            if(!MonaGlobalBrainRunner.Instance.GetBrainInput().IsInputEnabled())
+                return Complete(InstructionTileResult.Failure, MonaBrainConstants.NO_INPUT);
+
+
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 

@@ -15,5 +15,9 @@ namespace Mona.SDK.Brains.Core.Brain.Interfaces
         int StartListeningForKey(Key key, IInputInstructionTile tile);
         void StopListeningForKey(Key key, IInputInstructionTile tile);
         void SetTouchJoystickSettings(float gestureTimeout, float trueJoystickSize, float trueDeadZone);
+
+        void EnableInput();
+        void DisableInput();
+        bool IsInputEnabled();
     }
 }

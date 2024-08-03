@@ -158,6 +158,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void EnableInput() => _inputs.Player.Enable();
         public void DisableInput() => _inputs.Player.Disable();
+        public bool IsInputEnabled() => _inputs.Player.enabled;
 
         private Dictionary<MonaInputType, MonaInputState> _buttons = new Dictionary<MonaInputType, MonaInputState>();
         private Vector2 _moveValue;
