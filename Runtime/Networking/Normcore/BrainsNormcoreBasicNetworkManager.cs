@@ -33,6 +33,7 @@ namespace Mona.Networking
         public BrainsNetworkPlayerService _networkPlayerService;
 
         public bool _joinOnStart;
+        public bool _joinOnRoom;
         public bool _showRoomUIOnStart;
         public bool _spawnAvatarOnConnect = true;
 
@@ -63,9 +64,29 @@ namespace Mona.Networking
 
         private string _playerName;
         private bool _isHost;
+        private string _roomToJoin;
+
+        public void TrigggerOnJoinRoom()
+        {
+            OnRoomJoined?.Invoke(null);
+            OnRoomJoinedUnityEvent?.Invoke("");
+        }
 
         private void Awake()
         {
+            if (_joinOnRoom)
+            {
+                var url = Application.absoluteURL;// + "?room=test";
+                var p = ParseUrl(url);
+                if (p.ContainsKey("room"))
+                {
+                    MonaGlobalBrainRunner.Instance.NetworkSettings.NetworkType = SDK.Core.Network.Enums.MonaNetworkType.Shared;
+                    _roomToJoin = p["room"];
+                    _joinOnStart = true;
+                }
+            }
+
+
             if (BrainsNormcoreNetworkManager.Instance == null)
                 BrainsNormcoreNetworkManager.Instance = this;
 
@@ -93,7 +114,7 @@ namespace Mona.Networking
             {
                 if (_joinOnStart)
                 {
-                    _realtime.Connect(_realtime.roomToJoinOnStart);
+                    _realtime.Connect(!string.IsNullOrEmpty(_roomToJoin) ? _roomToJoin : _realtime.roomToJoinOnStart);
                 }
                 if(_showRoomUIOnStart)
                     ShowRoomUI();
@@ -298,7 +319,8 @@ namespace Mona.Networking
                 avatar.GetComponent<MonaBodyBase>().PrefabId = _avatarRemotePrefab.name;
                 avatar.GetComponent<IMonaBody>().SetPlayer(player.clientID, player.clientID, player.name, player.audience);
 
-                MonaGlobalBrainRunner.Instance.PlayerCamera = avatar.GetComponentInChildren<Camera>();
+                if(avatar.GetComponentInChildren<Camera>() != null)
+                    MonaGlobalBrainRunner.Instance.PlayerCamera = avatar.GetComponentInChildren<Camera>();
                 MonaGlobalBrainRunner.Instance.PlayerBody = avatar.GetComponent<IMonaBody>();
             }
 
@@ -512,6 +534,22 @@ namespace Mona.Networking
 
         }
 
+        private Dictionary<string, string> ParseUrl(string url)
+        {
+            var query = url.Split('?');
+            string[] parameters = new string[0];
+            if (query.Length > 1)
+                parameters = query[1].Split('&');
+
+            var urlParams = new Dictionary<string, string>();
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                var rawParam = parameters[i].Split('=');
+                if (!urlParams.ContainsKey(rawParam[0]))
+                    urlParams.Add(rawParam[0], System.Uri.UnescapeDataString(rawParam[1]));
+            }
+            return urlParams;
+        }
     }
 
 }
