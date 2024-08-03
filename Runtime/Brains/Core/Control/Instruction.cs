@@ -303,6 +303,7 @@ namespace Mona.SDK.Brains.Core.Control
                 MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BRAIN_TICK_EVENT, _brain.Body), new InstructionEvent(InstructionEventTypes.Authority));
             }
             else
+            {
                 Debug.Log($"{nameof(HandleStateAuthorityChanged)} NOT IN CONTROL", _brain.Body.Transform);
             }
         }
