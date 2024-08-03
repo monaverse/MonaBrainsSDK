@@ -29,10 +29,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             if (_brain != null)
             {
+                _brain.Body.OnTeleported -= HandleTeleported;
+                _brain.Body.OnTeleported += HandleTeleported;
                 _brain.Body.TeleportRotation(_brain.Body.InitialRotation, true);
-                return Complete(InstructionTileResult.Success);
+                return _brain.Body.ActiveRigidbody != null ? Complete(InstructionTileResult.Running) : Complete(InstructionTileResult.Success);
             }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+        }
+
+        private void HandleTeleported()
+        {
+            //Debug.Log($"{nameof(HandleTeleported)} ", _brain.Body.Transform.gameObject);
+            _brain.Body.OnTeleported -= HandleTeleported;
+            Complete(InstructionTileResult.Success, true);
         }
 
     }

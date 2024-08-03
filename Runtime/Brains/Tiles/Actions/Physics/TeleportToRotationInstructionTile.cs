@@ -70,7 +70,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 }
                 else
                     _brain.Body.TeleportRotation(Quaternion.Euler(_value), true);
-                return Complete(InstructionTileResult.Running);
+                return _brain.Body.ActiveRigidbody != null ? Complete(InstructionTileResult.Running) : Complete(InstructionTileResult.Success);
             }   
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
