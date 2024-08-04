@@ -215,6 +215,7 @@ namespace Mona.SDK.Brains.Core.Brain
         }
 
         private Action<MonaBrainReloadEvent> OnHotReload;
+        private Action<NetworkSpawnerInitializedEvent> OnNetworkSpawnerInitialized;
 
         private List<string> _tags = new List<string>();
         public List<string> MonaTags
@@ -269,14 +270,30 @@ namespace Mona.SDK.Brains.Core.Brain
         private void Awake()
         {
             _brainInstances.Clear();
-            AddMonaAssetsToNetwork();
             EnsureGlobalRunnerExists();
             CacheComponents();
             InitVariableCache();
             AddHotReloadDelegates();
             DetectRigidbody();
             LoadUrl();
+            AddNetworkSpawnerDelegate();
             //Debug.Log($"{nameof(MonaBrainRunner)} {nameof(Awake)} {gameObject.name}", gameObject);
+        }
+
+        private void AddNetworkSpawnerDelegate()
+        {
+            OnNetworkSpawnerInitialized = HandleNetworkSpawnerInitialized;
+            MonaEventBus.Register(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_INITIALIZED_EVENT), OnNetworkSpawnerInitialized);
+        }
+
+        private void RemoveNetworkSpawnerDelegate()
+        {
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_INITIALIZED_EVENT), OnNetworkSpawnerInitialized);
+        }
+
+        private void HandleNetworkSpawnerInitialized(NetworkSpawnerInitializedEvent evt)
+        {
+            AddMonaAssetsToNetwork();
         }
 
         private void AddMonaAssetsToNetwork()
@@ -776,6 +793,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private void OnDestroy()
         {
             RemoveHotReloadDelegates();
+            RemoveNetworkSpawnerDelegate();
             UnloadBrains(destroy:true);
         }
 
