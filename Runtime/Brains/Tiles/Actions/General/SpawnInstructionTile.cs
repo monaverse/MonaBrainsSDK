@@ -106,6 +106,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private bool _enableAll;
         [BrainProperty(false)] public bool EnableAll { get => _enableAll; set => _enableAll = value; }
 
+        [SerializeField] private bool _ownedByMe;
+        [BrainProperty(false)] public bool OwnedByMe { get => _ownedByMe; set => _ownedByMe = value; }
+
+        [SerializeField] private bool _networked = true;
+        [BrainProperty(false)] public bool Networked { get => _networked; set => _networked = value; }
+
         protected IMonaBrain _brain;
         private Transform _defaultParent;
         private IMonaBodyAssetItem _item;
@@ -212,8 +218,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                             lights[i].gameObject.SetActive(false);
                     }
 
+                    var guid = Guid.NewGuid();
                     var body = glb.GetComponent<IMonaBody>();
+                    if (body == null)
+                        body = glb.AddComponent<MonaBody>();
+
+                    body.SyncType = _networked ? MonaBodyNetworkSyncType.NetworkTransform : MonaBodyNetworkSyncType.NotNetworked;
+                    body = MonaBodyBase.Spawn(guid, prefabId, 0, (MonaBody)body, false, Vector3.up*10000f, Quaternion.identity, _ownedByMe);
+
                     var bodies = glb.GetComponentsInChildren<IMonaBody>();
+                    Debug.Log($"GENERATE GUID {guid} {prefabId}");
                     for (var j = 0; j < bodies.Length; j++)
                     {
                         var child = bodies[j];
@@ -225,7 +239,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                             if (!_pool.ContainsKey(prefabId))
                                 _pool.Add(prefabId, new List<IMonaBody>());
 
-                            ((MonaBodyBase)child).PrefabId = prefabId;
                             child.OnBodyDisabled += HandleBodyDisabled;
                             if (disable)
                             {
@@ -235,9 +248,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                             if (_hidden)
                                 child.SetVisible(false);
                         }
-
-                        ((MonaBodyBase)child).MakeUnique(_brain.Player.PlayerId, true);
-                        MonaEventBus.Trigger<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), new MonaBodyInstantiatedEvent(child));
                     }
                 }
                 callback?.Invoke(glb);
@@ -257,7 +267,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     lights[i].gameObject.SetActive(false);
             }
 
-            var body = (IMonaBody)GameObject.Instantiate(monaBody, Vector3.up*10000f, Quaternion.identity);
+            var guid = Guid.NewGuid();
+            var body = MonaBodyBase.Spawn(guid, prefabId, 0, monaBody, true, Vector3.up*10000f, Quaternion.identity, _ownedByMe);
+                body.SyncType = _networked ? MonaBodyNetworkSyncType.NetworkTransform : MonaBodyNetworkSyncType.NotNetworked;
 
             var bodies = body.Transform.GetComponentsInChildren<IMonaBody>();
             for (var j = 0; j < bodies.Length; j++)
@@ -271,7 +283,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     if (!_pool.ContainsKey(prefabId))
                         _pool.Add(prefabId, new List<IMonaBody>());
 
-                    ((MonaBodyBase)child).PrefabId = prefabId;
                     child.OnBodyDisabled += HandleBodyDisabled;
                     if (disable)
                     {
@@ -281,9 +292,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     if (_hidden)
                         child.SetVisible(false);
                 }
-
-                ((MonaBodyBase)child).MakeUnique(_brain.Player.PlayerId, true);
-                MonaEventBus.Trigger<MonaBodyInstantiatedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_INSTANTIATED), new MonaBodyInstantiatedEvent(child));
             }
             return body;
         }
@@ -437,18 +445,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         { 
             poolItem.ChildIndex = index;
 
-            var offset = _offset;
-            if (HasVector3Values(_offsetName))
-                offset = GetVector3Value(_brain, _offsetName);
-
-            var eulerAngles = _eulerAngles;
-            if (HasVector3Values(_eulerAnglesName))
-                eulerAngles = GetVector3Value(_brain, _eulerAnglesName);
-
-            var scale = _scale;
-            if (HasVector3Values(_scaleName))
-                scale = GetVector3Value(_brain, _scaleName);
-
             //Debug.Log($"{nameof(SpawnInstructionTile)} {poolItem}", poolItem.Transform.gameObject);
 
             if (poolItem.ActiveRigidbody != null)
@@ -463,16 +459,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             poolItem.SetTransformParent(parent);
 
-            Vector3 position = body.GetPosition() + body.GetRotation() * offset;
-            Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
-
             poolItem.Transform.localScale = Vector3.one;
             var parsed = ChangeAvatarInstructionTile.ParseHumanoid(poolItem.Transform.gameObject);
+
             RecalculateSize(poolItem, parsed.Avatar != null);
-
-            poolItem.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
-
-            poolItem.TeleportPosition(position);
 
             poolItem.OnAfterEnabled -= HandleAfterEnabled;
             poolItem.OnAfterEnabled += HandleAfterEnabled;
@@ -506,19 +496,32 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         }
 
-        private void RecalculateSize(IMonaBody avatarGameObject, bool isAvatar)
-        {
 
-            var bounds = avatarGameObject.GetBounds();
+        private void RecalculateSize(IMonaBody avatar, bool isAvatar)
+        {
+            var offset = _offset;
+            if (HasVector3Values(_offsetName))
+                offset = GetVector3Value(_brain, _offsetName);
+
+            var scale = _scale;
+            if (HasVector3Values(_scaleName))
+                scale = GetVector3Value(_brain, _scaleName);
+
+            var eulerAngles = _eulerAngles;
+            if (HasVector3Values(_eulerAnglesName))
+                eulerAngles = GetVector3Value(_brain, _eulerAnglesName);
+
+            var avatarGameObject = avatar.Transform.gameObject;
+            var bounds = GetBounds(avatarGameObject.gameObject);
             var extents = bounds.extents * 2f;
             var avatarFactor = isAvatar ? .2f : 1f;
 
             extents.x *= avatarFactor;
             extents.z *= avatarFactor;
 
-            //Debug.Log($"extents: {extents} scale:{_scale}");
+            Debug.Log($"extents: {extents} scale:{scale}");
 
-            var boxScale = new Vector3(_scale.x / extents.x, _scale.y / extents.y, _scale.z / extents.z);
+            var boxScale = new Vector3(scale.x / extents.x, scale.y / extents.y, scale.z / extents.z);
             var index = 0;
             var max = extents.x;
             if (extents.y > max)
@@ -530,7 +533,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             var maxBoxScale = boxScale[index];
             extents *= maxBoxScale;
-            //Debug.Log($"extents: {extents} {maxBoxScale}");
+            Debug.Log($"extents: {extents} {maxBoxScale}");
 
             var mostOverlap = -1;
             var mostOverlapDistance = 0f;
@@ -538,9 +541,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             {
                 if (index != i)
                 {
-                    if (extents[i] > _scale[i])
+                    if (extents[i] > scale[i])
                     {
-                        var d = extents[i] - _scale[i];
+                        var d = extents[i] - scale[i];
                         if (d > mostOverlapDistance)
                         {
                             mostOverlap = i;
@@ -551,17 +554,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
 
             if (mostOverlap > -1)
-                maxBoxScale *= _scale[mostOverlap] / extents[mostOverlap];
+                maxBoxScale *= scale[mostOverlap] / extents[mostOverlap];
 
             extents = bounds.extents * 2f * maxBoxScale;
-            //Debug.Log($"extents: {extents} {maxBoxScale} orig {bounds.extents * 2f} d:{mostOverlapDistance} i:{mostOverlap}");
+            Debug.Log($"extents: {extents} {maxBoxScale} orig {bounds.extents * 2f} d:{mostOverlapDistance} i:{mostOverlap}");
             //var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
-            //var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
+            //var maxScale = Mathf.Max(Mathf.Max(scale.x, scale.y), _cale.z);
             //var scale = maxScale / max;
 
 
 
             var offsetY = Vector3.up * (bounds.center.y - bounds.extents.y);
+            if (!_bottomPivot)
+                offsetY = Vector3.zero;
             /*
             Debug.Log($"{nameof(ChangeAvatarInstructionTile)} center: {bounds.center}");
             Debug.Log($"{nameof(ChangeAvatarInstructionTile)} extents: {bounds.extents}");
@@ -572,30 +577,33 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             Debug.Log($"{nameof(ChangeAvatarInstructionTile)} yscale factor: {extents.y / max}");
             */
 
-            var offset = _offset;
-            if (HasVector3Values(_offsetName))
-                offset = GetVector3Value(_brain, _offsetName);
+            avatarGameObject.transform.localScale = Vector3.one;
+            avatarGameObject.transform.localPosition = Vector3.zero;
+            avatarGameObject.transform.localRotation = Quaternion.Euler(_eulerAngles);
 
-            avatarGameObject.Transform.localScale = Vector3.one;
-            avatarGameObject.Transform.localPosition = Vector3.zero;
-            avatarGameObject.Transform.localRotation = Quaternion.Euler(_eulerAngles);
-
-            var childBrains = avatarGameObject.Transform.GetComponentsInChildren<IMonaBrainRunner>();
+            var childBrains = avatarGameObject.transform.GetComponentsInChildren<IMonaBrainRunner>();
             for (var i = 0; i < childBrains.Length; i++)
                 childBrains[i].CacheTransforms();
 
-            //Debug.Log($"{nameof(SpawnInstructionTile)} localPosition: {avatarGameObject.Transform.localPosition}");
+            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} localPosition: {avatarGameObject.transform.localPosition}");
+
+            Vector3 position = avatar.GetPosition() + avatar.GetRotation() * offset;
+            Quaternion rotation = avatar.GetRotation() * Quaternion.Euler(eulerAngles);
+
 
             if (_scaleToFit)
             {
-                avatarGameObject.SetScale(Vector3.one * maxBoxScale);
-                avatarGameObject.Transform.localPosition = (avatarGameObject.Transform.InverseTransformDirection(offset) - offsetY) * maxBoxScale;
+                scale = Vector3.one * maxBoxScale;
+                avatar.TeleportScale(scale);
+                avatar.TeleportPosition(position + (-offsetY) * maxBoxScale + offset);
             }
             else
             {
-                avatarGameObject.SetScale(_scale);
-                avatarGameObject.Transform.localPosition = (avatarGameObject.Transform.InverseTransformDirection(offset) - offsetY) * _scale.y;
+                avatar.TeleportScale(scale);
+                avatar.TeleportPosition(position + (-offsetY) * scale.y + offset);
             }
+
+            avatar.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
 
         }
 

@@ -2,6 +2,7 @@
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Events;
 using Mona.SDK.Brains.Core.State;
+using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Brains.ThirdParty.Redcode.Awaiting;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Assets.Interfaces;
@@ -280,8 +281,25 @@ namespace Mona.Networking
             }
             else if (!string.IsNullOrEmpty(networkMonaBody.PrefabId))
             {
+                Debug.Log($"{nameof(ReconcileMonaBody)} SPAWN A PREFAB {networkMonaBody.PrefabId}");
                 SpawnLocalMonaBody(networkMonaBody);
             }
+            else
+            {
+                EmptyPrefabWaitForSpawn(networkMonaBody);
+            }
+        }
+
+        private async void EmptyPrefabWaitForSpawn(INetworkMonaBodyClient networkMonaBody)
+        {
+            var monaBody = MonaBody.FindByLocalId(networkMonaBody.LocalId);
+            while (monaBody == null)
+            {
+                Debug.Log($"Waiting for another network object to spawn to match monaBody {networkMonaBody.LocalId}");
+                await new WaitForSeconds(.1f);
+                monaBody = MonaBody.FindByLocalId(networkMonaBody.LocalId);
+            }
+            BindNetworkAndMonaBody(networkMonaBody, (MonaBody)monaBody);
         }
 
         private void ReconcileNetworkMonaVariables(INetworkMonaBodyClient networkMonaBody, INetworkMonaVariables networkVariables)
@@ -296,11 +314,40 @@ namespace Mona.Networking
             }
         }
 
+        private bool IsUrl(string prefabId) => prefabId.ToLower().IndexOf("http") == 0;
+        private GameObject _glbLoader;
+        private BrainsGlbLoader _urlLoader;
+
         public void SpawnLocalMonaBody(INetworkMonaBodyClient networkMonaBody)
         {
             if (networkMonaBody == null) return;
             Debug.Log($"{nameof(MonaNetworkSpawner)}.{nameof(SpawnLocalMonaBody)} {networkMonaBody.PrefabId} localPlayer: {realtime.clientID} {networkMonaBody.HasControl()} Providers: {_providers.Count}");
             var found = true;
+
+            if(IsUrl(networkMonaBody.PrefabId))
+            {
+                if (_glbLoader == null)
+                    _glbLoader = new GameObject("GlbLoader");
+
+                _urlLoader = _glbLoader.GetComponent<BrainsGlbLoader>();
+                if (_urlLoader == null)
+                    _urlLoader = _glbLoader.AddComponent<BrainsGlbLoader>();
+
+                _urlLoader.Load(networkMonaBody.PrefabId, false, (obj) =>
+                {
+                    var body = obj.GetComponent<IMonaBody>();
+                    if (body == null)
+                        body = obj.AddComponent<MonaBody>();
+
+                    body.SyncType = MonaBodyNetworkSyncType.NetworkRigidbody;
+
+                    var monaBody = (MonaBody)MonaBodyBase.Spawn(new Guid(networkMonaBody.LocalId), networkMonaBody.PrefabId, 0, (MonaBody)body, false, networkMonaBody.NetworkTransform.position, networkMonaBody.NetworkTransform.rotation);
+                    BindNetworkAndMonaBody(networkMonaBody, monaBody);
+                    found = true;
+                });
+                return;
+            }
+
             if (_providers == null || _providers.Count == 0) found = false;
 
             if (_providers != null)
@@ -311,11 +358,7 @@ namespace Mona.Networking
                     var prefab = provider.GetMonaAsset<IMonaBodyAssetItem>((x) => x.PrefabId == networkMonaBody.PrefabId || (x.Value.GetComponent<MonaBodyBase>()?.PrefabId == networkMonaBody.PrefabId));
                     if (prefab != null)
                     {
-                        var monaBody = GameObject.Instantiate<MonaBody>(prefab.Value, networkMonaBody.NetworkTransform.position, networkMonaBody.NetworkTransform.rotation);
-                        monaBody.IsSceneObject = false;
-                        monaBody.SetDisableOnLoad(false);// ((INetworkMonaBodyServer)networkMonaBody).Active ? false : true;
-                        monaBody.transform.localScale = networkMonaBody.NetworkTransform.localScale;
-                        monaBody.LocalId = networkMonaBody.LocalId;
+                        var monaBody = (MonaBody)MonaBodyBase.Spawn(new Guid(networkMonaBody.LocalId), networkMonaBody.PrefabId, 0, (MonaBody)prefab.Value, true, networkMonaBody.NetworkTransform.position, networkMonaBody.NetworkTransform.rotation);
                         BindNetworkAndMonaBody(networkMonaBody, monaBody);
                         found = true;
                         break;
@@ -329,16 +372,11 @@ namespace Mona.Networking
                 var prefab = Resources.Load<MonaBody>(networkMonaBody.PrefabId);
                 if (prefab != null)
                 {
-                    var monaBody = GameObject.Instantiate<MonaBody>(prefab, networkMonaBody.NetworkTransform.position, networkMonaBody.NetworkTransform.rotation);
-                    monaBody.IsSceneObject = false;
-                    monaBody.SetDisableOnLoad(false);// ((INetworkMonaBodyServer)networkMonaBody).Active ? false : true;
-                    monaBody.transform.localScale = networkMonaBody.NetworkTransform.localScale;
-                    monaBody.LocalId = networkMonaBody.LocalId;
+                    var monaBody = (MonaBody)MonaBodyBase.Spawn(new Guid(networkMonaBody.LocalId), networkMonaBody.PrefabId, 0, (MonaBody)prefab, true, networkMonaBody.NetworkTransform.position, networkMonaBody.NetworkTransform.rotation);
                     BindNetworkAndMonaBody(networkMonaBody, monaBody);
                     found = true;
                 }
             }
-
         }
 
         public void SpawnLocalMonaReactor(INetworkMonaReactorClient reactor)
