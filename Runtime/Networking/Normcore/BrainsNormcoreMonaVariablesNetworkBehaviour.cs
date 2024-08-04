@@ -376,7 +376,7 @@ namespace Mona.Networking
                 if (index < states.Length)
                 {
                     _monaVariables = states[index];
-                    //Debug.Log($"bind network variables instance to {_monaBody.name} at index {index}", this.gameObject);
+                    Debug.Log($"bind network variables instance to {_monaBody.name} at index {index}", this.gameObject);
                     _monaVariables.SetNetworkVariables((INetworkMonaVariables)this);
                     _monaBody.OnControlRequested -= HandleBodyControlRequested;
                     _monaBody.OnControlRequested += HandleBodyControlRequested;
@@ -401,17 +401,19 @@ namespace Mona.Networking
 
         private void HandleBodyControlRequested()
         {
-            //Debug.Log($"{nameof(HandleBodyControlRequested)} {this}", this.gameObject);
-            realtimeView.RequestOwnershipOfSelfAndChildren();
+            //Debug.Log($"{nameof(HandleBodyControlRequested)} {_monaBody.Transform.name} {_index}", this.gameObject);
+            TakeControl();
         }
 
         public void TakeControl()
         {
-            realtimeView.RequestOwnershipOfSelfAndChildren();
+            //Debug.Log($"{nameof(BrainsNormcoreMonaVariablesNetworkBehaviour)}.{nameof(TakeControl)} {_monaBody.Transform.name} {_index}", this.gameObject);
+            realtimeView.RequestOwnership();
         }
 
         private void OnDestroy()
         {
+            //Debug.Log($"{nameof(BrainsNormcoreMonaVariablesNetworkBehaviour)} OnDestroy {_monaBody.name} at index {_index}", this.gameObject);
             if (_monaBody != null)
                 _monaBody.OnControlRequested -= HandleBodyControlRequested;
         }

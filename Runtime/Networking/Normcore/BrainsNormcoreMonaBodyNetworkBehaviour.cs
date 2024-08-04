@@ -563,7 +563,8 @@ namespace Mona.Networking
             if (!HasControl())
             {
                 Debug.Log($"{nameof(TakeControl)} of {transform}", transform.gameObject);
-                realtimeView.RequestOwnershipOfSelfAndChildren();
+                realtimeView.RequestOwnership();
+                GetComponent<RealtimeTransform>()?.RequestOwnership();
             }
         }
 
