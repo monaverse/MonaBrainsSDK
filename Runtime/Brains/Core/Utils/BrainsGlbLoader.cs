@@ -98,10 +98,12 @@ namespace Mona.SDK.Brains.Core.Utils
 
         public void HandleDestroyed(BrainsGlb obj)
         {
-            //Debug.LogError($"{nameof(BrainsGlbLoader)} glb destroyed {obj.Url} {obj.gameObject.name}");
+            Debug.Log($"{nameof(BrainsGlbLoader)} glb destroyed {obj.Url} {obj.gameObject.name}");
             obj.OnDestroyed -= HandleDestroyed;
             if (Pool[obj.Url].Contains(obj.gameObject))
                 Pool[obj.Url].Remove(obj.gameObject);
+            if (Used[obj.Url].Contains(obj.gameObject))
+                Used[obj.Url].Remove(obj.gameObject);
         }
 
         public void Load(string url, bool importAnimation, Action<GameObject> callback, int poolSize = 1, bool returnToPool = false)
