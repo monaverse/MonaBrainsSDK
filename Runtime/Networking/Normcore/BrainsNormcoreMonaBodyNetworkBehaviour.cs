@@ -441,6 +441,10 @@ namespace Mona.Networking
             _monaBody.SetActive(true);
         }
 
+        public void Destroy()
+        {
+            Realtime.Destroy(gameObject);
+        }
 
         private void OnDestroy()
         {

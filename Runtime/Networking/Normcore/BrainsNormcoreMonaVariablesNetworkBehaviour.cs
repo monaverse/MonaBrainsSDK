@@ -380,6 +380,8 @@ namespace Mona.Networking
                     _monaVariables.SetNetworkVariables((INetworkMonaVariables)this);
                     _monaBody.OnControlRequested -= HandleBodyControlRequested;
                     _monaBody.OnControlRequested += HandleBodyControlRequested;
+                    _monaBody.OnDestroyRequested -= HandleBodyDestroyRequested;
+                    _monaBody.OnDestroyRequested += HandleBodyDestroyRequested;
                 }
             }
 
@@ -396,6 +398,12 @@ namespace Mona.Networking
         private void HandleOwnerChanged(RealtimeComponent<MonaVariablesNetworkModel> view, int ownerID)
         {
             OnStateAuthorityChanged?.Invoke();
+        }
+
+        private void HandleBodyDestroyRequested()
+        {
+            //Debug.Log($"{nameof(HandleBodyControlRequested)} {_monaBody.Transform.name} {_index}", this.gameObject);
+            Realtime.Destroy(gameObject);
         }
 
 
