@@ -8,7 +8,7 @@ using System;
 namespace Mona.SDK.Brains.Tiles.Conditions
 {
     [Serializable]
-    public class KeywordElseInstructionTile : InstructionTile, IKeywordElseInstructionTile, IConditionInstructionTile, IStartableInstructionTile
+    public class KeywordElseInstructionTile : InstructionTile, IKeywordElseInstructionTile, IConditionInstructionTile, IStartableInstructionTile, ITickAfterInstructionTile
     {
         public const string ID = "KeywordElse";
         public const string NAME = "ELSE";
