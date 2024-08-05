@@ -29,8 +29,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             if (_brain != null)
             {
-                _brain.Body.OnTeleported -= HandleTeleported;
-                _brain.Body.OnTeleported += HandleTeleported;
+                if (_brain.Body.ActiveRigidbody != null)
+                {
+                    _brain.Body.OnTeleported -= HandleTeleported;
+                    _brain.Body.OnTeleported += HandleTeleported;
+                }
                 _brain.Body.TeleportRotation(_brain.Body.InitialRotation, true);
                 return _brain.Body.ActiveRigidbody != null ? Complete(InstructionTileResult.Running) : Complete(InstructionTileResult.Success);
             }

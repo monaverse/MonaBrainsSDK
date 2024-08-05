@@ -59,8 +59,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             //Debug.Log($"{nameof(TeleportToRotationInstructionTile)} {_value} {_valueValueName}");
             if (_brain != null)
             {
-                _brain.Body.OnTeleported -= HandleTeleported;
-                _brain.Body.OnTeleported += HandleTeleported;
+                if (_brain.Body.ActiveRigidbody != null)
+                {
+                    _brain.Body.OnTeleported -= HandleTeleported;
+                    _brain.Body.OnTeleported += HandleTeleported;
+                }
+
                 if (_useLocal)
                 {
                     if (_brain.Body.ActiveTransform.parent != null)
