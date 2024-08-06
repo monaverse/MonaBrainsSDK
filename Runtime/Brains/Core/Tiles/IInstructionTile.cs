@@ -14,6 +14,7 @@ namespace Mona.SDK.Brains.Core.Tiles
         string Id { get; set; }
         string Name { get; set; }
         string Category { get; set; }
+        int TileVersion { get; set; }
         bool Muted { get; set; }
         Type TileType { get; }
         InstructionTileResult LastResult { get; set; }

@@ -24,6 +24,9 @@ namespace Mona.SDK.Brains.Core.Tiles
         [HideInInspector][SerializeField] private string _category;
         public string Category { get => _category; set => _category = value; }
 
+        [SerializeField] private int _tileVersion;
+        public int TileVersion { get => _tileVersion; set => _tileVersion = value; }
+
         [HideInInspector] [SerializeField] private bool _muted;
         public bool Muted {
             get {

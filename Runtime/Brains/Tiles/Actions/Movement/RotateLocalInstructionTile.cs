@@ -471,30 +471,30 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 case RotateDirectionType.RollRight: return Quaternion.AngleAxis(-angle, Vector3.forward);
                 case RotateDirectionType.SpinRight: return Quaternion.AngleAxis(angle, Vector3.up);
                 case RotateDirectionType.SpinLeft: return Quaternion.AngleAxis(-angle, Vector3.up);
-                case RotateDirectionType.EulerAngles: return GetQuaternionRotationFromVector(_brain.Body, _rotationAngles, diff);
+                case RotateDirectionType.EulerAngles: return GetQuaternionRotationFromVector(_brain.Body, _mode, _rotationAngles, diff);
                 default: return Quaternion.identity;
             }
         }
 
-        protected Quaternion GetQuaternionRotationFromVector(IMonaBody body, Vector3 targetAngles, float step)
+        protected Quaternion GetQuaternionRotationFromVector(IMonaBody body, MoveModeType mode, Vector3 targetAngles, float step)
         {
             Quaternion currentRotation = body.GetRotation();
+            float adjustedStep = step;
 
-            if (step <= _maximumVectorStep)
-                return ConvertVectorRotationToQuaternion(currentRotation, targetAngles, step);
+            switch (mode)
+            {
+                case MoveModeType.SpeedOnly:
+                    float shortestAngle = Mathf.Approximately(Quaternion.Angle(currentRotation, Quaternion.Euler(targetAngles)), 180f) ?
+                        180f : Mathf.Abs(Quaternion.Angle(currentRotation, ConvertVectorRotationToQuaternion(currentRotation, targetAngles, 1.0f)));
+                    adjustedStep = Mathf.Round((1f / (shortestAngle / _angle) * step) * 1000f) / 1000f;
+                    //adjustedStep = (shortestAngle / (_angle / step)); 
+                    break;
+                case MoveModeType.Instant:
+                    adjustedStep = 1f;
+                    break;
+            }
 
-            int steps = Mathf.CeilToInt(step);
-            float remainder = step % _maximumVectorStep;
-            Quaternion totalRotation = Quaternion.identity;
-            Quaternion stepRotation = ConvertVectorRotationToQuaternion(currentRotation, targetAngles, _maximumVectorStep);
-
-            for (int i = 0; i < steps; i++)
-                totalRotation *= stepRotation;
-
-            if (!Mathf.Approximately(0, remainder))
-                totalRotation *= ConvertVectorRotationToQuaternion(currentRotation, targetAngles, remainder);
-
-            return totalRotation;
+            return ConvertVectorRotationToQuaternion(currentRotation, targetAngles, adjustedStep);
         }
 
         protected Quaternion ConvertVectorRotationToQuaternion(Quaternion currentRotation, Vector3 targetAngles, float step = 1.0f)
