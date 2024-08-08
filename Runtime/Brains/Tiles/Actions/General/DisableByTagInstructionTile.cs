@@ -33,7 +33,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override InstructionTileResult Do()
         {
-            var bodies = MonaBody.FindByTag(_tag);
+            var bodies = MonaBodyFactory.FindByTag(_tag);
             if(_brain.LoggingEnabled)
                 Debug.Log($"{nameof(DisableByTagInstructionTile)} tag: {_tag}, bodies: {bodies.Count}");
 

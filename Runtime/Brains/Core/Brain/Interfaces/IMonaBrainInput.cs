@@ -19,5 +19,6 @@ namespace Mona.SDK.Brains.Core.Brain.Interfaces
         void EnableInput();
         void DisableInput();
         bool IsInputEnabled();
+        MonaInput GetLastInput();
     }
 }

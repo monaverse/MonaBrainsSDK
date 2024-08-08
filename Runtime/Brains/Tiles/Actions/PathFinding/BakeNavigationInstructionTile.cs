@@ -40,7 +40,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
         {
             if(_surfaces.Count == 0)
             {
-                var bodies = MonaBody.FindByTag(_tag);
+                var bodies = MonaBodyFactory.FindByTag(_tag);
                 for (var i = 0; i < bodies.Count; i++)
                 {
                     var body = bodies[i];

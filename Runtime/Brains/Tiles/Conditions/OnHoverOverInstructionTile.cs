@@ -175,7 +175,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private bool TargetTagIsHoveredOver()
         {
-            var tagBodies = MonaBody.FindByTag(_targetTag);
+            var tagBodies = MonaBodyFactory.FindByTag(_targetTag);
 
             if (tagBodies.Count < 1)
                 return false;
@@ -331,7 +331,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private bool TagIsOver(IMonaBody targetBody)
         {
-            var tagBodies = MonaBody.FindByTag(_hovererTag);
+            var tagBodies = MonaBodyFactory.FindByTag(_hovererTag);
             if (tagBodies.Count < 1)
                 return false;
 

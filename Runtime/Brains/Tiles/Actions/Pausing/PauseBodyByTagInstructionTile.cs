@@ -26,7 +26,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public override InstructionTileResult Do()
         {
-            var bodies = MonaBody.FindByTag(_tag);
+            var bodies = MonaBodyFactory.FindByTag(_tag);
             for (var i = 0; i < bodies.Count; i++)
                 bodies[i].Pause();
             //Debug.Log($"{nameof(ChangeStateInstructionTile)} state: {_changeState}");

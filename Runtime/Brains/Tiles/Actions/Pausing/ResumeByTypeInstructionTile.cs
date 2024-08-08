@@ -114,7 +114,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void SetForAll()
         {
-            var globalBodies = GameObject.FindObjectsOfType<MonaBody>();
+            var globalBodies = MonaBodyFactory.FindAllMonaBodies();
 
             for (int i = 0; i < globalBodies.Length; i++)
             {
@@ -132,7 +132,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private void SetBodiesByTag()
         {
             bool handleAttached = HandleAllAttached;
-            var tagBodies = MonaBody.FindByTag(_targetTag);
+            var tagBodies = MonaBodyFactory.FindByTag(_targetTag);
 
             for (int i = 0; i < tagBodies.Count; i++)
             {

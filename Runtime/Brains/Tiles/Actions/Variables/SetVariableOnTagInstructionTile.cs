@@ -37,7 +37,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             if (_brain == null || string.IsNullOrEmpty(_myVariable))
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-            var tagBodies = MonaBody.FindByTag(_tag);
+            var tagBodies = MonaBodyFactory.FindByTag(_tag);
 
             if (tagBodies.Count < 1)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.ERROR_MISSING_TARGET);

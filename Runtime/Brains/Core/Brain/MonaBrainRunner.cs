@@ -50,7 +50,6 @@ namespace Mona.SDK.Brains.Core.Brain
         }
     }
 
-    [RequireComponent(typeof(MonaBody))]
     public partial class MonaBrainRunner : MonoBehaviour, IMonaBrainRunner, IMonaTagged
     {
         public event Action<IMonaBrainRunner> OnBegin;
@@ -353,7 +352,7 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             _body = GetComponent<IMonaBody>();
             if (_body == null)
-                _body = gameObject.AddComponent<MonaBody>();
+                _body = MonaBodyFactory.Create(gameObject);
             _body.OnDisableOnLoad += HandleDisableOnLoad;
             _body.OnStarted += HandleStarted;
             _body.OnEnabled += HandleEnabled;
@@ -830,7 +829,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 var tags = _brainInstances[i].MonaTags;
                 for (var j = 0; j < tags.Count; j++)
                 {
-                    var bodies = MonaBody.FindByTag(tags[j]);
+                    var bodies = MonaBodyFactory.FindByTag(tags[j]);
                     for (var b = 0; b < bodies.Count; b++)
                         MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, bodies[b]), new InstructionEvent(message, null, Time.frameCount));
                 }

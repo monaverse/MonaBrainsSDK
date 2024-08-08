@@ -79,7 +79,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             Rect checkScreenRect = new Rect(_tl.x, tly, _br.x - _tl.x, bry - tly);
             if (checkScreenRect.width == 0 || checkScreenRect.height == 0) return false;
 
-            var bodies = MonaBody.FindByTag(_monaTag);
+            var bodies = MonaBodyFactory.FindByTag(_monaTag);
             _monaBodies.Clear();
             for(var i = 0;i < bodies.Count; i++)
             {

@@ -36,7 +36,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.PathFinding
         {
             if (_movingState == MovingStateType.Stopped || _followWhileMoving)
             {
-                var bodies = MonaBody.FindByTag(_tag);
+                var bodies = MonaBodyFactory.FindByTag(_tag);
 
                 Debug.Log($"{nameof(PathFindToTagInstructionTile)} bodies {bodies.Count}");
 

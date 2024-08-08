@@ -79,7 +79,7 @@ namespace Mona.SDK.Brains.UIEditors
                     else
                     {
                         if (_gameObject.GetComponent<IMonaBody>() == null)
-                            _gameObject.AddComponent<MonaBody>();
+                            MonaBodyFactory.Create(_gameObject);
 
                         if (_gameObject.GetComponent<IMonaBrainRunner>() == null)
                             _gameObject.AddComponent<MonaBrainRunner>();
@@ -570,7 +570,7 @@ namespace Mona.SDK.Brains.UIEditors
                     else
                     {
                         if (_target.GetComponent<IMonaBody>() == null)
-                            _target.AddComponent<MonaBody>();
+                            MonaBodyFactory.Create(_target);
 
                         if (_target.GetComponent<IMonaBrainRunner>() == null)
                             _target.AddComponent<MonaBrainRunner>();

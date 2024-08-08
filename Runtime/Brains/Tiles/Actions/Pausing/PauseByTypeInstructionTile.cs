@@ -189,7 +189,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void SetForAll(bool include)
         {
-            var globalBodies = GameObject.FindObjectsOfType<MonaBody>();
+            var globalBodies = MonaBodyFactory.FindAllMonaBodies();
 
             if (include) _includedBodies.AddRange(globalBodies);
             else _excludedBodies.AddRange(globalBodies);
@@ -199,7 +199,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         {
             string tag = include ? _targetTag : _excludeTag;
             bool handleAttached = HandleAllAttached(include);
-            var tagBodies = MonaBody.FindByTag(tag);
+            var tagBodies = MonaBodyFactory.FindByTag(tag);
 
             for (int i = 0; i < tagBodies.Count; i++)
             {

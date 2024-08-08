@@ -282,7 +282,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         public List<IMonaBody> FindClosestOutOfRangeWithMonaTag(string tag)
         {
             _rangeBodies.Clear();
-            var bodies = MonaBody.FindByTag(tag);
+            var bodies = MonaBodyFactory.FindByTag(tag);
             _rangeBodies.AddRange(bodies);
             //Debug.Log($"{nameof(FindClosestOutOfRangeWithMonaTag)} prefilter: {bodies.Count}");
             IMonaBody closest = null;

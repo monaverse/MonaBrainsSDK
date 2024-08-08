@@ -34,7 +34,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public override InstructionTileResult Do()
         {
             Debug.Log($"{nameof(ResumeBodyByTagInstructionTile)} {_tag}");
-            var bodies = MonaBody.FindByTag(_tag);
+            var bodies = MonaBodyFactory.FindByTag(_tag);
             for (var i = 0; i < bodies.Count; i++)
             {
                 bodies[i].Resume();

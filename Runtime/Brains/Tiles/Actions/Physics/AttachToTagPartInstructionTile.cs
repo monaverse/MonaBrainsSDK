@@ -70,7 +70,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 }
             }
 
-            var bodies = MonaBody.FindByTag(_tag.ToString());
+            var bodies = MonaBodyFactory.FindByTag(_tag.ToString());
             if (bodies != null && bodies.Count > 0)
             {
                 var body = bodies[0];

@@ -40,7 +40,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         protected override void SetValueEnd()
         {
-            var bodies = MonaBody.FindByTag(_tag);
+            var bodies = MonaBodyFactory.FindByTag(_tag);
             if (_end == null || bodies.Count != _end.Length)
                 _end = new Vector4[bodies.Count];
 
@@ -71,7 +71,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         protected override void ResetValue()
         {
-            var bodies = MonaBody.FindByTag(_tag);
+            var bodies = MonaBodyFactory.FindByTag(_tag);
 
             _start = new Vector4[bodies.Count];
             _end = new Vector4[bodies.Count];

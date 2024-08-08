@@ -53,9 +53,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                 Debug.Log($"{nameof(BroadcastMessageToTagInstructionTile)} {tag}");
             }
 
-            var bodies = MonaBody.FindByTag(tag);
+            var bodies = MonaBodyFactory.FindByTag(tag);
             if (bodies.Count == 0)
-                bodies = MonaBody.FindByTag(_Tag);
+                bodies = MonaBodyFactory.FindByTag(_Tag);
 
             for (var i = 0;i < bodies.Count; i++)
             {

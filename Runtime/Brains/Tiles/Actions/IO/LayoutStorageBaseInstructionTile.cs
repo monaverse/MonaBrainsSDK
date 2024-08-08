@@ -156,9 +156,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             return brainsString;
         }
 
-        protected virtual MonaBody[] GetAllBodies()
+        protected virtual IMonaBody[] GetAllBodies()
         {
-            var globalBodies = GameObject.FindObjectsOfType<MonaBody>();
+            var globalBodies = MonaBodyFactory.FindAllMonaBodies();
             return globalBodies;
         }
     }

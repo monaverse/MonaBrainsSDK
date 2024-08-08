@@ -140,7 +140,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void ModifyOnTag()
         {
-            var tagBodies = MonaBody.FindByTag(_targetTag);
+            var tagBodies = MonaBodyFactory.FindByTag(_targetTag);
 
             if (tagBodies.Count < 1)
             {

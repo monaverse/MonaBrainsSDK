@@ -36,7 +36,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
     public class MonaBrainInput : MonoBehaviour, IMonaBrainInput
     {
-        private Inputs _inputs;
+        protected Inputs _inputs;
         public Inputs Inputs => _inputs;
 
         private Vector2 _externalMove;
@@ -50,15 +50,15 @@ namespace Mona.SDK.Brains.Core.Brain
             } 
         }
 
-        private PlayerInput _playerInput;
+        protected PlayerInput _playerInput;
         private MouseState _mouseState = new MouseState();
         private List<IInstructionTile> _activeListeners = new List<IInstructionTile>();
         private List<KeyState> _activeKeyListeners = new List<KeyState>();
-        private IMonaBrainPlayer _player;
+        protected IMonaBrainPlayer _player;
 
         public const float DEAD_ZONE = .1f;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             EnhancedTouchSupport.Enable();
 
@@ -166,11 +166,11 @@ namespace Mona.SDK.Brains.Core.Brain
         private Ray _ray;
 
         private int _lastFrame = -1;
-        private bool _wasTouching;
-        private float _startTouchTime;
-        private Vector2 _startTouchPosition;
-        private Vector2 _lastTouchPosition;
-        private Vector2 _mousePosition = Vector2.zero;
+        protected bool _wasTouching;
+        protected float _startTouchTime;
+        protected Vector2 _startTouchPosition;
+        protected Vector2 _lastTouchPosition;
+        protected Vector2 _mousePosition = Vector2.zero;
 
         public float GestureTimeout = 0f;
         public float JoystickSize = 500f;
@@ -183,10 +183,19 @@ namespace Mona.SDK.Brains.Core.Brain
             JoystickDeadZone = trueDeadZone;
         }
 
+        protected MonaInput _lastMonaInput;
         public MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState = MonaInputState.Pressed)
         {
-            if (_player == null) return default;
-            if (!_inputs.Player.enabled) return default;
+            if (_player == null)
+            {
+                _lastMonaInput = default;
+                return _lastMonaInput;
+            }
+            if (!_inputs.Player.enabled)
+            {
+                _lastMonaInput = default;
+                return _lastMonaInput;
+            }
 
             if (_lastFrame != Time.frameCount)
             {
@@ -307,7 +316,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
             }
 
-            return new MonaInput()
+            _lastMonaInput = new MonaInput()
             {
                 PlayerId = _player.PlayerId,
 
@@ -346,6 +355,12 @@ namespace Mona.SDK.Brains.Core.Brain
                 MousePosition = _mousePosition,
                 Ray = _ray
             };
+            return _lastMonaInput;
+        }
+
+        public virtual MonaInput GetLastInput()
+        {
+            return _lastMonaInput;
         }
 
         public MonaInputState GetKey(int idx)
@@ -440,7 +455,7 @@ namespace Mona.SDK.Brains.Core.Brain
             return _mouseState;
         }
 
-        protected void ProcessAxis(MonaInputType type, Vector2 value, float deadZone)
+        protected virtual void ProcessAxis(MonaInputType type, Vector2 value, float deadZone)
         {
             if (type == MonaInputType.Move)
                 _moveValue = value;
@@ -453,7 +468,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 ProcessAxis(MonaInputType.Move, _inputs.Player.Move);
         }
 
-        protected void ProcessAxis(MonaInputType type, InputAction action)
+        protected virtual void ProcessAxis(MonaInputType type, InputAction action)
         {
             var value = action.ReadValue<Vector2>();
 
@@ -468,7 +483,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 ReleaseInput(type);
         }
 
-        protected void ProcessButton(MonaInputType type, bool action)
+        protected virtual void ProcessButton(MonaInputType type, bool action)
         {
             if (action)
                 PerformInput(type);
@@ -476,7 +491,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 ReleaseInput(type);
         }
 
-        protected void ProcessButton(MonaInputType type, InputAction action)
+        protected virtual void ProcessButton(MonaInputType type, InputAction action)
         {
             if (action.IsPressed())
                 PerformInput(type);
@@ -484,7 +499,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 ReleaseInput(type);
         }
 
-        private void PerformInput(MonaInputType type)
+        protected virtual void PerformInput(MonaInputType type)
         {
             if (!_buttons.ContainsKey(type))
                 _buttons.Add(type, MonaInputState.None);
@@ -499,7 +514,7 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
-        private void ReleaseInput(MonaInputType type)
+        protected virtual void ReleaseInput(MonaInputType type)
         {
             if (!_buttons.ContainsKey(type))
                 _buttons.Add(type, MonaInputState.None);

@@ -98,7 +98,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private bool InBodyArrayOnTag(IMonaVariablesValue myValue)
         {
-            var tagBodies = MonaBody.FindByTag(_targetTag);
+            var tagBodies = MonaBodyFactory.FindByTag(_targetTag);
 
             if (tagBodies.Count < 1)
             {

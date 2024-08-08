@@ -191,7 +191,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         private void SetMeshOnTag()
         {
-            var tagBodies = MonaBody.FindByTag(_targetTag);
+            var tagBodies = MonaBodyFactory.FindByTag(_targetTag);
 
             if (tagBodies.Count < 1)
                 return;

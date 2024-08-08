@@ -225,7 +225,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         private void SetupOnTag()
         {
-            var tagBodies = MonaBody.FindByTag(_targetTag);
+            var tagBodies = MonaBodyFactory.FindByTag(_targetTag);
 
             if (tagBodies.Count < 1)
                 return;
@@ -390,7 +390,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         private void ModifyOnTag()
         {
-            var tagBodies = MonaBody.FindByTag(_targetTag);
+            var tagBodies = MonaBodyFactory.FindByTag(_targetTag);
 
             if (tagBodies.Count < 1)
                 return;
@@ -850,7 +850,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     var avatarPart = _avatarInstance.transform.GetComponent<IMonaBody>();
                     if (avatarPart == null)
                     {
-                        avatarPart = _avatarInstance.transform.AddComponent<MonaBody>();
+                        avatarPart = MonaBodyFactory.Create(_avatarInstance.transform);
                         avatarPart.SyncType = MonaBodyNetworkSyncType.NotNetworked;
                         avatarPart.AddTag("Avatar");
                     }

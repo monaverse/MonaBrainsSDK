@@ -433,7 +433,7 @@ namespace Mona.SDK.Brains.Core.ScriptableObjects
                 _body = gameObject.GetComponent<IMonaBody>();
                 _bodyParent = _body.Parent;
                 if (_body == null)
-                    _body = gameObject.AddComponent<MonaBody>();
+                    _body = MonaBodyFactory.Create(gameObject);
 
                 if (_variables == null)
                 {

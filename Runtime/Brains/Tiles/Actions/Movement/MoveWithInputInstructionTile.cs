@@ -760,7 +760,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             switch (_target)
             {
                 case MonaBrainTransformTargetType.Tag:
-                    _targetBodies.AddRange(MonaBody.FindByTag(_targetTag));
+                    _targetBodies.AddRange(MonaBodyFactory.FindByTag(_targetTag));
                     break;
                 case MonaBrainTransformTargetType.Self:
                     IMonaBody topBody = _brain.Body;

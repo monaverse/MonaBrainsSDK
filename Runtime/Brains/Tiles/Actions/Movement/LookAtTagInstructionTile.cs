@@ -39,7 +39,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private Quaternion _look;
         protected override Quaternion GetDirectionRotation(RotateDirectionType moveType, float angle, float diff, float progress, bool immediate)
         {
-            var tags = MonaBody.FindByTag(_tag);
+            var tags = MonaBodyFactory.FindByTag(_tag);
             IMonaBody body;
             if (tags.Count > 0)
             {

@@ -221,10 +221,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     var guid = Guid.NewGuid();
                     var body = glb.GetComponent<IMonaBody>();
                     if (body == null)
-                        body = glb.AddComponent<MonaBody>();
+                        body = MonaBodyFactory.Create(glb);
 
                     body.SyncType = _networked ? MonaBodyNetworkSyncType.NetworkTransform : MonaBodyNetworkSyncType.NotNetworked;
-                    body = MonaBodyBase.Spawn(guid, prefabId, 0, (MonaBody)body, false, Vector3.up*10000f, Quaternion.identity, _ownedByMe);
+                    body = MonaBodyBase.Spawn(guid, prefabId, 0, body, false, Vector3.up*10000f, Quaternion.identity, _ownedByMe);
 
                     var bodies = glb.GetComponentsInChildren<IMonaBody>();
                     Debug.Log($"GENERATE GUID {guid} {prefabId}");
@@ -257,7 +257,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         private GameObject _glbLoader;
         private BrainsGlbLoader _urlLoader;
 
-        protected IMonaBody Spawn(string prefabId, MonaBody monaBody, bool disable = true)
+        protected IMonaBody Spawn(string prefabId, IMonaBody monaBody, bool disable = true)
         {
 
             if (!_importLights)
@@ -355,7 +355,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
             else
             {
-                var bodies = MonaBody.FindByTag(_tag);
+                var bodies = MonaBodyFactory.FindByTag(_tag);
                 if (bodies != null && bodies.Count > 0)
                 {
                     var body = bodies[0];
@@ -421,7 +421,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         var poolItem = spawn.GetComponent<IMonaBody>();
 
                         if (poolItem == null)
-                            poolItem = spawn.AddComponent<MonaBody>();
+                            poolItem = MonaBodyFactory.Create(spawn);
                         
                         ContinueEnableSpawn(body, poolItem, index);
                     });

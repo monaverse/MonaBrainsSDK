@@ -332,7 +332,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         private InstructionTileResult ModifyOnTag(IMonaVariablesValue myValue)
         {
             _profileModifyOnTag.Begin();
-            var tagBodies = MonaBody.FindByTag(_targetTag);
+            var tagBodies = MonaBodyFactory.FindByTag(_targetTag);
 
             if (tagBodies.Count < 1)
             {
