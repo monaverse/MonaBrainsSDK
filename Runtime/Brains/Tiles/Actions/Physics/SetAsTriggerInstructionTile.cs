@@ -31,8 +31,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             _brain = brainInstance;
 
-            if(!_brain.Body.HasCollider())
+            if (!_brain.Body.HasCollider())
                 _colliders = _brain.Body.AddCollider();
+            else
+                _colliders = _brain.Body.Colliders;
         }
 
         public override void Unload(bool destroy = false)
