@@ -7,6 +7,8 @@ using Mona.SDK.Brains.Core.State;
 using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Brains.Core.Utils.Interfaces;
+using Mona.SDK.Brains.Core.Utils.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.IO
 {
@@ -17,6 +19,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         public const string NAME = "Load Value";
         public const string CATEGORY = "File Storage";
         public override Type TileType => typeof(LoadValueInstructionTile);
+
+        [SerializeField] private StorageTargetType _storageTarget = StorageTargetType.LocalAndCloud;
+        [BrainPropertyEnum(true)] public StorageTargetType StorageTarget { get => _storageTarget; set => _storageTarget = value; }
 
         [SerializeField] private string _keyName;
         [SerializeField] private string _keyNameString;
@@ -60,9 +65,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         [SerializeField] protected UsageType _saveSlotUsage = UsageType.None;
         [BrainPropertyEnum(false)] public UsageType SaveSlotUsage { get => _saveSlotUsage; set => _saveSlotUsage = value; }
 
-        private const string _x = "X";
-        private const string _y = "Y";
-        private const string _z = "Z";
         private const string _keyFormatString = "<varType>{0}<varType><var>{1}</var><brain>{2}</brain><axis>{3}</axis>";
         protected const string _saveSlotFormatString = "<SaveSlot>{0}</SaveSlot>";
         protected const string _uniqueKeyFormatString = "<UniqueKey>{0}</UniqueKey>";
@@ -71,15 +73,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         public LoadValueInstructionTile() { }
 
         private IMonaBrain _brain;
+        private MonaGlobalBrainRunner _globalBrainRunner;
+        private IBrainStorage _localStorage;
+        private IBrainStorage _cloudStorage;
 
         public void Preload(IMonaBrain brain)
         {
             _brain = brain;
+            _globalBrainRunner = MonaGlobalBrainRunner.Instance;
         }
 
         public override InstructionTileResult Do()
         {
-            if (_brain == null || string.IsNullOrEmpty(_variable))
+            if (_brain == null || _globalBrainRunner == null || string.IsNullOrEmpty(_variable))
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
             if (!string.IsNullOrEmpty(_keyNameString))
@@ -93,6 +99,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
             if (!string.IsNullOrEmpty(_saveSlotName))
                 _saveSlot = _brain.Variables.GetFloat(_saveSlotName);
+
+            if (_storageTarget != StorageTargetType.Cloud && _localStorage == null)
+            {
+                _localStorage = _globalBrainRunner.LocalStorage;
+
+                if (_localStorage == null)
+                    return Complete(InstructionTileResult.Success);
+            }
+
+            if (_storageTarget != StorageTargetType.Local && _cloudStorage == null)
+            {
+                _cloudStorage = _globalBrainRunner.ClousStorage;
+
+                if (_cloudStorage == null)
+                    return Complete(InstructionTileResult.Success);
+            }
 
             IMonaVariablesValue myValue = _brain.Variables.GetVariable(_variable);
 
@@ -109,55 +131,53 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
             if (myValue is IMonaVariablesFloatValue)
             {
-                string storageKey = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Number, keyName, brainName, string.Empty);
+                bool success = false;
+                float value = 0f;
+                string key = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Number, keyName, brainName, string.Empty);
 
-                if (PlayerPrefs.HasKey(storageKey))
-                    _brain.Variables.Set(_variable, PlayerPrefs.GetFloat(storageKey));
+                if (_storageTarget != StorageTargetType.Cloud) value = _localStorage.LoadFloat(key, out success);
+                if (_storageTarget != StorageTargetType.Local && !success) value = _cloudStorage.LoadFloat(key, out success);
+                if (success) _brain.Variables.Set(_variable, value);
             }
             else if (myValue is IMonaVariablesBoolValue)
             {
-                string storageKey = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Bool, keyName, brainName, string.Empty);
+                bool success = false;
+                bool value = false;
+                string key = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Bool, keyName, brainName, string.Empty);
 
-                if (PlayerPrefs.HasKey(storageKey))
-                {
-                    int boolBinary = PlayerPrefs.GetInt(storageKey);
-                    _brain.Variables.Set(_variable, boolBinary == 1);
-                }
+                if (_storageTarget != StorageTargetType.Cloud) value = _localStorage.LoadBool(key, out success);
+                if (_storageTarget != StorageTargetType.Local && !success) value = _cloudStorage.LoadBool(key, out success);
+                if (success) _brain.Variables.Set(_variable, value);
             }
             else if (myValue is IMonaVariablesStringValue)
             {
-                string storageKey = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.String, keyName, brainName, string.Empty);
+                bool success = false;
+                string value = string.Empty;
+                string key = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.String, keyName, brainName, string.Empty);
 
-                if (PlayerPrefs.HasKey(storageKey))
-                    _brain.Variables.Set(_variable, PlayerPrefs.GetString(storageKey));
+                if (_storageTarget != StorageTargetType.Cloud) value = _localStorage.LoadString(key, out success);
+                if (_storageTarget != StorageTargetType.Local && !success) value = _cloudStorage.LoadString(key, out success);
+                if (success) _brain.Variables.Set(_variable, value);
             }
             else if (myValue is IMonaVariablesVector2Value)
             {
-                string storageX = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Vector2, keyName, brainName, _x);
-                string storageY = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Vector2, keyName, brainName, _y);
+                bool success = false;
+                Vector2 value = Vector2.zero;
+                string key = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Vector2, keyName, brainName, string.Empty);
 
-                if (PlayerPrefs.HasKey(storageX) && PlayerPrefs.HasKey(storageY))
-                {
-                    float x = PlayerPrefs.GetFloat(storageX);
-                    float y = PlayerPrefs.GetFloat(storageY);
-
-                    _brain.Variables.Set(_variable, new Vector2(x, y));
-                }
+                if (_storageTarget != StorageTargetType.Cloud) value = _localStorage.LoadVector2(key, out success);
+                if (_storageTarget != StorageTargetType.Local && !success) value = _cloudStorage.LoadVector2(key, out success);
+                if (success) _brain.Variables.Set(_variable, value);
             }
             else if (myValue is IMonaVariablesVector3Value)
             {
-                string storageX = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Vector2, keyName, brainName, _x);
-                string storageY = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Vector2, keyName, brainName, _y);
-                string storageZ = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Vector2, keyName, brainName, _z);
+                bool success = false;
+                Vector3 value = Vector3.zero;
+                string key = saveSlotString + uniqueKeyString + GetStorageKeyString(StorageVariableType.Vector3, keyName, brainName, string.Empty);
 
-                if (PlayerPrefs.HasKey(storageX) && PlayerPrefs.HasKey(storageY) && PlayerPrefs.HasKey(storageZ))
-                {
-                    float x = PlayerPrefs.GetFloat(storageX);
-                    float y = PlayerPrefs.GetFloat(storageY);
-                    float z = PlayerPrefs.GetFloat(storageZ);
-
-                    _brain.Variables.Set(_variable, new Vector3(x, y, z));
-                }
+                if (_storageTarget != StorageTargetType.Cloud) value = _localStorage.LoadVector3(key, out success);
+                if (_storageTarget != StorageTargetType.Local && !success) value = _cloudStorage.LoadVector3(key, out success);
+                if (success) _brain.Variables.Set(_variable, value);
             }
 
             return Complete(InstructionTileResult.Success);

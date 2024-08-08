@@ -3,12 +3,11 @@ using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Core;
 using UnityEngine;
 using System;
-using System.Collections.Generic;
-using Mona.SDK.Brains.Core.State;
-using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Brains.Core.Utils.Interfaces;
+using Mona.SDK.Brains.Core.Utils.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.IO
 {
@@ -16,6 +15,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
     public class LayoutStorageBaseInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
     {
         public override Type TileType => typeof(LayoutStorageBaseInstructionTile);
+
+        [SerializeField] protected StorageTargetType _storageTarget = StorageTargetType.LocalAndCloud;
+        [BrainPropertyEnum(true)] public StorageTargetType StorageTarget { get => _storageTarget; set => _storageTarget = value; }
 
         [SerializeField] protected MonaBrainTargetLayoutType _target = MonaBrainTargetLayoutType.AllBodies;
         [BrainPropertyEnum(true)] public MonaBrainTargetLayoutType Target { get => _target; set => _target = value; }
@@ -72,6 +74,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         protected const string _positionString = "<Position>";
         protected const string _rotationString = "<Rotation>";
         protected const string _scaleString = "<Scale>";
+        protected const string _existsString = "[Exists]";
         protected const string _x = "X";
         protected const string _y = "Y";
         protected const string _z = "Z";
@@ -79,10 +82,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         public LayoutStorageBaseInstructionTile() { }
 
         protected IMonaBrain _brain;
+        protected MonaGlobalBrainRunner _globalBrainRunner;
+        protected IBrainStorage _localStorage;
+        protected IBrainStorage _cloudStorage;
 
         public virtual void Preload(IMonaBrain brain)
         {
             _brain = brain;
+            _globalBrainRunner = MonaGlobalBrainRunner.Instance;
         }
 
         public override InstructionTileResult Do()

@@ -103,7 +103,7 @@ namespace Mona.SDK.Brains.Core.Brain
         public IBrainSocialPlatformUser BrainSocialUser { get => _brainSocialUser; set => _brainSocialUser = value; }
 
         private IBrainLeaderboard _brainLeaderboards;
-        private IBrainLeaderboard BrainLeaderboards { get => _brainLeaderboards; set => _brainLeaderboards = value; }
+        public IBrainLeaderboard BrainLeaderboards { get => _brainLeaderboards; set => _brainLeaderboards = value; }
 
         private IBrainStorage _localStorage;
         public IBrainStorage LocalStorage { get => _localStorage; set => _localStorage = value; }

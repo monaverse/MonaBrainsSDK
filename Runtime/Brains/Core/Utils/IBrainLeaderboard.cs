@@ -9,6 +9,7 @@ namespace Mona.SDK.Brains.Core.Utils.Interfaces
         void PostToLeaderboard(float score, string id, out bool success);
         void PostToLeaderboard(float score, string id, string username, out bool success);
         List<LeaderboardScore> LoadLeaderboardScores(string id, TimeScope timeScope, Range range, out bool success);
-        LeaderboardScore LoadLeaderboardUserScore(string id, string user, int pageScoreCount, out int page, out bool success);
+        LeaderboardScore LoadLeaderboardClientScore(string id, int pageScoreCount, out bool success);
+        LeaderboardScore LoadLeaderboardUserScore(string id, string user, int pageScoreCount, out bool success);
     }
 }
