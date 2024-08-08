@@ -99,6 +99,20 @@ namespace Mona.SDK.Brains.Core.Brain
         private PlayerInput _playerInput;
         public PlayerInput PlayerInput { get => _playerInput; set => _playerInput = value; }
 
+        private IBrainSocialPlatformUser _brainSocialUser;
+        public IBrainSocialPlatformUser BrainSocialUser { get => _brainSocialUser; set => _brainSocialUser = value; }
+
+        private IBrainLeaderboard _brainLeaderboards;
+        private IBrainLeaderboard BrainLeaderboards { get => _brainLeaderboards; set => _brainLeaderboards = value; }
+
+        private IBrainStorage _localStorage;
+        public IBrainStorage LocalStorage { get => _localStorage; set => _localStorage = value; }
+
+        private IBrainStorage _cloudStorage;
+        public IBrainStorage ClousStorage { get => _cloudStorage; set => _cloudStorage = value; }
+
+
+
         public void EnablePlayerInput() => GetBrainInput().EnableInput();
         public void DisablePlayerInput() => GetBrainInput().DisableInput();
 
@@ -214,6 +228,9 @@ namespace Mona.SDK.Brains.Core.Brain
         private void Start()
         {
             SetupEasyUIGlobalRunner();
+            SetupStorageSolutions();
+            SetupSocialUser();
+            SetupLeaderboards();
             CacheCamera();
         }
 
@@ -417,6 +434,44 @@ namespace Mona.SDK.Brains.Core.Brain
                 return;
 
             _easyUIRunner = gameObject.AddComponent(typeof(EasyUIGlobalRunner)) as EasyUIGlobalRunner;
+        }
+
+        private void SetupStorageSolutions()
+        {
+            bool localFound = false;
+            bool cloudFound = false;
+            var storageComponents = InterfaceFinder.FindComponentsWithInterface<IBrainStorage>();
+
+            for (int i = 0; i < storageComponents.Length; i++)
+            {
+                if (localFound && cloudFound)
+                    break;
+
+                if (!localFound && storageComponents[i].SupportedStorageTarget != Utils.Enums.StorageTargetType.Cloud)
+                    _localStorage = storageComponents[i];
+
+                if (!cloudFound && storageComponents[i].SupportedStorageTarget != Utils.Enums.StorageTargetType.Local)
+                    _cloudStorage = storageComponents[i];
+            }
+
+            if (!localFound && _localStorage == null)
+                _localStorage = gameObject.AddComponent(typeof(BrainsDefaultStorage)) as BrainsDefaultStorage;
+        }
+
+        private void SetupSocialUser()
+        {
+            var socialComponents = InterfaceFinder.FindComponentsWithInterface<IBrainSocialPlatformUser>();
+
+            if (socialComponents.Length > 0)
+                _brainSocialUser = socialComponents[0];
+        }
+
+        private void SetupLeaderboards()
+        {
+            var leaderboardComponents = InterfaceFinder.FindComponentsWithInterface<IBrainLeaderboard>();
+
+            if (leaderboardComponents.Length > 0)
+                _brainLeaderboards = leaderboardComponents[0];
         }
     }
 }
