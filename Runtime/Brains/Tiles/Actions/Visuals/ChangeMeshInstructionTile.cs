@@ -27,6 +27,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
+        [SerializeField] private string _targetChild;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenWithName)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenContainingName)]
+        [BrainProperty(true)] public string TargetName { get => _targetChild; set => _targetChild = value; }
+
+        [SerializeField] private bool _networkNewBodies;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenWithName)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenContainingName)]
+        [BrainProperty(true)] public bool NetworkNewBodies { get => _networkNewBodies; set => _networkNewBodies = value; }
+
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyShow(nameof(AssetToUse), (int)MonaAssetGroupType.DefinedAsset)]
         [BrainPropertyMonaAsset(typeof(IMonaMeshAssetItem))] public string MonaAsset { get => _monaAsset; set => _monaAsset = value; }
@@ -87,6 +97,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
                     case MonaBrainBroadcastType.Parents:
                         return false;
                     case MonaBrainBroadcastType.Children:
+                    case MonaBrainBroadcastType.ChildrenWithName:
+                    case MonaBrainBroadcastType.ChildrenContainingName:
                         return false;
                     case MonaBrainBroadcastType.ThisBodyOnly:
                         return false;
@@ -139,6 +151,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
                     break;
                 case MonaBrainBroadcastType.Children:
                     SetMeshOnChildren(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ChildrenWithName:
+                    SetMeshOnChildrenWithName(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ChildrenContainingName:
+                    SetMeshOnChildrenContainingName(_brain.Body);
                     break;
                 case MonaBrainBroadcastType.ThisBodyOnly:
                     SetMeshOnBody(_brain.Body);
@@ -241,6 +259,61 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
                 SetMeshOnBody(children[i]);
                 SetMeshOnChildren(children[i]);
             }
+        }
+
+        private void SetMeshOnChildrenWithName(IMonaBody body)
+        {
+
+            var children = body.Transform.GetComponentsInChildren<Transform>(true);
+
+            for (int i = 0; i < children.Length; i++)
+            {
+                var child = children[i];
+                if (child == null || child.name.ToLower() != _targetChild.ToLower())
+                    continue;
+
+                var childBody = child.GetComponent<IMonaBody>();
+                if (childBody == null)
+                    childBody = CreateMonaBody(child);
+
+                SetMeshOnBody(childBody);
+            }
+
+        }
+
+        private void SetMeshOnChildrenContainingName(IMonaBody body)
+        {
+
+            var children = body.Transform.GetComponentsInChildren<Transform>(true);
+
+            for (int i = 0; i < children.Length; i++)
+            {
+                var child = children[i];
+                if (child == null || !child.name.ToLower().Contains(_targetChild.ToLower()))
+                    continue;
+
+                var childBody = child.GetComponent<IMonaBody>();
+                if (childBody == null)
+                    childBody = CreateMonaBody(child);
+
+                SetMeshOnBody(childBody);
+            }
+
+        }
+
+        private IMonaBody CreateMonaBody(Transform body)
+        {
+            var childBody = body.gameObject.AddComponent<MonaBody>();
+            childBody.SyncType = MonaBodyNetworkSyncType.NotNetworked;
+            if (_networkNewBodies)
+            {
+                childBody.SyncType = MonaBodyNetworkSyncType.NetworkTransform;
+
+                var guid = Guid.NewGuid();
+                ((MonaBodyBase)childBody).Guid = new SerializableGuid(guid);
+                ((MonaBodyBase)childBody).ManualMakeUnique(guid.ToString(), 0, 0, false);
+            }
+            return childBody;
         }
 
         private void SetMeshOnAllSpawned()

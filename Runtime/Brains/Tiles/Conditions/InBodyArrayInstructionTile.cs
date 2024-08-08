@@ -29,6 +29,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
+        [SerializeField] private string _targetChild;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenWithName)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenContainingName)]
+        [BrainProperty(true)] public string TargetName { get => _targetChild; set => _targetChild = value; }
+
         [SerializeField] private BodyArrayOperatorType _operator = BodyArrayOperatorType.ContainedIn;
         [BrainPropertyEnum(true)] public BodyArrayOperatorType Operator { get => _operator; set => _operator = value; }
 
@@ -68,6 +73,12 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     break;
                 case MonaBrainBroadcastType.Children:
                     result = InBodyArrayOnChildren(myValue, _brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ChildrenWithName:
+                    result = InBodyArrayOnChildrenWithName(myValue, _brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ChildrenContainingName:
+                    result = InBodyArrayOnChildrenContainingName(myValue, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.ThisBodyOnly:
                     result = InBodyArrayValueOnBody(myValue, _brain.Body);
@@ -245,6 +256,81 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         }
 
+        private bool InBodyArrayOnChildrenWithName(IMonaVariablesValue myValue, IMonaBody body)
+        {
+            var children = body.Children();
+
+            if (_filter == BodyArrayFilterType.Any)
+            {
+                for (int i = 0; i < children.Count; i++)
+                {
+                    if (children[i] == null || children[i].Transform.name.ToLower() != _targetChild.ToLower())
+                        continue;
+
+                    if (InBodyArrayValueOnBody(myValue, children[i]))
+                        return true;
+                    if (InBodyArrayOnChildrenWithName(myValue, children[i]))
+                        return true;
+                }
+            }
+
+            var result = _filter == BodyArrayFilterType.Any ? false : true;
+
+            if (_filter == BodyArrayFilterType.All)
+            {
+                for (int i = 0; i < children.Count; i++)
+                {
+                    if (children[i] == null || children[i].Transform.name.ToLower() != _targetChild.ToLower())
+                        continue;
+
+                    if (!InBodyArrayValueOnBody(myValue, children[i]))
+                        result = false;
+                    if (!InBodyArrayOnChildrenWithName(myValue, children[i]))
+                        result = false;
+                }
+            }
+
+            return result;
+
+        }
+
+        private bool InBodyArrayOnChildrenContainingName(IMonaVariablesValue myValue, IMonaBody body)
+        {
+            var children = body.Children();
+
+            if (_filter == BodyArrayFilterType.Any)
+            {
+                for (int i = 0; i < children.Count; i++)
+                {
+                    if (children[i] == null || !children[i].Transform.name.ToLower().Contains(_targetChild.ToLower()))
+                        continue;
+
+                    if (InBodyArrayValueOnBody(myValue, children[i]))
+                        return true;
+                    if (InBodyArrayOnChildrenContainingName(myValue, children[i]))
+                        return true;
+                }
+            }
+
+            var result = _filter == BodyArrayFilterType.Any ? false : true;
+
+            if (_filter == BodyArrayFilterType.All)
+            {
+                for (int i = 0; i < children.Count; i++)
+                {
+                    if (children[i] == null || !children[i].Transform.name.ToLower().Contains(_targetChild.ToLower()))
+                        continue;
+
+                    if (!InBodyArrayValueOnBody(myValue, children[i]))
+                        result = false;
+                    if (!InBodyArrayOnChildrenContainingName(myValue, children[i]))
+                        result = false;
+                }
+            }
+
+            return result;
+
+        }
         private bool InBodyArrayOnAllSpawned(IMonaVariablesValue myValue)
         {
 

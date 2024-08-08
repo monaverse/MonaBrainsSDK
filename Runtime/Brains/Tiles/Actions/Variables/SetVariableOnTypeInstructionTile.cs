@@ -33,6 +33,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
+        [SerializeField] private string _targetChild;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenWithName)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenContainingName)]
+        [BrainProperty(true)] public string TargetChildName { get => _targetChild; set => _targetChild = value; }
+
         [SerializeField] private string _bodyArray;
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MyBodyArray)]
         [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string BodyArray { get => _bodyArray; set => _bodyArray = value; }
@@ -157,6 +162,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     case MonaBrainBroadcastType.Parents:
                         return false;
                     case MonaBrainBroadcastType.Children:
+                    case MonaBrainBroadcastType.ChildrenWithName:
+                    case MonaBrainBroadcastType.ChildrenContainingName:
                         return false;
                     case MonaBrainBroadcastType.ThisBodyOnly:
                         return false;
@@ -225,6 +232,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     break;
                 case MonaBrainBroadcastType.Children:
                     result = ModifyOnChildren(myValue, _brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ChildrenWithName:
+                    result = ModifyOnChildrenWithName(myValue, _brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ChildrenContainingName:
+                    result = ModifyOnChildrenContainingName(myValue, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.ThisBodyOnly:
                     result = ModifyValueOnBrains(myValue, _brain.Body);
@@ -419,6 +432,47 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             return result;
         }
 
+        private InstructionTileResult ModifyOnChildrenWithName(IMonaVariablesValue myValue, IMonaBody body)
+        {
+
+            var children = body.Children();
+            var result = InstructionTileResult.Success;
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i] == null || children[i].Transform.name.ToLower() != _targetChild.ToLower())
+                    continue;
+
+                var r = ModifyValueOnBrains(myValue, children[i]);
+                if (r != InstructionTileResult.Success)
+                    result = r;
+                r = ModifyOnChildrenWithName(myValue, children[i]);
+                if (r != InstructionTileResult.Success)
+                    result = r;
+            }
+            return result;
+        }
+
+        private InstructionTileResult ModifyOnChildrenContainingName(IMonaVariablesValue myValue, IMonaBody body)
+        {
+
+            var children = body.Children();
+            var result = InstructionTileResult.Success;
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i] == null || !children[i].Transform.name.ToLower().Contains(_targetChild.ToLower()))
+                    continue;
+
+                var r = ModifyValueOnBrains(myValue, children[i]);
+                if (r != InstructionTileResult.Success)
+                    result = r;
+                r = ModifyOnChildrenContainingName(myValue, children[i]);
+                if (r != InstructionTileResult.Success)
+                    result = r;
+            }
+            return result;
+        }
         private InstructionTileResult ModifyOnAllSpawned(IMonaVariablesValue myValue)
         {        
             var spawned = _brain.SpawnedBodies;

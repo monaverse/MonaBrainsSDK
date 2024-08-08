@@ -28,6 +28,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(false)] public string Tag { get => _tag; set => _tag = value; }
 
+        [SerializeField] private string _targetChild;
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.ChildrenWithName)]
+        [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.ChildrenContainingName)]
+        [BrainProperty(true)] public string TargetName { get => _targetChild; set => _targetChild = value; }
+
         [SerializeField] private string _bodyArray;
         [BrainPropertyShow(nameof(MessageTarget), (int)MonaBrainBroadcastType.MyBodyArray)]
         [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string BodyArray { get => _bodyArray; set => _bodyArray = value; }
@@ -79,6 +84,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                     case MonaBrainBroadcastType.Parents:
                         return false;
                     case MonaBrainBroadcastType.Children:
+                    case MonaBrainBroadcastType.ChildrenWithName:
+                    case MonaBrainBroadcastType.ChildrenContainingName:
                         return false;
                     case MonaBrainBroadcastType.ThisBodyOnly:
                         return false;
@@ -123,6 +130,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                     break;
                 case MonaBrainBroadcastType.Children:
                     BroadcastToChildren(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ChildrenWithName:
+                    BroadcastToChildrenWithName(_brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ChildrenContainingName:
+                    BroadcastToChildrenContainingName(_brain.Body);
                     break;
                 case MonaBrainBroadcastType.ThisBodyOnly:
                     BroadcastMessage(_brain, _message, _brain.Body);
@@ -257,6 +270,40 @@ namespace Mona.SDK.Brains.Tiles.Actions.Broadcasting
                 BroadcastMessage(_brain, _message, children[i]);
                 BroadcastToChildren(children[i]);
             }
+        }
+
+        private void BroadcastToChildrenWithName(IMonaBody body)
+        {
+
+            var children = body.Children();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                var child = children[i];
+                if (child == null || child.Transform.name.ToLower() != _targetChild.ToLower())
+                    continue;
+
+                BroadcastMessage(_brain, _message, child);
+                BroadcastToChildrenWithName(child);
+            }
+
+        }
+
+        private void BroadcastToChildrenContainingName(IMonaBody body)
+        {
+
+            var children = body.Children();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                var child = children[i];
+                if (child == null || !child.Transform.name.ToLower().Contains(_targetChild.ToLower()))
+                    continue;
+
+                BroadcastMessage(_brain, _message, child);
+                BroadcastToChildrenContainingName(child);
+            }
+
         }
 
         private void BroadcastToAllSpawned()

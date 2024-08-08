@@ -38,6 +38,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
+        [SerializeField] private string _targetChild;
+        [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.ChildrenWithName)]
+        [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.ChildrenContainingName)]
+        [BrainProperty(true)] public string TargetName { get => _targetChild; set => _targetChild = value; }
+
+        [SerializeField] private bool _networkNewBodies;
+        [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.ChildrenWithName)]
+        [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.ChildrenContainingName)]
+        [BrainProperty(true)] public bool NetworkNewBodies { get => _networkNewBodies; set => _networkNewBodies = value; }
+
         [SerializeField] private string _bodyArray;
         [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.MyBodyArray)]
         [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string BodyArray { get => _bodyArray; set => _bodyArray = value; }
@@ -367,6 +377,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 case MonaBrainBroadcastType.Children:
                     _targetBodies = originBody.Children();
                     return _targetBodies.Contains(hitBody);
+                case MonaBrainBroadcastType.ChildrenWithName:
+                    _targetBodies = GetChildrenWithName(originBody);
+                    return _targetBodies.Contains(hitBody);
+                case MonaBrainBroadcastType.ChildrenContainingName:
+                    _targetBodies = originBody.Children();
+                    return _targetBodies.Contains(hitBody);
                 case MonaBrainBroadcastType.AllSpawnedByMe:
                     _targetBodies = _brain.SpawnedBodies;
                     return _targetBodies.Contains(hitBody);
@@ -376,6 +392,60 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
 
             return hitBody == preRegisteredTargetBody;
+        }
+
+        private List<IMonaBody> _children = new List<IMonaBody>();
+        private List<IMonaBody> GetChildrenWithName(IMonaBody body)
+        {
+            var children = body.Transform.GetComponentsInChildren<Transform>(true);
+            _children.Clear();
+            for (int i = 0; i < children.Length; i++)
+            {
+                var child = children[i];
+                if (child == null || child.name.ToLower() != _targetChild.ToLower())
+                    continue;
+
+                var childBody = child.GetComponent<IMonaBody>();
+                if (childBody == null)
+                    childBody = CreateMonaBody(child);
+
+                _children.Add(childBody);
+            }
+            return _children;
+        }
+
+        private List<IMonaBody> GetChildrenContainingName(IMonaBody body)
+        {
+            var children = body.Transform.GetComponentsInChildren<Transform>(true);
+            _children.Clear();
+            for (int i = 0; i < children.Length; i++)
+            {
+                var child = children[i];
+                if (child == null || !child.name.ToLower().Contains(_targetChild.ToLower()))
+                    continue;
+
+                var childBody = child.GetComponent<IMonaBody>();
+                if (childBody == null)
+                    childBody = CreateMonaBody(child);
+
+                _children.Add(childBody);
+            }
+            return _children;
+        }
+
+        private IMonaBody CreateMonaBody(Transform body)
+        {
+            var childBody = body.gameObject.AddComponent<MonaBody>();
+            childBody.SyncType = MonaBodyNetworkSyncType.NotNetworked;
+            if (_networkNewBodies)
+            {
+                childBody.SyncType = MonaBodyNetworkSyncType.NetworkTransform;
+
+                var guid = Guid.NewGuid();
+                ((MonaBodyBase)childBody).Guid = new SerializableGuid(guid);
+                ((MonaBodyBase)childBody).ManualMakeUnique(guid.ToString(), 0, 0, false);
+            }
+            return childBody;
         }
 
         private Vector3 GetDirection(IMonaBody bodyA, IMonaBody bodyB)
@@ -444,6 +514,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     return originBody.Parent;
                 case MonaBrainBroadcastType.Children:
                     return ClosestBody(originBody, originBody.Children());
+                case MonaBrainBroadcastType.ChildrenWithName:
+                    return ClosestBody(originBody, GetChildrenWithName(originBody));
+                case MonaBrainBroadcastType.ChildrenContainingName:
+                    return ClosestBody(originBody, GetChildrenContainingName(originBody));
                 case MonaBrainBroadcastType.MessageSender:
                     var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
                     return brain != null ? brain.Body : null;

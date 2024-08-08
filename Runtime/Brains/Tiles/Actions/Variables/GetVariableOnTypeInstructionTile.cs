@@ -27,6 +27,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
+        [SerializeField] private string _targetChild;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenWithName)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenContainingName)]
+        [BrainProperty(true)] public string TargetName { get => _targetChild; set => _targetChild = value; }
+
         [SerializeField] private string _targetVariable;
         [SerializeField] private string _targetVariableName;
         [BrainProperty(true)] public string TargetVariable { get => _targetVariable; set => _targetVariable = value; }
@@ -75,6 +80,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     case MonaBrainBroadcastType.Parents:
                         return false;
                     case MonaBrainBroadcastType.Children:
+                    case MonaBrainBroadcastType.ChildrenWithName:
+                    case MonaBrainBroadcastType.ChildrenContainingName:
                         return false;
                     case MonaBrainBroadcastType.ThisBodyOnly:
                         return false;
@@ -118,6 +125,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     GetFromParents(myValue, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.Children:
+                    GetFromChildren(myValue, _brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ChildrenWithName:
+                    GetFromChildren(myValue, _brain.Body);
+                    break;
+                case MonaBrainBroadcastType.ChildrenContainingName:
                     GetFromChildren(myValue, _brain.Body);
                     break;
                 case MonaBrainBroadcastType.ThisBodyOnly:
@@ -210,6 +223,49 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             }
         }
 
+        private void GetFromChildrenWithName(IMonaVariablesValue myValue, IMonaBody body)
+        {
+            var children = body.Children();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i] == null || children[i].Transform.name == _targetChild.ToLower())
+                    continue;
+
+                if (_childBodyValueFound)
+                    return;
+
+                if (GetValueFromBrains(myValue, children[i]))
+                {
+                    _childBodyValueFound = true;
+                    return;
+                }
+
+                GetFromChildrenWithName(myValue, children[i]);
+            }
+        }
+
+        private void GetFromChildrenContainingName(IMonaVariablesValue myValue, IMonaBody body)
+        {
+            var children = body.Children();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i] == null || !children[i].Transform.name.ToLower().Contains(_targetChild.ToLower()))
+                    continue;
+
+                if (_childBodyValueFound)
+                    return;
+
+                if (GetValueFromBrains(myValue, children[i]))
+                {
+                    _childBodyValueFound = true;
+                    return;
+                }
+
+                GetFromChildrenContainingName(myValue, children[i]);
+            }
+        }
         private void GetFromAllSpawned(IMonaVariablesValue myValue)
         {
             var spawned = _brain.SpawnedBodies;
