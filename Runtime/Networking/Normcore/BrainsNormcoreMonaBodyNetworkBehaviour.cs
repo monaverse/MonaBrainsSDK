@@ -430,20 +430,22 @@ namespace Mona.Networking
             if (_monaBody == null) return;
             if (_monaBody.gameObject == gameObject) return;
 
-            transform.SetParent(_monaBody.transform.parent);
-            transform.position = _monaBody.transform.position;
-            transform.rotation = _monaBody.transform.rotation;
+            transform.SetParent(_monaBody.transform.parent, true);
             transform.localScale = _monaBody.transform.localScale;
+            transform.localPosition = _monaBody.transform.localPosition;
+            transform.localRotation = _monaBody.transform.localRotation;
+
             _monaBody.transform.SetParent(transform);
+            _monaBody.transform.localScale = Vector3.one;
             _monaBody.transform.localPosition = Vector3.zero;
             _monaBody.transform.localRotation = Quaternion.identity;
-            _monaBody.transform.localScale = Vector3.one;
             _monaBody.SetActive(true);
         }
 
         public void Destroy()
         {
-            Realtime.Destroy(gameObject);
+            if(realtime.connected)
+                Realtime.Destroy(gameObject);
         }
 
         private void OnDestroy()
