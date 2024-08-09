@@ -4,11 +4,10 @@ using Mona.SDK.Brains.Core;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using Mona.SDK.Brains.Core.State;
-using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
-using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Brains.Core.Utils.Interfaces;
+using Mona.SDK.Brains.Core.Utils.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.IO
 {
@@ -31,8 +30,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
         public override InstructionTileResult Do()
         {
-            if (_brain == null)
+            if (_brain == null || _globalBrainRunner == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            if (_storageTarget != StorageTargetType.Cloud && _localStorage == null)
+            {
+                _localStorage = _globalBrainRunner.LocalStorage;
+
+                if (_localStorage == null)
+                    return Complete(InstructionTileResult.Success);
+            }
+
+            if (_storageTarget != StorageTargetType.Local && _cloudStorage == null)
+            {
+                _cloudStorage = _globalBrainRunner.ClousStorage;
+
+                if (_cloudStorage == null)
+                    return Complete(InstructionTileResult.Success);
+            }
 
             SetNamedValues();
 
@@ -81,8 +96,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
             for (int i = 0; i < globalBodies.Length; i++)
                 StoreBodyTransforms(globalBodies[i]);
-
-            TrySave();
         }
 
         private void StoreBody(IMonaBody body)
@@ -91,15 +104,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                 return;
 
             StoreBodyTransforms(body);
-            TrySave();
         }
 
         private void StoreBodies()
         {
             for (int i = 0; i < _bodiesToSave.Count; i++)
                 StoreBodyTransforms(_bodiesToSave[i], i);
-
-            TrySave();
         }
 
         private void StoreBodyTransforms(IMonaBody body, int index = -1)
@@ -113,24 +123,27 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             Vector3 rotation = body.GetRotation().eulerAngles;
             Vector3 scale = body.GetScale();
 
-            PlayerPrefs.SetString(bodyString, "[Exists]");
-            StoreBodyVectorThree(bodyString, _positionString, position);
-            StoreBodyVectorThree(bodyString, _rotationString, rotation);
-            StoreBodyVectorThree(bodyString, _scaleString, scale);
+            if (_storageTarget != StorageTargetType.Cloud)
+            {
+                _localStorage.SetString(bodyString, _existsString, out bool _, _saveNow);
+                StoreBodyVectorThree(_localStorage, bodyString, _positionString, position);
+                StoreBodyVectorThree(_localStorage, bodyString, _rotationString, rotation);
+                StoreBodyVectorThree(_localStorage, bodyString, _scaleString, scale);
+            }
+
+            if (_storageTarget != StorageTargetType.Local)
+            {
+                _cloudStorage.SetString(bodyString, _existsString, out bool _, _saveNow);
+                StoreBodyVectorThree(_cloudStorage, bodyString, _positionString, position);
+                StoreBodyVectorThree(_cloudStorage, bodyString, _rotationString, rotation);
+                StoreBodyVectorThree(_cloudStorage, bodyString, _scaleString, scale);
+            }
         }
 
-        private void StoreBodyVectorThree(string bodyString, string transformString, Vector3 value)
+        private void StoreBodyVectorThree(IBrainStorage storage, string bodyString, string transformString, Vector3 value)
         {
             string key = bodyString + transformString;
-            PlayerPrefs.SetFloat(key + _x, value.x);
-            PlayerPrefs.SetFloat(key + _y, value.y);
-            PlayerPrefs.SetFloat(key + _z, value.z);
-        }
-
-        private void TrySave()
-        {
-            if (_saveNow)
-                PlayerPrefs.Save();
+            storage.SetVector3(key, value, out bool _, _saveNow);
         }
     }
 }

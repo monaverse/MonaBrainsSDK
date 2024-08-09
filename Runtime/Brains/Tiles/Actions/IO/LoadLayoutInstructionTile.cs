@@ -3,12 +3,9 @@ using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Core;
 using UnityEngine;
 using System;
-using System.Collections.Generic;
-using Mona.SDK.Brains.Core.State;
-using Mona.SDK.Brains.Tiles.Actions.General.Interfaces;
-using Mona.SDK.Brains.Core.Brain;
-using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Brains.Core.Utils.Interfaces;
+using Mona.SDK.Brains.Core.Utils.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.IO
 {
@@ -20,14 +17,35 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         public const string CATEGORY = "File Storage";
         public override Type TileType => typeof(LoadLayoutInstructionTile);
 
-        private List<IMonaBody> _bodiesToLoad = new List<IMonaBody>();
-
         public LoadLayoutInstructionTile() { }
+
+        private enum TransformType
+        {
+            Position,
+            Rotation,
+            Scale
+        }
 
         public override InstructionTileResult Do()
         {
-            if (_brain == null)
+            if (_brain == null || _globalBrainRunner == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            if (_storageTarget != StorageTargetType.Cloud && _localStorage == null)
+            {
+                _localStorage = _globalBrainRunner.LocalStorage;
+
+                if (_localStorage == null)
+                    return Complete(InstructionTileResult.Success);
+            }
+
+            if (_storageTarget != StorageTargetType.Local && _cloudStorage == null)
+            {
+                _cloudStorage = _globalBrainRunner.ClousStorage;
+
+                if (_cloudStorage == null)
+                    return Complete(InstructionTileResult.Success);
+            }
 
             SetNamedValues();
 
@@ -92,27 +110,43 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             if (body == null)
                 return;
 
-            string positionString = bodyKey + _positionString;
-            string rotationString = bodyKey + _rotationString;
-            string scaleString = bodyKey + _scaleString;
+            bool localSuccess = false;
 
-            if (PlayerPrefs.HasKey(positionString + _x))
-                body.TeleportPosition(LoadBodyVectorThree(positionString));
+            if (_storageTarget != StorageTargetType.Cloud)
+            {
+                SetTrasformsFromStorage(body, _localStorage, TransformType.Position, bodyKey, out bool positionSuccess);
+                SetTrasformsFromStorage(body, _localStorage, TransformType.Position, bodyKey, out bool rotationSuccess);
+                SetTrasformsFromStorage(body, _localStorage, TransformType.Position, bodyKey, out bool scaleSuccess);
+                localSuccess = positionSuccess || rotationSuccess || scaleSuccess;
+            }
 
-            if (PlayerPrefs.HasKey(rotationString + _x))
-                body.TeleportRotation(Quaternion.Euler(LoadBodyVectorThree(rotationString)));
-
-            if (PlayerPrefs.HasKey(scaleString + _x))
-                body.TeleportScale(LoadBodyVectorThree(scaleString));
+            if (_storageTarget != StorageTargetType.Local && !localSuccess)
+            {
+                SetTrasformsFromStorage(body, _localStorage, TransformType.Position, bodyKey, out _);
+                SetTrasformsFromStorage(body, _localStorage, TransformType.Position, bodyKey, out _);
+                SetTrasformsFromStorage(body, _localStorage, TransformType.Position, bodyKey, out _);
+            }
         }
 
-        private Vector3 LoadBodyVectorThree(string key)
+        private void SetTrasformsFromStorage(IMonaBody body, IBrainStorage storage, TransformType type, string bodyKey, out bool success)
         {
-            float x = PlayerPrefs.GetFloat(key + _x, 1);
-            float y = PlayerPrefs.GetFloat(key + _y, 1);
-            float z = PlayerPrefs.GetFloat(key + _z, 1);
+            switch (type)
+            {
+                case TransformType.Position:
+                    Vector3 position = storage.LoadVector3(bodyKey + _positionString, out success);
+                    if (success) body.TeleportPosition(position);
+                    break;
+                case TransformType.Rotation:
+                    Vector3 rotation = storage.LoadVector3(bodyKey + _rotationString, out success);
+                    if (success) body.TeleportPosition(rotation);
+                    break;
+                case TransformType.Scale:
+                    Vector3 scale = storage.LoadVector3(bodyKey + _scaleString, out success);
+                    if (success) body.TeleportPosition(scale);
+                    break;
+            }
 
-            return new Vector3(x, y, z);
+            success = false;
         }
     }
 }

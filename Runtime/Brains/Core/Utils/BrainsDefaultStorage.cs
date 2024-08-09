@@ -1,10 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Core.Utils.Enums;
-using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Core.Utils
 {
@@ -239,7 +235,7 @@ namespace Mona.SDK.Brains.Core.Utils
 
         private void SaveChanges()
         {
-            SaveChanges(out bool _);
+            SaveChanges(out _);
         }
 
         public void SaveChanges(out bool success)
