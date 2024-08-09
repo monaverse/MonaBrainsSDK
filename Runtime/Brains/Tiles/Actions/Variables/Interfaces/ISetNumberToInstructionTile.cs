@@ -2,8 +2,8 @@
 
 namespace Mona.SDK.Brains.Tiles.Actions.Variables.Interfaces
 {
-    public interface ISetNumberToInstructionTile : IInstructionTileWithPreload
-    {
+    public interface ISetNumberToInstructionTile : IInstructionTileWithPreloadAndPageAndInstruction
+    { 
         string NumberName { get; set; }
         float Amount { get; set; }
     }

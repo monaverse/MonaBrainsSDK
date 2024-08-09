@@ -481,12 +481,13 @@ namespace Mona.Networking
             if (!HasValidAuthority()) return;
             if (_spaceNetworkSettings == null) return;
 
+            MonaGlobalBrainRunner.PhysicsDeltaTime = Time.fixedDeltaTime;
             if (_spaceNetworkSettings.GetNetworkType() == MonaNetworkType.Shared)
             {
                 if (_hasInput)
-                    _monaBody?.FixedUpdateNetwork(Time.fixedDeltaTime, _hasInput, _input);
+                    _monaBody?.FixedUpdateNetwork(MonaGlobalBrainRunner.PhysicsDeltaTime, _hasInput, _input);
                 else
-                    _monaBody?.FixedUpdateNetwork(Time.fixedDeltaTime, false, (MonaInput)default);
+                    _monaBody?.FixedUpdateNetwork(MonaGlobalBrainRunner.PhysicsDeltaTime, false, (MonaInput)default);
             }
 
             _hasInput = false;

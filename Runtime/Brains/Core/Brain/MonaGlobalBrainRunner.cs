@@ -22,6 +22,9 @@ namespace Mona.SDK.Brains.Core.Brain
 {
     public partial class MonaGlobalBrainRunner : MonoBehaviour, IMonaBrainPlayer
     {
+        public static float FrameDeltaTime;
+        public static float PhysicsDeltaTime;
+
         public Action OnStarted = delegate { };
         public Action<IMonaBrain> OnBrainAddUIEvent = delegate { };
         public Action<IMonaBrain> OnBrainRemoveUIEvent = delegate { };
@@ -398,11 +401,13 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void Update()
         {
+            FrameDeltaTime = Time.deltaTime;
             TriggerTick();
         }
 
         private void FixedUpdate()
         {
+            PhysicsDeltaTime = Time.fixedDeltaTime;
             TriggerFixedTick();
         }
 

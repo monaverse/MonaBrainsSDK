@@ -37,6 +37,8 @@ namespace Mona.SDK.Brains.Core.Control
         List<Token> Tokens { get; set; }
         IMonaBrainPage Page { get; }
 
+        float DeltaTime { get; }
+
         void ToggleMuteTile(int i);
         void ToggleMute();
 

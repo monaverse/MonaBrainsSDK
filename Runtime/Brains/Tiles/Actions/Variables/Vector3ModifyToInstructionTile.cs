@@ -12,7 +12,7 @@ using Mona.SDK.Core.State.Structs;
 namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
     [Serializable]
-    public class Vector3ModifyInstructionTile : InstructionTile, IActionInstructionTile, IStoreVariableInstructionTile
+    public class Vector3ModifyInstructionTile : InstructionTile, IActionInstructionTile, IStoreVariableInstructionTile, IInstructionTileWithPreload
 
     {
         public const string ID = "ModifyVector3";

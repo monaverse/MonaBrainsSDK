@@ -11,6 +11,7 @@ using Mona.SDK.Core.State.Structs;
 using Unity.Profiling;
 using Mona.SDK.Core.Body;
 using System.Collections.Generic;
+using Mona.SDK.Brains.Core.Control;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Variables
 {
@@ -61,26 +62,52 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         [SerializeField] private float _amount = 1;
         [SerializeField] private string _amountValueName;
-        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Set)]
-        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Add)]
-        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Subtract)]
+        [BrainPropertyShow(nameof(ShowVariable), (int)ShowVariableType.ShowAmountVariable)]
         [BrainProperty(true)] public float Amount { get => _amount; set => _amount = value; }
         [BrainPropertyValueName("Amount", typeof(IMonaVariablesFloatValue))] public string AmountValueName { get => _amountValueName; set => _amountValueName = value; }
 
         [SerializeField] private float _by = 2;
         [SerializeField] private string _byValueName;
-        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Multiply)]
-        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Divide)]
-        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Exponent)]
-        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Logarithm)]
-        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Modulo)]
-        [BrainPropertyShow(nameof(OperatorToUse), (int)ValueChangeType.Arctangent2)]
+        [BrainPropertyShow(nameof(ShowVariable), (int)ShowVariableType.ShowByVariable)]
         [BrainProperty(true)] public float By { get => _by; set => _by = value; }
         [BrainPropertyValueName("By", typeof(IMonaVariablesFloatValue))] public string ByValueName { get => _byValueName; set => _byValueName = value; }
+
+        [SerializeField] private FrameValueType _frameValue = 0;
+        [BrainPropertyShow(nameof(ShowVariable), (int)ShowVariableType.ShowFrameEnum)]
+        [BrainPropertyEnum(true)] public FrameValueType Value { get => _frameValue; set => _frameValue = value; }
+
+        [SerializeField] private VariableTargetSource _valueSource;
+        [BrainPropertyEnum(false)] public VariableTargetSource ValueSource { get => _valueSource; set => _valueSource = value; }
 
         [SerializeField] private string _storeResultOn;
         [BrainPropertyShow(nameof(SetResultTo), (int)VariableTargetToStoreResult.OtherVariable)]
         [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string StoreResultOn { get => _storeResultOn; set => _storeResultOn = value; }
+
+        public ShowVariableType ShowVariable => GetShowVariable();
+
+        private ShowVariableType GetShowVariable()
+        {
+            switch(ValueSource)
+            {
+                case VariableTargetSource.Variable:
+
+                    switch(OperatorToUse)
+                    {
+                        case ValueChangeType.Multiply:
+                        case ValueChangeType.Divide:
+                        case ValueChangeType.Exponent:
+                        case ValueChangeType.Logarithm:
+                        case ValueChangeType.Modulo:
+                        case ValueChangeType.Arctangent2:
+                            return ShowVariableType.ShowByVariable;
+                        default:
+                            return ShowVariableType.ShowAmountVariable;
+                    }
+
+                default:
+                    return ShowVariableType.ShowFrameEnum;
+            }
+        }
 
         private IMonaBrain _brain;
 
@@ -98,23 +125,35 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         {
             get
             {
-                switch (GetOperator())
+                if (ValueSource == VariableTargetSource.Frame)
                 {
-                    case ValueChangeType.Multiply:
-                        return _by;
-                    case ValueChangeType.Divide:
-                        return _by;
-                    case ValueChangeType.Exponent:
-                        return _by;
-                    case ValueChangeType.Logarithm:
-                        return _by;
-                    case ValueChangeType.Modulo:
-                        return _by;
-                    case ValueChangeType.Arctangent2:
-                        return _by;
+                    if (Value == FrameValueType.FrameDeltaTime)
+                        return MonaGlobalBrainRunner.FrameDeltaTime;
+                    else if (Value == FrameValueType.PhysicsDeltaTime)
+                        return MonaGlobalBrainRunner.PhysicsDeltaTime;
+                    else
+                        return _instruction.DeltaTime;
                 }
+                else
+                {
+                    switch (GetOperator())
+                    {
+                        case ValueChangeType.Multiply:
+                            return _by;
+                        case ValueChangeType.Divide:
+                            return _by;
+                        case ValueChangeType.Exponent:
+                            return _by;
+                        case ValueChangeType.Logarithm:
+                            return _by;
+                        case ValueChangeType.Modulo:
+                            return _by;
+                        case ValueChangeType.Arctangent2:
+                            return _by;
+                    }
 
-                return _amount;
+                    return _amount;
+                }
             }
         }
 
@@ -125,9 +164,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             return ValueChangeType.Set;
         }
 
-        public void Preload(IMonaBrain brainInstance)
+        public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
+            _instruction = instruction;
         }
 
         static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(SetNumberToInstructionTile)}.{nameof(Do)}");
@@ -161,15 +201,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         private bool Evaluate(IMonaBrainVariables state)
         {
+            string nameOfVariableToSet = SetResultTo == VariableTargetToStoreResult.SameVariable ?
+            _numberName : _storeResultOn;
+
             var variable = state.GetVariable(_numberName);
             if (variable == null)
             {
                 state.Set(_numberName, AmountToUse);
                 return true;
             }
-
-            string nameOfVariableToSet = SetResultTo == VariableTargetToStoreResult.SameVariable ?
-                _numberName : _storeResultOn;
 
             if (variable is IMonaVariablesFloatValue)
                 ChangeFloatValue(state, nameOfVariableToSet, ((IMonaVariablesFloatValue)variable).ValueToReturnFromTile, GetOperator(), AmountToUse);
