@@ -169,10 +169,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public virtual void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
-            _proxy = (new GameObject("Proxy")).transform;
             _brain = brainInstance;
             _instruction = instruction;
             _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();
+
+            if (_proxy == null)
+                _proxy = (new GameObject($"ProxyRotator{_brain.Name}")).transform;
 
             if (_device != OrbitInputDeviceType.Vector2)
                 _brainInput.StartListening(this);
@@ -180,8 +182,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override void Unload(bool destroyed = false)
         {
-            GameObject.Destroy(_proxy);
-            _proxy = null;
+            if (destroyed)
+            {
+                if(_proxy != null && _proxy.gameObject != null)
+                    GameObject.Destroy(_proxy.gameObject);
+                _proxy = null;
+            }
             if (_device != OrbitInputDeviceType.Vector2)
                 _brainInput.StopListening(this);
         }

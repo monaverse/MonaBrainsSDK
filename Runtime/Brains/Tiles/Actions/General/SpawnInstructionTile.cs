@@ -690,10 +690,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 {
                     instance.OnBodyDisabled -= HandleBodyDisabled;
                     instance.OnAfterEnabled -= HandleAfterEnabled;
-                    if (instance.Transform != null && instance.Transform.gameObject != null)
+                    if (!instance.Destroyed)
                         instance.Destroy();
                 }
-                else if(instance != null && instance.Transform != null && !instance.Destroyed)
+                else if(!instance.Destroyed)
                     instance.SetActive(false);
             }
 

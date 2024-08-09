@@ -403,7 +403,8 @@ namespace Mona.Networking
         private void HandleBodyDestroyRequested()
         {
             //Debug.Log($"{nameof(HandleBodyControlRequested)} {_monaBody.Transform.name} {_index}", this.gameObject);
-            Realtime.Destroy(gameObject);
+            if(realtime.connected)
+                Realtime.Destroy(gameObject);
         }
 
 
@@ -454,6 +455,7 @@ namespace Mona.Networking
             {
                 localModel = new MonaVariablesFloatNetworkModel();
                 localModel.value = value;
+                //Debug.Log($"{nameof(SetNetworkFloat)} {variableName} {key} {value} index: {_index}", _monaBody.transform.gameObject);
                 localModel.key = (int)key;
                 model.floats.Add((uint)key, localModel);
             }
