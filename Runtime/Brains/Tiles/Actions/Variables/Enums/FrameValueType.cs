@@ -5,6 +5,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables.Enums
     {
         FrameDeltaTime = 0,
         PhysicsDeltaTime = 10,
-        TimeSinceLastTick = 20
+        TileDeltaTime = 20
     }
 }

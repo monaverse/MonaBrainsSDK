@@ -83,6 +83,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyShow(nameof(SetResultTo), (int)VariableTargetToStoreResult.OtherVariable)]
         [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string StoreResultOn { get => _storeResultOn; set => _storeResultOn = value; }
 
+        private float _time;
+
         public ShowVariableType ShowVariable => GetShowVariable();
 
         private ShowVariableType GetShowVariable()
@@ -110,6 +112,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         }
 
         private IMonaBrain _brain;
+        private bool _restart;
 
         private List<IMonaBody> _bodiesToControl = new List<IMonaBody>();
         public List<IMonaBody> GetBodiesToControl()
@@ -131,8 +134,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                         return MonaGlobalBrainRunner.FrameDeltaTime;
                     else if (Value == FrameValueType.PhysicsDeltaTime)
                         return MonaGlobalBrainRunner.PhysicsDeltaTime;
+                    else if (_restart)
+                    {
+                        _time = Time.time;
+                        _restart = false;
+                        return 0;
+                    }
                     else
-                        return _instruction.DeltaTime;
+                        return Time.time - _time;
                 }
                 else
                 {
@@ -167,13 +176,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         public void Preload(IMonaBrain brainInstance, IMonaBrainPage page, IInstruction instruction)
         {
             _brain = brainInstance;
-            _instruction = instruction;
+            _instruction = instruction;         
         }
 
         static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(SetNumberToInstructionTile)}.{nameof(Do)}");
 
         public override InstructionTileResult Do()
         {
+            if (_brain.Variables.GetBool(MonaBrainConstants.ON_STARTING))
+                _restart = true;
+
             _profilerDo.Begin();
 
             if (!string.IsNullOrEmpty(_amountValueName))
@@ -185,6 +197,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
             if (_brain == null || string.IsNullOrEmpty(_numberName) || (SetResultTo == VariableTargetToStoreResult.OtherVariable && string.IsNullOrEmpty(_storeResultOn)))
             {
                 _profilerDo.End();
+                _time = Time.time;
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
             }
 
@@ -193,6 +206,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 //if(_brain.LoggingEnabled)
                 //    Debug.Log($"{nameof(SetNumberToInstructionTile)} {_operator} {_amount} = {_brain.Variables.GetFloat(_valueName)}");
                 _profilerDo.End();
+                _time = Time.time;
                 return Complete(InstructionTileResult.Success);
             }
 

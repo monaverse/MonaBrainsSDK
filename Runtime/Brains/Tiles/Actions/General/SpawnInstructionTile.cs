@@ -462,7 +462,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             poolItem.Transform.localScale = Vector3.one;
             var parsed = ChangeAvatarInstructionTile.ParseHumanoid(poolItem.Transform.gameObject);
 
-            RecalculateSize(poolItem, parsed.Avatar != null);
+            RecalculateSize(poolItem, parsed.Avatar != null, body);
 
             poolItem.OnAfterEnabled -= HandleAfterEnabled;
             poolItem.OnAfterEnabled += HandleAfterEnabled;
@@ -497,7 +497,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         }
 
 
-        private void RecalculateSize(IMonaBody avatar, bool isAvatar)
+        private void RecalculateSize(IMonaBody avatar, bool isAvatar, IMonaBody body)
         {
             var offset = _offset;
             if (HasVector3Values(_offsetName))
@@ -587,23 +587,23 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             Debug.Log($"{nameof(ChangeAvatarInstructionTile)} localPosition: {avatarGameObject.transform.localPosition}");
 
-            Vector3 position = avatar.GetPosition() + avatar.GetRotation() * offset;
-            Quaternion rotation = avatar.GetRotation() * Quaternion.Euler(eulerAngles);
+            Vector3 position = body.GetPosition();
+            Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);
 
 
             if (_scaleToFit)
             {
                 scale = Vector3.one * maxBoxScale;
                 avatar.TeleportScale(scale);
-                avatar.TeleportPosition(position + (-offsetY) * maxBoxScale + offset);
+                avatar.TeleportPosition(position + (-offsetY) * maxBoxScale + body.GetRotation() * offset);
             }
             else
             {
                 avatar.TeleportScale(scale);
-                avatar.TeleportPosition(position + (-offsetY) * scale.y + offset);
+                avatar.TeleportPosition(position + (-offsetY) * scale.y + body.GetRotation() * offset);
             }
 
-            avatar.SetSpawnTransforms(position, rotation, scale, _spawnAsChild, true);
+            avatar.SetSpawnTransforms(position + body.GetRotation() * offset, rotation, scale, _spawnAsChild, true);
 
         }
 

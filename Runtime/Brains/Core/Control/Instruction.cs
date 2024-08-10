@@ -79,9 +79,6 @@ namespace Mona.SDK.Brains.Core.Control
 
         private EventHook _brainEventHook;
 
-        private float _time;
-        public float DeltaTime => Time.time - _time;
-
         public IInstructionTile CurrentTile {
             get
             {
@@ -327,8 +324,6 @@ namespace Mona.SDK.Brains.Core.Control
 
         public void Execute(InstructionEventTypes eventType, bool elseOkay, out bool instructionSucceeded, InstructionEvent evt = default)
         {
-            _time = Time.time;
-
             //Debug.Log($"{nameof(Execute)} #{_page.Instructions.IndexOf(this)} instruction received event {eventType}", _brain.Body.ActiveTransform.gameObject);
             if (_unloaded || _paused || _muted)
             {
