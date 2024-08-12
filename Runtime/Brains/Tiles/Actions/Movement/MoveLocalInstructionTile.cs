@@ -277,6 +277,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             _listening = false;
 
             MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), OnBodyEvent);
             MonaEventBus.Unregister(new EventHook(MonaBrainConstants.MONA_BRAINS_EVENT, _brain.Body), OnBodyEvent);
         }
 
