@@ -12,6 +12,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.Utils;
 using Unity.Profiling;
+using Mona.SDK.Brains.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Audio
 {
@@ -65,6 +66,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         private bool _canInterrupt = true;
 
         private AudioSource _audioSource;
+        private BrainsAudioLoader _audioLoader;
 
         static readonly ProfilerMarker _profilerDo = new ProfilerMarker($"MonaBrains.{nameof(PlayAudioInstructionTile)}.{nameof(Do)}");
         static readonly ProfilerMarker _profilerPreload = new ProfilerMarker($"MonaBrains.{nameof(PlayAudioInstructionTile)}.{nameof(Preload)}");
@@ -77,6 +79,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             _canInterrupt = instruction.HasConditional();
 
             SetupAudioSource();
+            SetupAudioLoader();
             SetupClip();
 
             UpdateActive();
@@ -93,10 +96,29 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             _audioSource.dopplerLevel = 0;
         }
 
+        private void SetupAudioLoader()
+        {
+            _audioLoader = _brain.Body.ActiveTransform.GetComponent<BrainsAudioLoader>();
+            if (_audioLoader == null)
+                _audioLoader = _brain.Body.ActiveTransform.AddComponent<BrainsAudioLoader>();
+        }
+
         private void SetupClip()
         {
             _clip = (IMonaAudioAssetItem)_brain.GetMonaAsset(_monaAsset);
-            _audioSource.clip = _clip.Value;
+
+            if (!string.IsNullOrEmpty(_clip.Url))
+                LoadClip(_clip.Url);
+            else
+                _audioSource.clip = _clip.Value;
+        }
+
+        private void LoadClip(string url)
+        {
+            _audioLoader.GetAudioData(url, (clip) =>
+            {
+                _audioSource.clip = clip;
+            });
         }
 
         public void SetActive(bool active)
