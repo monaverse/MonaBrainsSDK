@@ -394,14 +394,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             return hitBody == preRegisteredTargetBody;
         }
 
+        private List<Transform> _rawChildren = new List<Transform>();
         private List<IMonaBody> _children = new List<IMonaBody>();
         private List<IMonaBody> GetChildrenWithName(IMonaBody body)
         {
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
+            _rawChildren.Clear();
+            _rawChildren.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _rawChildren.Remove(body.Transform);
+
             _children.Clear();
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _rawChildren.Count; i++)
             {
-                var child = children[i];
+                var child = _rawChildren[i];
                 if (child == null || child.name.ToLower() != _targetChild.ToLower())
                     continue;
 
@@ -416,11 +420,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private List<IMonaBody> GetChildrenContainingName(IMonaBody body)
         {
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
+            _rawChildren.Clear();
+            _rawChildren.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _rawChildren.Remove(body.Transform);
+
             _children.Clear();
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _rawChildren.Count; i++)
             {
-                var child = children[i];
+                var child = _rawChildren[i];
                 if (child == null || !child.name.ToLower().Contains(_targetChild.ToLower()))
                     continue;
 

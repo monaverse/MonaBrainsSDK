@@ -283,14 +283,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             }
         }
 
+        private List<Transform> _children = new List<Transform>();
         private void SetupOnChildrenWithName(IMonaBody body)
         {
+            _children.Clear();
+            _children.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _children.Remove(body.Transform);
 
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
-
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _children.Count; i++)
             {
-                var child = children[i];
+                var child = _children[i];
                 if (child == null || child.name.ToLower() != _targetChild.ToLower())
                     continue;
 
@@ -305,12 +307,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         private void SetupOnChildrenContainingName(IMonaBody body)
         {
+            _children.Clear();
+            _children.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _children.Remove(body.Transform);
 
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
-
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _children.Count; i++)
             {
-                var child = children[i];
+                var child = _children[i];
                 if (child == null || !child.name.ToLower().Contains(_targetChild.ToLower()))
                     continue;
 
@@ -511,12 +514,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         private void ModifyOnChildrenWithName(IMonaBody body)
         {
+            _children.Clear();
+            _children.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _children.Remove(body.Transform);
 
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
-
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _children.Count; i++)
             {
-                var child = children[i];
+                var child = _children[i];
                 if (child == null || child.name.ToLower() != _targetChild.ToLower())
                     continue;
 
@@ -531,12 +535,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         private void ModifyOnChildrenContainingName(IMonaBody body)
         {
+            _children.Clear();
+            _children.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _children.Remove(body.Transform);
 
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
-
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _children.Count; i++)
             {
-                var child = children[i];
+                var child = _children[i];
                 if (child == null || !child.name.ToLower().Contains(_targetChild.ToLower()))
                     continue;
 

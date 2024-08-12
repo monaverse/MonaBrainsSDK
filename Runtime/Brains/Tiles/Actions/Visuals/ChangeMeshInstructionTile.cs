@@ -7,6 +7,7 @@ using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Assets.Interfaces;
+using System.Collections.Generic;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 {
@@ -261,14 +262,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
             }
         }
 
+        private List<Transform> _children = new List<Transform>();
         private void SetMeshOnChildrenWithName(IMonaBody body)
         {
+            _children.Clear();
+            _children.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _children.Remove(body.Transform);
 
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
-
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _children.Count; i++)
             {
-                var child = children[i];
+                var child = _children[i];
                 if (child == null || child.name.ToLower() != _targetChild.ToLower())
                     continue;
 
@@ -283,12 +286,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Visuals
 
         private void SetMeshOnChildrenContainingName(IMonaBody body)
         {
+            _children.Clear();
+            _children.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _children.Remove(body.Transform);
 
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
-
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _children.Count; i++)
             {
-                var child = children[i];
+                var child = _children[i];
                 if (child == null || !child.name.ToLower().Contains(_targetChild.ToLower()))
                     continue;
 

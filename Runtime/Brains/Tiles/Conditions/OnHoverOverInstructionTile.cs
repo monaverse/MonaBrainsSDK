@@ -254,13 +254,16 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             return false;
         }
 
+        private List<Transform> _children = new List<Transform>();
         private bool TargetChildrenWithNameAreHoveredOver(IMonaBody body)
         {
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
+            _children.Clear();
+            _children.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _children.Remove(body.Transform);
 
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _children.Count; i++)
             {
-                var child = children[i];
+                var child = _children[i];
                 if (child == null || child.name.ToLower() != _targetChild.ToLower())
                     continue;
 
@@ -276,12 +279,13 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private bool TargetChildrenContainingNameAreHoveredOver(IMonaBody body)
         {
+            _children.Clear();
+            _children.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _children.Remove(body.Transform);
 
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
-
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _children.Count; i++)
             {
-                var child = children[i];
+                var child = _children[i];
                 if (child == null || !child.name.ToLower().Contains(_targetChild.ToLower()))
                     continue;
 

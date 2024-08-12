@@ -58,6 +58,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainProperty(true)] public string BrainString { get => _brainString; set => _brainString = value; }
         [BrainPropertyValueName("BrainString", typeof(IMonaVariablesStringValue))] public string BrainStringName { get => _brainStringName; set => _brainStringName = value; }
 
+        [SerializeField] private bool _skipIfBrainsExist;
+        [BrainProperty(false)] public bool SkipIfBrainsExist { get => _skipIfBrainsExist; set => _skipIfBrainsExist = value; }
+
         [SerializeField] private bool _includeAttached = false;
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.Tag)]
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MessageSender)]
@@ -306,14 +309,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
         }
 
+        private List<Transform> _children = new List<Transform>();
         private void ModifyOnChildrenWithName(IMonaBody body)
         {
+            _children.Clear();
+            _children.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _children.Remove(body.Transform);
 
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
-
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _children.Count; i++)
             {
-                var child = children[i];
+                var child = _children[i];
                 if (child == null || child.name.ToLower() != _targetChild.ToLower())
                     continue;
 
@@ -328,12 +333,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void ModifyOnChildrenContainingName(IMonaBody body)
         {
+            _children.Clear();
+            _children.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _children.Remove(body.Transform);
 
-            var children = body.Transform.GetComponentsInChildren<Transform>(true);
-
-            for (int i = 0; i < children.Length; i++)
+            for (int i = 0; i < _children.Count; i++)
             {
-                var child = children[i];
+                var child = _children[i];
                 if (child == null || !child.name.ToLower().Contains(_targetChild.ToLower()))
                     continue;
 
@@ -421,10 +427,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void AddBrains(MonaBrainRunner runner)
         {
-            for (int i = 0; i < _brainGraphsToAdd.Count; i++)
-                runner.AddBrainGraph((MonaBrainGraph)_brainGraphsToAdd[i]);
+            if (_skipIfBrainsExist && runner.BrainGraphs.Count > 0) return;
 
-            runner.RestartBrains(true);
+            var added = false;
+            for (int i = 0; i < _brainGraphsToAdd.Count; i++)
+            {
+                if (runner.AddBrainGraph((MonaBrainGraph)_brainGraphsToAdd[i]))
+                    added = true;
+            }
+
+            if(added)
+                runner.RestartBrains(true);
         }
 
         private void RemoveBrains(MonaBrainRunner runner)
