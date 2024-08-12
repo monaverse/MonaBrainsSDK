@@ -52,13 +52,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainProperty] public float Radius { get => _radius; set => _radius = value; }
         [BrainPropertyValueName(nameof(Radius), typeof(IMonaVariablesFloatValue))] public string RadiusValueName { get => _radiusValueName; set => _radiusValueName = value; }
 
-
         [SerializeField] private bool _isTrigger = false;
         [BrainPropertyEnum(false)] public bool IsTrigger { get => _isTrigger; set => _isTrigger = value; }
 
-
         [SerializeField] private bool _onlyRenderers = true;
         [BrainPropertyEnum(true)] public bool OnlyRenderers { get => _onlyRenderers; set => _onlyRenderers = value; }
+
+        [SerializeField] private bool _skipIfExists = false;
+        [BrainPropertyShow(nameof(AddOrRemove), (int)ColliderModificationType.Add)]
+        [BrainPropertyEnum(false)] public bool SkipIfExists { get => _skipIfExists; set => _skipIfExists = value; }
 
         public string Tag { get => _targetTag; set => _targetTag = value; }
 
@@ -348,7 +350,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             if (_addOrRemove == ColliderModificationType.Add)
             {
-                var colliders = body.AddCollider(_colliderType, _onlyRenderers);
+                var colliders = body.AddCollider(_colliderType, _onlyRenderers, _skipIfExists);
                 if(_colliderType == MonaBodyColliderType.Sphere)
                 { 
                     if (!string.IsNullOrEmpty(_radiusValueName))
