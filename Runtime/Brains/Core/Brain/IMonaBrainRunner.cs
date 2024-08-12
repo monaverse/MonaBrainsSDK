@@ -26,7 +26,7 @@ namespace Mona.SDK.Brains.Core.Brain
         List<string> BrainUrls { get; }
 
         void SetBrainGraphs(List<MonaBrainGraph> brainGraphs);
-        void AddBrainGraph(MonaBrainGraph brainGraph);
+        bool AddBrainGraph(MonaBrainGraph brainGraph);
         void RemoveBrainGraph(MonaBrainGraph brainGraph);
         void RemoveBrainGraph(string nameString, bool includeGraphsContainingNameString = false);
         void RemoveAllBrainGraphs();

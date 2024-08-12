@@ -139,10 +139,14 @@ namespace Mona.SDK.Brains.Core.Brain
                 StartBrains(force: true);
         }
 
-        public void AddBrainGraph(MonaBrainGraph graph)
+        public bool AddBrainGraph(MonaBrainGraph graph)
         {
-            if (!_brainGraphs.Contains(graph))
+            if (!_brainGraphs.Contains(graph) && !_brainGraphs.Find(x => x.name == graph.name))
+            {
                 _brainGraphs.Add(graph);
+                return true;
+            }
+            return false;
         }
 
         public void RemoveBrainGraph(MonaBrainGraph graph)
