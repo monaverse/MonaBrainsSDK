@@ -6,13 +6,13 @@ using System;
 using System.Collections.Generic;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Body;
-using Mona.SDK.Brains.Core.Utils.Interfaces;
-using Mona.SDK.Brains.Core.Utils.Enums;
+using Mona.SDK.Brains.Core.Utils;
+using Mona.SDK.Brains.Core.Utils.Structs;
 
 namespace Mona.SDK.Brains.Tiles.Actions.IO
 {
     [Serializable]
-    public class StoreLayoutInstructionTile : LayoutStorageBaseInstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class StoreLayoutInstructionTile : LayoutStorageBaseInstructionTile, IActionInstructionTile, IInstructionTileWithPreload, IPauseableInstructionTile, IActivateInstructionTile
     {
         public const string ID = "StoreLayout";
         public const string NAME = "Store Layout";
@@ -28,48 +28,103 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
         public StoreLayoutInstructionTile() { }
 
+        protected override void FixedTick()
+        {
+            if (UseLocalStorage && (_localStorage == null || _localProcesses.Count < 1 || StillProcessing(_localProcesses)))
+                return;
+
+            if (UseCloudStorage && (_cloudStorage == null || _localProcesses.Count < 1 || StillProcessing(_cloudProcesses)))
+                return;
+
+            _isRunning = false;
+
+            bool anySuccessful = false;
+
+            if (UseLocalStorage)
+            {
+                for (int i = 0; i < _localProcesses.Count; i++)
+                {
+                    if (_localProcesses[i].WasSuccessful)
+                    {
+                        anySuccessful = true;
+                        break;
+                    }
+                }
+            }
+
+            if (UseCloudStorage && !anySuccessful)
+            {
+                for (int i = 0; i < _cloudProcesses.Count; i++)
+                {
+                    if (_cloudProcesses[i].WasSuccessful)
+                    {
+                        anySuccessful = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(_storeSuccessOn))
+                _brain.Variables.Set(_storeSuccessOn, anySuccessful);
+
+            Complete(InstructionTileResult.Success, true);
+        }
+
         public override InstructionTileResult Do()
         {
             if (_brain == null || _globalBrainRunner == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-            if (_storageTarget != StorageTargetType.Cloud && _localStorage == null)
+            if (!_isRunning)
             {
-                _localStorage = _globalBrainRunner.LocalStorage;
+                _localProcesses.Clear();
+                _cloudProcesses.Clear();
+                _bodiesToSave.Clear();
 
-                if (_localStorage == null)
-                    return Complete(InstructionTileResult.Success);
+                if (!string.IsNullOrEmpty(_saveNowName))
+                    _saveNow = _brain.Variables.GetBool(_saveNowName);
+
+                if (UseLocalStorage && _localStorage == null)
+                {
+                    _localStorage = _globalBrainRunner.LocalStorage;
+
+                    if (_localStorage == null)
+                        return Complete(InstructionTileResult.Success);
+                }
+
+                if (UseCloudStorage && _cloudStorage == null)
+                {
+                    _cloudStorage = _globalBrainRunner.ClousStorage;
+
+                    if (_cloudStorage == null)
+                        return Complete(InstructionTileResult.Success);
+                }
+
+                SetNamedValues();
+
+                switch (_target)
+                {
+                    case MonaBrainTargetLayoutType.Tag:
+                        StoreLayoutOfTag();
+                        break;
+                    case MonaBrainTargetLayoutType.AllBodies:
+                        StoreAllBodies();
+                        break;
+                    case MonaBrainTargetLayoutType.ThisBodyOnly:
+                        StoreBody(_brain.Body);
+                        break;
+                }
+
+                AddFixedTickDelegate();
             }
 
-            if (_storageTarget != StorageTargetType.Local && _cloudStorage == null)
-            {
-                _cloudStorage = _globalBrainRunner.ClousStorage;
+            if (_localProcesses.Count > 0 || _cloudProcesses.Count > 0)
+                return Complete(InstructionTileResult.Running);
 
-                if (_cloudStorage == null)
-                    return Complete(InstructionTileResult.Success);
-            }
+            if (!string.IsNullOrEmpty(_storeSuccessOn))
+                _brain.Variables.Set(_storeSuccessOn, false);
 
-            SetNamedValues();
-
-            if (!string.IsNullOrEmpty(_saveNowName))
-                _saveNow = _brain.Variables.GetBool(_saveNowName);
-
-            _bodiesToSave.Clear();
-
-            switch (_target)
-            {
-                case MonaBrainTargetLayoutType.Tag:
-                    StoreLayoutOfTag();
-                    break;
-                case MonaBrainTargetLayoutType.AllBodies:
-                    StoreAllBodies();
-                    break;
-                case MonaBrainTargetLayoutType.ThisBodyOnly:
-                    StoreBody(_brain.Body);
-                    break;
-            }
-
-            return Complete(InstructionTileResult.Success);
+            return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
         private void StoreLayoutOfTag()
@@ -95,7 +150,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             var globalBodies = GetAllBodies();
 
             for (int i = 0; i < globalBodies.Length; i++)
-                StoreBodyTransforms(globalBodies[i]);
+                ProcessBodyTransforms(globalBodies[i]);
         }
 
         private void StoreBody(IMonaBody body)
@@ -103,47 +158,43 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             if (body == null)
                 return;
 
-            StoreBodyTransforms(body);
+            ProcessBodyTransforms(body);
         }
 
         private void StoreBodies()
         {
             for (int i = 0; i < _bodiesToSave.Count; i++)
-                StoreBodyTransforms(_bodiesToSave[i], i);
+                ProcessBodyTransforms(_bodiesToSave[i], i);
         }
 
-        private void StoreBodyTransforms(IMonaBody body, int index = -1)
+        private void ProcessBodyTransforms(IMonaBody body, int index = -1)
         {
             if (body == null)
                 return;
 
-            string bodyString = GetFullBodyString(body, index);
-
+            string key = GetFullBodyString(body, index);
             Vector3 position = body.GetPosition();
             Vector3 rotation = body.GetRotation().eulerAngles;
             Vector3 scale = body.GetScale();
 
-            if (_storageTarget != StorageTargetType.Cloud)
+            LayoutStorageData layout = new LayoutStorageData();
+            layout.BaseKey = key;
+            layout.ReferenceBody = body;
+            layout.SetPosition(position);
+            layout.SetRotationEulers(rotation);
+            layout.SetScale(scale);
+
+            if (UseLocalStorage)
             {
-                _localStorage.SetString(bodyString, _existsString, out bool _, _saveNow);
-                StoreBodyVectorThree(_localStorage, bodyString, _positionString, position);
-                StoreBodyVectorThree(_localStorage, bodyString, _rotationString, rotation);
-                StoreBodyVectorThree(_localStorage, bodyString, _scaleString, scale);
+                BrainProcess process = _localStorage.SetLayout(layout, _saveNow);
+                _localProcesses.Add(process);
             }
 
-            if (_storageTarget != StorageTargetType.Local)
+            if (UseCloudStorage)
             {
-                _cloudStorage.SetString(bodyString, _existsString, out bool _, _saveNow);
-                StoreBodyVectorThree(_cloudStorage, bodyString, _positionString, position);
-                StoreBodyVectorThree(_cloudStorage, bodyString, _rotationString, rotation);
-                StoreBodyVectorThree(_cloudStorage, bodyString, _scaleString, scale);
+                BrainProcess process = _cloudStorage.SetLayout(layout, _saveNow);
+                _cloudProcesses.Add(process);
             }
-        }
-
-        private void StoreBodyVectorThree(IBrainStorage storage, string bodyString, string transformString, Vector3 value)
-        {
-            string key = bodyString + transformString;
-            storage.SetVector3(key, value, out bool _, _saveNow);
         }
     }
 }

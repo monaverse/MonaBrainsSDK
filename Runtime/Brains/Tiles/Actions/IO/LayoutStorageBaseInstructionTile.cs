@@ -3,16 +3,22 @@ using Mona.SDK.Brains.Core.Tiles;
 using Mona.SDK.Brains.Core;
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Core.Utils.Enums;
+using Mona.SDK.Brains.Core.Utils;
+using Mona.SDK.Core;
+using Mona.SDK.Core.Events;
+using Unity.VisualScripting;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.IO
 {
     [Serializable]
-    public class LayoutStorageBaseInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class LayoutStorageBaseInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload, IPauseableInstructionTile, IActivateInstructionTile
     {
         public override Type TileType => typeof(LayoutStorageBaseInstructionTile);
 
@@ -49,6 +55,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         [SerializeField] protected UsageType _saveSlotUsage = UsageType.None;
         [BrainPropertyEnum(false)] public UsageType SaveSlotUsage { get => _saveSlotUsage; set => _saveSlotUsage = value; }
 
+        [SerializeField] protected string _storeSuccessOn;
+        [BrainPropertyValue(typeof(IMonaVariablesBoolValue), false)] public string StoreSuccessOn { get => _storeSuccessOn; set => _storeSuccessOn = value; }
+
         protected virtual bool UseBodyID
         {
             get
@@ -81,15 +90,137 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
         public LayoutStorageBaseInstructionTile() { }
 
+        protected bool _active;
+        protected bool _isRunning;
         protected IMonaBrain _brain;
         protected MonaGlobalBrainRunner _globalBrainRunner;
         protected IBrainStorage _localStorage;
         protected IBrainStorage _cloudStorage;
+        protected List<BrainProcess> _localProcesses = new List<BrainProcess>();
+        protected List<BrainProcess> _cloudProcesses = new List<BrainProcess>();
+        protected Action<MonaBodyFixedTickEvent> OnFixedTick;
+
+        protected bool UseLocalStorage => _storageTarget != StorageTargetType.Cloud;
+        protected bool UseCloudStorage => _storageTarget != StorageTargetType.Local;
 
         public virtual void Preload(IMonaBrain brain)
         {
             _brain = brain;
             _globalBrainRunner = MonaGlobalBrainRunner.Instance;
+            SetActive(true);
+        }
+
+        public virtual void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                UpdateActive();
+            }
+        }
+
+        protected void UpdateActive()
+        {
+            if (!_active)
+            {
+                if (_isRunning)
+                    LostControl();
+
+                return;
+            }
+
+            if (_isRunning)
+            {
+                AddFixedTickDelegate();
+            }
+        }
+
+        public override void Unload(bool destroy = false)
+        {
+            SetActive(false);
+            _isRunning = false;
+            RemoveFixedTickDelegate();
+        }
+
+        public virtual void Pause()
+        {
+            RemoveFixedTickDelegate();
+        }
+
+        public virtual bool Resume()
+        {
+            UpdateActive();
+            return _isRunning;
+        }
+
+        public override void SetThenCallback(IInstructionTile tile, Func<InstructionTileCallback, InstructionTileResult> thenCallback)
+        {
+            if (_thenCallback.ActionCallback == null)
+            {
+                _instructionCallback.Tile = tile;
+                _instructionCallback.ActionCallback = thenCallback;
+                _thenCallback.Tile = this;
+                _thenCallback.ActionCallback = ExecuteActionCallback;
+            }
+        }
+
+        protected InstructionTileCallback _instructionCallback = new InstructionTileCallback();
+        protected InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
+        {
+            RemoveFixedTickDelegate();
+            if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
+            return InstructionTileResult.Success;
+        }
+
+        protected void AddFixedTickDelegate()
+        {
+            OnFixedTick = HandleFixedTick;
+            MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+        }
+
+        protected void RemoveFixedTickDelegate()
+        {
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+        }
+
+        protected void LostControl()
+        {
+            _isRunning = false;
+            Complete(InstructionTileResult.LostAuthority, true);
+        }
+
+        protected void HandleFixedTick(MonaBodyFixedTickEvent evt)
+        {
+            FixedTick();
+        }
+
+        protected virtual void FixedTick()
+        {
+            if (UseLocalStorage && (_localStorage == null || _localProcesses.Count < 1 || StillProcessing(_localProcesses)))
+                return;
+
+            if (UseCloudStorage && (_cloudStorage == null || _localProcesses.Count < 1 || StillProcessing(_cloudProcesses)))
+                return;
+
+            _isRunning = false;
+
+            Complete(InstructionTileResult.Success, true);
+        }
+
+        protected bool StillProcessing(List<BrainProcess> processes)
+        {
+            bool processing = false;
+
+            for (int i = 0; i < processes.Count; i++)
+            {
+                if (processes[i].IsProcessing)
+                {
+                    processing = true;
+                    break;
+                }
+            }
+
+            return processing;
         }
 
         public override InstructionTileResult Do()

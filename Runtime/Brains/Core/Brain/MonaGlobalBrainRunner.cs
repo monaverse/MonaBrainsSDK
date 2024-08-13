@@ -14,6 +14,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Mona.SDK.Brains.EasyUI;
+using Mona.SDK.Brains.EasyUI.Leaderboards;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Core.Utils;
@@ -114,8 +115,6 @@ namespace Mona.SDK.Brains.Core.Brain
         private IBrainStorage _cloudStorage;
         public IBrainStorage ClousStorage { get => _cloudStorage; set => _cloudStorage = value; }
 
-
-
         public void EnablePlayerInput() => GetBrainInput().EnableInput();
         public void DisablePlayerInput() => GetBrainInput().DisableInput();
 
@@ -125,6 +124,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private MonaBrainInput _brainInput;
         private EasyUIGlobalRunner _easyUIRunner;
+        private LeaderboardDisplayController _leaderboardDisplay;
 
         bool IsAndroidOrIOS => Application.platform == RuntimePlatform.IPhonePlayer ||
             Application.platform == RuntimePlatform.tvOS ||
@@ -471,8 +471,15 @@ namespace Mona.SDK.Brains.Core.Brain
                 _brainSocialUser = socialComponents[0];
         }
 
+        
+
         private void SetupLeaderboards()
         {
+            _leaderboardDisplay = GetComponent<LeaderboardDisplayController>();
+
+            if (_leaderboardDisplay == null)
+                _leaderboardDisplay = gameObject.AddComponent(typeof(LeaderboardDisplayController)) as LeaderboardDisplayController;
+
             var leaderboardComponents = InterfaceFinder.FindComponentsWithInterface<IBrainLeaderboard>();
 
             if (leaderboardComponents.Length > 0)

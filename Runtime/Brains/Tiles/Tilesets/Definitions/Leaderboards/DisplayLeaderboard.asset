@@ -9,34 +9,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a28cb774f4e647788022cb8e24fe6f2, type: 3}
-  m_Name: GetLeaderboardValues
+  m_Script: {fileID: 11500000, guid: 67c3a80dbe1244a59b6c623ca2690409, type: 3}
+  m_Name: DisplayLeaderboard
   m_EditorClassIdentifier: 
   _tile:
-    rid: 1751789366339698945
-  _id: GetLeaderboardValues
-  _name: Leaderboard Get
+    rid: 1751789518334197762
+  _id: DisplayLeaderboard
+  _name: Leaderboard Show
   _category: Leaderboards
   references:
     version: 2
     RefIds:
-    - rid: 1751789366339698945
-      type: {class: LeaderboardGetValuesInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Leaderboards,
+    - rid: 1751789518334197762
+      type: {class: LeaderboardDisplayInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Leaderboards,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: GetLeaderboardValues
-        _name: Leaderboard Get
+        _id: DisplayLeaderboard
+        _name: Leaderboard Show
         _category: Leaderboards
         _tileVersion: 0
         _muted: 0
         _leaderboardName: 
         _leaderboardNameName: 
-        _rank: 
-        _score: 
-        _page: 
-        _userType: 0
+        _pageToLoad: 0
         _username: 
         _usernameName: 
+        _pageIndex: 0
+        _pageIndexName: 
+        _scope: 2
         _scoresPerPage: 10
         _scoresPerPageName: 
+        _alwaysShowClient: 0
+        _alwaysShowClientName: 
         _storeSuccessOn: 

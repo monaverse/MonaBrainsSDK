@@ -5,13 +5,17 @@ using UnityEngine;
 using System;
 using Mona.SDK.Brains.Core.Brain;
 using Mona.SDK.Core.State.Structs;
+using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
-using Mona.SDK.Brains.Core.Utils.Structs;
+using Mona.SDK.Core;
+using Mona.SDK.Core.Events;
+using Unity.VisualScripting;
+using Mona.SDK.Core.Utils;
 
 namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
 {
     [Serializable]
-    public class SocialUserLoginInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload
+    public class SocialUserLoginInstructionTile : InstructionTile, IActionInstructionTile, IInstructionTileWithPreload, IPauseableInstructionTile, IActivateInstructionTile
     {
         public const string ID = "UserServerLogin";
         public const string NAME = "User Server Login";
@@ -38,14 +42,116 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
 
         public SocialUserLoginInstructionTile() { }
 
+        private bool _active;
+        private bool _isRunning;
         private IMonaBrain _brain;
         private MonaGlobalBrainRunner _globalBrainRunner;
         private IBrainSocialPlatformUser _socialPlatformUser;
+        private BrainProcess _serverProcess;
+        private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
         public void Preload(IMonaBrain brain)
         {
             _brain = brain;
             _globalBrainRunner = MonaGlobalBrainRunner.Instance;
+            SetActive(true);
+        }
+
+        public void SetActive(bool active)
+        {
+            if (_active != active)
+            {
+                _active = active;
+                UpdateActive();
+            }
+        }
+
+        private void UpdateActive()
+        {
+            if (!_active)
+            {
+                if (_isRunning)
+                    LostControl();
+
+                return;
+            }
+
+            if (_isRunning)
+            {
+                AddFixedTickDelegate();
+            }
+        }
+
+        public override void Unload(bool destroy = false)
+        {
+            SetActive(false);
+            _isRunning = false;
+            RemoveFixedTickDelegate();
+        }
+
+        public void Pause()
+        {
+            RemoveFixedTickDelegate();
+        }
+
+        public bool Resume()
+        {
+            UpdateActive();
+            return _isRunning;
+        }
+
+        public override void SetThenCallback(IInstructionTile tile, Func<InstructionTileCallback, InstructionTileResult> thenCallback)
+        {
+            if (_thenCallback.ActionCallback == null)
+            {
+                _instructionCallback.Tile = tile;
+                _instructionCallback.ActionCallback = thenCallback;
+                _thenCallback.Tile = this;
+                _thenCallback.ActionCallback = ExecuteActionCallback;
+            }
+        }
+
+        private InstructionTileCallback _instructionCallback = new InstructionTileCallback();
+        private InstructionTileResult ExecuteActionCallback(InstructionTileCallback callback)
+        {
+            RemoveFixedTickDelegate();
+            if (_instructionCallback.ActionCallback != null) return _instructionCallback.ActionCallback.Invoke(_thenCallback);
+            return InstructionTileResult.Success;
+        }
+
+        private void AddFixedTickDelegate()
+        {
+            OnFixedTick = HandleFixedTick;
+            MonaEventBus.Register<MonaBodyFixedTickEvent>(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+        }
+
+        private void RemoveFixedTickDelegate()
+        {
+            MonaEventBus.Unregister(new EventHook(MonaCoreConstants.MONA_BODY_FIXED_TICK_EVENT, _brain.Body), OnFixedTick);
+        }
+
+        private void LostControl()
+        {
+            _isRunning = false;
+            Complete(InstructionTileResult.LostAuthority, true);
+        }
+
+        private void HandleFixedTick(MonaBodyFixedTickEvent evt)
+        {
+            FixedTick();
+        }
+
+        private void FixedTick()
+        {
+            if (_socialPlatformUser == null || _serverProcess == null || _serverProcess.IsProcessing)
+                return;
+
+            _isRunning = false;
+
+            if (!string.IsNullOrEmpty(_storeSuccessOn))
+                _brain.Variables.Set(_storeSuccessOn, _serverProcess.WasSuccessful);
+
+            Complete(InstructionTileResult.Success, true);
         }
 
         public override InstructionTileResult Do()
@@ -53,32 +159,38 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
             if (_brain == null || _globalBrainRunner == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-            if (!string.IsNullOrEmpty(_usernameName))
-                _username = _brain.Variables.GetString(_usernameName);
-
-            if (!string.IsNullOrEmpty(_passwordName))
-                _password = _brain.Variables.GetString(_passwordName);
-
-            if (!string.IsNullOrEmpty(_requirePasswordName))
-                _requirePassword = _brain.Variables.GetBool(_requirePasswordName);
-
-            if (_socialPlatformUser == null)
+            if (!_isRunning)
             {
-                _socialPlatformUser = _globalBrainRunner.BrainSocialUser;
-                if (_socialPlatformUser == null) return Complete(InstructionTileResult.Success);
+                if (!string.IsNullOrEmpty(_usernameName))
+                    _username = _brain.Variables.GetString(_usernameName);
+
+                if (!string.IsNullOrEmpty(_passwordName))
+                    _password = _brain.Variables.GetString(_passwordName);
+
+                if (!string.IsNullOrEmpty(_requirePasswordName))
+                    _requirePassword = _brain.Variables.GetBool(_requirePasswordName);
+
+                if (_socialPlatformUser == null)
+                {
+                    _socialPlatformUser = _globalBrainRunner.BrainSocialUser;
+                    if (_socialPlatformUser == null) return Complete(InstructionTileResult.Success);
+                }
+
+                if (_requirePassword)
+                    _serverProcess = _socialPlatformUser.LoginUser(_username, _password);
+                else
+                    _serverProcess = _socialPlatformUser.LoginUser(_username);
+
+                AddFixedTickDelegate();
             }
 
-            bool success;
-
-            if (_requirePassword)
-                _socialPlatformUser.LoginUser(_username, _password, out success);
-            else
-                _socialPlatformUser.LoginUser(_username, out success);
+            if (_serverProcess != null)
+                return Complete(InstructionTileResult.Running);
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
-                _brain.Variables.Set(_storeSuccessOn, success);
+                _brain.Variables.Set(_storeSuccessOn, false);
 
-            return Complete(InstructionTileResult.Success);
+            return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
     }
 }

@@ -1,6 +1,8 @@
 using UnityEngine;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Core.Utils.Enums;
+using Mona.SDK.Brains.Core.Utils.Structs;
+using Mona.SDK.Core.Body;
 
 namespace Mona.SDK.Brains.Core.Utils
 {
@@ -9,239 +11,387 @@ namespace Mona.SDK.Brains.Core.Utils
         private const string _x = "X";
         private const string _y = "Y";
         private const string _z = "Z";
+        protected const string _positionString = "<Position>";
+        protected const string _rotationString = "<Rotation>";
+        protected const string _scaleString = "<Scale>";
 
+        public bool Processing => false;
         public StorageTargetType SupportedStorageTarget => StorageTargetType.Local;
 
-        public void SetBool(string key, bool value, out bool success, bool saveChanges = true)
+        public BrainProcess SetBool(string key, bool value, bool saveChanges = true)
         {
+            BrainProcess state = new BrainProcess();
+
             int boolBinary = value ? 1 : 0;
             PlayerPrefs.SetInt(key, boolBinary);
 
-            if (saveChanges)
-                SaveChanges();
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
 
-            success = true;
+            return state;
         }
 
-        public void SetInt(string key, int value, out bool success, bool saveChanges = true)
+        public BrainProcess SetInt(string key, int value, bool saveChanges = true)
         {
+            BrainProcess state = new BrainProcess();
+
             PlayerPrefs.SetInt(key, value);
 
-            if (saveChanges)
-                SaveChanges();
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
 
-            success = true;
+            return state;
         }
 
-        public void SetLong(string key, long value, out bool success, bool saveChanges = true)
+        public BrainProcess SetLong(string key, long value, bool saveChanges = true)
         {
+            BrainProcess state = new BrainProcess();
+
             PlayerPrefs.SetString(key, value.ToString());
 
-            if (saveChanges)
-                SaveChanges();
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
 
-            success = true;
+            return state;
         }
 
-        public void SetFloat(string key, float value, out bool success, bool saveChanges = true)
+        public BrainProcess SetFloat(string key, float value, bool saveChanges = true)
         {
+            BrainProcess state = new BrainProcess();
+
             PlayerPrefs.SetFloat(key, value);
 
-            if (saveChanges)
-                SaveChanges();
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
 
-            success = true;
+            return state;
         }
 
-        public void SetDouble(string key, double value, out bool success, bool saveChanges = true)
+        public BrainProcess SetDouble(string key, double value, bool saveChanges = true)
         {
+            BrainProcess state = new BrainProcess();
+
             PlayerPrefs.SetString(key, value.ToString());
 
-            if (saveChanges)
-                SaveChanges();
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
 
-            success = true;
+            return state;
         }
 
-        public void SetString(string key, string value, out bool success, bool saveChanges = true)
+        public BrainProcess SetString(string key, string value, bool saveChanges = true)
         {
-            PlayerPrefs.SetString(key, value);
+            BrainProcess state = new BrainProcess();
 
-            if (saveChanges)
-                SaveChanges();
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
 
-            success = true;
+            return state;
         }
 
-        public void SetVector2(string key, Vector2 value, out bool success, bool saveChanges = true)
+        public BrainProcess SetVector2(string key, Vector2 value, bool saveChanges = true)
         {
+            BrainProcess state = new BrainProcess();
+
             PlayerPrefs.SetFloat(key + _x, value.x);
             PlayerPrefs.SetFloat(key + _y, value.y);
 
-            if (saveChanges)
-                SaveChanges();
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
 
-            success = true;
+            return state;
         }
 
-        public void SetVector3(string key, Vector3 value, out bool success, bool saveChanges = true)
+        public BrainProcess SetVector3(string key, Vector3 value, bool saveChanges = true)
+        {
+            BrainProcess state = new BrainProcess();
+
+            StoreAnyVector3(key, value);
+
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
+
+            return state;
+        }
+
+        public BrainProcess SetLayout(LayoutStorageData layout, bool saveChanges = true)
+        {
+            BrainProcess state = new BrainProcess();
+            StoreAnyVector3(layout.BaseKey + _positionString, layout.Position.Vector);
+            StoreAnyVector3(layout.BaseKey + _rotationString, layout.RotationEulers.Vector);
+            StoreAnyVector3(layout.BaseKey + _scaleString, layout.Scale.Vector);
+
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
+
+            return state;
+        }
+
+        private void StoreAnyVector3(string key, Vector3 value)
         {
             PlayerPrefs.SetFloat(key + _x, value.x);
             PlayerPrefs.SetFloat(key + _y, value.y);
             PlayerPrefs.SetFloat(key + _z, value.z);
-
-            if (saveChanges)
-                SaveChanges();
-
-            success = true;
         }
 
-        public bool LoadBool(string key, out bool success)
+        public BrainProcess LoadBool(string key)
         {
-            success = PlayerPrefs.HasKey(key);
+            BrainProcess state = new BrainProcess();
 
-            if (!success)
-                return false;
+            if (!PlayerPrefs.HasKey(key))
+            {
+                state.EndProcess(false);
+                return state;
+            }
 
             int boolBinary = PlayerPrefs.GetInt(key);
-            return boolBinary == 1;
+
+            state.SetValue(boolBinary);
+            state.EndProcess(true);
+            return state;
         }
 
-        public int LoadInt(string key, out bool success)
+        public BrainProcess LoadInt(string key)
         {
-            success = PlayerPrefs.HasKey(key);
-            return success ? PlayerPrefs.GetInt(key) : 0;
+            BrainProcess state = new BrainProcess();
+
+            if (!PlayerPrefs.HasKey(key))
+            {
+                state.EndProcess(false);
+                return state;
+            }
+
+            state.SetValue(PlayerPrefs.GetInt(key));
+            state.EndProcess(true);
+            return state;
         }
 
-        public long LoadLong(string key, out bool success)
+        public BrainProcess LoadLong(string key)
         {
-            success = PlayerPrefs.HasKey(key);
-            return success ? long.Parse(PlayerPrefs.GetString(key)) : 0;
+            BrainProcess state = new BrainProcess();
+
+            if (!PlayerPrefs.HasKey(key))
+            {
+                state.EndProcess(false);
+                return state;
+            }
+
+            state.SetValue(long.Parse(PlayerPrefs.GetString(key)));
+            state.EndProcess(true);
+            return state;
         }
 
-        public float LoadFloat(string key, out bool success)
+        public BrainProcess LoadFloat(string key)
         {
-            success = PlayerPrefs.HasKey(key);
-            return success ? PlayerPrefs.GetFloat(key) : 0f;
+            BrainProcess state = new BrainProcess();
+
+            if (!PlayerPrefs.HasKey(key))
+            {
+                state.EndProcess(false);
+                return state;
+            }
+
+            state.SetValue(PlayerPrefs.GetFloat(key));
+            state.EndProcess(true);
+            return state;
         }
 
-        public double LoadDouble(string key, out bool success)
+        public BrainProcess LoadDouble(string key)
         {
-            success = PlayerPrefs.HasKey(key);
-            return success ? double.Parse(PlayerPrefs.GetString(key)) : 0d;
+            BrainProcess state = new BrainProcess();
+
+            if (!PlayerPrefs.HasKey(key))
+            {
+                state.EndProcess(false);
+                return state;
+            }
+
+            state.SetValue(double.Parse(PlayerPrefs.GetString(key)));
+            state.EndProcess(true);
+            return state;
         }
 
-        public string LoadString(string key, out bool success)
+        public BrainProcess LoadString(string key)
         {
-            success = PlayerPrefs.HasKey(key);
-            return success ? PlayerPrefs.GetString(key) : string.Empty;
+            BrainProcess state = new BrainProcess();
+
+            if (!PlayerPrefs.HasKey(key))
+            {
+                state.EndProcess(false);
+                return state;
+            }
+
+            state.SetValue(PlayerPrefs.GetString(key));
+            state.EndProcess(true);
+            return state;
         }
 
-        public Vector2 LoadVector2(string key, out bool success)
+        public BrainProcess LoadVector2(string key)
         {
+            BrainProcess state = new BrainProcess();
+
             bool xSuccess = PlayerPrefs.HasKey(key + _x);
             bool ySuccess = PlayerPrefs.HasKey(key + _y);
 
-            success = xSuccess && ySuccess;
-
-            if (!success)
-                return Vector2.zero;
+            if (!xSuccess || !ySuccess)
+            {
+                state.EndProcess(false);
+                return state;
+            }
 
             float x = PlayerPrefs.GetFloat(key + _x);
             float y = PlayerPrefs.GetFloat(key + _y);
 
-            return new Vector2(x, y);
+            state.SetValue(new Vector2(x, y));
+            state.EndProcess(true);
+            return state;
         }
 
-        public Vector3 LoadVector3(string key, out bool success)
+        public BrainProcess LoadVector3(string key)
+        {
+            BrainProcess state = new BrainProcess();
+            state.SetValue(GetAnyVector3(key, out bool success));
+            state.EndProcess(success);
+            return state;
+        }
+
+        private Vector3 GetAnyVector3(string key, out bool success)
         {
             bool xSuccess = PlayerPrefs.HasKey(key + _x);
             bool ySuccess = PlayerPrefs.HasKey(key + _y);
             bool zSuccess = PlayerPrefs.HasKey(key + _z);
 
-            success = xSuccess && ySuccess && zSuccess;
-
-            if (!success)
+            if (!xSuccess || !ySuccess || !zSuccess)
+            {
+                success = false;
                 return Vector3.zero;
+            }
 
             float x = PlayerPrefs.GetFloat(key + _x);
             float y = PlayerPrefs.GetFloat(key + _y);
             float z = PlayerPrefs.GetFloat(key + _z);
 
+            success = true;
             return new Vector3(x, y, z);
         }
 
-        public void DeleteBool(string key, out bool success, bool saveChanges = true) { DeleteSimpleValue(key, out success, saveChanges); }
-        public void DeleteInt(string key, out bool success, bool saveChanges = true) { DeleteSimpleValue(key, out success, saveChanges); }
-        public void DeleteLong(string key, out bool success, bool saveChanges = true) { DeleteSimpleValue(key, out success, saveChanges); }
-        public void DeleteFloat(string key, out bool success, bool saveChanges = true) { DeleteSimpleValue(key, out success, saveChanges); }
-        public void DeleteDouble(string key, out bool success, bool saveChanges = true) { DeleteSimpleValue(key, out success, saveChanges); }
-        public void DeleteString(string key, out bool success, bool saveChanges = true) { DeleteSimpleValue(key, out success, saveChanges); }
-
-        private void DeleteSimpleValue(string key, out bool success, bool saveChanges = true)
+        public BrainProcess LoadLayout(string key, IMonaBody referenceBody)
         {
-            success = PlayerPrefs.HasKey(key);
+            BrainProcess state = new BrainProcess();
 
-            if (!success)
-                return;
+            Vector3 position = GetAnyVector3(key + _positionString, out bool successPosition);
+            Vector3 rotation = GetAnyVector3(key + _rotationString, out bool successRotation);
+            Vector3 scale = GetAnyVector3(key + _scaleString, out bool successScale);
+
+            if (!successPosition && !successRotation && !successScale)
+            {
+                state.EndProcess(false);
+                return state;
+            }
+
+            LayoutStorageData layout = new LayoutStorageData
+            {
+                BaseKey = key,
+                ReferenceBody = referenceBody,
+            };
+
+            if (successPosition) layout.SetPosition(position);
+            if (successRotation) layout.SetRotationEulers(rotation);
+            if (successScale) layout.SetScale(scale);
+
+            state.SetValue(layout);
+            state.EndProcess(true);
+
+            return state;
+        }
+
+        public BrainProcess DeleteBool(string key, bool saveChanges = true) { return DeleteSimpleValue(key, saveChanges); }
+        public BrainProcess DeleteInt(string key, bool saveChanges = true) { return DeleteSimpleValue(key, saveChanges); }
+        public BrainProcess DeleteLong(string key, bool saveChanges = true) { return DeleteSimpleValue(key, saveChanges); }
+        public BrainProcess DeleteFloat(string key, bool saveChanges = true) { return DeleteSimpleValue(key, saveChanges); }
+        public BrainProcess DeleteDouble(string key, bool saveChanges = true) { return DeleteSimpleValue(key, saveChanges); }
+        public BrainProcess DeleteString(string key, bool saveChanges = true) { return DeleteSimpleValue(key, saveChanges); }
+
+        private BrainProcess DeleteSimpleValue(string key, bool saveChanges = true)
+        {
+            BrainProcess state = new BrainProcess();
+
+            if (!PlayerPrefs.HasKey(key))
+            {
+                state.EndProcess(false);
+                return state;
+            }
 
             PlayerPrefs.DeleteKey(key);
 
-            if (saveChanges)
-                SaveChanges();
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
+
+            return state;
         }
 
-        public void DeleteVector2(string key, out bool success, bool saveChanges = true)
+        public BrainProcess DeleteVector2(string key, bool saveChanges = true)
         {
+            BrainProcess state = new BrainProcess();
+
             bool xSuccess = PlayerPrefs.HasKey(key + _x);
             bool ySuccess = PlayerPrefs.HasKey(key + _y);
 
-            success = xSuccess && ySuccess;
-
-            if (!success)
-                return;
+            if (!xSuccess || !ySuccess)
+            {
+                state.EndProcess(false);
+                return state;
+            }
 
             PlayerPrefs.DeleteKey(key + _x);
             PlayerPrefs.DeleteKey(key + _y);
 
-            if (saveChanges)
-                SaveChanges();
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
+
+            return state;
         }
 
-        public void DeleteVector3(string key, out bool success, bool saveChanges = true)
+        public BrainProcess DeleteVector3(string key, bool saveChanges = true)
         {
+            BrainProcess state = new BrainProcess();
+
             bool xSuccess = PlayerPrefs.HasKey(key + _x);
             bool ySuccess = PlayerPrefs.HasKey(key + _y);
             bool zSuccess = PlayerPrefs.HasKey(key + _z);
 
-            success = xSuccess && ySuccess && zSuccess;
-
-            if (!success)
-                return;
+            if (!xSuccess || !ySuccess || !zSuccess)
+            {
+                state.EndProcess(false);
+                return state;
+            }
 
             PlayerPrefs.DeleteKey(key + _x);
             PlayerPrefs.DeleteKey(key + _y);
             PlayerPrefs.DeleteKey(key + _z);
 
-            if (saveChanges)
-                SaveChanges();
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
+
+            return state;
         }
 
-        public void DeleteAllData(out bool success)
+        public BrainProcess DeleteAllData(bool saveChanges = true)
         {
+            BrainProcess state = new BrainProcess();
+
             PlayerPrefs.DeleteAll();
-            success = true;
+
+            if (saveChanges) state = SaveChanges();
+            else state.EndProcess(true);
+
+            return state;
         }
 
-        private void SaveChanges()
-        {
-            SaveChanges(out _);
-        }
-
-        public void SaveChanges(out bool success)
+        public BrainProcess SaveChanges()
         {
             PlayerPrefs.Save();
-            success = true;
+            return new BrainProcess(ProcessStartType.AutoSucceed);
         }
     }
 }
