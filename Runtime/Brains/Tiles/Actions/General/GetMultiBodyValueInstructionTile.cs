@@ -31,6 +31,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(OriginBody), (int)MonaBrainBroadcastTypeSingleTarget.Tag)]
         [BrainPropertyMonaTag(true)] public string OriginTag { get => _originTag; set => _originTag = value; }
 
+        [SerializeField] private string _originChild;
+        [SerializeField] private string _originChildName;
+        [BrainPropertyShow(nameof(OriginBody), (int)MonaBrainBroadcastTypeSingleTarget.ChildWithName)]
+        [BrainPropertyShow(nameof(OriginBody), (int)MonaBrainBroadcastTypeSingleTarget.ChildContainingName)]
+        [BrainProperty(true)] public string OriginChild { get => _originChild; set => _originChild = value; }
+        [BrainPropertyValueName("OriginChild", typeof(IMonaVariablesStringValue))] public string OriginChildName { get => _originChildName; set => _originChildName = value; }
+
         [SerializeField] private MonaBrainBroadcastType _targetBody = MonaBrainBroadcastType.Tag;
         [BrainPropertyEnum(true)] public MonaBrainBroadcastType TargetBody { get => _targetBody; set => _targetBody = value; }
 
@@ -39,14 +46,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
         [SerializeField] private string _targetChild;
+        [SerializeField] private string _targetChildName;
         [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.ChildrenWithName)]
         [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.ChildrenContainingName)]
-        [BrainProperty(true)] public string TargetName { get => _targetChild; set => _targetChild = value; }
-
-        [SerializeField] private bool _networkNewBodies;
-        [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.ChildrenWithName)]
-        [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.ChildrenContainingName)]
-        [BrainProperty(true)] public bool NetworkNewBodies { get => _networkNewBodies; set => _networkNewBodies = value; }
+        [BrainProperty(true)] public string TargetChild { get => _targetChild; set => _targetChild = value; }
+        [BrainPropertyValueName("TargetChild", typeof(IMonaVariablesStringValue))] public string TargetChildName { get => _targetChildName; set => _targetChildName = value; }
 
         [SerializeField] private string _bodyArray;
         [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.MyBodyArray)]
@@ -120,6 +124,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(ValueType), (int)MultiBodyValueType.RayHitPosition)]
         [BrainProperty(false)] public float RayHitOffset { get => _rayHitOffset; set => _rayHitOffset = value; }
         [BrainPropertyValueName("RayHitOffset", typeof(IMonaVariablesFloatValue))] public string RayHitOffsetName { get => _rayHitOffsetName; set => _rayHitOffsetName = value; }
+
+        [SerializeField] private bool _networkNewBodies;
+        [SerializeField] private string _networkNewBodiesName;
+        [BrainPropertyShow(nameof(OriginBody), (int)MonaBrainBroadcastTypeSingleTarget.Child)]
+        [BrainPropertyShow(nameof(OriginBody), (int)MonaBrainBroadcastTypeSingleTarget.ChildWithName)]
+        [BrainPropertyShow(nameof(OriginBody), (int)MonaBrainBroadcastTypeSingleTarget.ChildContainingName)]
+        [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.Children)]
+        [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.ChildrenWithName)]
+        [BrainPropertyShow(nameof(TargetBody), (int)MonaBrainBroadcastType.ChildrenContainingName)]
+        [BrainProperty(false)] public bool NetworkNewBodies { get => _networkNewBodies; set => _networkNewBodies = value; }
+        [BrainPropertyValueName("NetworkNewBodies", typeof(IMonaVariablesBoolValue))] public string NetworkNewBodiesName { get => _networkNewBodiesName; set => _networkNewBodiesName = value; }
 
         public UIDisplayType CustomDirectionDisplay => DirectionDisplay == UIDisplayType.Show && Direction == BodyDirectionType.Custom ? UIDisplayType.Show : UIDisplayType.Hide;
 
@@ -254,6 +269,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
+            if (!string.IsNullOrEmpty(_originChildName))
+                _originChild = _brain.Variables.GetString(_originChildName);
+
+            if (!string.IsNullOrEmpty(_targetChildName))
+                _targetChild = _brain.Variables.GetString(_targetChildName);
+
+            if (!string.IsNullOrEmpty(_networkNewBodiesName))
+                _networkNewBodies = _brain.Variables.GetBool(_networkNewBodiesName);
+
             if (HasVector3Values(_customDirectionName))
                 _customDirection = GetVector3Value(_brain, _customDirectionName);
 
@@ -378,10 +402,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     _targetBodies = originBody.Children();
                     return _targetBodies.Contains(hitBody);
                 case MonaBrainBroadcastType.ChildrenWithName:
-                    _targetBodies = GetChildrenWithName(originBody);
+                    _targetBodies = GetChildrenWithName(originBody, _targetChild);
                     return _targetBodies.Contains(hitBody);
                 case MonaBrainBroadcastType.ChildrenContainingName:
-                    _targetBodies = originBody.Children();
+                    _targetBodies = GetChildrenContainingName(originBody, _targetChild);
                     return _targetBodies.Contains(hitBody);
                 case MonaBrainBroadcastType.AllSpawnedByMe:
                     _targetBodies = _brain.SpawnedBodies;
@@ -396,8 +420,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private List<Transform> _rawChildren = new List<Transform>();
         private List<IMonaBody> _children = new List<IMonaBody>();
-        private List<IMonaBody> GetChildrenWithName(IMonaBody body)
+
+        private List<IMonaBody> GetChildren(IMonaBody body)
         {
+            _rawChildren.Clear();
+            _rawChildren.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _rawChildren.Remove(body.Transform);
+            _children.Clear();
+
             _rawChildren.Clear();
             _rawChildren.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
             _rawChildren.Remove(body.Transform);
@@ -406,7 +436,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             for (int i = 0; i < _rawChildren.Count; i++)
             {
                 var child = _rawChildren[i];
-                if (child == null || child.name.ToLower() != _targetChild.ToLower())
+                if (child == null)
                     continue;
 
                 var childBody = child.GetComponent<IMonaBody>();
@@ -418,7 +448,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             return _children;
         }
 
-        private List<IMonaBody> GetChildrenContainingName(IMonaBody body)
+        private List<IMonaBody> GetChildrenWithName(IMonaBody body, string nameToFind)
         {
             _rawChildren.Clear();
             _rawChildren.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
@@ -428,7 +458,29 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             for (int i = 0; i < _rawChildren.Count; i++)
             {
                 var child = _rawChildren[i];
-                if (child == null || !child.name.ToLower().Contains(_targetChild.ToLower()))
+                if (child == null || child.name.ToLower() != nameToFind.ToLower())
+                    continue;
+
+                var childBody = child.GetComponent<IMonaBody>();
+                if (childBody == null)
+                    childBody = CreateMonaBody(child);
+
+                _children.Add(childBody);
+            }
+            return _children;
+        }
+
+        private List<IMonaBody> GetChildrenContainingName(IMonaBody body, string nameToFind)
+        {
+            _rawChildren.Clear();
+            _rawChildren.AddRange(body.Transform.GetComponentsInChildren<Transform>(true));
+            _rawChildren.Remove(body.Transform);
+
+            _children.Clear();
+            for (int i = 0; i < _rawChildren.Count; i++)
+            {
+                var child = _rawChildren[i];
+                if (child == null || !child.name.ToLower().Contains(nameToFind.ToLower()))
                     continue;
 
                 var childBody = child.GetComponent<IMonaBody>();
@@ -483,6 +535,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     return _brain.Body;
                 case MonaBrainBroadcastTypeSingleTarget.Parent:
                     return _brain.Body.Parent;
+                case MonaBrainBroadcastTypeSingleTarget.Child:
+                    var children = GetChildren(_brain.Body);
+                    return children.Count > 0 ? children[0] : null;
+                case MonaBrainBroadcastTypeSingleTarget.ChildWithName:
+                    var childrenWithName = GetChildrenWithName(_brain.Body, _originChild);
+                    return childrenWithName.Count > 0 ? childrenWithName[0] : null;
+                case MonaBrainBroadcastTypeSingleTarget.ChildContainingName:
+                    var childrenContainingName = GetChildrenContainingName(_brain.Body, _originChild);
+                    return childrenContainingName.Count > 0 ? childrenContainingName[0] : null;
                 case MonaBrainBroadcastTypeSingleTarget.MessageSender:
                     var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
                     return brain != null ? brain.Body : null;
@@ -522,9 +583,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 case MonaBrainBroadcastType.Children:
                     return ClosestBody(originBody, originBody.Children());
                 case MonaBrainBroadcastType.ChildrenWithName:
-                    return ClosestBody(originBody, GetChildrenWithName(originBody));
+                    return ClosestBody(originBody, GetChildrenWithName(originBody, _targetChild));
                 case MonaBrainBroadcastType.ChildrenContainingName:
-                    return ClosestBody(originBody, GetChildrenContainingName(originBody));
+                    return ClosestBody(originBody, GetChildrenContainingName(originBody, _targetChild));
                 case MonaBrainBroadcastType.MessageSender:
                     var brain = _brain.Variables.GetBrain(MonaBrainConstants.RESULT_SENDER);
                     return brain != null ? brain.Body : null;
