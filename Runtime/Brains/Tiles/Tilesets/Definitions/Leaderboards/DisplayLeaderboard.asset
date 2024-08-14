@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 1751789518334197762
   _id: DisplayLeaderboard
-  _name: Leaderboard Show
+  _name: Show Leaderboard
   _category: Leaderboards
   references:
     version: 2
@@ -25,7 +25,7 @@ MonoBehaviour:
         asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: DisplayLeaderboard
-        _name: Leaderboard Show
+        _name: Show Leaderboard
         _category: Leaderboards
         _tileVersion: 0
         _muted: 0
