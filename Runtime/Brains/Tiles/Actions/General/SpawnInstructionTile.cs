@@ -519,7 +519,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             extents.x *= avatarFactor;
             extents.z *= avatarFactor;
 
-            Debug.Log($"extents: {extents} scale:{scale}");
+            //Debug.Log($"extents: {extents} scale:{scale}");
 
             var boxScale = new Vector3(scale.x / extents.x, scale.y / extents.y, scale.z / extents.z);
             var index = 0;
@@ -533,7 +533,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
             var maxBoxScale = boxScale[index];
             extents *= maxBoxScale;
-            Debug.Log($"extents: {extents} {maxBoxScale}");
+            //Debug.Log($"extents: {extents} {maxBoxScale}");
 
             var mostOverlap = -1;
             var mostOverlapDistance = 0f;
@@ -557,7 +557,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 maxBoxScale *= scale[mostOverlap] / extents[mostOverlap];
 
             extents = bounds.extents * 2f * maxBoxScale;
-            Debug.Log($"extents: {extents} {maxBoxScale} orig {bounds.extents * 2f} d:{mostOverlapDistance} i:{mostOverlap}");
+            //Debug.Log($"extents: {extents} {maxBoxScale} orig {bounds.extents * 2f} d:{mostOverlapDistance} i:{mostOverlap}");
             //var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
             //var maxScale = Mathf.Max(Mathf.Max(scale.x, scale.y), _cale.z);
             //var scale = maxScale / max;
@@ -585,7 +585,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             for (var i = 0; i < childBrains.Length; i++)
                 childBrains[i].CacheTransforms();
 
-            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} localPosition: {avatarGameObject.transform.localPosition}");
+            //Debug.Log($"{nameof(ChangeAvatarInstructionTile)} localPosition: {avatarGameObject.transform.localPosition}");
 
             Vector3 position = body.GetPosition();
             Quaternion rotation = body.GetRotation() * Quaternion.Euler(eulerAngles);

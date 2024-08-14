@@ -10,7 +10,7 @@ using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Core.Utils.Structs;
 using Mona.SDK.Brains.Tiles.Actions.Leaderboards.Enums;
-
+using Mona.SDK.Core.EasyUI;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
@@ -44,8 +44,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 
         [SerializeField] private float _pageIndex = 0f;
         [SerializeField] private string _pageIndexName;
-        [BrainProperty(false)] public float PageIndex { get => _pageIndex; set => _pageIndex = value; }
+        [BrainPropertyShow(nameof(PageToLoad), (int)PageDisplay.PageIndex)]
+        [BrainProperty(true)] public float PageIndex { get => _pageIndex; set => _pageIndex = value; }
         [BrainPropertyValueName("PageIndex", typeof(IMonaVariablesFloatValue))] public string PageIndexName { get => _pageIndexName; set => _pageIndexName = value; }
+
+        [SerializeField] private EasyUINumericalBaseFormatType _scoreFormat = EasyUINumericalBaseFormatType.Default;
+        [BrainPropertyEnum(true)] public EasyUINumericalBaseFormatType ScoreFormat { get => _scoreFormat; set => _scoreFormat = value; }
 
         [SerializeField] private TimeScope _scope = TimeScope.AllTime;
         [BrainPropertyEnum(false)] public TimeScope Scope { get => _scope; set => _scope = value; }
@@ -55,9 +59,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
         [BrainProperty(false)] public float ScoresPerPage { get => _scoresPerPage; set => _scoresPerPage = value; }
         [BrainPropertyValueName("ScoresPerPage", typeof(IMonaVariablesFloatValue))] public string ScoresPerPageName { get => _scoresPerPageName; set => _scoresPerPageName = value; }
 
-        [SerializeField] private bool _alwaysShowClient;
+        [SerializeField] private bool _alwaysShowClient = true;
         [SerializeField] private string _alwaysShowClientName;
-        [BrainProperty(true)] public bool AlwaysShowClient { get => _alwaysShowClient; set => _alwaysShowClient = value; }
+        [BrainProperty(false)] public bool AlwaysShowClient { get => _alwaysShowClient; set => _alwaysShowClient = value; }
         [BrainPropertyValueName("AlwaysShowClient", typeof(IMonaVariablesBoolValue))] public string AlwaysShowClientName { get => _alwaysShowClientName; set => _alwaysShowClientName = value; }
 
         [SerializeField] private string _storeSuccessOn;
@@ -234,6 +238,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                     AlwaysShowClient = _alwaysShowClient,
                     BoardRange = _pageRange,
                     EntriesPerPage = (int)_scoresPerPage,
+                    ScoreFormatType = _scoreFormat,
                     Scores = _pageProcess.GetScores()
                 };
 

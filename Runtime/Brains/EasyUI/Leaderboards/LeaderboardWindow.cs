@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Mona.SDK.Core.EasyUI;
 using Mona.SDK.Brains.Core.Utils.Structs;
 
 namespace Mona.SDK.Brains.EasyUI.Leaderboards
@@ -66,13 +67,13 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
             if (_page.UserPageBefore)
             {
                 LeaderboardScoreDisplay scoreDisplay = CreateScoreDisplay();
-                scoreDisplay.SetScore(_page.ClientScore);
+                scoreDisplay.SetScore(_page.ClientScore, _page.ScoreFormatType);
             }
 
             for (int i = 0; i < _page.Scores.Count; i++)
             {
                 LeaderboardScoreDisplay scoreDisplay = CreateScoreDisplay();
-                scoreDisplay.SetScore(_page.Scores[i]);
+                scoreDisplay.SetScore(_page.Scores[i], _page.ScoreFormatType);
             }
 
             for (int i = 0; i < _page.EmptyDisplayCount; i++)
@@ -84,7 +85,7 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
             if (_page.UserPageAfter)
             {
                 LeaderboardScoreDisplay scoreDisplay = CreateScoreDisplay();
-                scoreDisplay.SetScore(_page.ClientScore);
+                scoreDisplay.SetScore(_page.ClientScore, _page.ScoreFormatType);
             }
         }
 

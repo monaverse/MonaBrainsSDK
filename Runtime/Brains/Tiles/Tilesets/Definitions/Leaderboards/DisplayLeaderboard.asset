@@ -21,8 +21,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 1751789518334197762
-      type: {class: LeaderboardDisplayInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Leaderboards,
-        asm: com.monaverse.sdk.brains.runtime}
+      type: {class: LeaderboardDisplayInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Leaderboards, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: DisplayLeaderboard
         _name: Show Leaderboard
@@ -36,9 +35,10 @@ MonoBehaviour:
         _usernameName: 
         _pageIndex: 0
         _pageIndexName: 
+        _scoreFormat: 0
         _scope: 2
         _scoresPerPage: 10
         _scoresPerPageName: 
-        _alwaysShowClient: 0
+        _alwaysShowClient: 1
         _alwaysShowClientName: 
         _storeSuccessOn: 

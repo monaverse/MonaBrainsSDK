@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine.SocialPlatforms;
+using Mona.SDK.Core.EasyUI;
 
 namespace Mona.SDK.Brains.Core.Utils.Structs
 {
@@ -13,6 +14,7 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
         public TimeScope Scope;
         public Range BoardRange;
         public int EntriesPerPage = 10;
+        public EasyUINumericalBaseFormatType ScoreFormatType = EasyUINumericalBaseFormatType.Default;
         public LeaderboardScore ClientScore;
         public List<LeaderboardScore> Scores = new List<LeaderboardScore>();
 

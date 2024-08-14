@@ -1,8 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using Mona.SDK.Core.EasyUI;
 using Mona.SDK.Brains.Core.Utils.Structs;
+
 using TMPro;
 
 namespace Mona.SDK.Brains.EasyUI.Leaderboards
@@ -34,7 +40,7 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
                 _scoreTexts[i].text = _emptyText;
         }
 
-        public void SetScore(LeaderboardScore score)
+        public void SetScore(LeaderboardScore score, EasyUINumericalBaseFormatType formatType)
         {
             for (int i = 0; i < _rankTexts.Length; i++)
                 _rankTexts[i].text = score.Rank.ToString();
@@ -43,13 +49,39 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
                 _usernameTexts[i].text = score.UserName;
 
             for (int i = 0; i < _scoreTexts.Length; i++)
-                _scoreTexts[i].text = score.Score;
+                _scoreTexts[i].text = FormatScore(float.Parse(score.Score), formatType);
         }
 
         public void PlayBounceAnimation()
         {
             if (_animator)
                 _animator.SetTrigger(_animBounceTrigger);
+        }
+
+        public string FormatScore(float value, EasyUINumericalBaseFormatType formatType)
+        {
+            // Get the current culture info
+            CultureInfo currentCulture = CultureInfo.CurrentCulture;
+
+            switch (formatType)
+            {
+                case EasyUINumericalBaseFormatType.Time:
+                    TimeSpan timeSpan = TimeSpan.FromSeconds(value);
+                    return string.Format(currentCulture, "{0:D2}:{1:D2}:{2:D2}.{3:D2}",
+                        timeSpan.Hours,
+                        timeSpan.Minutes,
+                        timeSpan.Seconds,
+                        timeSpan.Milliseconds / 10);
+
+                case EasyUINumericalBaseFormatType.Currency:
+                    return value.ToString("C", currentCulture);
+
+                case EasyUINumericalBaseFormatType.Percentage:
+                    return (value * 100f).ToString("N", currentCulture) + "%";
+
+                default:
+                    return value.ToString("N", currentCulture);
+            }
         }
     }
 }
