@@ -37,6 +37,12 @@ namespace Mona.SDK.Brains.Core.Utils
         protected bool _walletConnected;
         public bool WalletConnected { get => _walletConnected; set => _walletConnected = value; }
 
+        protected string _walletUsername;
+        public string WalletUsername { get => _walletUsername; }
+
+        protected string _walletUserEmail;
+        public string WalletUserEmail { get => _walletUserEmail; }
+
         public virtual Task<Token> OwnsToken(string collectionAddress, string tokenId)
         {
             return default;
