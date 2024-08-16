@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 1751789366339698947
   _id: PostToLeaderboard
-  _name: Post To Leaderboard
+  _name: Leaderboard Post
   _category: Leaderboards
   references:
     version: 2
@@ -24,9 +24,9 @@ MonoBehaviour:
       type: {class: LeaderboardPostValueInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Leaderboards,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: PostToLeaderboard
+        _name: Leaderboard Post
+        _category: Leaderboards
         _tileVersion: 0
         _muted: 0
         _leaderboardName: 
@@ -36,3 +36,4 @@ MonoBehaviour:
         _userType: 0
         _username: 
         _usernameName: 
+        _storeSuccessOn: 

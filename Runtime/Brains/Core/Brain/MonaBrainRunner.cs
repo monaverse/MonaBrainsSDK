@@ -843,7 +843,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public void SendMessageToBody(string message)
         {
-            Debug.Log($"{nameof(SendMessageToBody)} {message}");
+            //Debug.Log($"{nameof(SendMessageToBody)} {message}");
             MonaEventBus.Trigger(new EventHook(MonaBrainConstants.BROADCAST_MESSAGE_EVENT, _body), new InstructionEvent(message, null, Time.frameCount));
         }
 

@@ -1,15 +1,13 @@
 using UnityEngine.SocialPlatforms;
-using System.Collections.Generic;
-using Mona.SDK.Brains.Core.Utils.Structs;
 
 namespace Mona.SDK.Brains.Core.Utils.Interfaces
 {
     public interface IBrainLeaderboard
     {
-        void PostToLeaderboard(float score, string id, out bool success);
-        void PostToLeaderboard(float score, string id, string username, out bool success);
-        List<LeaderboardScore> LoadLeaderboardScores(string id, TimeScope timeScope, Range range, out bool success);
-        LeaderboardScore LoadLeaderboardClientScore(string id, int pageScoreCount, out bool success);
-        LeaderboardScore LoadLeaderboardUserScore(string id, string user, int pageScoreCount, out bool success);
+        BrainProcess PostToLeaderboard(float score, string id);
+        BrainProcess PostToLeaderboard(float score, string id, string username);
+        BrainProcess LoadScores(string id, TimeScope timeScope, Range range);
+        BrainProcess LoadClientScore(string id, int pageScoreCount);
+        BrainProcess LoadUserScore(string id, string user, int pageScoreCount);
     }
 }

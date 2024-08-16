@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using Mona.SDK.Brains.Core.Utils.Enums;
 using Mona.SDK.Core.Body;
+using Mona.SDK.Core.Utils;
+using Mona.SDK.Brains.Core.Utils.Structs;
 
 namespace Mona.SDK.Brains.Core.Utils.Interfaces
 {
@@ -13,34 +15,36 @@ namespace Mona.SDK.Brains.Core.Utils.Interfaces
         /// </summary>
         StorageTargetType SupportedStorageTarget { get; }
 
-        void SetBool(string key, bool value, out bool success, bool saveChanges = true);
-        void SetInt(string key, int value, out bool success, bool saveChanges = true);
-        void SetLong(string key, long value, out bool success, bool saveChanges = true);
-        void SetFloat(string key, float value, out bool success, bool saveChanges = true);
-        void SetDouble(string key, double value, out bool success, bool saveChanges = true);
-        void SetString(string key, string value, out bool success, bool saveChanges = true);
-        void SetVector2(string key, Vector2 value, out bool success, bool saveChanges = true);
-        void SetVector3(string key, Vector3 value, out bool success, bool saveChanges = true);
+        BrainProcess SetBool(string key, bool value, bool saveChanges = true);
+        BrainProcess SetInt(string key, int value, bool saveChanges = true);
+        BrainProcess SetLong(string key, long value, bool saveChanges = true);
+        BrainProcess SetFloat(string key, float value, bool saveChanges = true);
+        BrainProcess SetDouble(string key, double value, bool saveChanges = true);
+        BrainProcess SetString(string key, string value, bool saveChanges = true);
+        BrainProcess SetVector2(string key, Vector2 value, bool saveChanges = true);
+        BrainProcess SetVector3(string key, Vector3 value, bool saveChanges = true);
+        BrainProcess SetLayout(LayoutStorageData layout, bool saveChanges = true);
 
-        bool LoadBool(string key, out bool success);
-        int LoadInt(string key, out bool success);
-        long LoadLong(string key, out bool success);
-        float LoadFloat(string key, out bool success);
-        double LoadDouble(string key, out bool success);
-        string LoadString(string key, out bool success);
-        Vector2 LoadVector2(string key, out bool success);
-        Vector3 LoadVector3(string key, out bool success);
+        BrainProcess LoadBool(string key);
+        BrainProcess LoadInt(string key);
+        BrainProcess LoadLong(string key);
+        BrainProcess LoadFloat(string key);
+        BrainProcess LoadDouble(string key);
+        BrainProcess LoadString(string key);
+        BrainProcess LoadVector2(string key);
+        BrainProcess LoadVector3(string key);
+        BrainProcess LoadLayout(string key, IMonaBody referenceBody);
 
-        void DeleteBool(string key, out bool success, bool saveChanges = true);
-        void DeleteInt(string key, out bool success, bool saveChanges = true);
-        void DeleteLong(string key, out bool success, bool saveChanges = true);
-        void DeleteFloat(string key, out bool success, bool saveChanges = true);
-        void DeleteDouble(string key, out bool success, bool saveChanges = true);
-        void DeleteString(string key, out bool success, bool saveChanges = true);
-        void DeleteVector2(string key, out bool success, bool saveChanges = true);
-        void DeleteVector3(string key, out bool success, bool saveChanges = true);
+        BrainProcess DeleteBool(string key, bool saveChanges = true);
+        BrainProcess DeleteInt(string key, bool saveChanges = true);
+        BrainProcess DeleteLong(string key, bool saveChanges = true);
+        BrainProcess DeleteFloat(string key, bool saveChanges = true);
+        BrainProcess DeleteDouble(string key, bool saveChanges = true);
+        BrainProcess DeleteString(string key, bool saveChanges = true);
+        BrainProcess DeleteVector2(string key, bool saveChanges = true);
+        BrainProcess DeleteVector3(string key, bool saveChanges = true);
 
-        void DeleteAllData(out bool success);
-        void SaveChanges(out bool success);
+        BrainProcess DeleteAllData(bool saveChanges = true);
+        BrainProcess SaveChanges();
     }
 }

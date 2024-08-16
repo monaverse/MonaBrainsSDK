@@ -15,7 +15,7 @@ MonoBehaviour:
   _tile:
     rid: 1751789366339698945
   _id: GetLeaderboardValues
-  _name: Get Leaderboard Values
+  _name: Leaderboard Get
   _category: Leaderboards
   references:
     version: 2
@@ -24,9 +24,9 @@ MonoBehaviour:
       type: {class: LeaderboardGetValuesInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Leaderboards,
         asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: GetLeaderboardValues
+        _name: Leaderboard Get
+        _category: Leaderboards
         _tileVersion: 0
         _muted: 0
         _leaderboardName: 
@@ -39,3 +39,4 @@ MonoBehaviour:
         _usernameName: 
         _scoresPerPage: 10
         _scoresPerPageName: 
+        _storeSuccessOn: 
