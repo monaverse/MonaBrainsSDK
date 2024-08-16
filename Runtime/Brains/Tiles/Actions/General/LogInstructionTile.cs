@@ -107,7 +107,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
 
             fullLog += frames + time + bodyObject + brainData;
-            Debug.Log(fullLog);
+            //Debug.Log(fullLog);
 
             return Complete(InstructionTileResult.Success);
         }
