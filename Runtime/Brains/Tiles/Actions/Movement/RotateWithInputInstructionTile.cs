@@ -453,7 +453,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (_invertDeviceY)
                 y *= -1f;
 
-            return new Vector2(x, y);
+            var input = new Vector2(x, y);
+            if (input.magnitude > 1f)
+                return input.normalized;
+            else
+                return input;
         }
 
         private void SetTargetBodies()
