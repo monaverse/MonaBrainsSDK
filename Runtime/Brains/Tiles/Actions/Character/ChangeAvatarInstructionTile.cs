@@ -85,18 +85,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
+        [SerializeField] private string[] _offsetName;
         [BrainProperty(false)]
         public Vector3 Offset { get => _offset; set => _offset = value; }
+        [BrainPropertyValueName("Offset", typeof(IMonaVariablesVector3Value))] public string[] OffsetName { get => _offsetName; set => _offsetName = value; }
 
         [SerializeField]
         private Vector3 _eulerAngles = Vector3.zero;
+        [SerializeField] private string[] _eulerAnglesName;
         [BrainProperty(false)]
         public Vector3 Rotation { get => _eulerAngles; set => _eulerAngles = value; }
+        [BrainPropertyValueName("Rotation", typeof(IMonaVariablesVector3Value))] public string[] RotationName { get => _eulerAnglesName; set => _eulerAnglesName = value; }
 
         [SerializeField]
         private Vector3 _scale = Vector3.one;
+        [SerializeField] private string[] _scaleName;
         [BrainProperty(false)]
         public Vector3 Scale { get => _scale; set => _scale = value; }
+        [BrainPropertyValueName("Scale", typeof(IMonaVariablesVector3Value))] public string[] ScaleName { get => _scaleName; set => _scaleName = value; }
 
         [SerializeField]
         private int _poolSize = 1;
@@ -394,6 +400,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
         public override InstructionTileResult Do()
         {
+            if (HasVector3Values(_offsetName))
+                _offset = GetVector3Value(_brain, _offsetName);
+
+            if (HasVector3Values(_eulerAnglesName))
+                _eulerAngles = GetVector3Value(_brain, _eulerAnglesName);
+
+            if (HasVector3Values(_scaleName))
+                _scale = GetVector3Value(_brain, _scaleName);
+
             if (!string.IsNullOrEmpty(_assetUrlName))
                 _assetUri = _brain.Variables.GetString(_assetUrlName);
 
@@ -700,6 +715,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             }
 
             var frame = Time.frameCount;
+
             _urlLoader.Load(url, _importAnimation, async (avatar) =>
             {
                 if (avatar != null)

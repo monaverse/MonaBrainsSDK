@@ -7,6 +7,8 @@
         AssetUnitySpaceUrl=3,
         AssetVRMOrGLBUrl = 5,
         FileContains =4,
-        TraitValue=2
+        TraitValue=2,
+        TokenID = 10,
+        Contract = 20
     }
 }

@@ -55,6 +55,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private bool _isTrigger = false;
         [BrainPropertyEnum(false)] public bool IsTrigger { get => _isTrigger; set => _isTrigger = value; }
 
+        [SerializeField] private bool _convex = true;
+        [BrainPropertyShow(nameof(ColliderType), (int)MonaBodyColliderType.Mesh)]
+        [BrainPropertyEnum(false)] public bool Convex { get => _convex; set => _convex = value; }
+
         [SerializeField] private bool _onlyRenderers = true;
         [BrainPropertyEnum(true)] public bool OnlyRenderers { get => _onlyRenderers; set => _onlyRenderers = value; }
 
@@ -351,6 +355,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (_addOrRemove == ColliderModificationType.Add)
             {
                 var colliders = body.AddCollider(_colliderType, _onlyRenderers, _skipIfExists);
+
                 if(_colliderType == MonaBodyColliderType.Sphere)
                 { 
                     if (!string.IsNullOrEmpty(_radiusValueName))
@@ -358,6 +363,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
                     for (var i = 0; i < colliders.Count; i++)
                         ((SphereCollider)colliders[i]).radius = _radius;
+                }
+
+                if (_colliderType == MonaBodyColliderType.Mesh)
+                {
+                    for (var i = 0; i < colliders.Count; i++)
+                        ((MeshCollider)colliders[i]).convex = _convex;
                 }
 
                 if (_isTrigger)

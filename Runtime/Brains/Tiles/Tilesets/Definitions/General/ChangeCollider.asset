@@ -21,8 +21,7 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 7806238177546993911
-      type: {class: ChangeColliderInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General,
-        asm: com.monaverse.sdk.brains.runtime}
+      type: {class: ChangeColliderInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.General, asm: com.monaverse.sdk.brains.runtime}
       data:
         _id: 
         _name: 
@@ -35,7 +34,11 @@ MonoBehaviour:
         _networkNewBodies: 0
         _addOrRemove: 0
         _colliderType: 0
+        _radius: 1
+        _radiusValueName: 
+        _isTrigger: 0
+        _convex: 1
         _onlyRenderers: 1
-        _tag: 
+        _skipIfExists: 0
         _includeAttached: 1
         _includeAttachedName: 

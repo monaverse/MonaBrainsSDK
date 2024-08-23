@@ -22,5 +22,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         [BrainPropertyValueName("Coordinates", typeof(IMonaVariablesVector3Value))]
         public string[] CoordinatesName { get => _coordinatesName; set => _coordinatesName = value; }
+
+        [BrainProperty(true)]
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.SpeedOnly)]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.SpeedOnly, "Meters/Sec")]
+        public float Distance { get => _distance; set => _distance = value; }
+
+        [BrainPropertyValueName("Distance", typeof(IMonaVariablesFloatValue))]
+        public string DistanceValueName { get => _distanceValueName; set => _distanceValueName = value; }
     }
 }

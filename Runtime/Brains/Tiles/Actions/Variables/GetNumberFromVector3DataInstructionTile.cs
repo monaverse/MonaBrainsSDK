@@ -25,10 +25,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyEnum(true)] public VectorOperation Operation { get => _operation; set => _operation = value; }
 
         [SerializeField] private string _numberName;
+        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Magnitude)]
+        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Distance)]
+        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Angle)]
+        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.DotProduct)]
+        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.DotProductWithForward)]
         [BrainPropertyValue(typeof(IMonaVariablesFloatValue), true)] public string NumberName { get => _numberName; set => _numberName = value; }
+
+        [SerializeField] private string _vectorName;
+        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Direction)]
+        [BrainPropertyValue(typeof(IMonaVariablesVector3Value), true)] public string VectorName { get => _vectorName; set => _vectorName = value; }
 
         [SerializeField] private Vector3 _mainVector;
         [SerializeField] private string[] _mainVectorName;
+        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Direction)]
         [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Magnitude)]
         [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Angle)]
         [BrainProperty(true)] public Vector3 MainVector { get => _mainVector; set => _mainVector = value; }
@@ -36,6 +46,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         [SerializeField] private Vector3 _secondVector;
         [SerializeField] private string[] _secondVectorName;
+        [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Direction)]
         [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Angle)]
         [BrainProperty(true)] public Vector3 SecondVector { get => _secondVector; set => _secondVector = value; }
         [BrainPropertyValueName("SecondVector", typeof(IMonaVariablesVector3Value))] public string[] SecondVectorName { get => _secondVectorName; set => _secondVectorName = value; }
@@ -53,10 +64,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyShow(nameof(Operation), (int)VectorOperation.DotProductWithForward)]
         [BrainProperty(true)] public Vector3 PositionA { get => _positionA; set => _positionA = value; }
         [BrainPropertyValueName("PositionA", typeof(IMonaVariablesVector3Value))] public string[] PositionAName { get => _positionAName; set => _positionAName = value; }
-
         [SerializeField] private Vector3 _positionB;
         [SerializeField] private string[] _positionBName;
         [BrainPropertyShow(nameof(Operation), (int)VectorOperation.Distance)]
+        
         [BrainPropertyShow(nameof(Operation), (int)VectorOperation.DotProduct)]
         [BrainPropertyShow(nameof(Operation), (int)VectorOperation.DotProductWithForward)]
         [BrainProperty(true)] public Vector3 PositionB { get => _positionB; set => _positionB = value; }
@@ -67,6 +78,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         {
             Magnitude = 0,
             Distance = 10,
+            Direction = 15,
             Angle = 20,
             DotProduct = 30,
             DotProductWithForward = 40
@@ -83,7 +95,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         public override InstructionTileResult Do()
         {
-            if (_brain == null || string.IsNullOrEmpty(_numberName))
+            if (_brain == null || (string.IsNullOrEmpty(_numberName) && _operation != VectorOperation.Direction) || (string.IsNullOrEmpty(_numberName) && _operation == VectorOperation.Direction))
                 Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
             if (HasVector3Values(_mainVectorName))
@@ -108,6 +120,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     break;
                 case VectorOperation.Distance:
                     _brain.Variables.Set(_numberName, Vector3.Distance(_positionA, _positionB));
+                    break;
+                case VectorOperation.Direction:
+                    Vector3 heading = _secondVector - _mainVector;
+                    float distance = heading.magnitude;
+                    Vector3 direction = heading / distance;
+                    _brain.Variables.Set(_vectorName, direction);
                     break;
                 case VectorOperation.Angle:
                     _brain.Variables.Set(_numberName, Vector3.Angle(_mainVector, _secondVector));

@@ -23,6 +23,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         [BrainProperty(true)] public Vector3 DirectionValue { get => _directionValue; set => _directionValue = value; }
         [BrainPropertyValueName(nameof(DirectionValue), typeof(IMonaVariablesVector3Value))] public string[] DirectionValueName { get => _directionValueValueName; set => _directionValueValueName = value; }
 
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.Speed, "Angles/Sec")]
+        [BrainPropertyShowLabel(nameof(Mode), (int)MoveModeType.SpeedOnly, "Angles/Sec")]
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.Speed)]
+        [BrainPropertyShow(nameof(Mode), (int)MoveModeType.SpeedOnly)]
+        [BrainProperty(false)] public float Angle { get => _angle; set => _angle = value; }
+        [BrainPropertyValueName("Angle", typeof(IMonaVariablesFloatValue))] public string AngleValueName { get => _angleValueName; set => _angleValueName = value; }
+
         [BrainProperty(false)] public bool LookStraightAhead { get => _lookStraightAhead; set => _lookStraightAhead = value; }
 
         private Quaternion _look;
