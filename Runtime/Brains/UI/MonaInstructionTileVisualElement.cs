@@ -977,7 +977,7 @@ namespace Mona.SDK.Brains.UIElements
 
             values.Insert(0, "_");
 
-            if (value.Length == 0)
+            if (value == null || value.Length == 0)
                 value = new string[4];
 
             var defaultVariable = values.Find(x => string.Compare(x, value[index], true) == 0);
