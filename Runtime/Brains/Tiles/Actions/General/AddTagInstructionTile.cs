@@ -31,6 +31,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenContainingName)]
         [BrainProperty(true)] public string TargetName { get => _targetChild; set => _targetChild = value; }
 
+        [SerializeField] private string _targetArray;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MyBodyArray)]
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string TargetArray { get => _targetArray; set => _targetArray = value; }
+
         [SerializeField] private bool _networkNewBodies;
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenWithName)]
         [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenContainingName)]
@@ -121,6 +125,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     break;
                 case MonaBrainBroadcastType.AllSpawnedByMe:
                     ModifyOnAllSpawned();
+                    break;
+                case MonaBrainBroadcastType.MyBodyArray:
+                    ModifyOnBodyArray();
                     break;
                 default:
                     IMonaBody targetBody = GetTarget();
@@ -287,6 +294,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     SetTagOnBody(spawned[i]);
             }
 
+        }
+
+        private void ModifyOnBodyArray()
+        {
+            var arrayBodies = _brain.Variables.GetBodyArray(_targetArray);
+
+            for (int i = 0; i < arrayBodies.Count; i++)
+            {
+                if (arrayBodies[i] == null)
+                    continue;
+
+                if (ModifyAllAttached)
+                    ModifyOnWholeEntity(arrayBodies[i]);
+                else
+                    SetTagOnBody(arrayBodies[i]);
+            }
         }
 
         private IMonaBody GetTarget()

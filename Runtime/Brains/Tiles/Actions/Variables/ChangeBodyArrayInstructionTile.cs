@@ -38,8 +38,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         [BrainPropertyShow(nameof(ActionType), (int)ArrayActionType.AddOrRemove)]
         [BrainPropertyMonaTag(true)] public string TargetTag { get => _targetTag; set => _targetTag = value; }
 
+        [SerializeField] private string _childString;
+        [SerializeField] private string _childStringName;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenWithName)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenContainingName)]
+        [BrainProperty(true)] public string ChildString { get => _childString; set => _childString = value; }
+        [BrainPropertyValueName("ChildString", typeof(IMonaVariablesStringValue))] public string ChildStringName { get => _childStringName; set => _childStringName = value; }
+
+        [SerializeField] private string _targetArray;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.MyBodyArray)]
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string TargetArray { get => _targetArray; set => _targetArray = value; }
+
         [SerializeField] private string _bodyArray;
         [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string BodyArray { get => _bodyArray; set => _bodyArray = value; }
+
+        [SerializeField] private bool _networkNewBodies;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenWithName)]
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastType.ChildrenContainingName)]
+        [BrainProperty(true)] public bool NetworkNewBodies { get => _networkNewBodies; set => _networkNewBodies = value; }
 
         [SerializeField] private bool _modifyAllAttached;
         [BrainPropertyShow(nameof(ActionType), (int)ArrayActionType.Add)]
@@ -60,6 +76,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
         {
             if (_brain != null)
             {
+
+                if (!string.IsNullOrEmpty(_childStringName))
+                    _childString = _brain.Variables.GetString(_childStringName);
 
                 var myValue = _brain.Variables.GetVariable(_bodyArray);
 
@@ -83,11 +102,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     case MonaBrainBroadcastType.Children:
                         ModifyOnChildren(myValue, _brain.Body);
                         break;
+                    case MonaBrainBroadcastType.ChildrenWithName:
+                        ModifyOnChildrenWithName(myValue, _brain.Body);
+                        break;
+                    case MonaBrainBroadcastType.ChildrenContainingName:
+                        ModifyOnChildrenContainingName(myValue, _brain.Body);
+                        break;
                     case MonaBrainBroadcastType.ThisBodyOnly:
                         ModifyValueOnBody(myValue, _brain.Body);
                         break;
                     case MonaBrainBroadcastType.AllSpawnedByMe:
                         ModifyOnAllSpawned(myValue);
+                        break;
+                    case MonaBrainBroadcastType.MyBodyArray:
+                        ModifyOnBodyArray(myValue);
                         break;
                     default:
                         IMonaBody targetBody = GetTarget();
@@ -154,7 +182,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
 
         private void ModifyOnChildren(IMonaVariablesValue myValue, IMonaBody body)
         {
-
             var children = body.Children();
 
             for (int i = 0; i < children.Count; i++)
@@ -165,12 +192,65 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 ModifyValueOnBody(myValue, children[i]);
                 ModifyOnChildren(myValue, children[i]);
             }
+        }
 
+        private void ModifyOnChildrenWithName(IMonaVariablesValue myValue, IMonaBody body)
+        {
+
+            var children = body.Transform.GetComponentsInChildren<Transform>(true);
+
+            for (int i = 0; i < children.Length; i++)
+            {
+                var child = children[i];
+                if (child == null || child.name.ToLower() != _childString.ToLower())
+                    continue;
+
+                var childBody = child.GetComponent<IMonaBody>();
+                if (childBody == null)
+                    childBody = CreateMonaBody(child);
+
+                ModifyValueOnBody(myValue, childBody);
+            }
+
+        }
+
+        private void ModifyOnChildrenContainingName(IMonaVariablesValue myValue, IMonaBody body)
+        {
+
+            var children = body.Transform.GetComponentsInChildren<Transform>(true);
+
+            for (int i = 0; i < children.Length; i++)
+            {
+                var child = children[i];
+                if (child == null || !child.name.ToLower().Contains(_childString.ToLower()))
+                    continue;
+
+                var childBody = child.GetComponent<IMonaBody>();
+                if (childBody == null)
+                    childBody = CreateMonaBody(child);
+
+                ModifyValueOnBody(myValue, childBody);
+            }
+
+        }
+
+        private IMonaBody CreateMonaBody(Transform body)
+        {
+            var childBody = body.gameObject.AddComponent<MonaBody>();
+            childBody.SyncType = MonaBodyNetworkSyncType.NotNetworked;
+            if (_networkNewBodies)
+            {
+                childBody.SyncType = MonaBodyNetworkSyncType.NetworkTransform;
+
+                var guid = Guid.NewGuid();
+                ((MonaBodyBase)childBody).Guid = new SerializableGuid(guid);
+                ((MonaBodyBase)childBody).ManualMakeUnique(guid.ToString(), 0, 0, false);
+            }
+            return childBody;
         }
 
         private void ModifyOnAllSpawned(IMonaVariablesValue myValue)
         {
-
             var spawned = _brain.SpawnedBodies;
 
             for (int i = 0; i < spawned.Count; i++)
@@ -183,7 +263,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                 else
                     ModifyValueOnBody(myValue, spawned[i]);
             }
+        }
 
+        private void ModifyOnBodyArray(IMonaVariablesValue myValue)
+        {
+            var arrayBodies = _brain.Variables.GetBodyArray(_targetArray);
+
+            for (int i = 0; i < arrayBodies.Count; i++)
+            {
+                if (arrayBodies[i] == null)
+                    continue;
+
+                if (ModifyAllAttached)
+                    ModifyOnWholeEntity(myValue, arrayBodies[i]);
+                else
+                    ModifyValueOnBody(myValue, arrayBodies[i]);
+            }
         }
 
         private IMonaBody GetTarget()
@@ -212,6 +307,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     return _brain.Body.PoolBodyPrevious;
                 case MonaBrainBroadcastType.MyPoolNextSpawned:
                     return _brain.Body.PoolBodyNext;
+                case MonaBrainBroadcastType.LastSkin:
+                    return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SKIN);
             }
             return null;
         }
@@ -239,7 +336,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     value.Clear();
                     break;
             }
-            Debug.Log($"{nameof(ChangeBodyArrayInstructionTile)} {myValue.Name} {value.Count}");
+            //Debug.Log($"{nameof(ChangeBodyArrayInstructionTile)} {myValue.Name} {value.Count}");
             myValue.Change();
         }
     }

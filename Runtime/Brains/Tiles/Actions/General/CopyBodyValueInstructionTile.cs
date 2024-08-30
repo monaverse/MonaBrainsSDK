@@ -47,6 +47,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainProperty(true)] public string NameToFind { get => _nameToFind; set => _nameToFind = value; }
         [BrainPropertyValueName("NameToFind", typeof(IMonaVariablesStringValue))] public string NameToFindName { get => _nameToFindName; set => _nameToFindName = value; }
 
+        [SerializeField] private string _bodyArray;
+        [BrainPropertyShow(nameof(Body), (int)MonaBrainBroadcastTypeSingleTarget.FirstBodyInArray)]
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string BodyArray { get => _bodyArray; set => _bodyArray = value; }
+
         [SerializeField] private TargetVariableType _targetType;
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Velocity)]
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.StartScale)]
@@ -87,6 +91,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(AxisDisplay), (int)UIDisplayType.Show)]
         [BrainPropertyEnum(true)]
         public VectorThreeAxis Axis { get => _axis; set => _axis = value; }
+
+        [SerializeField] private bool _includeParent = false;
+        [SerializeField] private string _includeParentName;
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.BoundsExtents)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.BoundsCenter)]
+        [BrainProperty(false)] public bool IncludeParent { get => _includeParent; set => _includeParent = value; }
+        [BrainPropertyValueName("IncludeParent", typeof(IMonaVariablesBoolValue))] public string IncludeParentName { get => _includeParentName; set => _includeParentName = value; }
 
         [SerializeField] private bool _includeChildren = true;
         [SerializeField] private string _includeChildrenName;
@@ -201,6 +212,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (!string.IsNullOrEmpty(_nameToFindName))
                 _nameToFind = _brain.Variables.GetString(_nameToFindName);
 
+            if (!string.IsNullOrEmpty(_includeParentName))
+                _includeParent = _brain.Variables.GetBool(_includeParentName);
+
             if (!string.IsNullOrEmpty(_includeChildrenName))
                 _includeChildren = _brain.Variables.GetBool(_includeChildrenName);
 
@@ -303,6 +317,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     return _brain.Body.PoolBodyPrevious;
                 case MonaBrainBroadcastTypeSingleTarget.MyPoolNextSpawned:
                     return _brain.Body.PoolBodyNext;
+                case MonaBrainBroadcastTypeSingleTarget.FirstBodyInArray:
+                    var arrayBodies = _brain.Variables.GetBodyArray(_bodyArray);
+                    return arrayBodies.Count > 0 ? arrayBodies[0] : null;
                 case MonaBrainBroadcastTypeSingleTarget.LastSkin:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SKIN);
                 default:
@@ -485,12 +502,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private void SetBoundsValue(IMonaBody body)
         {
-            Transform parent = body.Transform.parent != null ? body.Transform.parent : body.Transform;
-            Bounds bounds = new Bounds(parent.position, Vector3.zero);
+            Transform target = body.Transform;
+
+            if (_includeParent)
+                target = body.Transform.parent != null ? body.Transform.parent : body.Transform;
+
+
+            Bounds bounds = new Bounds(target.position, Vector3.zero);
 
             if (_includeChildren)
             {
-                Renderer[] renderers = parent.GetComponentsInChildren<Renderer>();
+                Renderer[] renderers = target.GetComponentsInChildren<Renderer>();
 
                 for (int i = 0; i < renderers.Length; i++)
                 {
@@ -500,7 +522,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
             else
             {
-                Renderer renderer = parent.GetComponent<Renderer>();
+                Renderer renderer = target.GetComponent<Renderer>();
 
                 if (renderer != null)
                     bounds.Encapsulate(renderer.bounds);

@@ -352,6 +352,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Variables
                     _brain.Variables.Set(_storeResultOn, brainVariables.GetVector2(_targetVariable, false));
                 else if (targetValue is IMonaVariablesVector3Value && myValue is IMonaVariablesVector3Value)
                     _brain.Variables.Set(_storeResultOn, brainVariables.GetVector3(_targetVariable, false));
+                else if (targetValue is IMonaVariablesBodyArrayValue && myValue is IMonaVariablesBodyArrayValue)
+                {
+                    var list = new List<IMonaBody>();
+                    list.AddRange(brainVariables.GetBodyArray(_targetVariable));
+                    _brain.Variables.Set(_storeResultOn, list, false);
+                }
 
                 valueFound = true;
                 break;

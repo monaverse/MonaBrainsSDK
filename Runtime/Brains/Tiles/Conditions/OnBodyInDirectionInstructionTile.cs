@@ -35,6 +35,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
         [BrainProperty(true)] public string NameToFind { get => _nameToFind; set => _nameToFind = value; }
         [BrainPropertyValueName("NameToFind", typeof(IMonaVariablesStringValue))] public string NameToFindName { get => _nameToFindName; set => _nameToFindName = value; }
 
+        [SerializeField] private string _bodyArray;
+        [BrainPropertyShow(nameof(Target), (int)MonaBrainBroadcastTypeSingleTarget.FirstBodyInArray)]
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string BodyArray { get => _bodyArray; set => _bodyArray = value; }
+
         [SerializeField] private BodyDirectionType _direction = BodyDirectionType.Forward;
         [BrainPropertyEnum(true)] public BodyDirectionType Direction { get => _direction; set => _direction = value; }
 
@@ -184,6 +188,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     return _brain.Body.PoolBodyPrevious;
                 case MonaBrainBroadcastTypeSingleTarget.MyPoolNextSpawned:
                     return _brain.Body.PoolBodyNext;
+                case MonaBrainBroadcastTypeSingleTarget.FirstBodyInArray:
+                    var arrayBodies = _brain.Variables.GetBodyArray(_bodyArray);
+                    return arrayBodies.Count > 0 ? arrayBodies[0] : null;
                 case MonaBrainBroadcastTypeSingleTarget.LastSkin:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SKIN);
                 default:

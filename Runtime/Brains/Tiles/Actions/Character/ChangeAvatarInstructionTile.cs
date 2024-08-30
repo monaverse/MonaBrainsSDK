@@ -802,7 +802,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 else
                     Complete(InstructionTileResult.Success, true);
 
-                Debug.Log($"{nameof(ChangeAvatarInstructionTile)} Success");
+                //Debug.Log($"{nameof(ChangeAvatarInstructionTile)} Success");
             }, _poolSize);
         }
 
@@ -947,7 +947,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             if (!string.IsNullOrEmpty(body.SkinId))
             {
-                Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} skin id was loaded, return it to pool {body.SkinId}");
+                //Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} skin id was loaded, return it to pool {body.SkinId}");
                 _urlLoader.ReturnToPool(body.SkinId, body.Skin);
                 body.SkinId = null;
             }
@@ -956,7 +956,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             {
                 if (body.Skin != root.GetChild(i).gameObject)
                 {
-                    Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} destroy previous skin {body.SkinId} other: {root.GetChild(i).gameObject}");
+                    //Debug.Log($"{nameof(ChangeAvatarInstructionTile)} {nameof(LoadAvatar)} destroy previous skin {body.SkinId} other: {root.GetChild(i).gameObject}");
                     GameObject.DestroyImmediate(root.GetChild(i).gameObject);
                 }
             }
@@ -1075,7 +1075,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             RecalculateSize(avatarGameObject, root, animator.avatar != null);
                                        
-            Debug.Log($"{_avatarInstance} {_offset} scale {_scale} {avatarGameObject.transform.position} brain body {_brain.Body.Transform.position}");
+            //Debug.Log($"{_avatarInstance} {_offset} scale {_scale} {avatarGameObject.transform.position} brain body {_brain.Body.Transform.position}");
 
             var playerId = _brain.Player.GetPlayerIdByBody(_brain.Body);
             if(playerId > -1)
@@ -1094,7 +1094,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             extents.x *= avatarFactor;
             extents.z *= avatarFactor;
 
-            Debug.Log($"extents: {extents} scale:{_scale}");
+            //Debug.Log($"extents: {extents} scale:{_scale}");
 
             var boxScale = new Vector3(_scale.x / extents.x, _scale.y / extents.y, _scale.z / extents.z);
             var index = 0;
@@ -1108,7 +1108,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
 
             var maxBoxScale = boxScale[index];
             extents *= maxBoxScale;
-            Debug.Log($"extents: {extents} {maxBoxScale}");
+            //Debug.Log($"extents: {extents} {maxBoxScale}");
 
             var mostOverlap = -1;
             var mostOverlapDistance = 0f;
@@ -1132,7 +1132,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                 maxBoxScale *= _scale[mostOverlap] / extents[mostOverlap];
 
             extents = bounds.extents * 2f * maxBoxScale;
-            Debug.Log($"extents: {extents} {maxBoxScale} orig {bounds.extents * 2f} d:{mostOverlapDistance} i:{mostOverlap}");
+            //Debug.Log($"extents: {extents} {maxBoxScale} orig {bounds.extents * 2f} d:{mostOverlapDistance} i:{mostOverlap}");
             //var max = Mathf.Max(Mathf.Max(extents.x, extents.y), extents.z);
             //var maxScale = Mathf.Max(Mathf.Max(_scale.x, _scale.y), _scale.z);
             //var scale = maxScale / max;
@@ -1160,7 +1160,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
             for (var i = 0; i < childBrains.Length; i++)
                 childBrains[i].CacheTransforms();
 
-            Debug.Log($"{nameof(ChangeAvatarInstructionTile)} localPosition: {avatarGameObject.transform.localPosition}");
+            //Debug.Log($"{nameof(ChangeAvatarInstructionTile)} localPosition: {avatarGameObject.transform.localPosition}");
 
             if (_scaleToFit)
             {

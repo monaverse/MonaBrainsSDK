@@ -38,6 +38,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainProperty(true)] public string OriginChild { get => _originChild; set => _originChild = value; }
         [BrainPropertyValueName("OriginChild", typeof(IMonaVariablesStringValue))] public string OriginChildName { get => _originChildName; set => _originChildName = value; }
 
+        [SerializeField] private string _originArray;
+        [BrainPropertyShow(nameof(OriginBody), (int)MonaBrainBroadcastTypeSingleTarget.FirstBodyInArray)]
+        [BrainPropertyValue(typeof(IMonaVariablesBodyArrayValue), true)] public string OriginArray { get => _originArray; set => _originArray = value; }
+
         [SerializeField] private MonaBrainBroadcastType _targetBody = MonaBrainBroadcastType.Tag;
         [BrainPropertyEnum(true)] public MonaBrainBroadcastType TargetBody { get => _targetBody; set => _targetBody = value; }
 
@@ -92,6 +96,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private BodyDistanceType _distanceType = BodyDistanceType.CompareTargets;
         [BrainPropertyShow(nameof(ValueType), (int)MultiBodyValueType.Distance)]
         [BrainPropertyEnum(false)] public BodyDistanceType DistanceType { get => _distanceType; set => _distanceType = value; }
+
+        [SerializeField] private BodyDirectionTarget _directionType = BodyDirectionTarget.StandardCompare;
+        [BrainPropertyShow(nameof(ValueType), (int)MultiBodyValueType.Direction)]
+        [BrainPropertyEnum(false)] public BodyDirectionTarget DirectionType { get => _directionType; set => _directionType = value; }
 
         [SerializeField] private BodyDirectionType _direction = BodyDirectionType.Forward;
         [BrainPropertyShow(nameof(DirectionDisplay), (int)UIDisplayType.Show)]
@@ -251,7 +259,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         public enum BodyDistanceType
         {
             CompareTargets = 0,
-            FromRaycast = 10
+            FromRaycast = 10,
+            ClosestPoint = 20
+        }
+
+        public enum BodyDirectionTarget
+        {
+            StandardCompare = 0,
+            ClosestPoint = 20
         }
 
         public GetMultiBodyValueInstructionTile() { }
@@ -308,11 +323,28 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             switch (_valueType)
             {
                 case MultiBodyValueType.Distance:
-                    TryRayHit(bodyA, bodyB, out float distance, out _, out _);
-                    SetVariable(distance);
+                    if (_distanceType == BodyDistanceType.ClosestPoint)
+                    {
+                        TryClosestPoint(bodyA, bodyB, out float closestDistance, out _, out _, out _);
+                        SetVariable(closestDistance);
+                    }
+                    else
+                    {
+                        TryRayHit(bodyA, bodyB, out float rayDistance, out _, out _);
+                        SetVariable(rayDistance);
+                    }
                     break;
                 case MultiBodyValueType.Direction:
-                    SetVariable(GetDirection(bodyA, bodyB)); break;
+                    if (_directionType == BodyDirectionTarget.StandardCompare)
+                    {
+                        SetVariable(GetDirection(bodyA, bodyB));
+                    }
+                    else
+                    {
+                        TryClosestPoint(bodyA, bodyB, out _, out _, out Vector3 direction, out _);
+                        SetVariable(direction);
+                    }
+                    break;
                 case MultiBodyValueType.DotProduct:
                     SetVariable(GetDotProduct(bodyA, bodyB)); break;
                 case MultiBodyValueType.RayHitPosition:
@@ -330,9 +362,79 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                         SetVariable(rotationAngle);
                     }
                     break;
+                case MultiBodyValueType.ClosestPoint:
+                    if (TryClosestPoint(bodyA, bodyB, out _, out Vector3 closestPoint, out _, out _))
+                        SetVariable(closestPoint);
+                    break;
+                case MultiBodyValueType.ClosestNormal:
+                    if (TryClosestPoint(bodyA, bodyB, out _, out _, out _, out Vector3 normal))
+                        SetVariable(normal);
+                    break;
+                case MultiBodyValueType.ClosestAlignAngle:
+                    if (TryClosestPoint(bodyA, bodyB, out _, out _, out _, out Vector3 alignNormal))
+                    {
+                        Vector3 rotationAngle = (Quaternion.FromToRotation(bodyA.Transform.up, alignNormal) * bodyA.GetRotation()).eulerAngles;
+                        SetVariable(rotationAngle);
+                    }
+                    break;
             }
 
             return Complete(InstructionTileResult.Success);
+        }
+
+        private bool TryClosestPoint(IMonaBody bodyA, IMonaBody bodyB, out float distance, out Vector3 position, out Vector3 direction, out Vector3 normal)
+        {
+            Vector3 bodyAPosition = bodyA.GetPosition();
+            distance = _defaultDistance;
+            Collider targetCollider = bodyB.Colliders.Count > 0 ? bodyB.Colliders[0] : null;
+
+            Debug.Log($"AA: bodyB Name = " + bodyB.Transform.name);
+
+            if (targetCollider == null)
+            {
+                position = direction = normal = Vector3.zero;
+                return false;
+            }
+
+            position = targetCollider.ClosestPoint(bodyAPosition);
+            Debug.Log($"AA: BodyAPosition = " + bodyAPosition + " | Closest Point = " + position);
+
+            distance = Vector3.Distance(bodyAPosition, position);
+            direction = (position - bodyAPosition).normalized;
+
+            Debug.Log($"AA: Direction = " + direction);
+
+            if (targetCollider is MeshCollider)
+            {
+                _bodyLayers.Clear();
+                SetOriginalBodyLayers(bodyA);
+                SetBodyLayer(bodyA, LayerMask.NameToLayer(_ignoreRaycastLayer));
+
+                RaycastHit hit;
+                bool hitSuccess;
+
+                if (targetCollider.Raycast(new Ray(bodyAPosition, direction), out hit, distance + 0.01f))
+                {
+                    normal = hit.normal;
+                    hitSuccess = true;
+                }
+                else
+                {
+                    normal = Vector3.zero;
+                    hitSuccess = false;
+                }
+
+                ResetOriginalBodyLayers(bodyA);
+
+                if (_valueType == MultiBodyValueType.ClosestNormal || _valueType == MultiBodyValueType.ClosestAlignAngle)
+                    return hitSuccess;
+            }
+            else
+            {
+                normal = (position - targetCollider.bounds.center).normalized;
+            }
+
+            return true;
         }
 
         private bool TryRayHit(IMonaBody bodyA, IMonaBody bodyB, out float distance, out Vector3 hitPosition, out Vector3 hitNormal)
@@ -559,14 +661,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     return _brain.Body.PoolBodyPrevious;
                 case MonaBrainBroadcastTypeSingleTarget.MyPoolNextSpawned:
                     return _brain.Body.PoolBodyNext;
+                case MonaBrainBroadcastTypeSingleTarget.FirstBodyInArray:
+                    var arrayBodies = _brain.Variables.GetBodyArray(_originArray);
+                    return arrayBodies.Count > 0 ? arrayBodies[0] : null;
                 case MonaBrainBroadcastTypeSingleTarget.LastSkin:
                     return _brain.Variables.GetBody(MonaBrainConstants.RESULT_LAST_SKIN);
                 default:
                     return null;
             }
         }
-
-        
 
         private IMonaBody GetClosestTargetBody(IMonaBody originBody)
         {

@@ -37,6 +37,7 @@ namespace Mona.SDK.Brains.Core.Enums
         LastSpawnedByMe = 80,
         MyPoolPreviouslySpawned = 100,
         MyPoolNextSpawned = 110,
+        FirstBodyInArray = 120,
         LastSkin = 130
     }
 
