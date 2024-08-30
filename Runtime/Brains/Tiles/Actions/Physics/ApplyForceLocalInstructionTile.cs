@@ -30,6 +30,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         public virtual PushDirectionType DirectionType => PushDirectionType.Forward;
         public virtual PositionalAlignmentMode AlignmentMode => PositionalAlignmentMode.Hover;
+        public virtual SpaceType Space => SpaceType.Local;
 
         [SerializeField] private float _force = 1f;
         [SerializeField] private string _forceValueName = null;
@@ -596,21 +597,28 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         {
             switch (moveType)
             {
-                case PushDirectionType.Forward: return _brain.Body.ActiveTransform.forward;
-                case PushDirectionType.Backward: return _brain.Body.ActiveTransform.forward * -1f;
-                case PushDirectionType.Up: return _brain.Body.ActiveTransform.up;
-                case PushDirectionType.Down: return _brain.Body.ActiveTransform.up * -1f;
-                case PushDirectionType.Right: return _brain.Body.ActiveTransform.right;
-                case PushDirectionType.Left: return _brain.Body.ActiveTransform.right * -1f;
+                case PushDirectionType.Forward: return Space == SpaceType.Local ? _brain.Body.ActiveTransform.forward : Vector3.forward;
+                case PushDirectionType.Backward: return Space == SpaceType.Local ? _brain.Body.ActiveTransform.forward * -1f : Vector3.back;
+                case PushDirectionType.Up: return Space == SpaceType.Local ? _brain.Body.ActiveTransform.up : Vector3.up;
+                case PushDirectionType.Down: return Space == SpaceType.Local ? _brain.Body.ActiveTransform.up * -1f : Vector3.down;
+                case PushDirectionType.Right: return Space == SpaceType.Local ? _brain.Body.ActiveTransform.right : Vector3.right;
+                case PushDirectionType.Left: return Space == SpaceType.Local ? _brain.Body.ActiveTransform.right * -1f : Vector3.left;
                 case PushDirectionType.Push: return body.GetPosition() - _brain.Body.GetPosition();
                 case PushDirectionType.Pull: return _brain.Body.GetPosition() - body.GetPosition();
                 case PushDirectionType.Away: return _brain.Body.GetPosition() - body.GetPosition();
                 case PushDirectionType.Toward: return body.GetPosition() - _brain.Body.GetPosition();
-                case PushDirectionType.UseInput: return _brain.Body.ActiveTransform.forward * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + _brain.Body.ActiveTransform.right * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
-                case PushDirectionType.InputForwardBack: return _brain.Body.ActiveTransform.forward * Mathf.Sign(InputMoveDirection.y);
-
+                case PushDirectionType.UseInput: return GetInputDirectionVector();
+                case PushDirectionType.InputForwardBack: return Space == SpaceType.Local ? _brain.Body.ActiveTransform.forward * Mathf.Sign(InputMoveDirection.y) : Vector3.forward * Mathf.Sign(InputMoveDirection.y);
                 default: return Vector3.zero;
             }
+        }
+
+        protected Vector3 GetInputDirectionVector()
+        {
+            if (Space == SpaceType.Local)
+                return _brain.Body.ActiveTransform.forward * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + _brain.Body.ActiveTransform.right * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
+
+            return Vector3.forward * (Mathf.Approximately(InputMoveDirection.y, 0) ? 0 : Mathf.Sign(InputMoveDirection.y)) + Vector3.right * (Mathf.Approximately(InputMoveDirection.x, 0) ? 0 : Mathf.Sign(InputMoveDirection.x));
         }
 
         protected Vector3 GetAlignmentForce(IMonaBody body)

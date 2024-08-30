@@ -23,6 +23,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [SerializeField] private MonaBodyValueType _source = MonaBodyValueType.Position;
         [BrainPropertyEnum(true)] public MonaBodyValueType Source { get => _source; set => _source = value; }
 
+        [SerializeField] private BodyDirectionType _direction = BodyDirectionType.Forward;
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Direction)]
+        [BrainPropertyEnum(true)] public BodyDirectionType Direction { get => _direction; set => _direction = value; }
+
+        [SerializeField] private Vector3 _customDirection = Vector3.forward;
+        [SerializeField] private string[] _customDirectionName;
+        [BrainPropertyShow(nameof(DisplayCustomDirection), (int)UIDisplayType.Show)]
+        [BrainProperty(true)] public Vector3 CustomDirection { get => _customDirection; set => _customDirection = value; }
+        [BrainPropertyValueName("CustomDirection", typeof(IMonaVariablesVector3Value))] public string[] CustomDirectionName { get => _customDirectionName; set => _customDirectionName = value; }
+
         [SerializeField] private MonaBrainBroadcastTypeSingleTarget _body = MonaBrainBroadcastTypeSingleTarget.Self;
         [BrainPropertyEnum(true)] public MonaBrainBroadcastTypeSingleTarget Body { get => _body; set => _body = value; }
 
@@ -45,7 +55,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Scale)]
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Rotation)]
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Position)]
-        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Forward)]
+        [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.Direction)]
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.ChildIndex)]
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.SiblingIndex)]
         [BrainPropertyShow(nameof(Source), (int)MonaBodyValueType.BoundsExtents)]
@@ -101,6 +111,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public bool SourceIsStringOnly => Source == MonaBodyValueType.PlayerName || Source == MonaBodyValueType.ReadMe || Source == MonaBodyValueType.BodyName;
         public bool SourceNumberIsSingleNumber => Source == MonaBodyValueType.ChildIndex || Source == MonaBodyValueType.ChildCount || Source == MonaBodyValueType.SiblingIndex || Source == MonaBodyValueType.Velocity;
+        public UIDisplayType DisplayCustomDirection => Source == MonaBodyValueType.Direction && Direction == BodyDirectionType.Custom ? UIDisplayType.Show : UIDisplayType.Hide;
 
         public TargetVariableType TrueTargetType
         {
@@ -181,6 +192,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
+            if (HasVector3Values(_customDirectionName))
+                _customDirection = GetVector3Value(_brain, _customDirectionName);
+
             if (HasVector3Values(_offsetName))
                 _offset = GetVector3Value(_brain, _offsetName);
 
@@ -212,8 +226,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     SetVariable(body.InitialScale); break;
                 case MonaBodyValueType.Velocity:
                     SetVelocity(); break;
-                case MonaBodyValueType.Forward:
-                    SetVariable(body.ActiveTransform.forward); break;
+                case MonaBodyValueType.Direction:
+                    SetVariable(GetBodyDirection(body)); break;
                 case MonaBodyValueType.ChildIndex:
                     SetVariable((float)body.ChildIndex); break;
                 case MonaBodyValueType.SiblingIndex:
@@ -325,6 +339,29 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             }
             return _children;
 
+        }
+
+        private Vector3 GetBodyDirection(IMonaBody body)
+        {
+            switch (_direction)
+            {
+                case BodyDirectionType.Forward:
+                    return body.ActiveTransform.forward;
+                case BodyDirectionType.Back:
+                    return body.ActiveTransform.forward * -1f;
+                case BodyDirectionType.Right:
+                    return body.ActiveTransform.right;
+                case BodyDirectionType.Left:
+                    return body.ActiveTransform.right * -1f;
+                case BodyDirectionType.Up:
+                    return body.ActiveTransform.up;
+                case BodyDirectionType.Down:
+                    return body.ActiveTransform.up * -1f;
+                case BodyDirectionType.Custom:
+                    return body.ActiveTransform.TransformDirection(_customDirection);
+            }
+
+            return Vector3.forward;
         }
 
         private List<IMonaBody> GetChildrenWithName(IMonaBody body, string nameToFind)

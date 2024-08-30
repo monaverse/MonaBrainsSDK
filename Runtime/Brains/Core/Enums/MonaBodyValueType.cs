@@ -9,7 +9,7 @@
         Scale = 8,
         StartScale = 10,
         Velocity = 12,
-        Forward = 14,
+        Direction = 14,
         ChildIndex = 16,
         SiblingIndex = 17,
         ChildCount = 18,

@@ -1,4 +1,4 @@
-namespace Mona.SDK.Brains.Tiles.Conditions.Enums
+namespace Mona.SDK.Brains.Core.Enums
 {
     public enum BodyDirectionType
     {

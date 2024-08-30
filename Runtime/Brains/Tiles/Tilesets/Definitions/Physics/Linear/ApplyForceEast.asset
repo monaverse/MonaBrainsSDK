@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67fa8bd27301d4a2ab63843c3f08468d, type: 3}
+  m_Name: ApplyForceEast
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 1751789837310231194
+  _id: ApplyForceEast
+  _name: "Apply Force \u2192 East"
+  _category: Global Forces
+  references:
+    version: 2
+    RefIds:
+    - rid: 1751789837310231194
+      type: {class: ApplyForceEastInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Physics, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: ApplyForceEast
+        _name: "Apply Force \u2192 East"
+        _category: Global Forces
+        _tileVersion: 0
+        _muted: 0
+        _force: 5
+        _forceValueName: 
+        _distance: 5
+        _distanceName: 
+        _alignmentDirection: 0
+        _directionTag: Player
+        _directionVector: {x: 0, y: -1, z: 0}
+        _directionVectorName: []
+        _duration: 0
+        _durationValueName: 
+        _damping: 5
+        _dampingName: 
+        _alignmentGeometry: 0
+        _geometryTag: Player
+        _alignmentAxis: 4
+        _targetAxisValue: 0
+        _targetAxisValueName: 
+        _targetPlane: {x: 0, y: 0}
+        _targetPlaneName: []
+        _targetPosition: {x: 0, y: 0, z: 0}
+        _targetPositionName: []
+        _scaleWith: 20
+        _forceSpace: 1
+        _maxSpeed: 0.2
+        _maxSpeedName: 
+        _sampling: 0
+        _samplingRadius: 1
+        _samplingRadiusName: 
+        _sampleCount: 10
+        _sampleCountName: 
+        _sampleToUse: 0
+        _linearForce: 0
+        _positionalForce: 10
