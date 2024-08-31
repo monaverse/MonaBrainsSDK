@@ -363,7 +363,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                     }
                     break;
                 case MultiBodyValueType.ClosestPoint:
-                    if (TryClosestPoint(bodyA, bodyB, out _, out Vector3 closestPoint, out _, out _))
+                    if (TryClosestPoint(bodyA, bodyB, out _, out _, out Vector3 closestPoint, out _))
                         SetVariable(closestPoint);
                     break;
                 case MultiBodyValueType.ClosestNormal:
@@ -382,59 +382,149 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             return Complete(InstructionTileResult.Success);
         }
 
-        private bool TryClosestPoint(IMonaBody bodyA, IMonaBody bodyB, out float distance, out Vector3 position, out Vector3 direction, out Vector3 normal)
+        private bool TryClosestPoint(IMonaBody bodyA, IMonaBody bodyB, out float distance, out Vector3 direction, out Vector3 point, out Vector3 normal)
         {
-            Vector3 bodyAPosition = bodyA.GetPosition();
-            distance = _defaultDistance;
+            Vector3 positionA = bodyA.GetPosition();
             Collider targetCollider = bodyB.Colliders.Count > 0 ? bodyB.Colliders[0] : null;
-
-            Debug.Log($"AA: bodyB Name = " + bodyB.Transform.name);
 
             if (targetCollider == null)
             {
-                position = direction = normal = Vector3.zero;
+                distance = Mathf.Infinity;
+                point = direction = normal = Vector3.zero;
                 return false;
             }
 
-            position = targetCollider.ClosestPoint(bodyAPosition);
-            Debug.Log($"AA: BodyAPosition = " + bodyAPosition + " | Closest Point = " + position);
-
-            distance = Vector3.Distance(bodyAPosition, position);
-            direction = (position - bodyAPosition).normalized;
-
-            Debug.Log($"AA: Direction = " + direction);
-
-            if (targetCollider is MeshCollider)
+            if (targetCollider is MeshCollider && !((MeshCollider)targetCollider).convex)
             {
-                _bodyLayers.Clear();
-                SetOriginalBodyLayers(bodyA);
-                SetBodyLayer(bodyA, LayerMask.NameToLayer(_ignoreRaycastLayer));
+                float closestDistance = Mathf.Infinity;
+                Vector3 closestPoint = Vector3.zero;
+                Vector3 closestNormal = Vector3.zero;
+                GameObject targetObject = targetCollider.gameObject;
+                MeshFilter meshFilter = targetCollider.GetComponent<MeshFilter>();
 
-                RaycastHit hit;
-                bool hitSuccess;
-
-                if (targetCollider.Raycast(new Ray(bodyAPosition, direction), out hit, distance + 0.01f))
+                if (meshFilter == null || meshFilter.sharedMesh == null)
                 {
-                    normal = hit.normal;
-                    hitSuccess = true;
-                }
-                else
-                {
-                    normal = Vector3.zero;
-                    hitSuccess = false;
+                    distance = closestDistance;
+                    direction = point = normal = Vector3.zero;
+                    return false;
                 }
 
-                ResetOriginalBodyLayers(bodyA);
+                Mesh mesh = meshFilter.sharedMesh;
 
-                if (_valueType == MultiBodyValueType.ClosestNormal || _valueType == MultiBodyValueType.ClosestAlignAngle)
-                    return hitSuccess;
+                Vector3[] vertices = mesh.vertices;
+                int[] triangles = mesh.triangles;
+                bool pointFound = false;
+
+                for (int i = 0; i < triangles.Length; i += 3)
+                {
+                    Vector3 v1 = targetObject.transform.TransformPoint(vertices[triangles[i]]);
+                    Vector3 v2 = targetObject.transform.TransformPoint(vertices[triangles[i + 1]]);
+                    Vector3 v3 = targetObject.transform.TransformPoint(vertices[triangles[i + 2]]);
+
+                    Vector3 closestPointOnTriangle = ClosestPointOnTriangle(positionA, v1, v2, v3);
+                    float distanceToTriangle = Vector3.Distance(positionA, closestPointOnTriangle);
+
+                    if (distanceToTriangle < closestDistance)
+                    {
+                        closestDistance = distanceToTriangle;
+                        closestPoint = closestPointOnTriangle;
+                        closestNormal = Vector3.Normalize(Vector3.Cross(v2 - v1, v3 - v1));
+                        pointFound = true;
+                    }
+                }
+
+                distance = closestDistance;
+                point = closestPoint;
+                direction = (point - positionA).normalized;
+                normal = closestNormal;
+                return pointFound;
             }
             else
             {
-                normal = (position - targetCollider.bounds.center).normalized;
+                point = targetCollider.ClosestPoint(positionA);
+                distance = Vector3.Distance(positionA, point);
+                direction = (point - positionA).normalized;
+
+                if (targetCollider is MeshCollider)
+                {
+                    _bodyLayers.Clear();
+                    SetOriginalBodyLayers(bodyA);
+                    SetBodyLayer(bodyA, LayerMask.NameToLayer(_ignoreRaycastLayer));
+
+                    RaycastHit hit;
+                    bool hitSuccess;
+
+                    if (targetCollider.Raycast(new Ray(positionA, direction), out hit, distance + 0.01f))
+                    {
+                        normal = hit.normal;
+                        hitSuccess = true;
+                    }
+                    else
+                    {
+                        normal = Vector3.zero;
+                        hitSuccess = false;
+                    }
+
+                    ResetOriginalBodyLayers(bodyA);
+
+                    if (_valueType == MultiBodyValueType.ClosestNormal || _valueType == MultiBodyValueType.ClosestAlignAngle)
+                        return hitSuccess;
+                }
+                else
+                {
+                    normal = (positionA - targetCollider.bounds.center).normalized;
+                }
+
+                return true;
+            }
+        }
+
+        private Vector3 ClosestPointOnTriangle(Vector3 point, Vector3 a, Vector3 b, Vector3 c)
+        {
+            Vector3 ab = b - a;
+            Vector3 ac = c - a;
+            Vector3 ap = point - a;
+
+            float d1 = Vector3.Dot(ab, ap);
+            float d2 = Vector3.Dot(ac, ap);
+            if (d1 <= 0f && d2 <= 0f) return a;
+
+            Vector3 bp = point - b;
+            float d3 = Vector3.Dot(ab, bp);
+            float d4 = Vector3.Dot(ac, bp);
+            if (d3 >= 0f && d4 <= d3) return b;
+
+            float vc = d1 * d4 - d3 * d2;
+
+            if (vc <= 0f && d1 >= 0f && d3 <= 0f)
+            {
+                float v = d1 / (d1 - d3);
+                return a + v * ab;
             }
 
-            return true;
+            Vector3 cp = point - c;
+            float d5 = Vector3.Dot(ab, cp);
+            float d6 = Vector3.Dot(ac, cp);
+            if (d6 >= 0f && d5 <= d6) return c;
+
+            float vb = d5 * d2 - d1 * d6;
+            if (vb <= 0f && d2 >= 0f && d6 <= 0f)
+            {
+                float w = d2 / (d2 - d6);
+                return a + w * ac;
+            }
+
+            float va = d3 * d6 - d5 * d4;
+            if (va <= 0f && (d4 - d3) >= 0f && (d5 - d6) >= 0f)
+            {
+                float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+                return b + w * (c - b);
+            }
+
+            float denom = 1f / (va + vb + vc);
+            float vee = vb * denom;
+            float wubbleu = vc * denom;
+            return a + ab * vee + ac * wubbleu;
         }
 
         private bool TryRayHit(IMonaBody bodyA, IMonaBody bodyB, out float distance, out Vector3 hitPosition, out Vector3 hitNormal)

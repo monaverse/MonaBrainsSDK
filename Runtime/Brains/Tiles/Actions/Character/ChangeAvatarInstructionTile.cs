@@ -732,12 +732,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Character
                     {
                         if (bodies[i].GetActive() && !bodies[i].Instantiated)
                         {
-                            Debug.Log($"waiting to instantiate {bodies[i].Transform.name}");
+                            //Debug.Log($"waiting to instantiate {bodies[i].Transform.name}");
                             await Task.Yield();
                         }
                     }
 
-                    Debug.Log($"READY TO GO {avatar.gameObject.name}");
+                    //Debug.Log($"READY TO GO {avatar.gameObject.name}");
                     avatar.SetActive(true);
 
                     if (!_importLights)
