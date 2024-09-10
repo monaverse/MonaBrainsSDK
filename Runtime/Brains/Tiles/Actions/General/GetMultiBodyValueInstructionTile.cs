@@ -133,6 +133,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainProperty(false)] public float RayHitOffset { get => _rayHitOffset; set => _rayHitOffset = value; }
         [BrainPropertyValueName("RayHitOffset", typeof(IMonaVariablesFloatValue))] public string RayHitOffsetName { get => _rayHitOffsetName; set => _rayHitOffsetName = value; }
 
+        [SerializeField] private DistanceFailNumber _failNumber = DistanceFailNumber.NegativeOne;
+        [BrainPropertyShow(nameof(ValueType), (int)MultiBodyValueType.Distance)]
+        [BrainPropertyEnum(false)] public DistanceFailNumber FailNumber { get => _failNumber; set => _failNumber = value; }
+
         [SerializeField] private bool _networkNewBodies;
         [SerializeField] private string _networkNewBodiesName;
         [BrainPropertyShow(nameof(OriginBody), (int)MonaBrainBroadcastTypeSingleTarget.Child)]
@@ -146,12 +150,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         public UIDisplayType CustomDirectionDisplay => DirectionDisplay == UIDisplayType.Show && Direction == BodyDirectionType.Custom ? UIDisplayType.Show : UIDisplayType.Hide;
 
-        private const float _defaultDistance = -1f;
+        private const float _failDistance = -1f;
         private string _ignoreRaycastLayer = "Ignore Raycast";
         private IMonaBrain _brain;
         private LayerMask _checkLayerMask;
         private List<LayerMask> _bodyLayers = new List<LayerMask>();
         private List<IMonaBody> _targetBodies = new List<IMonaBody>();
+
+        private float DefaultDistance => _failNumber == DistanceFailNumber.Infinity ? float.PositiveInfinity : _failDistance;
 
         public UIDisplayType DirectionDisplay
         {
@@ -269,6 +275,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             ClosestPoint = 20
         }
 
+        public enum DistanceFailNumber
+        {
+            Infinity = 0,
+            NegativeOne = 20
+        }
+
         public GetMultiBodyValueInstructionTile() { }
 
         public void Preload(IMonaBrain brainInstance)
@@ -315,7 +327,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
             if (bodyB == null)
             {
                 if (_valueType == MultiBodyValueType.Distance)
-                    SetVariable(_defaultDistance);
+                    SetVariable(DefaultDistance);
 
                 return Complete(InstructionTileResult.Success);
             }
@@ -529,7 +541,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
 
         private bool TryRayHit(IMonaBody bodyA, IMonaBody bodyB, out float distance, out Vector3 hitPosition, out Vector3 hitNormal)
         {
-            distance = _defaultDistance;
+            distance = DefaultDistance;
             hitPosition = hitNormal = Vector3.zero;
 
             if (_valueType == MultiBodyValueType.Distance && _distanceType == BodyDistanceType.CompareTargets)
