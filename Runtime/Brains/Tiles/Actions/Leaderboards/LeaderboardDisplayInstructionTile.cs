@@ -64,6 +64,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
         [BrainProperty(false)] public bool AlwaysShowClient { get => _alwaysShowClient; set => _alwaysShowClient = value; }
         [BrainPropertyValueName("AlwaysShowClient", typeof(IMonaVariablesBoolValue))] public string AlwaysShowClientName { get => _alwaysShowClientName; set => _alwaysShowClientName = value; }
 
+        [SerializeField] private bool _useAlternateTitle = false;
+        [SerializeField] private string _useAlternateTitleName;
+        [BrainProperty(false)] public bool UseAlternateTitle { get => _useAlternateTitle; set => _useAlternateTitle = value; }
+        [BrainPropertyValueName("UseAlternateTitle", typeof(IMonaVariablesBoolValue))] public string UseAlternateTitleName { get => _useAlternateTitleName; set => _useAlternateTitleName = value; }
+
+        [SerializeField] private string _alternateTitle;
+        [SerializeField] private string _alternateTitleName;
+        [BrainPropertyShow(nameof(DisplayAlternateName), (int)UIDisplayType.Show)]
+        [BrainProperty(false)] public string AlternateTitle { get => _alternateTitle; set => _alternateTitle = value; }
+        [BrainPropertyValueName("AlternateTitle", typeof(IMonaVariablesStringValue))] public string AlternateTitleName { get => _alternateTitleName; set => _alternateTitleName = value; }
+
         [SerializeField] private string _storeSuccessOn;
         [BrainPropertyValue(typeof(IMonaVariablesBoolValue), false)] public string StoreSuccessOn { get => _storeSuccessOn; set => _storeSuccessOn = value; }
 
@@ -84,6 +95,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
         private UnityEngine.SocialPlatforms.Range _pageRange;
 
         private bool PageLoadRequiresUserData => _alwaysShowClient || _pageToLoad == PageDisplay.ClientPage || _pageToLoad == PageDisplay.UserPage;
+        public UIDisplayType DisplayAlternateName => _useAlternateTitle ? UIDisplayType.Show : UIDisplayType.Hide;
+
+        public enum UIDisplayType
+        {
+            Show = 0,
+            Hide = 10
+        }
 
         [Serializable]
         public enum PageDisplay
@@ -230,10 +248,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 
             if (_pageProcess.WasSuccessful)
             {
+                string title = _useAlternateTitle ? _alternateTitle : _pageProcess.GetString();
+
                 LeaderboardPage page = new LeaderboardPage
                 {
                     ID = _leaderboardName,
-                    Title = _pageProcess.GetString(),
+                    Title = title,
                     CurrentPage = _truePageIndex,
                     AlwaysShowClient = _alwaysShowClient,
                     BoardRange = _pageRange,
@@ -278,6 +298,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 
                 if (!string.IsNullOrEmpty(_scoresPerPageName))
                     _scoresPerPage = _brain.Variables.GetFloat(_scoresPerPageName);
+
+                if (!string.IsNullOrEmpty(_useAlternateTitleName))
+                    _useAlternateTitle = _brain.Variables.GetBool(_useAlternateTitleName);
+
+                if (!string.IsNullOrEmpty(_alternateTitleName))
+                    _alternateTitle = _brain.Variables.GetString(_alternateTitleName);
 
                 if (_leaderboardServer == null)
                 {
