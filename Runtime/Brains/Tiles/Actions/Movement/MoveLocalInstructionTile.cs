@@ -62,8 +62,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         [SerializeField] private bool _useStartDirection = false;
         [BrainProperty(false)] public bool UseStartDirection { get => _useStartDirection; set => _useStartDirection = value; }
-        
+
+        [SerializeField] private bool _useLocalDirection = false;
+        [BrainProperty(false)] public bool UseLocalDirection { get => _useLocalDirection; set => _useLocalDirection = value; }
+
         private Vector3 _direction;
+        private Vector3 _localDirection;
         private Vector3 _startPosition;
 
         protected IMonaBrain _brain;
@@ -372,7 +376,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 float step = _mode == MoveModeType.SpeedOnly ? _distance * evt.DeltaTime : _distance;
 
                 //Debug.Log($"{_brain.Body.Transform.gameObject} {_distance} {_direction} step: {step} {Time.frameCount}", _brain.Body.Transform.gameObject);
-                _brain.Body.AddPosition(_direction.normalized * step, true);
+                if (_useLocalDirection)
+                {
+                    _localDirection = _brain.Body.ActiveTransform.parent.InverseTransformDirection(_direction);
+                    _brain.Body.AddLocalPosition(_localDirection.normalized * step, true);
+                }
+                else
+                    _brain.Body.AddPosition(_direction.normalized * step, true);
                 StopMoving();
             }
 
@@ -501,7 +511,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 }
                 else
                 {
-                    _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
+                    if (_useLocalDirection)
+                    {
+                        _localDirection = _brain.Body.ActiveTransform.parent.InverseTransformDirection(_direction);
+                        _brain.Body.AddLocalPosition(_localDirection.normalized * (_distance * diff), true);
+                    }
+                    else
+                        _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
                     Progress += progressDelta;
                 }
             }
@@ -528,7 +544,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 }
                 else
                 {
-                    _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
+                    if (_useLocalDirection)
+                    {
+                        _localDirection = _brain.Body.ActiveTransform.parent.InverseTransformDirection(_direction);
+                        _brain.Body.AddLocalPosition(_localDirection.normalized * (_distance * diff), true);
+                    }
+                    else
+                        _brain.Body.AddPosition(_direction.normalized * (_distance * diff), true);
                     Progress += progressDelta;
                 }
             }

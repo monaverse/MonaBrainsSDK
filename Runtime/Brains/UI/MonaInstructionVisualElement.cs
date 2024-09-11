@@ -425,17 +425,19 @@ namespace Mona.SDK.Brains.UIElements
 
                 _replaceTileMenu.menu.ClearItems();
                 _replaceTileMenu.menu.AppendAction("REPLACE TILE", null, DropdownMenuAction.Status.Disabled);
-                for (var i = 0; i < _brain.TileSet.ConditionTiles.Count; i++)
+                var conditionTiles = _brain.TileSet.ConditionTiles;
+                for (var i = 0; i < conditionTiles.Count; i++)
                 {
-                    var def = _brain.TileSet.ConditionTiles[i];
+                    var def = conditionTiles[i];
                     if (def == null) continue;
                     CopyToTile(def);
                     if (AllowTile(def.Tile))
                         _replaceTileMenu.menu.AppendAction($"{def.Category}/{def.Name}", (action) => _instruction.ReplaceTile(_selectedTile, def.Tile));
                 }
-                for (var i = 0; i < _brain.TileSet.ActionTiles.Count; i++)
+                var actionTiles = _brain.TileSet.ActionTiles;
+                for (var i = 0; i < actionTiles.Count; i++)
                 {
-                    var def = _brain.TileSet.ActionTiles[i];
+                    var def = actionTiles[i];
                     if (def == null) continue;
                     CopyToTile(def);
                     if (AllowTile(def.Tile))

@@ -66,6 +66,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
         [BrainPropertyShow(nameof(AddOrRemove), (int)ColliderModificationType.Add)]
         [BrainPropertyEnum(false)] public bool SkipIfExists { get => _skipIfExists; set => _skipIfExists = value; }
 
+        [SerializeField] private Vector3 _center;
+        [SerializeField] private string[] _centerName;
+
+        [BrainPropertyShow(nameof(ColliderType), (int)MonaBodyColliderType.Sphere)]
+        [BrainPropertyShow(nameof(ColliderType), (int)MonaBodyColliderType.Box)]
+        [BrainProperty(false)] public Vector3 Center { get => _center; set => _center = value; }
+        [BrainPropertyValueName(nameof(Center), typeof(IMonaVariablesVector3Value))] public string[] CenterName { get => _centerName; set => _centerName = value; }
+
+        [SerializeField] private Vector3 _size;
+        [SerializeField] private string[] _sizeName;
+
+        [BrainPropertyShow(nameof(ColliderType), (int)MonaBodyColliderType.Box)]
+        [BrainProperty(false)] public Vector3 Size { get => _size; set => _size = value; }
+        [BrainPropertyValueName(nameof(Size), typeof(IMonaVariablesVector3Value))] public string[] SizeName { get => _sizeName; set => _sizeName = value; }
+
         public string Tag { get => _targetTag; set => _targetTag = value; }
 
         [SerializeField] private bool _includeAttached = true;
@@ -357,18 +372,43 @@ namespace Mona.SDK.Brains.Tiles.Actions.General
                 var colliders = body.AddCollider(_colliderType, _onlyRenderers, _skipIfExists);
 
                 if(_colliderType == MonaBodyColliderType.Sphere)
-                { 
+                {
+                    if (HasVector3Values(_centerName))
+                        _center = GetVector3Value(_brain, _centerName);
+
                     if (!string.IsNullOrEmpty(_radiusValueName))
                         _radius = _brain.Variables.GetFloat(_radiusValueName);
 
                     for (var i = 0; i < colliders.Count; i++)
+                    {
                         ((SphereCollider)colliders[i]).radius = _radius;
+                        ((SphereCollider)colliders[i]).center = _center;
+                    }
                 }
 
                 if (_colliderType == MonaBodyColliderType.Mesh)
                 {
                     for (var i = 0; i < colliders.Count; i++)
                         ((MeshCollider)colliders[i]).convex = _convex;
+                }
+
+                if(_colliderType == MonaBodyColliderType.Box)
+                {
+                    if (HasVector3Values(_sizeName))
+                        _size = GetVector3Value(_brain, _sizeName);
+
+                    if (HasVector3Values(_centerName))
+                        _center = GetVector3Value(_brain, _centerName);
+
+                    for (var i = 0; i < colliders.Count; i++)
+                    {
+                        if (_center != Vector3.zero)
+                            ((BoxCollider)colliders[i]).center = _center;
+                        if(_size != Vector3.zero)
+                            ((BoxCollider)colliders[i]).size = _size;
+
+                    }
+
                 }
 
                 if (_isTrigger)

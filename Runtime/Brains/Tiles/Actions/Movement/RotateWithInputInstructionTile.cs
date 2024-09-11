@@ -203,7 +203,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
         public override InstructionTileResult Do()
         {
-            if (_brain == null)
+            if (_brain == null || !MonaGlobalBrainRunner.Instance.GetBrainInput().IsInputEnabled())
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
             if (HasVector2Values(_directionVectorName))
@@ -430,6 +430,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (_swapDeviceAxes)
                 inputVector = new Vector2(inputVector.y, inputVector.x);
 
+            if (inputVector.magnitude > 1f)
+                inputVector = inputVector.normalized;
+
             return inputVector;
         }
 
@@ -454,10 +457,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                 y *= -1f;
 
             var input = new Vector2(x, y);
-            if (input.magnitude > 1f)
-                return input.normalized;
-            else
-                return input;
+            return input;
         }
 
         private void SetTargetBodies()

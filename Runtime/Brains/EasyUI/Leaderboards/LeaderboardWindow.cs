@@ -58,6 +58,8 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
 
             _scoreDisplays.Clear();
 
+            _titleText.SetText(_page.ID);
+
             foreach (Transform child in _dataPanel)
                 Destroy(child.gameObject);
 
