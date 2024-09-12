@@ -125,6 +125,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         [BrainPropertyShow(nameof(DisplaySamplingVars), (int)DisplayType.Display)]
         [BrainPropertyEnum(false)] public SamplingType SampleToUse { get => _sampleToUse; set => _sampleToUse = value; }
 
+        [SerializeField] private AlignmentDistanceLimitType _alignmentLimit = AlignmentDistanceLimitType.Infinity;
+        [BrainPropertyShow(nameof(DisplayAlignmentDirection), (int)DisplayType.Display)]
+        [BrainPropertyEnum(false)] public AlignmentDistanceLimitType AlignmentLimit { get => _alignmentLimit; set => _alignmentLimit = value; }
+
+        [SerializeField] private float _distanceLimit = 100f;
+        [SerializeField] private string _distanceLimitName;
+        [BrainPropertyShow(nameof(DisplayDistanceLimit), (int)DisplayType.Display)]
+        [BrainProperty(false)] public float DistanceLimit { get => _distanceLimit; set => _distanceLimit = value; }
+        [BrainPropertyValueName("DistanceLimit", typeof(IMonaVariablesFloatValue))] public string DistanceLimitName { get => _distanceLimitName; set => _distanceLimitName = value; }
+
         [SerializeField] private ApplyForceType _forceType = ApplyForceType.Impulse;
         [BrainPropertyEnum(false)] public ApplyForceType ForceType { get => _forceType; set => _forceType = value; }
 
@@ -144,6 +154,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
         private bool _listenToInput;
 
+        public float TrueDistanceLimit => _alignmentLimit == AlignmentDistanceLimitType.MaxDistance ? _distanceLimit : Mathf.Infinity;
         public ForceMode ForceModeToUse => _forceType == ApplyForceType.Impulse ? ForceMode.Impulse : ForceMode.Acceleration;
         public TargetAlignmentGeometry TrueGeometryAlignment => AlignmentMode != TorqueAlignmentMode.GeometryInDirection ? TargetAlignmentGeometry.Any : _alignmentGeometry;
 
@@ -155,6 +166,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
         public DisplayType DisplayTargetAngleThree => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode == TorqueAlignmentMode.TargetAngles && AlignmentAxis == AlignmentAxes.XYZ ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplayRaySampling => DirectionType == PushDirectionType.TorqueAlignment && AlignmentMode != TorqueAlignmentMode.TargetAngles ? DisplayType.Display : DisplayType.Hide;
         public DisplayType DisplaySamplingVars => DisplayRaySampling == DisplayType.Display && Sampling == DistanceSampling.MultipleSamples ? DisplayType.Display : DisplayType.Hide;
+        public DisplayType DisplayDistanceLimit => DisplayAlignmentDirection == DisplayType.Display && AlignmentLimit == AlignmentDistanceLimitType.MaxDistance ? DisplayType.Display : DisplayType.Hide;
 
         // ** SUPPORT FOR OLD TILES **
         public DisplayType DisplayMaxSpeed => DirectionType != PushDirectionType.TorqueAlignment && (MaxSpeed > 0 || !string.IsNullOrEmpty(MaxSpeedName)) ? DisplayType.Display : DisplayType.Hide;
@@ -254,6 +266,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             Closest = 0,
             Furthest = 10,
             Average = 20
+        }
+
+        public enum AlignmentDistanceLimitType
+        {
+            Infinity = 0,
+            MaxDistance = 10
         }
 
         public struct RaycastResult
@@ -440,6 +458,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
 
             if (!string.IsNullOrEmpty(_samplingRadiusName))
                 _samplingRadius = _brain.Variables.GetFloat(_samplingRadiusName);
+
+            if (!string.IsNullOrEmpty(_distanceLimitName))
+                _distanceLimit = _brain.Variables.GetFloat(_distanceLimitName);
 
             if (_movingState == MovingStateType.Stopped)
             {
@@ -691,7 +712,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
             Ray ray = new Ray(position, direction);
             RaycastHit hit;
 
-            if (UnityEngine.Physics.Raycast(ray, out hit, Mathf.Infinity))
+            if (UnityEngine.Physics.Raycast(ray, out hit, TrueDistanceLimit))
             {
                 if (TrueGeometryAlignment == TargetAlignmentGeometry.Tag)
                 {
@@ -728,7 +749,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 Ray ray = new Ray(sampleOrigin, direction);
                 RaycastHit hit;
 
-                if (UnityEngine.Physics.Raycast(ray, out hit, Mathf.Infinity))
+                if (UnityEngine.Physics.Raycast(ray, out hit, TrueDistanceLimit))
                 {
                     if (TrueGeometryAlignment == TargetAlignmentGeometry.Tag)
                     {
