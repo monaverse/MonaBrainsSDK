@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using Mona.SDK.Core.EasyUI;
 using Mona.SDK.Brains.Core.Utils.Structs;
@@ -20,6 +21,8 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
         [SerializeField] private string _fallbackDataKeyName = "Leaderboard_Panel_Data_Key";
         [SerializeField] private string _fallbackDataUserName = "Leaderboard_Panel_Data_Player";
         [SerializeField] private Color[] _colors;
+        [SerializeField] private UnityEvent _onOpen;
+        [SerializeField] private UnityEvent _onClose;
 
         private Animator _animator;
         private LeaderboardPage _page;
@@ -35,9 +38,9 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
             }
         }
 
-        private void Awake()
+        private void Start()
         {
-            _animator = GetComponent<Animator>();
+            _onOpen?.Invoke();
         }
 
         public void InitializeWindow()
@@ -115,7 +118,8 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
 
         public void CloseWindow()
         {
-            if (_animator) _animator.SetTrigger(_animCloseTrigger);
+            if (_onClose != null) _onClose?.Invoke();
+            else if (_animator) _animator.SetTrigger(_animCloseTrigger);
             else Deactivate();
         }
 
