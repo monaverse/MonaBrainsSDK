@@ -417,21 +417,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     break;
             }
 
-            if (SnapType == MovementSnapType.NoSnap)
-            {
-                inputVector *= UsePointer ? _speed : _speed * _deltaTime;
-            }
-            else
-            {
-                inputVector.x = MathF.Sign(inputVector.x) * _angleSnap;
-                inputVector.y = MathF.Sign(inputVector.y) * _angleSnap;
-            }
 
             if (_swapDeviceAxes)
                 inputVector = new Vector2(inputVector.y, inputVector.x);
 
             if (inputVector.magnitude > 1f)
                 inputVector = inputVector.normalized;
+
+            if (SnapType == MovementSnapType.NoSnap)
+            {
+                inputVector *= UsePointer ? (_speed * _deltaTime) : (_speed * _deltaTime);
+            }
+            else
+            {
+                inputVector.x = MathF.Sign(inputVector.x) * _angleSnap;
+                inputVector.y = MathF.Sign(inputVector.y) * _angleSnap;
+            }
 
             return inputVector;
         }
