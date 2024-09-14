@@ -300,7 +300,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             Ray ray = new Ray(originBody.GetPosition(), direction);
             RaycastHit hit;
 
-            if (UnityEngine.Physics.Raycast(ray, out hit, _rangeMax, _checkLayerMask))
+            if (UnityEngine.Physics.Raycast(ray, out hit, _rangeMax, _checkLayerMask, QueryTriggerInteraction.Ignore))
             {
                 IMonaBody hitBody = hit.transform.GetComponent<IMonaBody>();
 
@@ -310,6 +310,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     return false;
 
                 _trueTargetBody = hitBody;
+
+                _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_TARGET, hitBody);
+                _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, hit.point);
+                _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_NORMAL, hit.normal);
 
                 if (_target == MonaBrainBroadcastTypeSingleTarget.Tag)
                     return hitBody.HasMonaTag(_tag);
