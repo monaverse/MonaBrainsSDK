@@ -290,12 +290,12 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public static void DisableKeyBindings()
         {
-            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.KEY_BINDINGS_EVENT), new MonaKeyBindingsEvent(false));
+            MonaEventBus.Trigger(new EventHook(MonaCoreConstants.KEY_BINDINGS_EVENT), new MonaKeyBindingsEvent(false));
         }
 
         public static void EnableKeyBindings()
         {
-            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.KEY_BINDINGS_EVENT), new MonaKeyBindingsEvent(true));
+            MonaEventBus.Trigger(new EventHook(MonaCoreConstants.KEY_BINDINGS_EVENT), new MonaKeyBindingsEvent(true));
         }
 
         private void HandleBrainSpawned(MonaBrainSpawnedEvent evt)
