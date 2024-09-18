@@ -181,13 +181,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             switch (_direction)
             {
                 case OrbitDirectionType.Up:
-                    return new Vector2(0, 1 * deltaTime);
+                    return new Vector2(0, 1f * deltaTime);
                 case OrbitDirectionType.Down:
-                    return new Vector2(0, -1 * deltaTime);
+                    return new Vector2(0, -1f * deltaTime);
                 case OrbitDirectionType.Right:
-                    return new Vector2(-1 * deltaTime, 0);
+                    return new Vector2(-1f * deltaTime, 0);
                 case OrbitDirectionType.Left:
-                    return new Vector2(1 * deltaTime, 0);
+                    return new Vector2(1f * deltaTime, 0);
                 case OrbitDirectionType.UseVector:
                     return _directionVector * deltaTime;
                 case OrbitDirectionType.InputDevice:
