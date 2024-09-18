@@ -47,6 +47,7 @@
         public const string STATE_AUTHORITY_CHANGED_EVENT = "OnMonaStateAuthorityChangedEvent";
         public const string BODY_ANIMATION_CONTROLLER_CHANGE_EVENT = "OnMonaBodyAnimationControllerChangeEvent";
         public const string BODY_ANIMATION_CONTROLLER_CHANGED_EVENT = "OnMonaBodyAnimationControllerChangedEvent";
+        public const string KEY_BINDINGS_EVENT = "OnMonaKeyBindingsEvent";
 
         public const string TRIGGER_EVENT = "OnMonaTriggerEvent";
         public const string BROADCAST_MESSAGE_EVENT = "OnMonaBroadcastMessageEvent";

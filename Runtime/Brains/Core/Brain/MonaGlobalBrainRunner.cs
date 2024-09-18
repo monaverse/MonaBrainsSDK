@@ -288,6 +288,16 @@ namespace Mona.SDK.Brains.Core.Brain
             MonaEventBus.Trigger(new EventHook(MonaBrainConstants.WALLET_DISCONNECTED_EVENT), new MonaWalletConnectedEvent(address));
         }
 
+        public static void DisableKeyBindings()
+        {
+            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.KEY_BINDINGS_EVENT), new MonaKeyBindingsEvent(false));
+        }
+
+        public static void EnableKeyBindings()
+        {
+            MonaEventBus.Trigger(new EventHook(MonaBrainConstants.KEY_BINDINGS_EVENT), new MonaKeyBindingsEvent(true));
+        }
+
         private void HandleBrainSpawned(MonaBrainSpawnedEvent evt)
         {
             //if (evt.Brain.LoggingEnabled)
