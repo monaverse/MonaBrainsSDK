@@ -127,7 +127,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
             {
                 _brain.Body.Animator.SetFloat(_floatName, ((IMonaVariablesFloatValue)evt.Value).ValueToReturnFromTile);
             }
-            Debug.Log($"{nameof(HandleMonaValueChanged)}", _brain.Body.Transform.gameObject);
+            //Debug.Log($"{nameof(HandleMonaValueChanged)}", _brain.Body.Transform.gameObject);
         }
 
         public override InstructionTileResult Do()
