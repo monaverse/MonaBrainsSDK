@@ -25,6 +25,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
 
         public PlayNextAudioInstructionTile() { }
 
+        [SerializeField] private AudioClassificationSubType _audioType = AudioClassificationSubType.SoundEffect;
+        [BrainPropertyEnum(true)] public AudioClassificationSubType AudioType { get => _audioType; set => _audioType = value; }
+
         [SerializeField] private string _monaAsset = null;
         [BrainPropertyMonaAsset(typeof(IMonaAudioAssetItem), useProviders: true)] public string MonaAssetProvider { get => _monaAsset; set => _monaAsset = value; }
 
@@ -66,12 +69,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
 
         private IMonaBrain _brain;
         private IMonaAudioAssetItem _clip;
+        private MonaBrainAudio _brainAudio;
+        private AudioObjectInfo _audioObject;
 
         private bool _isPlaying;
         private bool _active;
         private bool _canInterrupt = true;
 
         private AudioSource _audioSource;
+
+        private AudioClassificationType TrueAudioClassType => (AudioClassificationType)(int)_audioType;
 
         public void Preload(IMonaBrain brain, IMonaBrainPage page, IInstruction instruction)
         {
@@ -80,7 +87,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
 
             SetupAudioSource();
             SetupClip();
-
+            SetupAudioObject();
             UpdateActive();
         }
 
@@ -103,6 +110,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             var provider = _brain.GetMonaAssetProvider(_monaAsset);
             _clip = (IMonaAudioAssetItem)provider.TakeTopCardOffDeck(_shuffled);
             _audioSource.clip = _clip.Value;
+        }
+
+        private void SetupAudioObject()
+        {
+            _brainAudio = MonaBrainAudio.Instance;
+
+            if (_brainAudio == null)
+                return;
+
+            _audioObject = _brainAudio.GetAudioObject(_brain.Body.Transform.gameObject);
+
+            if (_audioObject != null)
+            {
+                _audioObject.Type = TrueAudioClassType;
+                return;
+            }
+
+            _audioObject = _brainAudio.CreateNewAudioObject(_audioSource, TrueAudioClassType, 1f);
         }
 
         public void SetActive(bool active)
@@ -261,10 +286,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
 
                         SetupClip();
                         try {
-                            _audioSource.volume = _volume;
-                            _audioSource.pitch = _pitch;
-                            _audioSource.loop = _loopAudio;
-                            _audioSource.Play();
+
+                            _audioObject.UpdateVolume(_volume);
+                            _audioObject.Source.pitch = _pitch;
+                            _audioObject.Source.loop = _loopAudio;
+                            _audioObject.Source.Play();
+
+                            //_audioSource.volume = _volume;
+                            //_audioSource.pitch = _pitch;
+                            //_audioSource.loop = _loopAudio;
+                            //_audioSource.Play();
                             _isPlaying = true;
 
                             AddFixedTickDelegate();

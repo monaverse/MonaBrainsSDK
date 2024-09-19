@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 015e6d809600841e6b2e17678eedfc44, type: 3}
+  m_Name: UnmuteAudio
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 1984483652387736149
+  _id: UnmuteAudio
+  _name: Unmute Audio
+  _category: Audio
+  references:
+    version: 2
+    RefIds:
+    - rid: 1984483652387736149
+      type: {class: UnmuteAudioInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Audio, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: UnmuteAudio
+        _name: Unmute Audio
+        _category: Audio
+        _tileVersion: 0
+        _muted: 0
+        _audioType: 100

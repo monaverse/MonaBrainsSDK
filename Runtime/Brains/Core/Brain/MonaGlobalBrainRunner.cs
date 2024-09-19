@@ -103,6 +103,9 @@ namespace Mona.SDK.Brains.Core.Brain
         private PlayerInput _playerInput;
         public PlayerInput PlayerInput { get => _playerInput; set => _playerInput = value; }
 
+        private MonaBrainAudio _brainAudio;
+        public MonaBrainAudio BrainAudio => _brainAudio;
+
         private IBrainSocialPlatformUser _brainSocialUser;
         public IBrainSocialPlatformUser BrainSocialUser { get => _brainSocialUser; set => _brainSocialUser = value; }
 
@@ -230,6 +233,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void Start()
         {
+            SetupBrainAudio();
             SetupEasyUIGlobalRunner();
             SetupStorageSolutions();
             SetupSocialUser();
@@ -439,6 +443,16 @@ namespace Mona.SDK.Brains.Core.Brain
         private void TriggerLateTick()
         {
             MonaEventBus.Trigger<MonaLateTickEvent>(new EventHook(MonaCoreConstants.LATE_TICK_EVENT), new MonaLateTickEvent());
+        }
+
+        private void SetupBrainAudio()
+        {
+            _brainAudio = GetComponent<MonaBrainAudio>();
+
+            if (_brainAudio != null)
+                return;
+
+            _brainAudio = gameObject.AddComponent(typeof(MonaBrainAudio)) as MonaBrainAudio;
         }
 
         private void SetupEasyUIGlobalRunner()
