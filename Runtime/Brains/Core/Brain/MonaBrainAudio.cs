@@ -106,6 +106,23 @@ namespace Mona.SDK.Brains.Core.Brain
             }
         }
 
+        public float GetUnmodifiedVolumeLevel(AudioClassificationType type)
+        {
+            switch (type)
+            {
+                case AudioClassificationType.SoundEffect:
+                    return SFXAudio.Volume;
+                case AudioClassificationType.Voice:
+                    return VoxAudio.Volume;
+                case AudioClassificationType.Music:
+                    return MusicAudio.Volume;
+                case AudioClassificationType.Ambience:
+                    return AmbienceAudio.Volume;
+                default:
+                    return MasterAudio.Volume;
+            }
+        }
+
         public void SetVolumeLevel(AudioClassificationType type, float newVolumeLevel)
         {
             switch (type)

@@ -257,7 +257,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
         private void StoreVolumeLevel(AudioClassificationType type)
         {
-            float valueVolume = _brainAudio.GetVolumeLevel(type);
+            float valueVolume = _brainAudio.GetUnmodifiedVolumeLevel(type);
             bool valueMuted = _brainAudio.GetVolumeMutedState(type);
             string keyVolume = _keyPrefix;
             string keyMuted = _keyPrefix;

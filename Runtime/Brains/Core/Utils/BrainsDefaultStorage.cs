@@ -146,7 +146,7 @@ namespace Mona.SDK.Brains.Core.Utils
 
             int boolBinary = PlayerPrefs.GetInt(key);
 
-            state.SetValue(boolBinary);
+            state.SetValue(boolBinary == 1);
             state.EndProcess(true);
             return state;
         }
