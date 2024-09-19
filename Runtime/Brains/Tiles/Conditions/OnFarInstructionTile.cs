@@ -60,7 +60,9 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             _firstTile = _instruction.InstructionTiles.FindAll(x => x is IOnBodyFilterInstructionTile).IndexOf(this) == 0;
 
             OnRigidbodyChanged = HandleRigidbodyChanged;
-            MonaEventBus.Register<MonaBodyRigidbodyChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_RIGIDBODY_CHANGED_EVENT, _brain.Body), OnRigidbodyChanged);            
+            MonaEventBus.Register<MonaBodyRigidbodyChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_RIGIDBODY_CHANGED_EVENT, _brain.Body), OnRigidbodyChanged);
+
+            OnRigidbodyChanged(new MonaBodyRigidbodyChangedEvent());
         }
 
         public void HandleRigidbodyChanged(MonaBodyRigidbodyChangedEvent evt)
