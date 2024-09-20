@@ -51,8 +51,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.Physics
                 var space = GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE);
                 _brain.Body.SetTransformParent(space != null ? space.transform : null);
                 _brain.Body.SetLayer("Default", true, true);
-                _brain.Body.SetPosition(parent.position + parent.rotation * _offset, true);
-                _brain.Body.SetRotation(parent.rotation, true);
+                _brain.Body.TeleportPosition(parent.position + parent.rotation * _offset, true);
+                _brain.Body.TeleportRotation (parent.rotation, true);
+                _brain.Body.SetScale(_scale, true);
+                if (_letFall) _brain.Body.SetKinematic(false, true);
+            }
+            else
+            {
+                var space = GameObject.FindWithTag(MonaCoreConstants.TAG_SPACE);
+                _brain.Body.SetTransformParent(space != null ? space.transform : null);
+                _brain.Body.SetLayer("Default", true, true);
+                _brain.Body.TeleportPosition(_brain.Body.GetPosition() + _brain.Body.ActiveTransform.rotation * _offset, true);
+                _brain.Body.TeleportRotation(_brain.Body.ActiveTransform.rotation, true);
                 _brain.Body.SetScale(_scale, true);
                 if (_letFall) _brain.Body.SetKinematic(false, true);
             }
