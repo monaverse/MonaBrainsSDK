@@ -39,6 +39,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         private const string _keyVox = "_Vox";
         private const string _keyMusic = "_Music";
         private const string _keyAmbience = "_Ambience";
+        private const string _keyUI = "_UserInterface";
+        private const string _keyCutscene = "_Cutscene";
+        private const string _keyMic = "_Mic";
+        private const string _keyChat = "_Chat";
+        private const string _keyNotification = "_Notification";
+        private const string _keyMisc = "_Misc";
 
         public LoadVolumesInstructionTile() { }
 
@@ -187,6 +193,18 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             _brainAudio.SetVolumeMuteState(AudioClassificationType.Music, processes[7].GetBool());
             _brainAudio.SetVolumeLevel(AudioClassificationType.Ambience, processes[8].GetFloat());
             _brainAudio.SetVolumeMuteState(AudioClassificationType.Ambience, processes[9].GetBool());
+            _brainAudio.SetVolumeLevel(AudioClassificationType.UserInterface, processes[10].GetFloat());
+            _brainAudio.SetVolumeMuteState(AudioClassificationType.UserInterface, processes[11].GetBool());
+            _brainAudio.SetVolumeLevel(AudioClassificationType.Cutscene, processes[12].GetFloat());
+            _brainAudio.SetVolumeMuteState(AudioClassificationType.Cutscene, processes[13].GetBool());
+            _brainAudio.SetVolumeLevel(AudioClassificationType.Microphone, processes[14].GetFloat());
+            _brainAudio.SetVolumeMuteState(AudioClassificationType.Microphone, processes[15].GetBool());
+            _brainAudio.SetVolumeLevel(AudioClassificationType.VoiceChat, processes[16].GetFloat());
+            _brainAudio.SetVolumeMuteState(AudioClassificationType.VoiceChat, processes[17].GetBool());
+            _brainAudio.SetVolumeLevel(AudioClassificationType.Notification, processes[18].GetFloat());
+            _brainAudio.SetVolumeMuteState(AudioClassificationType.Notification, processes[19].GetBool());
+            _brainAudio.SetVolumeLevel(AudioClassificationType.Miscellaneous, processes[20].GetFloat());
+            _brainAudio.SetVolumeMuteState(AudioClassificationType.Miscellaneous, processes[21].GetBool());
         }
 
         private bool ProcessIsActive(List<BrainProcess> processes)
@@ -251,6 +269,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                 LoadVolumeLevel(AudioClassificationType.Voice);
                 LoadVolumeLevel(AudioClassificationType.Music);
                 LoadVolumeLevel(AudioClassificationType.Ambience);
+                LoadVolumeLevel(AudioClassificationType.UserInterface);
+                LoadVolumeLevel(AudioClassificationType.Cutscene);
+                LoadVolumeLevel(AudioClassificationType.Microphone);
+                LoadVolumeLevel(AudioClassificationType.VoiceChat);
+                LoadVolumeLevel(AudioClassificationType.Notification);
+                LoadVolumeLevel(AudioClassificationType.Miscellaneous);
 
                 _isRunning = true;
                 AddFixedTickDelegate();
@@ -291,6 +315,30 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                 case AudioClassificationType.Ambience:
                     keyVolume += _keyAmbience + _keyVolume;
                     keyMuted += _keyAmbience + _keyMuted;
+                    break;
+                case AudioClassificationType.UserInterface:
+                    keyVolume += _keyUI + _keyVolume;
+                    keyMuted += _keyUI + _keyMuted;
+                    break;
+                case AudioClassificationType.Cutscene:
+                    keyVolume += _keyCutscene + _keyVolume;
+                    keyMuted += _keyCutscene + _keyMuted;
+                    break;
+                case AudioClassificationType.Microphone:
+                    keyVolume += _keyMic + _keyVolume;
+                    keyMuted += _keyMic + _keyMuted;
+                    break;
+                case AudioClassificationType.VoiceChat:
+                    keyVolume += _keyChat + _keyVolume;
+                    keyMuted += _keyChat + _keyMuted;
+                    break;
+                case AudioClassificationType.Notification:
+                    keyVolume += _keyNotification + _keyVolume;
+                    keyMuted += _keyNotification + _keyMuted;
+                    break;
+                case AudioClassificationType.Miscellaneous:
+                    keyVolume += _keyMisc + _keyVolume;
+                    keyMuted += _keyMisc + _keyMuted;
                     break;
             }
 

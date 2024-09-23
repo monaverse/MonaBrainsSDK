@@ -54,6 +54,11 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
         [BrainProperty(false)] public bool LoopAudio { get => _loopAudio; set => _loopAudio = value; }
         [BrainPropertyValueName("LoopAudio", typeof(IMonaVariablesBoolValue))] public string LoopAudioName { get => _loopAudioName; set => _loopAudioName = value; }
 
+        [SerializeField] private bool _pauseable = true;
+        [SerializeField] private string _pauseableName;
+        [BrainProperty(false)] public bool Pauseable { get => _pauseable; set => _pauseable = value; }
+        [BrainPropertyValueName("Pausable", typeof(IMonaVariablesBoolValue))] public string PauseableName { get => _pauseableName; set => _pauseableName = value; }
+
         [SerializeField] private bool _wait = false;
         [SerializeField] private string _waitName;
         [BrainProperty(false)] public bool Wait { get => _wait; set => _wait = value; }
@@ -268,6 +273,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
             if (!string.IsNullOrEmpty(_loopAudioName))
                 _loopAudio = _brain.Variables.GetBool(_loopAudioName);
 
+            if (!string.IsNullOrEmpty(_pauseableName))
+                _pauseable = _brain.Variables.GetBool(_pauseableName);
+
             if (!string.IsNullOrEmpty(_waitName))
                 _wait = _brain.Variables.GetBool(_waitName);
 
@@ -290,12 +298,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Audio
                             _audioObject.UpdateVolume(_volume);
                             _audioObject.Source.pitch = _pitch;
                             _audioObject.Source.loop = _loopAudio;
+                            _audioObject.Pausable = _pauseable;
                             _audioObject.Source.Play();
 
-                            //_audioSource.volume = _volume;
-                            //_audioSource.pitch = _pitch;
-                            //_audioSource.loop = _loopAudio;
-                            //_audioSource.Play();
                             _isPlaying = true;
 
                             AddFixedTickDelegate();
