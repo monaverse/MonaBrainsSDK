@@ -13,6 +13,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Core.Utils;
+using System.Threading.Tasks;
 
 namespace Mona.SDK.Brains.Tiles.Actions.IO
 {
@@ -42,13 +43,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
         public LoadVolumesInstructionTile() { }
 
+        private bool _mixProcessed;
         private bool _active;
         private bool _isRunning;
         private IMonaBrain _brain;
         private MonaGlobalBrainRunner _globalBrainRunner;
         private MonaBrainAudio _brainAudio;
-        private IBrainStorage _localStorage;
-        private IBrainStorage _cloudStorage;
+        private IBrainStorageAsync _localStorage;
+        private IBrainStorageAsync _cloudStorage;
         private List<BrainProcess> _localProcesses = new List<BrainProcess>();
         private List<BrainProcess> _cloudProcesses = new List<BrainProcess>();
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
@@ -225,6 +227,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             if (_brain == null || _globalBrainRunner == null || _brainAudio == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
+            _mixProcessed = false;
+
             if (!_isRunning)
             {
                 _localProcesses.Clear();
@@ -240,24 +244,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
                 if (UseCloudStorage && _cloudStorage == null)
                 {
-                    _cloudStorage = _globalBrainRunner.ClousStorage;
+                    _cloudStorage = _globalBrainRunner.CloudStorage;
 
                     if (_cloudStorage == null)
                         return Complete(InstructionTileResult.Success);
                 }
 
-                LoadVolumeLevel(AudioClassificationType.Master);
-                LoadVolumeLevel(AudioClassificationType.SoundEffect);
-                LoadVolumeLevel(AudioClassificationType.Voice);
-                LoadVolumeLevel(AudioClassificationType.Music);
-                LoadVolumeLevel(AudioClassificationType.Ambience);
+                ProcessMix();
 
                 _isRunning = true;
-                AddFixedTickDelegate();
+                if(!_mixProcessed)
+                    AddFixedTickDelegate();
             }
 
             if (_localProcesses.Count > 0 || _cloudProcesses.Count > 0)
-                return Complete(InstructionTileResult.Running);
+                return _mixProcessed ? Complete(InstructionTileResult.Success) : Complete(InstructionTileResult.Running);
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, false);
@@ -265,7 +266,19 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
-        private void LoadVolumeLevel(AudioClassificationType type)
+        private async Task ProcessMix()
+        {
+
+            await LoadVolumeLevel(AudioClassificationType.Master);
+            await LoadVolumeLevel(AudioClassificationType.SoundEffect);
+            await LoadVolumeLevel(AudioClassificationType.Voice);
+            await LoadVolumeLevel(AudioClassificationType.Music);
+            await LoadVolumeLevel(AudioClassificationType.Ambience);
+
+            _mixProcessed = true;
+        }
+
+        private async Task LoadVolumeLevel(AudioClassificationType type)
         {
             string keyVolume = _keyPrefix;
             string keyMuted = _keyPrefix;
@@ -296,16 +309,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
             if (UseLocalStorage)
             {
-                BrainProcess volumeProcess = _localStorage.LoadFloat(keyVolume);
-                BrainProcess mutedProcess = _localStorage.LoadBool(keyMuted);
+                BrainProcess volumeProcess = await _localStorage.LoadFloat(keyVolume);
+                BrainProcess mutedProcess = await _localStorage.LoadBool(keyMuted);
                 _localProcesses.Add(volumeProcess);
                 _localProcesses.Add(mutedProcess);
             }
 
             if (UseCloudStorage)
             {
-                BrainProcess volumeProcess = _localStorage.LoadFloat(keyVolume);
-                BrainProcess mutedProcess = _localStorage.LoadBool(keyMuted);
+                BrainProcess volumeProcess = await _cloudStorage.LoadFloat(keyVolume);
+                BrainProcess mutedProcess = await _cloudStorage.LoadBool(keyMuted);
                 _cloudProcesses.Add(volumeProcess);
                 _cloudProcesses.Add(mutedProcess);
             }

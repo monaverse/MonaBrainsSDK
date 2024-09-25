@@ -11,6 +11,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Core.Utils;
+using System.Threading.Tasks;
 
 namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
 {
@@ -27,11 +28,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
 
         public SocialUserLogoutInstructionTile() { }
 
+        private bool _authProcessed;
         private bool _active;
         private bool _isRunning;
         private IMonaBrain _brain;
         private MonaGlobalBrainRunner _globalBrainRunner;
-        private IBrainSocialPlatformUser _socialPlatformUser;
+        private IBrainSocialPlatformUserAsync _socialPlatformUser;
         private BrainProcess _serverProcess;
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
@@ -144,6 +146,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
             if (_brain == null || _globalBrainRunner == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
+            _authProcessed = false;
+
             if (!_isRunning)
             {
                 if (_socialPlatformUser == null)
@@ -152,17 +156,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
                     if (_socialPlatformUser == null) return Complete(InstructionTileResult.Success);
                 }
 
-                _serverProcess = _socialPlatformUser.LogoutCurrentUser();
-                AddFixedTickDelegate();
+                ProcessLogout();
+
+                if(!_authProcessed)
+                    AddFixedTickDelegate();
             }
 
-            if (_serverProcess != null)
-                return Complete(InstructionTileResult.Running);
+            return _authProcessed ? Complete(InstructionTileResult.Success) : Complete(InstructionTileResult.Running);
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, false);
 
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+        }
+
+        private async Task ProcessLogout()
+        {
+            _serverProcess = await _socialPlatformUser.LogoutCurrentUser();
+            _authProcessed = true;
         }
     }
 }

@@ -52,8 +52,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         private IMonaBrain _brain;
         private MonaGlobalBrainRunner _globalBrainRunner;
         private MonaBrainAudio _brainAudio;
-        private IBrainStorage _localStorage;
-        private IBrainStorage _cloudStorage;
+        private IBrainStorageAsync _localStorage;
+        private IBrainStorageAsync _cloudStorage;
         private List<BrainProcess> _localProcesses = new List<BrainProcess>();
         private List<BrainProcess> _cloudProcesses = new List<BrainProcess>();
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
@@ -229,7 +229,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
                 if (UseCloudStorage && _cloudStorage == null)
                 {
-                    _cloudStorage = _globalBrainRunner.ClousStorage;
+                    _cloudStorage = _globalBrainRunner.CloudStorage;
 
                     if (_cloudStorage == null)
                         return Complete(InstructionTileResult.Success);
@@ -255,7 +255,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
-        private void StoreVolumeLevel(AudioClassificationType type)
+        private async void StoreVolumeLevel(AudioClassificationType type)
         {
             float valueVolume = _brainAudio.GetUnmodifiedVolumeLevel(type);
             bool valueMuted = _brainAudio.GetVolumeMutedState(type);
@@ -288,16 +288,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
             if (UseLocalStorage)
             {
-                BrainProcess volumeProcess = _localStorage.SetFloat(keyVolume, valueVolume, _saveNow);
-                BrainProcess mutedProcess = _localStorage.SetBool(keyMuted, valueMuted, _saveNow);
+                BrainProcess volumeProcess = await _localStorage.SetFloat(keyVolume, valueVolume, _saveNow);
+                BrainProcess mutedProcess = await _localStorage.SetBool(keyMuted, valueMuted, _saveNow);
                 _localProcesses.Add(volumeProcess);
                 _localProcesses.Add(mutedProcess);
             }
 
             if (UseCloudStorage)
             {
-                BrainProcess volumeProcess = _localStorage.SetFloat(keyVolume, valueVolume, _saveNow);
-                BrainProcess mutedProcess = _localStorage.SetBool(keyMuted, valueMuted, _saveNow);
+                BrainProcess volumeProcess = await _cloudStorage.SetFloat(keyVolume, valueVolume, _saveNow);
+                BrainProcess mutedProcess = await _cloudStorage.SetBool(keyMuted, valueMuted, _saveNow);
                 _cloudProcesses.Add(volumeProcess);
                 _cloudProcesses.Add(mutedProcess);
             }

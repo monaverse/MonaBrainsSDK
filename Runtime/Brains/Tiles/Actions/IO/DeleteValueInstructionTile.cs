@@ -12,6 +12,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Core.Utils;
+using System.Threading.Tasks;
 
 namespace Mona.SDK.Brains.Tiles.Actions.IO
 {
@@ -65,12 +66,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
         public DeleteValueInstructionTile() { }
 
+        private bool _processedStorage;
         private bool _active;
         private bool _isRunning;
         private IMonaBrain _brain;
         private MonaGlobalBrainRunner _globalBrainRunner;
-        private IBrainStorage _localStorage;
-        private IBrainStorage _cloudStorage;
+        private IBrainStorageAsync _localStorage;
+        private IBrainStorageAsync _cloudStorage;
         private BrainProcess _localProcess;
         private BrainProcess _cloudProcess;
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
@@ -193,6 +195,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             if (_brain == null || _globalBrainRunner == null || string.IsNullOrEmpty(_variable))
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
+            _processedStorage = false;
+
             if (!_isRunning)
             {
                 if (!string.IsNullOrEmpty(_keyNameString))
@@ -214,60 +218,67 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
                 if (UseCloudStorage && _cloudStorage == null)
                 {
-                    _cloudStorage = _globalBrainRunner.ClousStorage;
+                    _cloudStorage = _globalBrainRunner.CloudStorage;
 
                     if (_cloudStorage == null)
                         return Complete(InstructionTileResult.Success);
                 }
 
-                IMonaVariablesValue myValue = _brain.Variables.GetVariable(_variable);
+                ProcessDelete();
 
-                string keyName = _keyNameType == StorageStringFormatType.VariableName || _keyNameType == StorageStringFormatType.VariableAndBrainName ?
-                    myValue.Name : _keyName;
-
-                string brainName = UseBrainName ? _brainName : string.Empty;
-
-                if (myValue is IMonaVariablesFloatValue)
-                {
-                    string key = GetStorageKeyString(StorageVariableType.Number, keyName, brainName, string.Empty);
-                    if (UseLocalStorage) _localProcess = _localStorage.DeleteFloat(key, _saveNow);
-                    if (UseCloudStorage) _cloudProcess = _cloudStorage.DeleteFloat(key, _saveNow);
-                }
-                else if (myValue is IMonaVariablesBoolValue)
-                {
-                    string key = GetStorageKeyString(StorageVariableType.Bool, keyName, brainName, string.Empty);
-                    if (UseLocalStorage) _localProcess = _localStorage.DeleteBool(key, _saveNow);
-                    if (UseCloudStorage) _cloudProcess = _cloudStorage.DeleteBool(key, _saveNow);
-                }
-                else if (myValue is IMonaVariablesStringValue)
-                {
-                    string key = GetStorageKeyString(StorageVariableType.String, keyName, brainName, string.Empty);
-                    if (UseLocalStorage) _localProcess = _localStorage.DeleteString(key, _saveNow);
-                    if (UseCloudStorage) _cloudProcess = _cloudStorage.DeleteString(key, _saveNow);
-                }
-                else if (myValue is IMonaVariablesVector2Value)
-                {
-                    string key = GetStorageKeyString(StorageVariableType.Vector2, keyName, brainName, string.Empty);
-                    if (UseLocalStorage) _localProcess = _localStorage.DeleteVector2(key, _saveNow);
-                    if (UseCloudStorage) _cloudProcess = _cloudStorage.DeleteVector2(key, _saveNow);
-                }
-                else if (myValue is IMonaVariablesVector3Value)
-                {
-                    string key = GetStorageKeyString(StorageVariableType.Vector3, keyName, brainName, string.Empty);
-                    if (UseLocalStorage) _localProcess = _localStorage.DeleteVector3(key, _saveNow);
-                    if (UseCloudStorage) _cloudProcess = _cloudStorage.DeleteVector3(key, _saveNow);
-                }
-
-                AddFixedTickDelegate();
+                if(!_processedStorage)
+                    AddFixedTickDelegate();
             }
 
-            if (_localProcess != null || _cloudProcess != null)
-                return Complete(InstructionTileResult.Running);
+            if (UseLocalStorage || UseCloudStorage)
+                return _processedStorage ? Complete(InstructionTileResult.Success) : Complete(InstructionTileResult.Running);
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, false);
 
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+        }
+
+        private async Task ProcessDelete()
+        {
+            IMonaVariablesValue myValue = _brain.Variables.GetVariable(_variable);
+
+            string keyName = _keyNameType == StorageStringFormatType.VariableName || _keyNameType == StorageStringFormatType.VariableAndBrainName ?
+                myValue.Name : _keyName;
+
+            string brainName = UseBrainName ? _brainName : string.Empty;
+
+            if (myValue is IMonaVariablesFloatValue)
+            {
+                string key = GetStorageKeyString(StorageVariableType.Number, keyName, brainName, string.Empty);
+                if (UseLocalStorage) _localProcess = await _localStorage.DeleteFloat(key, _saveNow);
+                if (UseCloudStorage) _cloudProcess = await _cloudStorage.DeleteFloat(key, _saveNow);
+            }
+            else if (myValue is IMonaVariablesBoolValue)
+            {
+                string key = GetStorageKeyString(StorageVariableType.Bool, keyName, brainName, string.Empty);
+                if (UseLocalStorage) _localProcess = await _localStorage.DeleteBool(key, _saveNow);
+                if (UseCloudStorage) _cloudProcess = await _cloudStorage.DeleteBool(key, _saveNow);
+            }
+            else if (myValue is IMonaVariablesStringValue)
+            {
+                string key = GetStorageKeyString(StorageVariableType.String, keyName, brainName, string.Empty);
+                if (UseLocalStorage) _localProcess = await _localStorage.DeleteString(key, _saveNow);
+                if (UseCloudStorage) _cloudProcess = await _cloudStorage.DeleteString(key, _saveNow);
+            }
+            else if (myValue is IMonaVariablesVector2Value)
+            {
+                string key = GetStorageKeyString(StorageVariableType.Vector2, keyName, brainName, string.Empty);
+                if (UseLocalStorage) _localProcess = await _localStorage.DeleteVector2(key, _saveNow);
+                if (UseCloudStorage) _cloudProcess = await _cloudStorage.DeleteVector2(key, _saveNow);
+            }
+            else if (myValue is IMonaVariablesVector3Value)
+            {
+                string key = GetStorageKeyString(StorageVariableType.Vector3, keyName, brainName, string.Empty);
+                if (UseLocalStorage) _localProcess = await _localStorage.DeleteVector3(key, _saveNow);
+                if (UseCloudStorage) _cloudProcess = await _cloudStorage.DeleteVector3(key, _saveNow);
+            }
+            _processedStorage = true;
         }
 
         private string GetStorageKeyString(StorageVariableType varType, string keyName, string brainName, string axis)

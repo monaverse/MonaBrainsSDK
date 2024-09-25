@@ -8,6 +8,7 @@ using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Brains.Core.Utils.Structs;
+using System.Threading.Tasks;
 
 namespace Mona.SDK.Brains.Tiles.Actions.IO
 {
@@ -70,10 +71,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             Complete(InstructionTileResult.Success, true);
         }
 
+        private bool _processedStorage;
+
         public override InstructionTileResult Do()
         {
             if (_brain == null || _globalBrainRunner == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            _processedStorage = false;
 
             if (!_isRunning)
             {
@@ -94,7 +99,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
                 if (UseCloudStorage && _cloudStorage == null)
                 {
-                    _cloudStorage = _globalBrainRunner.ClousStorage;
+                    _cloudStorage = _globalBrainRunner.CloudStorage;
 
                     if (_cloudStorage == null)
                         return Complete(InstructionTileResult.Success);
@@ -102,24 +107,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
                 SetNamedValues();
 
-                switch (_target)
-                {
-                    case MonaBrainTargetLayoutType.Tag:
-                        StoreLayoutOfTag();
-                        break;
-                    case MonaBrainTargetLayoutType.AllBodies:
-                        StoreAllBodies();
-                        break;
-                    case MonaBrainTargetLayoutType.ThisBodyOnly:
-                        StoreBody(_brain.Body);
-                        break;
-                }
+                ProcessSave();
 
-                AddFixedTickDelegate();
+                if(!_processedStorage)
+                    AddFixedTickDelegate();
             }
 
             if (_localProcesses.Count > 0 || _cloudProcesses.Count > 0)
-                return Complete(InstructionTileResult.Running);
+                return _processedStorage ? Complete(InstructionTileResult.Success) : Complete(InstructionTileResult.Running);
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, false);
@@ -127,7 +122,24 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
-        private void StoreLayoutOfTag()
+        private async Task ProcessSave()
+        {
+            switch (_target)
+            {
+                case MonaBrainTargetLayoutType.Tag:
+                    await StoreLayoutOfTag();
+                    break;
+                case MonaBrainTargetLayoutType.AllBodies:
+                    await StoreAllBodies();
+                    break;
+                case MonaBrainTargetLayoutType.ThisBodyOnly:
+                    await StoreBody(_brain.Body);
+                    break;
+            }
+            _processedStorage = true;
+         }
+
+        private async Task StoreLayoutOfTag()
         {
             var tagBodies = MonaBody.FindByTag(_targetTag);
 
@@ -142,32 +154,32 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                 _bodiesToSave.Add(tagBodies[i]);
             }
 
-            StoreBodies();
+            await StoreBodies();
         }
 
-        private void StoreAllBodies()
+        private async Task StoreAllBodies()
         {
             var globalBodies = GetAllBodies();
 
             for (int i = 0; i < globalBodies.Length; i++)
-                ProcessBodyTransforms(globalBodies[i]);
+                await ProcessBodyTransforms(globalBodies[i]);
         }
 
-        private void StoreBody(IMonaBody body)
+        private async Task StoreBody(IMonaBody body)
         {
             if (body == null)
                 return;
 
-            ProcessBodyTransforms(body);
+            await ProcessBodyTransforms(body);
         }
 
-        private void StoreBodies()
+        private async Task StoreBodies()
         {
             for (int i = 0; i < _bodiesToSave.Count; i++)
-                ProcessBodyTransforms(_bodiesToSave[i], i);
+                await ProcessBodyTransforms(_bodiesToSave[i], i);
         }
 
-        private void ProcessBodyTransforms(IMonaBody body, int index = -1)
+        private async Task ProcessBodyTransforms(IMonaBody body, int index = -1)
         {
             if (body == null)
                 return;
@@ -186,15 +198,16 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
             if (UseLocalStorage)
             {
-                BrainProcess process = _localStorage.SetLayout(layout, _saveNow);
+                BrainProcess process = await _localStorage.SetLayout(layout, _saveNow);
                 _localProcesses.Add(process);
             }
 
             if (UseCloudStorage)
             {
-                BrainProcess process = _cloudStorage.SetLayout(layout, _saveNow);
+                BrainProcess process = await _cloudStorage.SetLayout(layout, _saveNow);
                 _cloudProcesses.Add(process);
             }
+
         }
     }
 }

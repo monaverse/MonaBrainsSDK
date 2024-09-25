@@ -106,17 +106,17 @@ namespace Mona.SDK.Brains.Core.Brain
         private MonaBrainAudio _brainAudio;
         public MonaBrainAudio BrainAudio => _brainAudio;
 
-        private IBrainSocialPlatformUser _brainSocialUser;
-        public IBrainSocialPlatformUser BrainSocialUser { get => _brainSocialUser; set => _brainSocialUser = value; }
+        private IBrainSocialPlatformUserAsync _brainSocialUser;
+        public IBrainSocialPlatformUserAsync BrainSocialUser { get => _brainSocialUser; set => _brainSocialUser = value; }
 
         private IBrainLeaderboard _brainLeaderboards;
         public IBrainLeaderboard BrainLeaderboards { get => _brainLeaderboards; set => _brainLeaderboards = value; }
 
-        private IBrainStorage _localStorage;
-        public IBrainStorage LocalStorage { get => _localStorage; set => _localStorage = value; }
+        private IBrainStorageAsync _localStorage;
+        public IBrainStorageAsync LocalStorage { get => _localStorage; set => _localStorage = value; }
 
-        private IBrainStorage _cloudStorage;
-        public IBrainStorage ClousStorage { get => _cloudStorage; set => _cloudStorage = value; }
+        private IBrainStorageAsync _cloudStorage;
+        public IBrainStorageAsync CloudStorage { get => _cloudStorage; set => _cloudStorage = value; }
 
         public void EnablePlayerInput() => GetBrainInput().EnableInput();
         public void DisablePlayerInput() => GetBrainInput().DisableInput();
@@ -469,17 +469,17 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             bool localFound = false;
             bool cloudFound = false;
-            var storageComponents = InterfaceFinder.FindComponentsWithInterface<IBrainStorage>();
+            var storageComponents = InterfaceFinder.FindComponentsWithInterface<IBrainStorageAsync>();
 
             for (int i = 0; i < storageComponents.Length; i++)
             {
                 if (localFound && cloudFound)
                     break;
 
-                if (!localFound && storageComponents[i].SupportedStorageTarget != Utils.Enums.StorageTargetType.Cloud)
+                if (!localFound && storageComponents[i].StorageEnabled && storageComponents[i].SupportedStorageTarget != Utils.Enums.StorageTargetType.Cloud)
                     _localStorage = storageComponents[i];
 
-                if (!cloudFound && storageComponents[i].SupportedStorageTarget != Utils.Enums.StorageTargetType.Local)
+                if (!cloudFound && storageComponents[i].StorageEnabled && storageComponents[i].SupportedStorageTarget != Utils.Enums.StorageTargetType.Local)
                     _cloudStorage = storageComponents[i];
             }
 
@@ -489,7 +489,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private void SetupSocialUser()
         {
-            var socialComponents = InterfaceFinder.FindComponentsWithInterface<IBrainSocialPlatformUser>();
+            var socialComponents = InterfaceFinder.FindComponentsWithInterface<IBrainSocialPlatformUserAsync>();
 
             if (socialComponents.Length > 0)
                 _brainSocialUser = socialComponents[0];
@@ -507,7 +507,14 @@ namespace Mona.SDK.Brains.Core.Brain
             var leaderboardComponents = InterfaceFinder.FindComponentsWithInterface<IBrainLeaderboard>();
 
             if (leaderboardComponents.Length > 0)
-                _brainLeaderboards = leaderboardComponents[0];
+            {
+
+                for (int i = 0; i < leaderboardComponents.Length; i++)
+                {
+                    if (leaderboardComponents[i].LeaderboardEnabled)
+                        _brainLeaderboards = leaderboardComponents[i];
+                }
+            }
         }
     }
 }

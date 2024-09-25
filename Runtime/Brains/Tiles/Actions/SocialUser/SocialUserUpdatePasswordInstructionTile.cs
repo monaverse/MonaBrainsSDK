@@ -11,6 +11,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Core.Utils;
+using System.Threading.Tasks;
 
 namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
 {
@@ -36,7 +37,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
         private bool _isRunning;
         private IMonaBrain _brain;
         private MonaGlobalBrainRunner _globalBrainRunner;
-        private IBrainSocialPlatformUser _socialPlatformUser;
+        private IBrainSocialPlatformUserAsync _socialPlatformUser;
         private BrainProcess _serverProcess;
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
@@ -160,17 +161,22 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
                     if (_socialPlatformUser == null) return Complete(InstructionTileResult.Success);
                 }
 
-                _serverProcess = _socialPlatformUser.ChangeCurrentUserPassword(_newPassword);
+                ProcessChangePassword();
+
                 AddFixedTickDelegate();
             }
-
-            if (_serverProcess != null)
-                return Complete(InstructionTileResult.Running);
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, false);
 
-            return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+            return Complete(InstructionTileResult.Running);
+
         }
+
+        private async Task ProcessChangePassword()
+        {
+            _serverProcess = await _socialPlatformUser.ChangeCurrentUserPassword(_newPassword);
+        }
+
     }
 }

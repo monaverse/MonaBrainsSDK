@@ -94,8 +94,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         protected bool _isRunning;
         protected IMonaBrain _brain;
         protected MonaGlobalBrainRunner _globalBrainRunner;
-        protected IBrainStorage _localStorage;
-        protected IBrainStorage _cloudStorage;
+        protected IBrainStorageAsync _localStorage;
+        protected IBrainStorageAsync _cloudStorage;
         protected List<BrainProcess> _localProcesses = new List<BrainProcess>();
         protected List<BrainProcess> _cloudProcesses = new List<BrainProcess>();
         protected Action<MonaBodyFixedTickEvent> OnFixedTick;

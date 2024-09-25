@@ -11,6 +11,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Core.Utils;
+using System.Threading.Tasks;
 
 namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
 {
@@ -22,6 +23,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
         public const string CATEGORY = "User Server";
         public override Type TileType => typeof(SocialUserAutoLoginInstructionTile);
 
+        [SerializeField] private SocialUserLoginTypes _loginType = SocialUserLoginTypes.Leaderboards;
+        [BrainPropertyEnum(true)] public SocialUserLoginTypes LoginType { get => _loginType; set => _loginType = value; }
+
+        [SerializeField] private bool _shareToStorage;
+        [BrainPropertyShow(nameof(SocialUserLoginTypes), (int)SocialUserLoginTypes.Leaderboards)]
+        public bool ShareToStorage { get => _shareToStorage; set => _shareToStorage = value; }
+
+        [SerializeField] private bool _shareToLeaderboard;
+        [BrainPropertyShow(nameof(SocialUserLoginTypes), (int)SocialUserLoginTypes.Storage)]
+        public bool ShareToLeaderboard { get => _shareToLeaderboard; set => _shareToLeaderboard = value; }
+
         [SerializeField] private string _storeUsernameOn;
         [BrainPropertyValue(typeof(IMonaVariablesStringValue), true)] public string StoreUsernameOn { get => _storeUsernameOn; set => _storeUsernameOn = value; }
 
@@ -30,11 +42,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
 
         public SocialUserAutoLoginInstructionTile() { }
 
+        private bool _loginProcessed;
         private bool _active;
         private bool _isRunning;
         private IMonaBrain _brain;
         private MonaGlobalBrainRunner _globalBrainRunner;
-        private IBrainSocialPlatformUser _socialPlatformUser;
+        private IBrainSocialPlatformUserAsync _socialPlatformUser;
         private BrainProcess _serverProcess;
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
@@ -158,18 +171,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
                     if (_socialPlatformUser == null) return Complete(InstructionTileResult.Success);
                 }
 
-                _serverProcess = _socialPlatformUser.AutoLogin();
+                ProcessLogin();
 
-                AddFixedTickDelegate();
+                if(!_loginProcessed)
+                    AddFixedTickDelegate();
             }
 
             if (_serverProcess != null)
-                return Complete(InstructionTileResult.Running);
+                return _loginProcessed ? Complete(InstructionTileResult.Success) : Complete(InstructionTileResult.Running);
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, false);
 
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+        }
+
+        private async Task ProcessLogin()
+        {
+            _serverProcess = await _socialPlatformUser.AutoLogin();
+            _loginProcessed = true;
         }
     }
 }

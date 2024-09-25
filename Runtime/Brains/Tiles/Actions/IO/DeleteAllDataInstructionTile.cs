@@ -12,6 +12,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Core.Utils;
+using System.Threading.Tasks;
 
 namespace Mona.SDK.Brains.Tiles.Actions.IO
 {
@@ -36,12 +37,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
         public DeleteAllDataInstructionTile() { }
 
+        private bool _storageProcessed;
         private bool _active;
         private bool _isRunning;
         private IMonaBrain _brain;
         private MonaGlobalBrainRunner _globalBrainRunner;
-        private IBrainStorage _localStorage;
-        private IBrainStorage _cloudStorage;
+        private IBrainStorageAsync _localStorage;
+        private IBrainStorageAsync _cloudStorage;
         private BrainProcess _localProcess;
         private BrainProcess _cloudProcess;
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
@@ -164,6 +166,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
             if (_brain == null || _globalBrainRunner == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
+            _storageProcessed = false;
+
             if (!_isRunning)
             {
                 if (!string.IsNullOrEmpty(_saveNowName))
@@ -179,23 +183,32 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
 
                 if (UseCloudStorage && _cloudStorage == null)
                 {
-                    _cloudStorage = _globalBrainRunner.ClousStorage;
+                    _cloudStorage = _globalBrainRunner.CloudStorage;
 
                     if (_cloudStorage == null)
                         return Complete(InstructionTileResult.Success);
                 }
 
-                if (UseLocalStorage) _localProcess = _localStorage.DeleteAllData(_saveNow);
-                if (UseCloudStorage) _cloudProcess = _cloudStorage.DeleteAllData(_saveNow);
+                ProcessStorage();
+
+                if (!_storageProcessed)
+                    AddFixedTickDelegate();
             }
 
-            if (_localProcess != null || _cloudProcess != null)
-                return Complete(InstructionTileResult.Running);
+            if (UseLocalStorage || UseCloudStorage)
+                return _storageProcessed ? Complete(InstructionTileResult.Success) : Complete(InstructionTileResult.Running);
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, false);
 
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+        }
+
+        private async Task ProcessStorage()
+        {
+            if (UseLocalStorage) _localProcess = await _localStorage.DeleteAllData(_saveNow);
+            if (UseCloudStorage) _cloudProcess = await _cloudStorage.DeleteAllData(_saveNow);
+            _storageProcessed = true;
         }
     }
 }
