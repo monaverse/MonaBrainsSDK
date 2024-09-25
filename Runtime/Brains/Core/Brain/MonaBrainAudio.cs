@@ -11,15 +11,19 @@ namespace Mona.SDK.Brains.Core.Brain
         private AudioClassificationType _type = AudioClassificationType.Master;
         private AudioSource _source;
         private float _clipVolumeLevel = 1f;
+        private bool _pausable = true;
+        private bool _paused = false;
         public MonaBrainAudio BrainAudioInstance;
 
+        private bool CanPause => Pausable && IsPlaying;
+        public bool IsPlaying => _source != null && _source.isActiveAndEnabled && _source.isPlaying;
+        public float AssignedVolume => BaseVolumeLevel * ClipVolumeLevel;
+        public float BaseVolumeLevel => BrainAudioInstance.GetVolumeLevel(_type);
+
+        public float ClipVolumeLevel { get => _clipVolumeLevel; set => _clipVolumeLevel = Mathf.Clamp01(value); }
+        public bool Pausable { get => _pausable; set => _pausable = value; }
         public AudioClassificationType Type { get => _type; set => _type = value; }
         public AudioSource Source { get => _source; set => _source = value; }
-
-        public float AssignedVolume => BaseVolumeLevel * ClipVolumeLevel;
-        public float ClipVolumeLevel { get => _clipVolumeLevel; set => _clipVolumeLevel = Mathf.Clamp01(value); }
-        public float BaseVolumeLevel => BrainAudioInstance.GetVolumeLevel(_type);
-        public bool IsPlaying => _source != null && _source.isActiveAndEnabled && _source.isPlaying;
 
         public void UpdateVolume()
         {
@@ -39,6 +43,42 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             if (IsPlaying)
                 _source.Stop();
+        }
+
+        public void StopPlayback(AudioClassificationType checkType)
+        {
+            if (checkType == _type)
+                StopPlayback();
+        }
+
+        public void PausePlayback()
+        {
+            if (!CanPause || _paused)
+                return;
+
+            _source.Pause();
+            _paused = true;
+        }
+
+        public void PausePlayback(AudioClassificationType checkType)
+        {
+            if (checkType == _type)
+                PausePlayback();
+        }
+
+        public void UnPausePlayback()
+        {
+            if (_source == null || !_paused)
+                return;
+
+            _source.UnPause();
+            _paused = false;
+        }
+
+        public void UnPausePlayback(AudioClassificationType checkType)
+        {
+            if (checkType == _type)
+                UnPausePlayback();
         }
     }
 
@@ -66,6 +106,12 @@ namespace Mona.SDK.Brains.Core.Brain
         private AudioClassVolumeLevel VoxAudio = new AudioClassVolumeLevel();
         private AudioClassVolumeLevel MusicAudio = new AudioClassVolumeLevel();
         private AudioClassVolumeLevel AmbienceAudio = new AudioClassVolumeLevel();
+        private AudioClassVolumeLevel UIAudio = new AudioClassVolumeLevel();
+        private AudioClassVolumeLevel CutsceneAudio = new AudioClassVolumeLevel();
+        private AudioClassVolumeLevel MicAudio = new AudioClassVolumeLevel();
+        private AudioClassVolumeLevel ChatAudio = new AudioClassVolumeLevel();
+        private AudioClassVolumeLevel NotificationAudio = new AudioClassVolumeLevel();
+        private AudioClassVolumeLevel MiscAudio = new AudioClassVolumeLevel();
 
         private List<AudioObjectInfo> audioObjects = new List<AudioObjectInfo>();
 
@@ -74,6 +120,12 @@ namespace Mona.SDK.Brains.Core.Brain
         public float VoxBaseVolume => VoxAudio.CurrentVolume;
         public float MusicBaseVolume => MusicAudio.CurrentVolume;
         public float AmbienceBaseVolume => AmbienceAudio.CurrentVolume;
+        public float UIBaseVolume => UIAudio.CurrentVolume;
+        public float CutsceneBaseVolume => CutsceneAudio.CurrentVolume;
+        public float MicBaseVolume => MicAudio.CurrentVolume;
+        public float ChatBaseVolume => ChatAudio.CurrentVolume;
+        public float NotificationBaseVolume => NotificationAudio.CurrentVolume;
+        public float MiscBaseVolume => MiscAudio.CurrentVolume;
 
         public static MonaBrainAudio Instance => _instance;
 
@@ -101,6 +153,18 @@ namespace Mona.SDK.Brains.Core.Brain
                     return MasterAudio.CurrentVolume * MusicAudio.CurrentVolume;
                 case AudioClassificationType.Ambience:
                     return MasterAudio.CurrentVolume * AmbienceAudio.CurrentVolume;
+                case AudioClassificationType.UserInterface:
+                    return MasterAudio.CurrentVolume * UIAudio.CurrentVolume;
+                case AudioClassificationType.Cutscene:
+                    return MasterAudio.CurrentVolume * CutsceneAudio.CurrentVolume;
+                case AudioClassificationType.Microphone:
+                    return MasterAudio.CurrentVolume * MicAudio.CurrentVolume;
+                case AudioClassificationType.VoiceChat:
+                    return MasterAudio.CurrentVolume * ChatAudio.CurrentVolume;
+                case AudioClassificationType.Notification:
+                    return MasterAudio.CurrentVolume * NotificationAudio.CurrentVolume;
+                case AudioClassificationType.Miscellaneous:
+                    return MasterAudio.CurrentVolume * MiscAudio.CurrentVolume;
                 default:
                     return MasterAudio.CurrentVolume;
             }
@@ -118,12 +182,24 @@ namespace Mona.SDK.Brains.Core.Brain
                     return MusicAudio.Volume;
                 case AudioClassificationType.Ambience:
                     return AmbienceAudio.Volume;
+                case AudioClassificationType.UserInterface:
+                    return UIAudio.Volume;
+                case AudioClassificationType.Cutscene:
+                    return CutsceneAudio.Volume;
+                case AudioClassificationType.Microphone:
+                    return MicAudio.Volume;
+                case AudioClassificationType.VoiceChat:
+                    return ChatAudio.Volume;
+                case AudioClassificationType.Notification:
+                    return NotificationAudio.Volume;
+                case AudioClassificationType.Miscellaneous:
+                    return MiscAudio.Volume;
                 default:
                     return MasterAudio.Volume;
             }
         }
 
-        public void SetVolumeLevel(AudioClassificationType type, float newVolumeLevel)
+        public void SetVolumeLevel(AudioClassificationType type, float newVolumeLevel, bool updateAudioObjects = true)
         {
             switch (type)
             {
@@ -131,13 +207,73 @@ namespace Mona.SDK.Brains.Core.Brain
                 case AudioClassificationType.Voice: VoxAudio.Volume = newVolumeLevel; break;
                 case AudioClassificationType.Music: MusicAudio.Volume = newVolumeLevel; break;
                 case AudioClassificationType.Ambience: AmbienceAudio.Volume = newVolumeLevel; break;
+                case AudioClassificationType.UserInterface: UIAudio.Volume = newVolumeLevel; break;
+                case AudioClassificationType.Cutscene: CutsceneAudio.Volume = newVolumeLevel; break;
+                case AudioClassificationType.Microphone: MicAudio.Volume = newVolumeLevel; break;
+                case AudioClassificationType.VoiceChat: ChatAudio.Volume = newVolumeLevel; break;
+                case AudioClassificationType.Notification: NotificationAudio.Volume = newVolumeLevel; break;
+                case AudioClassificationType.Miscellaneous: MiscAudio.Volume = newVolumeLevel; break;
                 default: MasterAudio.Volume = newVolumeLevel; break;
             }
 
-            UpdateAudioObjectVolumes(type);
+            if (updateAudioObjects)
+                UpdateAudioObjectVolumes(type);
         }
 
-        public void AdjustVolumeLevelByStep(AudioClassificationType type, float step)
+        public void SetDefaulVolumeLevel(AudioClassificationType type, float newVolumeLevel)
+        {
+            switch (type)
+            {
+                case AudioClassificationType.SoundEffect: SFXAudio.DefaultVolume = newVolumeLevel; break;
+                case AudioClassificationType.Voice: VoxAudio.DefaultVolume = newVolumeLevel; break;
+                case AudioClassificationType.Music: MusicAudio.DefaultVolume = newVolumeLevel; break;
+                case AudioClassificationType.Ambience: AmbienceAudio.DefaultVolume = newVolumeLevel; break;
+                case AudioClassificationType.UserInterface: UIAudio.DefaultVolume = newVolumeLevel; break;
+                case AudioClassificationType.Cutscene: CutsceneAudio.DefaultVolume = newVolumeLevel; break;
+                case AudioClassificationType.Microphone: MicAudio.DefaultVolume = newVolumeLevel; break;
+                case AudioClassificationType.VoiceChat: ChatAudio.DefaultVolume = newVolumeLevel; break;
+                case AudioClassificationType.Notification: NotificationAudio.DefaultVolume = newVolumeLevel; break;
+                case AudioClassificationType.Miscellaneous: MiscAudio.DefaultVolume = newVolumeLevel; break;
+                default: MasterAudio.DefaultVolume = newVolumeLevel; break;
+            }
+        }
+
+        public void SetVolumeLevelToDefault(AudioClassificationType type, bool updateAudioObjects = true)
+        {
+            switch (type)
+            {
+                case AudioClassificationType.SoundEffect: SFXAudio.SetToDefault(); break;
+                case AudioClassificationType.Voice: VoxAudio.SetToDefault(); break;
+                case AudioClassificationType.Music: MusicAudio.SetToDefault(); break;
+                case AudioClassificationType.Ambience: AmbienceAudio.SetToDefault(); break;
+                case AudioClassificationType.UserInterface: UIAudio.SetToDefault(); break;
+                case AudioClassificationType.Cutscene: CutsceneAudio.SetToDefault(); break;
+                case AudioClassificationType.Microphone: MicAudio.SetToDefault(); break;
+                case AudioClassificationType.VoiceChat: ChatAudio.SetToDefault(); break;
+                case AudioClassificationType.Notification: NotificationAudio.SetToDefault(); break;
+                case AudioClassificationType.Miscellaneous: MiscAudio.SetToDefault(); break;
+                default: MasterAudio.SetToDefault(); break;
+            }
+
+            if (updateAudioObjects)
+                UpdateAudioObjectVolumes(type);
+        }
+
+        public void SetAllVolumesToDefault()
+        {
+            SetVolumeLevelToDefault(AudioClassificationType.SoundEffect, false);
+            SetVolumeLevelToDefault(AudioClassificationType.Voice, false);
+            SetVolumeLevelToDefault(AudioClassificationType.Music, false);
+            SetVolumeLevelToDefault(AudioClassificationType.Ambience, false);
+            SetVolumeLevelToDefault(AudioClassificationType.UserInterface, false);
+            SetVolumeLevelToDefault(AudioClassificationType.Cutscene, false);
+            SetVolumeLevelToDefault(AudioClassificationType.Microphone, false);
+            SetVolumeLevelToDefault(AudioClassificationType.VoiceChat, false);
+            SetVolumeLevelToDefault(AudioClassificationType.Notification, false);
+            SetVolumeLevelToDefault(AudioClassificationType.Master, true);
+        }
+
+        public void AdjustVolumeLevelByStep(AudioClassificationType type, float step, bool updateAudioObjects = true)
         {
             switch (type)
             {
@@ -145,10 +281,17 @@ namespace Mona.SDK.Brains.Core.Brain
                 case AudioClassificationType.Voice: VoxAudio.Volume += step; break;
                 case AudioClassificationType.Music: MusicAudio.Volume += step; break;
                 case AudioClassificationType.Ambience: AmbienceAudio.Volume += step; break;
+                case AudioClassificationType.UserInterface: UIAudio.Volume += step; break;
+                case AudioClassificationType.Cutscene: CutsceneAudio.Volume += step; break;
+                case AudioClassificationType.Microphone: MicAudio.Volume += step; break;
+                case AudioClassificationType.VoiceChat: ChatAudio.Volume += step; break;
+                case AudioClassificationType.Notification: NotificationAudio.Volume += step; break;
+                case AudioClassificationType.Miscellaneous: MiscAudio.Volume += step; break;
                 default: MasterAudio.Volume += step; break;
             }
 
-            UpdateAudioObjectVolumes(type);
+            if (updateAudioObjects)
+                UpdateAudioObjectVolumes(type);
         }
 
         public bool GetVolumeMutedState(AudioClassificationType type)
@@ -159,11 +302,17 @@ namespace Mona.SDK.Brains.Core.Brain
                 case AudioClassificationType.Voice: return VoxAudio.Muted;
                 case AudioClassificationType.Music: return MusicAudio.Muted;
                 case AudioClassificationType.Ambience: return AmbienceAudio.Muted;
+                case AudioClassificationType.UserInterface: return UIAudio.Muted;
+                case AudioClassificationType.Cutscene: return CutsceneAudio.Muted;
+                case AudioClassificationType.Microphone: return MicAudio.Muted;
+                case AudioClassificationType.VoiceChat: return ChatAudio.Muted;
+                case AudioClassificationType.Notification: return NotificationAudio.Muted;
+                case AudioClassificationType.Miscellaneous: return AmbienceAudio.Muted;
                 default: return MasterAudio.Muted;
             }
         }
 
-        public void SetVolumeMuteState(AudioClassificationType type, bool muted)
+        public void SetVolumeMuteState(AudioClassificationType type, bool muted, bool updateAudioObjects = true)
         {
             switch (type)
             {
@@ -171,13 +320,20 @@ namespace Mona.SDK.Brains.Core.Brain
                 case AudioClassificationType.Voice: VoxAudio.Muted = muted; break;
                 case AudioClassificationType.Music: MusicAudio.Muted = muted; break;
                 case AudioClassificationType.Ambience: AmbienceAudio.Muted = muted; break;
+                case AudioClassificationType.UserInterface: UIAudio.Muted = muted; break;
+                case AudioClassificationType.Cutscene: CutsceneAudio.Muted = muted; break;
+                case AudioClassificationType.Microphone: MicAudio.Muted = muted; break;
+                case AudioClassificationType.VoiceChat: ChatAudio.Muted = muted; break;
+                case AudioClassificationType.Notification: NotificationAudio.Muted = muted; break;
+                case AudioClassificationType.Miscellaneous: MiscAudio.Muted = muted; break;
                 default: MasterAudio.Muted = muted; break;
             }
 
-            UpdateAudioObjectVolumes(type);
+            if (updateAudioObjects)
+                UpdateAudioObjectVolumes(type);
         }
 
-        public void ToggleVolumeMuteState(AudioClassificationType type)
+        public void ToggleVolumeMuteState(AudioClassificationType type, bool updateAudioObjects = true)
         {
             switch (type)
             {
@@ -185,10 +341,47 @@ namespace Mona.SDK.Brains.Core.Brain
                 case AudioClassificationType.Voice: VoxAudio.ToggleMute(); break;
                 case AudioClassificationType.Music: MusicAudio.ToggleMute(); break;
                 case AudioClassificationType.Ambience: AmbienceAudio.ToggleMute(); break;
+                case AudioClassificationType.UserInterface: UIAudio.ToggleMute(); break;
+                case AudioClassificationType.Cutscene: CutsceneAudio.ToggleMute(); break;
+                case AudioClassificationType.Microphone: MicAudio.ToggleMute(); break;
+                case AudioClassificationType.VoiceChat: ChatAudio.ToggleMute(); break;
+                case AudioClassificationType.Notification: NotificationAudio.ToggleMute(); break;
+                case AudioClassificationType.Miscellaneous: MiscAudio.ToggleMute(); break;
                 default: MasterAudio.ToggleMute(); break;
             }
 
-            UpdateAudioObjectVolumes(type);
+            if (updateAudioObjects)
+                UpdateAudioObjectVolumes(type);
+        }
+
+        public void MuteAll()
+        {
+            SetVolumeMuteState(AudioClassificationType.SoundEffect, true, false);
+            SetVolumeMuteState(AudioClassificationType.Voice, true, false);
+            SetVolumeMuteState(AudioClassificationType.Music, true, false);
+            SetVolumeMuteState(AudioClassificationType.Ambience, true, false);
+            SetVolumeMuteState(AudioClassificationType.UserInterface, true, false);
+            SetVolumeMuteState(AudioClassificationType.Cutscene, true, false);
+            SetVolumeMuteState(AudioClassificationType.Microphone, true, false);
+            SetVolumeMuteState(AudioClassificationType.VoiceChat, true, false);
+            SetVolumeMuteState(AudioClassificationType.Notification, true, false);
+            SetVolumeMuteState(AudioClassificationType.Miscellaneous, true, false);
+            SetVolumeMuteState(AudioClassificationType.Master, true, true);
+        }
+
+        public void UnmuteAll()
+        {
+            SetVolumeMuteState(AudioClassificationType.SoundEffect, false, false);
+            SetVolumeMuteState(AudioClassificationType.Voice, false, false);
+            SetVolumeMuteState(AudioClassificationType.Music, false, false);
+            SetVolumeMuteState(AudioClassificationType.Ambience, false, false);
+            SetVolumeMuteState(AudioClassificationType.UserInterface, false, false);
+            SetVolumeMuteState(AudioClassificationType.Cutscene, false, false);
+            SetVolumeMuteState(AudioClassificationType.Microphone, false, false);
+            SetVolumeMuteState(AudioClassificationType.VoiceChat, false, false);
+            SetVolumeMuteState(AudioClassificationType.Notification, false, false);
+            SetVolumeMuteState(AudioClassificationType.Miscellaneous, false, false);
+            SetVolumeMuteState(AudioClassificationType.Master, false, true);
         }
 
         private void UpdateAudioObjectVolumes(AudioClassificationType type)
@@ -287,23 +480,57 @@ namespace Mona.SDK.Brains.Core.Brain
             audioObjects.Remove(audioObject);
         }
 
+        public void PauseAudio()
+        {
+            for (int i = 0; i < audioObjects.Count; i++)
+            {
+                if (audioObjects[i] != null)
+                    audioObjects[i].PausePlayback();
+            }
+        }
+
+        public void PauseAudio(AudioClassificationType type)
+        {
+            for (int i = 0; i < audioObjects.Count; i++)
+            {
+                if (audioObjects[i] != null)
+                    audioObjects[i].PausePlayback(type);
+            }
+        }
+
+        public void UnPauseAudio()
+        {
+            for (int i = 0; i < audioObjects.Count; i++)
+            {
+                if (audioObjects[i] != null)
+                    audioObjects[i].UnPausePlayback();
+            }
+        }
+
+        public void UnPauseAudio(AudioClassificationType type)
+        {
+            for (int i = 0; i < audioObjects.Count; i++)
+            {
+                if (audioObjects[i] != null)
+                    audioObjects[i].UnPausePlayback(type);
+            }
+        }
+
         public void StopAudioPlayback()
         {
-            StopAudioPlayback(AudioClassificationType.Master);
-            StopAudioPlayback(AudioClassificationType.SoundEffect);
-            StopAudioPlayback(AudioClassificationType.Voice);
-            StopAudioPlayback(AudioClassificationType.Music);
-            StopAudioPlayback(AudioClassificationType.Ambience);
+            for (int i = 0; i < audioObjects.Count; i++)
+            {
+                if (audioObjects[i] != null)
+                    audioObjects[i].StopPlayback();
+            }
         }
 
         public void StopAudioPlayback(AudioClassificationType type)
         {
             for (int i = 0; i < audioObjects.Count; i++)
             {
-                if (audioObjects[i].Type != type)
-                    continue;
-
-                audioObjects[i].StopPlayback();
+                if (audioObjects[i] != null)
+                    audioObjects[i].StopPlayback(type);
             }
         }
     }

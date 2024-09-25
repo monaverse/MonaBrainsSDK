@@ -44,6 +44,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
         private const string _keyVox = "_Vox";
         private const string _keyMusic = "_Music";
         private const string _keyAmbience = "_Ambience";
+        private const string _keyUI = "_UserInterface";
+        private const string _keyCutscene = "_Cutscene";
+        private const string _keyMic = "_Mic";
+        private const string _keyChat = "_Chat";
+        private const string _keyNotification = "_Notification";
+        private const string _keyMisc = "_Misc";
 
         public StoreVolumesInstructionTile() { }
 
@@ -240,6 +246,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                 StoreVolumeLevel(AudioClassificationType.Voice);
                 StoreVolumeLevel(AudioClassificationType.Music);
                 StoreVolumeLevel(AudioClassificationType.Ambience);
+                StoreVolumeLevel(AudioClassificationType.UserInterface);
+                StoreVolumeLevel(AudioClassificationType.Cutscene);
+                StoreVolumeLevel(AudioClassificationType.Microphone);
+                StoreVolumeLevel(AudioClassificationType.VoiceChat);
+                StoreVolumeLevel(AudioClassificationType.Notification);
+                StoreVolumeLevel(AudioClassificationType.Miscellaneous);
 
                 _isRunning = true;
                 AddFixedTickDelegate();
@@ -283,6 +295,30 @@ namespace Mona.SDK.Brains.Tiles.Actions.IO
                 case AudioClassificationType.Ambience:
                     keyVolume += _keyAmbience + _keyVolume;
                     keyMuted += _keyAmbience + _keyMuted;
+                    break;
+                case AudioClassificationType.UserInterface:
+                    keyVolume += _keyUI + _keyVolume;
+                    keyMuted += _keyUI + _keyMuted;
+                    break;
+                case AudioClassificationType.Cutscene:
+                    keyVolume += _keyCutscene + _keyVolume;
+                    keyMuted += _keyCutscene + _keyMuted;
+                    break;
+                case AudioClassificationType.Microphone:
+                    keyVolume += _keyMic + _keyVolume;
+                    keyMuted += _keyMic + _keyMuted;
+                    break;
+                case AudioClassificationType.VoiceChat:
+                    keyVolume += _keyChat + _keyVolume;
+                    keyMuted += _keyChat + _keyMuted;
+                    break;
+                case AudioClassificationType.Notification:
+                    keyVolume += _keyNotification + _keyVolume;
+                    keyMuted += _keyNotification + _keyMuted;
+                    break;
+                case AudioClassificationType.Miscellaneous:
+                    keyVolume += _keyMisc + _keyVolume;
+                    keyMuted += _keyMisc + _keyMuted;
                     break;
             }
 
