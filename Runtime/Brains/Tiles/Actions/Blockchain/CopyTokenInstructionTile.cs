@@ -55,6 +55,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
         [BrainPropertyShow(nameof(Source), (int)MonaBrainTokenResultType.Contract)]
         [BrainPropertyValue(typeof(IMonaVariablesStringValue))] public string ContractValue { get => _contractValue; set => _contractValue = value; }
 
+        [SerializeField] private string _chainValue;
+        [BrainPropertyShow(nameof(Source), (int)MonaBrainTokenResultType.ChainID)]
+        [BrainPropertyValue(typeof(IMonaVariablesStringValue))] public string ChainIDValue { get => _chainValue; set => _chainValue = value; }
+
         [SerializeField] private string _defaultTraitValue = "";
         [SerializeField] private string _defaultTraitValueName = "";
 
@@ -182,6 +186,17 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
 
                         if (!string.IsNullOrEmpty(contract) && !string.IsNullOrEmpty(_contractValue))
                             _brain.Variables.Set(_contractValue, contract);
+                    }
+                    break;
+
+                case MonaBrainTokenResultType.ChainID:
+                    if (_instruction.Tokens.Count > 0)
+                    {
+                        token = _instruction.Tokens[0];
+                        var chain = token.ChainId;
+
+                        if (!string.IsNullOrEmpty(chain) && !string.IsNullOrEmpty(_chainValue))
+                            _brain.Variables.Set(_chainValue, chain);
                     }
                     break;
                 default: break;

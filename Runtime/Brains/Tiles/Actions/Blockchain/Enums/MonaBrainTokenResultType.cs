@@ -9,6 +9,7 @@
         FileContains =4,
         TraitValue=2,
         TokenID = 10,
-        Contract = 20
+        Contract = 20,
+        ChainID = 30
     }
 }
