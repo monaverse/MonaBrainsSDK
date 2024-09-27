@@ -26,14 +26,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
         [SerializeField] private SocialUserLoginTypes _loginType = SocialUserLoginTypes.Leaderboards;
         [BrainPropertyEnum(true)] public SocialUserLoginTypes LoginType { get => _loginType; set => _loginType = value; }
 
-        [SerializeField] private bool _shareToStorage;
-        [BrainPropertyShow(nameof(SocialUserLoginTypes), (int)SocialUserLoginTypes.Leaderboards)]
-        public bool ShareToStorage { get => _shareToStorage; set => _shareToStorage = value; }
-
-        [SerializeField] private bool _shareToLeaderboard;
-        [BrainPropertyShow(nameof(SocialUserLoginTypes), (int)SocialUserLoginTypes.Storage)]
-        public bool ShareToLeaderboard { get => _shareToLeaderboard; set => _shareToLeaderboard = value; }
-
         [SerializeField] private string _storeUsernameOn;
         [BrainPropertyValue(typeof(IMonaVariablesStringValue), true)] public string StoreUsernameOn { get => _storeUsernameOn; set => _storeUsernameOn = value; }
 
