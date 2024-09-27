@@ -54,6 +54,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             OnRigidbodyChanged = HandleRigidbodyChanged;
             MonaEventBus.Register<MonaBodyRigidbodyChangedEvent>(new EventHook(MonaCoreConstants.MONA_BODY_RIGIDBODY_CHANGED_EVENT, _brain.Body), OnRigidbodyChanged);
 
+            HandleRigidbodyChanged(default);
         }
 
         public void HandleRigidbodyChanged(MonaBodyRigidbodyChangedEvent evt)
