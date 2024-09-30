@@ -33,7 +33,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
         [BrainProperty(true)] public string BoolName { get => _boolName; set => _boolName = value; }
 
         [SerializeField] private bool _boolValue = false;
+        [SerializeField] private string _boolValueName;
         [BrainProperty(true)] public bool BoolValue { get => _boolValue; set => _boolValue = value; }
+        [BrainPropertyValueName("BoolValue", typeof(IMonaVariablesBoolValue))] public string BoolValueName { get => _boolValueName; set => _boolValueName = value; }
 
         private Action<MonaValueChangedEvent> OnMonaValueChanged;
 
@@ -128,6 +130,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Animations
 
         public override InstructionTileResult Do()
         {
+            if (!string.IsNullOrEmpty(_boolValueName))
+                _boolValue = _brain.Variables.GetBool(_boolValueName);
+
             _brain.Variables.Set(_boolName, _boolValue);
             return Complete(InstructionTileResult.Success);
         }
