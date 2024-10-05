@@ -129,6 +129,26 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     return Complete(InstructionTileResult.Success);
                 }
             }
+
+            var colliders = _collider.CollidersThatLeft;
+            //Debug.Log($"bodies that hit {_collider.BodiesThatHit.Count} {_tag}");
+            if (colliders.Count > 0)
+            {
+                //Debug.Log($"hit happened");
+                var collider = colliders[0];
+                //var body = tagCollision.Body;
+                //Debug.Log($"hit happened {body == null}");
+                if (colliders != null)
+                {
+                    if (_brain.LoggingEnabled)
+                        Debug.Log($"{nameof(OnStoppedTouchingInstructionTile)}.{nameof(Do)} found: {_tag} {colliders}", _brain.Body.ActiveTransform.gameObject);
+
+                    _collider.BodiesThatLeft.Clear();
+
+                    //_brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, null);
+                    return Complete(InstructionTileResult.Success);
+                }
+            }
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
         }
     }

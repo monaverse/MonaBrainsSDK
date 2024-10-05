@@ -161,6 +161,26 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     return Complete(InstructionTileResult.Success);
                 }
             }
+
+            var colliders = _collider.CollidershatHit;
+            if (colliders.Count > 0)
+            {
+                //Debug.Log($"hit happened");
+                var tagCollision = colliders[0];
+                var collider = tagCollision.Collider;
+                //Debug.Log($"hit happened {body == null}");
+                if (collider != null)
+                {
+                    if (_brain.LoggingEnabled)
+                        Debug.Log($"{nameof(OnHitInstructionTile)}.{nameof(Do)} found: {_tag} {collider} {tagCollision.Position}", _brain.Body.ActiveTransform.gameObject);
+
+                    //_brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, null);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_POINT, (tagCollision.Collision.contactCount > 0) ? tagCollision.Collision.contacts[0].point : Vector3.zero);
+                    _brain.Variables.Set(MonaBrainConstants.RESULT_HIT_NORMAL, (tagCollision.Collision.contactCount > 0) ? tagCollision.Collision.contacts[0].normal : Vector3.zero);
+                    return Complete(InstructionTileResult.Success);
+                }
+            }
+
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
         }
     }

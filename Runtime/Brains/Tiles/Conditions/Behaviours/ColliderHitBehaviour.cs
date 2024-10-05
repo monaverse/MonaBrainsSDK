@@ -20,12 +20,24 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
     public struct TagCollision
     {
         public Collision Collision;
+        public Collider Collider;
         public IMonaBody Body;
         public int Frame;
         public Vector3 Position;
+
         public TagCollision(IMonaBody body, Collision collision, Vector3 pos, int frame)
         {
             Body = body;
+            Collider = null;
+            Collision = collision;
+            Frame = frame;
+            Position = pos;
+        }
+
+        public TagCollision(Collider collider, Collision collision, Vector3 pos, int frame)
+        {
+            Body = null;
+            Collider = collider;
             Collision = collision;
             Frame = frame;
             Position = pos;
@@ -41,8 +53,14 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
         private IMonaBrainPage _page;
         private string _monaTag;
         private List<TagCollision> _bodiesThatHit = new List<TagCollision>();
+        private List<TagCollision> _collidersThatHit = new List<TagCollision>();
+
         private List<IMonaBody> _bodiesThatStayed = new List<IMonaBody>();
+        private List<Collider> _collidersThatStayed = new List<Collider>();
+
         private List<IMonaBody> _bodiesThatLeft = new List<IMonaBody>();
+        private List<Collider> _collidersThatLeft = new List<Collider>();
+
         private Action<MonaLateTickEvent> OnLateTick;
 
         public string MonaTag => _monaTag;
@@ -164,7 +182,52 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                                 _lastPosition = hitInfo.point - Vector3.Scale(dir.normalized, _collider.bounds.extents);
                             }
                         }
-                        Debug.Log($"Added collision {_lastPosition} {_brain.Body.ActiveRigidbody.position} {_brain.Body.ActiveTransform.position}", _brain.Body.Transform.gameObject);
+                       // Debug.Log($"Added collision {_lastPosition} {_brain.Body.ActiveRigidbody.position} {_brain.Body.ActiveTransform.position}", _brain.Body.Transform.gameObject);
+                        MonaEventBus.Trigger(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), new MonaBodyEvent(MonaBodyEventType.OnStop));
+                        _brain.Body.TeleportPosition(_lastPosition, true);
+                    }
+
+                    //Debug.Log($"Added collision {body.ActiveTransform.name} {_monaTag} {Time.frameCount}");
+                    MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnCollisionEnter));
+                    //_bodiesThatHit.Clear();
+                }
+            }
+            else if (collision.collider.tag == _monaTag)
+            {
+                Debug.Log($"{nameof(ColliderHitBehaviour)} {_monaTag} {collision.collider}", collision.collider.gameObject);
+                var found = false;
+                for (var i = 0; i < _collidersThatHit.Count; i++)
+                {
+                    if (_collidersThatHit[i].Collider == collision.collider)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!_collidersThatStayed.Contains(collision.collider))
+                    _collidersThatStayed.Add(collision.collider);
+
+                if (!found)
+                {
+                    if (_brain.Body.ActiveRigidbody != null)
+                        _collidersThatHit.Add(new TagCollision(collision.collider, collision, _brain.Body.ActiveRigidbody.position, Time.frameCount));
+                    else
+                        _collidersThatHit.Add(new TagCollision(collision.collider, collision, _brain.Body.ActiveTransform.position, Time.frameCount));
+
+                    if (_brain.Body.ActiveRigidbody == null || _brain.Body.ActiveRigidbody.isKinematic)
+                    {
+                        var dir = _brain.Body.ActiveRigidbody.position - _lastPosition;
+                        RaycastHit hitInfo;
+                        if (UnityEngine.Physics.Raycast(_lastPosition, dir, out hitInfo, 1f))
+                        {
+                            if (hitInfo.collider != null && hitInfo.collider != _collider)
+                            {
+                                //Debug.Log($"passthrough {hitInfo.collider} {_collider.bounds.extents} {dir}");
+                                _lastPosition = hitInfo.point - Vector3.Scale(dir.normalized, _collider.bounds.extents);
+                            }
+                        }
+                        // Debug.Log($"Added collision {_lastPosition} {_brain.Body.ActiveRigidbody.position} {_brain.Body.ActiveTransform.position}", _brain.Body.Transform.gameObject);
                         MonaEventBus.Trigger(new EventHook(MonaCoreConstants.MONA_BODY_EVENT, _brain.Body), new MonaBodyEvent(MonaBodyEventType.OnStop));
                         _brain.Body.TeleportPosition(_lastPosition, true);
                     }
@@ -191,6 +254,16 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
 
                 MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnCollisionExit));
             }
+            else if(body == null && collision.collider.CompareTag(_monaTag))
+            {
+                if (!_collidersThatLeft.Contains(collision.collider))
+                    _collidersThatLeft.Add(collision.collider);
+
+                if (_collidersThatStayed.Contains(collision.collider))
+                    _collidersThatStayed.Remove(collision.collider);
+
+                MonaEventBus.Trigger<InstructionEvent>(new EventHook(MonaBrainConstants.TRIGGER_EVENT, _brain), new InstructionEvent(MonaTriggerType.OnCollisionExit));
+            }
         }
 
         private void HandleLateTick(MonaLateTickEvent evt)
@@ -208,12 +281,24 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
                     _bodiesThatHit.RemoveAt(i);
                 }
             }
+
+            for (var i = _collidersThatHit.Count - 1; i >= 0; i--)
+            {
+                if (_collidersThatHit[i].ShouldClear())
+                {
+                    //Debug.Log($"remove hit collision {_bodiesThatHit[i].Frame} {_monaTag} {Time.frameCount} {Time.frameCount - _bodiesThatHit[i].Frame} {_bodiesThatHit[i].ShouldClear()} {_bodiesThatHit[i].Body.ActiveTransform.name}");
+                    _collidersThatHit.RemoveAt(i);
+                }
+            }
         }
 
         public List<TagCollision> BodiesThatHit => _bodiesThatHit;
         public List<IMonaBody> BodiesThatStayed => _bodiesThatStayed;
         public List<IMonaBody> BodiesThatLeft => _bodiesThatLeft;
 
-        
+        public List<TagCollision> CollidershatHit => _collidersThatHit;
+        public List<Collider> CollidersThatStayed => _collidersThatStayed;
+        public List<Collider> CollidersThatLeft => _collidersThatLeft;
+
     }
 }

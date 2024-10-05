@@ -155,6 +155,23 @@ namespace Mona.SDK.Brains.Tiles.Conditions
                     return Complete(InstructionTileResult.Success);
                 }
             }
+
+            var colliders = _collider.CollidersThatStayed;
+            if (colliders.Count > 0)
+            {
+                var collider = colliders[0];
+
+                if (collider != null)
+                {
+                    if (_brain.LoggingEnabled)
+                        Debug.Log($"{nameof(OnTouchingInstructionTile)}.{nameof(Do)} found: {_tag} {collider}", _brain.Body.ActiveTransform.gameObject);
+
+                    //_brain.Variables.Set(MonaBrainConstants.RESULT_TARGET, null);
+                    return Complete(InstructionTileResult.Success);
+                }
+            }
+
+
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.NOTHING_CLOSE_BY);
         }
     }
