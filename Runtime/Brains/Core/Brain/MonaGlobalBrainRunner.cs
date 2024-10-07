@@ -82,7 +82,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private List<MonaRemotePlayer> _otherPlayers = new List<MonaRemotePlayer>();
         public List<MonaRemotePlayer> OtherPlayers => _otherPlayers;
 
-        public IMonaBody PlayerBody { get => _playerBody; set => _playerBody = value; } 
+        public IMonaBody PlayerBody { get => _playerBody; set => _playerBody = value; }
         public IMonaBody PlayerCameraBody { get => _playerCameraBody; set => _playerCameraBody = value; }
         public Camera PlayerCamera { get => _playerCamera; set => _playerCamera = value; }
         public int PlayerId { get => _playerId; set => _playerId = value; }
@@ -91,7 +91,7 @@ namespace Mona.SDK.Brains.Core.Brain
         public int GetPlayerIdByBody(IMonaBody body)
         {
             if (body == PlayerBody) return PlayerId;
-            for(var i = 0;i < _otherPlayers.Count; i++)
+            for (var i = 0; i < _otherPlayers.Count; i++)
             {
                 var otherPlayer = _otherPlayers[i];
                 if (otherPlayer.Body == body)
@@ -134,7 +134,8 @@ namespace Mona.SDK.Brains.Core.Brain
             Application.platform == RuntimePlatform.Android;
 
         private static MonaGlobalBrainRunner _instance;
-        public static MonaGlobalBrainRunner Instance {
+        public static MonaGlobalBrainRunner Instance
+        {
             get
             {
                 Init();
@@ -275,7 +276,7 @@ namespace Mona.SDK.Brains.Core.Brain
         private void HandleMonaBodyInstantiated(MonaBodyInstantiatedEvent evt)
         {
 #if (!OLYMPIA)
-            if(NetworkSettings.NetworkType == MonaNetworkType.None)
+            if (NetworkSettings.NetworkType == MonaNetworkType.None)
                 MonaEventBus.Trigger(new EventHook(MonaCoreConstants.NETWORK_SPAWNER_STARTED_EVENT, evt.Body), new NetworkSpawnerStartedEvent(null));
 #endif
         }
@@ -318,7 +319,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
         public IMonaTagItem GetTag(string tag)
         {
-            for(var i = 0;i < _monaTags.Count;i++)
+            for (var i = 0; i < _monaTags.Count; i++)
             {
                 if (_monaTags[i].HasTag(tag))
                     return _monaTags[i].GetTag(tag);
@@ -339,14 +340,14 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             var allGlobalRunners = new List<MonaGlobalBrainRunner>(GameObject.FindObjectsByType<MonaGlobalBrainRunner>(FindObjectsSortMode.None));
             allGlobalRunners.Remove(MonaGlobalBrainRunner.Instance);
-            
+
             /* if there are multiple instances of mona global brain, make sure all the player graphs are added */
-            if(allGlobalRunners.Count > 0)
+            if (allGlobalRunners.Count > 0)
             {
                 for (var i = 0; i < allGlobalRunners.Count; i++)
                 {
                     var otherRunner = allGlobalRunners[i];
-                    for(var j = 0; j < otherRunner.PlayerBrainGraphs.Count; j++)
+                    for (var j = 0; j < otherRunner.PlayerBrainGraphs.Count; j++)
                     {
                         var brain = otherRunner.PlayerBrainGraphs[j];
                         if (!MonaGlobalBrainRunner.Instance.PlayerBrainGraphs.Contains(brain))
@@ -402,10 +403,10 @@ namespace Mona.SDK.Brains.Core.Brain
             if (PlayerBrainGraphs.Count > 0)
             {
                 Debug.Log($"ATTACHING {PlayerBrainGraphs.Count} BRAINS TO PLAYER");
-                for (var i = 0;i < PlayerBrainGraphs.Count; i++)
+                for (var i = 0; i < PlayerBrainGraphs.Count; i++)
                     runner.AddBrainGraph(PlayerBrainGraphs[i]);
 
-                runner.StartBrains(force:true);
+                runner.StartBrains(force: true);
             }
             else
             {
@@ -495,7 +496,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 _brainSocialUser = socialComponents[0];
         }
 
-        
+
 
         private void SetupLeaderboards()
         {
