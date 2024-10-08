@@ -369,7 +369,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                     StartStandardPageProcess();
                 }
 
-                if ((_pageProcessingState != BoardProcessingState.NotProcessing && _pageProcessingState != BoardProcessingState.ProcessComplete) || (_userProcessingState != BoardProcessingState.NotProcessing && _userProcessingState != BoardProcessingState.ProcessComplete))
+                if ((_pageProcessingState != BoardProcessingState.NotProcessing && _pageProcessingState != BoardProcessingState.ProcessComplete) || _userProcessingState != BoardProcessingState.NotProcessing)
                     AddFixedTickDelegate();
             }
 
