@@ -109,8 +109,8 @@ namespace Mona.SDK.Brains.Core.Brain
         private IBrainSocialPlatformUserAsync _brainSocialUser;
         public IBrainSocialPlatformUserAsync BrainSocialUser { get => _brainSocialUser; set => _brainSocialUser = value; }
 
-        private IBrainLeaderboard _brainLeaderboards;
-        public IBrainLeaderboard BrainLeaderboards { get => _brainLeaderboards; set => _brainLeaderboards = value; }
+        private IBrainLeaderboardAsync _brainLeaderboards;
+        public IBrainLeaderboardAsync BrainLeaderboards { get => _brainLeaderboards; set => _brainLeaderboards = value; }
 
         private IBrainStorageAsync _localStorage;
         public IBrainStorageAsync LocalStorage { get => _localStorage; set => _localStorage = value; }
@@ -505,7 +505,7 @@ namespace Mona.SDK.Brains.Core.Brain
             if (_leaderboardDisplay == null)
                 _leaderboardDisplay = gameObject.AddComponent(typeof(LeaderboardDisplayController)) as LeaderboardDisplayController;
 
-            var leaderboardComponents = InterfaceFinder.FindComponentsWithInterface<IBrainLeaderboard>();
+            var leaderboardComponents = InterfaceFinder.FindComponentsWithInterface<IBrainLeaderboardAsync>();
 
             if (leaderboardComponents.Length > 0)
             {

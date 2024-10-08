@@ -13,6 +13,7 @@ using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Core.Utils;
+using System.Threading.Tasks;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 {
@@ -57,9 +58,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 
         private bool _active;
         private bool _isRunning;
+        private bool _leaderboardProcessed;
         private IMonaBrain _brain;
         private MonaGlobalBrainRunner _globalBrainRunner;
-        private IBrainLeaderboard _leaderboard;
+        private IBrainLeaderboardAsync _leaderboard;
         private BrainProcess _serverProcess;
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
@@ -161,6 +163,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
             if (_leaderboard == null || _serverProcess == null || _serverProcess.IsProcessing)
                 return;
 
+            _leaderboardProcessed = false;
+
             if (_serverProcess.WasSuccessful)
             {
                 LeaderboardScore score = _serverProcess.GetUserScore();
@@ -189,6 +193,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
             if (_brain == null || _globalBrainRunner == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
+            _leaderboardProcessed = false;
+
             if (!_isRunning)
             {
                 if (!string.IsNullOrEmpty(_leaderboardNameName))
@@ -208,18 +214,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                         return Complete(InstructionTileResult.Success);
                 }
 
-                switch (_userType)
-                {
-                    case LeaderboardUserType.ClientUser:
-                        _serverProcess = _leaderboard.LoadClientScore(_leaderboardName, (int)_scoresPerPage);
-                        break;
-                    case LeaderboardUserType.DefinedUser:
-                        _serverProcess = _leaderboard.LoadUserScore(_leaderboardName, _username, (int)_scoresPerPage);
-                        break;
-                }
+                ProcessLeaderboard();
 
-                AddFixedTickDelegate();
+                if (!_leaderboardProcessed)
+                    AddFixedTickDelegate();
             }
+
+            if (!_leaderboardProcessed || _serverProcess != null)
+                return Complete(InstructionTileResult.Running);
 
             if (_serverProcess != null)
                 return Complete(InstructionTileResult.Running);
@@ -228,6 +230,21 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                 _brain.Variables.Set(_storeSuccessOn, false);
 
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+        }
+
+        private async Task ProcessLeaderboard()
+        {
+            switch (_userType)
+            {
+                case LeaderboardUserType.ClientUser:
+                    _serverProcess = await _leaderboard.LoadClientScore(_leaderboardName, (int)_scoresPerPage);
+                    break;
+                case LeaderboardUserType.DefinedUser:
+                    _serverProcess = await _leaderboard.LoadUserScore(_leaderboardName, _username, (int)_scoresPerPage);
+                    break;
+            }
+
+            _leaderboardProcessed = true;
         }
     }
 }

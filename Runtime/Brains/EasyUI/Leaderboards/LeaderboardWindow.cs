@@ -21,6 +21,7 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
         [SerializeField] private string _fallbackDataKeyName = "Leaderboard_Panel_Data_Key";
         [SerializeField] private string _fallbackDataUserName = "Leaderboard_Panel_Data_Player";
         [SerializeField] private Color[] _colors;
+        [SerializeField] private ActivationSettings[] _loadFailureActivations;
         [SerializeField] private UnityEvent _onOpen;
         [SerializeField] private UnityEvent _onClose;
 
@@ -35,6 +36,25 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
             {
                 _page = value;
                 UpdatePageVisual();
+            }
+        }
+
+        [System.Serializable]
+        public struct ActivationSettings
+        {
+            [SerializeField] private bool _setActive;
+            [SerializeField] private GameObject _activationObject;
+
+            public bool SetActive => _setActive;
+            public GameObject ActivationObject => _activationObject;
+
+            public void SetActivation(bool invert = false)
+            {
+                if (_activationObject == null)
+                    return;
+
+                bool activate = invert ? !_setActive : _setActive;
+                _activationObject.SetActive(activate);
             }
         }
 
@@ -65,6 +85,14 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
 
             foreach (Transform child in _dataPanel)
                 Destroy(child.gameObject);
+
+            ProcessActivationSettings(_loadFailureActivations, true);
+
+            if (!_page.RetrievalSuccess)
+            {
+                ProcessActivationSettings(_loadFailureActivations, false);
+                return;
+            }
 
             int entryCount = _page.EntryCount;
             Instantiate(_dataKeyPrefab, _dataPanel);
@@ -126,6 +154,17 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
         public void Deactivate()
         {
             gameObject.SetActive(false);
+        }
+
+        private void ProcessActivationSettings(ActivationSettings[] settings, bool invertActivation = false)
+        {
+            if (settings == null)
+                return;
+
+            for (int i = 0; i < settings.Length; i++)
+            {
+                settings[i].SetActivation(invertActivation);
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
         public string ID;
         public string Title;
         public int CurrentPage;
+        public bool RetrievalSuccess;
         public bool AlwaysShowClient = true;
         public TimeScope Scope;
         public Range BoardRange;

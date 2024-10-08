@@ -9,7 +9,7 @@ using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Core.Utils.Enums;
 using Mona.SDK.Brains.Tiles.Actions.Leaderboards.Enums;
-
+using System.Threading.Tasks;
 using Mona.SDK.Core;
 using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
@@ -49,9 +49,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 
         private bool _active;
         private bool _isRunning;
+        private bool _postProcessed;
         private IMonaBrain _brain;
         private MonaGlobalBrainRunner _globalBrainRunner;
-        private IBrainLeaderboard _leaderboard;
+        private IBrainLeaderboardAsync _leaderboard;
         private BrainProcess _serverProcess;
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
 
@@ -166,6 +167,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
             if (_brain == null || _globalBrainRunner == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
+            _postProcessed = false;
+
             if (!_isRunning)
             {
                 if (!string.IsNullOrEmpty(_leaderboardNameName))
@@ -183,26 +186,34 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                     if (_leaderboard == null) return Complete(InstructionTileResult.Success);
                 }
 
-                switch (_userType)
-                {
-                    case LeaderboardUserType.ClientUser:
-                        _serverProcess = _leaderboard.PostToLeaderboard(_score, _leaderboardName);
-                        break;
-                    case LeaderboardUserType.DefinedUser:
-                        _serverProcess = _leaderboard.PostToLeaderboard(_score, _leaderboardName, _username);
-                        break;
-                }
+                ProcessLeaderboardPost();
 
-                AddFixedTickDelegate();
+                if (!_postProcessed)
+                    AddFixedTickDelegate();
             }
 
-            if (_serverProcess != null)
+            if (!_postProcessed || _serverProcess != null)
                 return Complete(InstructionTileResult.Running);
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, false);
 
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+        }
+
+        private async Task ProcessLeaderboardPost()
+        {
+            switch (_userType)
+            {
+                case LeaderboardUserType.ClientUser:
+                    _serverProcess = await _leaderboard.PostToLeaderboard(_score, _leaderboardName);
+                    break;
+                case LeaderboardUserType.DefinedUser:
+                    _serverProcess = await _leaderboard.PostToLeaderboard(_score, _leaderboardName, _username);
+                    break;
+            }
+
+            _postProcessed = true;
         }
     }
 }

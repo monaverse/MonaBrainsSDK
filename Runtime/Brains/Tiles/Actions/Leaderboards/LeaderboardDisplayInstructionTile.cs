@@ -17,6 +17,8 @@ using Unity.VisualScripting;
 using Mona.SDK.Core.Utils;
 using UnityEngine.SocialPlatforms;
 using Mona.SDK.Brains.EasyUI.Leaderboards;
+using System.Threading.Tasks;
+using Mona.SDK.Brains.Core.Utils.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 {
@@ -59,6 +61,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
         [BrainProperty(false)] public float ScoresPerPage { get => _scoresPerPage; set => _scoresPerPage = value; }
         [BrainPropertyValueName("ScoresPerPage", typeof(IMonaVariablesFloatValue))] public string ScoresPerPageName { get => _scoresPerPageName; set => _scoresPerPageName = value; }
 
+        [SerializeField] private LeaderboardOrderType _scoreOrder = LeaderboardOrderType.Default;
+        [BrainPropertyEnum(false)] public LeaderboardOrderType ScoreOrder { get => _scoreOrder; set => _scoreOrder = value; }
+
         [SerializeField] private bool _alwaysShowClient = true;
         [SerializeField] private string _alwaysShowClientName;
         [BrainProperty(false)] public bool AlwaysShowClient { get => _alwaysShowClient; set => _alwaysShowClient = value; }
@@ -81,10 +86,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
         private int _truePageIndex;
         private bool _active;
         private bool _isRunning;
+        private readonly string _failedLeaderboardTitle = "Leaderboard Error";
+
+        private BoardProcessingState _pageProcessingState = BoardProcessingState.NotProcessing;
+        private BoardProcessingState _userProcessingState = BoardProcessingState.NotProcessing;
         private IMonaBrain _brain;
         private MonaGlobalBrainRunner _globalBrainRunner;
         private LeaderboardDisplayController _leaderboardDisplay;
-        private IBrainLeaderboard _leaderboardServer;
+        private IBrainLeaderboardAsync _leaderboardServer;
         private BrainProcess _pageProcess;
         private BrainProcess _userProcess;
         private Action<MonaBodyFixedTickEvent> OnFixedTick;
@@ -96,6 +105,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 
         private bool PageLoadRequiresUserData => _alwaysShowClient || _pageToLoad == PageDisplay.ClientPage || _pageToLoad == PageDisplay.UserPage;
         public UIDisplayType DisplayAlternateName => _useAlternateTitle ? UIDisplayType.Show : UIDisplayType.Hide;
+
+        private bool UserIsProcessing => _userProcessingState == BoardProcessingState.CanProcess || _userProcessingState == BoardProcessingState.ProcessStarted || (_userProcess != null && _userProcess.IsProcessing);
+        private bool PageIsProcessing => _pageProcessingState == BoardProcessingState.CanProcess || _pageProcessingState == BoardProcessingState.ProcessStarted || (_pageProcess != null && _pageProcess.IsProcessing);
+        private bool AnyProcessing => UserIsProcessing || PageIsProcessing;
 
         public enum UIDisplayType
         {
@@ -110,6 +123,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
             UserPage = 10,
             FirstPage = 20,
             PageIndex = 30
+        }
+
+        public enum BoardProcessingState
+        {
+            NotProcessing = 0,
+            CanProcess = 10,
+            ProcessStarted = 20,
+            ProcessComplete = 30
         }
 
         public LeaderboardDisplayInstructionTile() { }
@@ -208,15 +229,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 
         private void FixedTick()
         {
-            if (_leaderboardServer == null)
-                return;
-
             if (PageLoadRequiresUserData)
             {
-                if (_userProcess == null || _userProcess.IsProcessing)
+                if (UserIsProcessing)
                     return;
 
-                if (_pageProcess == null)
+                if (_pageProcess == null && _pageProcessingState == BoardProcessingState.NotProcessing)
                 {
                     _clientScore = _userProcess.GetUserScore();
                     _truePageIndex = 0;
@@ -233,18 +251,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                     }
 
                     _pageRange = new UnityEngine.SocialPlatforms.Range(_truePageIndex, (int)_scoresPerPage);
-                    _pageProcess = _leaderboardServer.LoadScores(_leaderboardName, _scope, _pageRange);
+                    ProcessPageData();
                 }
             }
 
-            if (_userProcess != null && _pageProcess == null)
+            if (_userProcessingState != BoardProcessingState.NotProcessing && _pageProcessingState == BoardProcessingState.NotProcessing)
             {
                 StartStandardPageProcess();
                 return;
             }
 
-            if (_pageProcess == null || _pageProcess.IsProcessing)
+            if (PageIsProcessing)
+            {
                 return;
+            }
+
+            // *************************************************
+            // PAGE AND (OPTIONAL) USER DATA PROCESSING COMPLETE
+            // DISPLAY LEADERBOARD WINDOW
+            // *************************************************
 
             if (_pageProcess.WasSuccessful)
             {
@@ -255,6 +280,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                     ID = _leaderboardName,
                     Title = title,
                     CurrentPage = _truePageIndex,
+                    RetrievalSuccess = true,
                     AlwaysShowClient = _alwaysShowClient,
                     BoardRange = _pageRange,
                     EntriesPerPage = (int)_scoresPerPage,
@@ -268,11 +294,27 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                 _window.Display();
                 _window.Page = page;
             }
+            else
+            {
+                string title = _useAlternateTitle ? _alternateTitle : _failedLeaderboardTitle;
 
-            _isRunning = false;
+                LeaderboardPage page = new LeaderboardPage
+                {
+                    ID = _leaderboardName,
+                    Title = title,
+                    RetrievalSuccess = false
+                };
+
+                _window.Display();
+                _window.Page = page;
+            }
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, _pageProcess.WasSuccessful);
+
+            _pageProcessingState = BoardProcessingState.NotProcessing;
+            _userProcessingState = BoardProcessingState.NotProcessing;
+            _isRunning = false;
 
             Complete(InstructionTileResult.Success, true);
         }
@@ -313,24 +355,25 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                         return Complete(InstructionTileResult.Success);
                 }
 
+                _userProcessingState = BoardProcessingState.NotProcessing;
+                _pageProcessingState = BoardProcessingState.NotProcessing;
                 _pageProcess = null;
                 _userProcess = null;
 
                 if (PageLoadRequiresUserData)
                 {
-                    _userProcess = _pageToLoad == PageDisplay.UserPage ?
-                        _leaderboardServer.LoadUserScore(_leaderboardName, _username, (int)_scoresPerPage) :
-                        _leaderboardServer.LoadClientScore(_leaderboardName, (int)_scoresPerPage);
+                    ProcessUserData();
                 }
                 else
                 {
                     StartStandardPageProcess();
                 }
 
-                AddFixedTickDelegate();
+                if ((_pageProcessingState != BoardProcessingState.NotProcessing && _pageProcessingState != BoardProcessingState.ProcessComplete) || (_userProcessingState != BoardProcessingState.NotProcessing && _userProcessingState != BoardProcessingState.ProcessComplete))
+                    AddFixedTickDelegate();
             }
 
-            if (_pageProcess != null || _userProcess != null)
+            if (AnyProcessing)
                 return Complete(InstructionTileResult.Running);
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
@@ -339,11 +382,30 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
             return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
         }
 
-        private void StartStandardPageProcess()
+        private async Task ProcessUserData()
         {
+            _userProcessingState = BoardProcessingState.CanProcess;
+            _userProcessingState = BoardProcessingState.ProcessStarted;
+            _userProcess = _pageToLoad == PageDisplay.UserPage ?
+                        await _leaderboardServer.LoadUserScore(_leaderboardName, _username, (int)_scoresPerPage) :
+                        await _leaderboardServer.LoadClientScore(_leaderboardName, (int)_scoresPerPage);
+
+            _userProcessingState = BoardProcessingState.ProcessComplete;
+        }
+
+        private async Task StartStandardPageProcess()
+        {
+            _pageProcessingState = BoardProcessingState.CanProcess;
             _truePageIndex = _pageToLoad == PageDisplay.PageIndex ? (int)_pageIndex : 0;
             _pageRange = new UnityEngine.SocialPlatforms.Range(_truePageIndex, (int)_scoresPerPage);
-            _pageProcess = _leaderboardServer.LoadScores(_leaderboardName, _scope, _pageRange);
+            await ProcessPageData();
+        }
+
+        private async Task ProcessPageData()
+        {
+            _pageProcessingState = BoardProcessingState.ProcessStarted;
+            _pageProcess = await _leaderboardServer.LoadScores(_leaderboardName, _scope, _pageRange, _scoreOrder);
+            _pageProcessingState = BoardProcessingState.ProcessComplete;
         }
     }
 }
