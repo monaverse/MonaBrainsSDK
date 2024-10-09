@@ -1,3 +1,7 @@
+# MonaBrainsSDK 0.22.0
+
+**Full Changelog**: https://github.com/monaverse/MonaBrainsSDK/compare/0.21.0...0.22.0
+
 # MonaBrainsSDK 0.21.0
 
 **Full Changelog**: https://github.com/monaverse/MonaBrainsSDK/compare/0.20.0...0.21.0
