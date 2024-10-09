@@ -216,13 +216,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 
                 ProcessLeaderboard();
 
-                if (!_leaderboardProcessed)
+                if (_serverProcess != null)
                     AddFixedTickDelegate();
             }
 
-            if (!_leaderboardProcessed || _serverProcess != null)
+            if(_serverProcess != null)
                 return Complete(InstructionTileResult.Running);
-
+            
             if (_serverProcess != null)
                 return Complete(InstructionTileResult.Running);
 

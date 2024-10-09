@@ -165,13 +165,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
 
                 ProcessLogin();
 
-                if(!_loginProcessed)
+                if(_serverProcess != null)
                     AddFixedTickDelegate();
             }
 
-            if (_serverProcess != null)
-                return _loginProcessed ? Complete(InstructionTileResult.Success) : Complete(InstructionTileResult.Running);
-
+            if(_serverProcess != null)
+                return Complete(InstructionTileResult.Running);
+            
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, false);
 

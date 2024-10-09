@@ -188,13 +188,13 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 
                 ProcessLeaderboardPost();
 
-                if (!_postProcessed)
+                if (_serverProcess != null)
                     AddFixedTickDelegate();
             }
 
-            if (!_postProcessed || _serverProcess != null)
+            if (_serverProcess != null)
                 return Complete(InstructionTileResult.Running);
-
+            
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, false);
 
@@ -212,8 +212,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                     _serverProcess = await _leaderboard.PostToLeaderboard(_score, _leaderboardName, _username);
                     break;
             }
-
-            _postProcessed = true;
         }
     }
 }

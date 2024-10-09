@@ -192,11 +192,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
 
                 ProcessLogin();
 
-                if(!_processLogin)
+                if(_serverProcess != null)
                     AddFixedTickDelegate();
             }
 
-            return _processLogin ? Complete(InstructionTileResult.Success) : Complete(InstructionTileResult.Running);
+            if(_serverProcess != null)
+                return Complete(InstructionTileResult.Running);
 
             if (!string.IsNullOrEmpty(_storeSuccessOn))
                 _brain.Variables.Set(_storeSuccessOn, false);
@@ -210,7 +211,6 @@ namespace Mona.SDK.Brains.Tiles.Actions.SocialUser
                 _serverProcess = await _socialPlatformUser.LoginUser(_username, _password);
             else
                 _serverProcess = await _socialPlatformUser.LoginUser(_username);
-            _processLogin = true;
         }
     }
 }
