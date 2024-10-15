@@ -1,0 +1,2707 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &91475266086765063
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2108746748547841994}
+  - component: {fileID: 7094389689655141798}
+  - component: {fileID: 5042312698626705845}
+  m_Layer: 5
+  m_Name: Pointer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2108746748547841994
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 91475266086765063}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5193745064510223285}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 256, y: 256}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &7094389689655141798
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 91475266086765063}
+  m_CullTransparentMesh: 1
+--- !u!114 &5042312698626705845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 91475266086765063}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &1387758584453839975
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1135491204818416061}
+  - component: {fileID: 1581861742085922178}
+  - component: {fileID: 795843920970644177}
+  - component: {fileID: 6076528884006641174}
+  m_Layer: 5
+  m_Name: Prefab_EasyUIScreenInputCanvas
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1135491204818416061
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387758584453839975}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1928442503292134429}
+  - {fileID: 2586229405250500362}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
+--- !u!223 &1581861742085922178
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387758584453839975}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 1
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: -1
+  m_TargetDisplay: 0
+--- !u!114 &795843920970644177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387758584453839975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UiScaleMode: 1
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 1000, y: 1000}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 1
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
+--- !u!114 &6076528884006641174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387758584453839975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!1 &2080315432008595338
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1856850242026470078}
+  - component: {fileID: 8052174357423580528}
+  - component: {fileID: 5520717160465777702}
+  m_Layer: 5
+  m_Name: Root
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1856850242026470078
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2080315432008595338}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5575424766679271600}
+  - {fileID: 4637826594300554599}
+  - {fileID: 2020347132448095260}
+  m_Father: {fileID: 2586229405250500362}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 256, y: 256}
+  m_SizeDelta: {x: 256, y: 256}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8052174357423580528
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2080315432008595338}
+  m_CullTransparentMesh: 0
+--- !u!114 &5520717160465777702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2080315432008595338}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.5019608}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &4971755851002087912
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2020347132448095260}
+  - component: {fileID: 9044053226735146095}
+  - component: {fileID: 6063545407096201263}
+  m_Layer: 5
+  m_Name: Handle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2020347132448095260
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4971755851002087912}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1856850242026470078}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 128, y: 128}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &9044053226735146095
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4971755851002087912}
+  m_CullTransparentMesh: 0
+--- !u!114 &6063545407096201263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4971755851002087912}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &5034397729938406234
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5193745064510223285}
+  - component: {fileID: 8311299680588219933}
+  - component: {fileID: 7827077998129223557}
+  m_Layer: 5
+  m_Name: Root
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5193745064510223285
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5034397729938406234}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7103637418753063920}
+  - {fileID: 2108746748547841994}
+  - {fileID: 1806729560752468928}
+  m_Father: {fileID: 1928442503292134429}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 256, y: 256}
+  m_SizeDelta: {x: 256, y: 256}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8311299680588219933
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5034397729938406234}
+  m_CullTransparentMesh: 0
+--- !u!114 &7827077998129223557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5034397729938406234}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.5019608}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &5551706883133667264
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4637826594300554599}
+  - component: {fileID: 739001085392283885}
+  - component: {fileID: 8782209288187885919}
+  m_Layer: 5
+  m_Name: Pointer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &4637826594300554599
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5551706883133667264}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1856850242026470078}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 256, y: 256}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &739001085392283885
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5551706883133667264}
+  m_CullTransparentMesh: 1
+--- !u!114 &8782209288187885919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5551706883133667264}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &6920953592220522669
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1806729560752468928}
+  - component: {fileID: 576646255148980459}
+  - component: {fileID: 3529960646688604781}
+  m_Layer: 5
+  m_Name: Handle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1806729560752468928
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6920953592220522669}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5193745064510223285}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 128, y: 128}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &576646255148980459
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6920953592220522669}
+  m_CullTransparentMesh: 0
+--- !u!114 &3529960646688604781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6920953592220522669}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &7996189340540901802
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1928442503292134429}
+  - component: {fileID: 7311330248313126098}
+  - component: {fileID: 3288779997212410014}
+  - component: {fileID: 5470621896222120738}
+  m_Layer: 5
+  m_Name: Pad_Left
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &1928442503292134429
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7996189340540901802}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5193745064510223285}
+  m_Father: {fileID: 1135491204818416061}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
+--- !u!222 &7311330248313126098
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7996189340540901802}
+  m_CullTransparentMesh: 1
+--- !u!114 &3288779997212410014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7996189340540901802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5470621896222120738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7996189340540901802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f0e50f2b8b5843cbacf5f3142a6e221, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ScreenSide: 0
+  _opposingJoypad: {fileID: 6100297015960604444}
+  _parameters:
+    Enabled: 1
+    InputType: 0
+    Axes: 0
+    ControlType: 0
+    Placement: 10
+    MoveMagnitude: 0
+    Visiblity: 0
+    _deadZone: 0.25
+    _size: 1
+    _handleExtents: 1
+    _trackingThreshold: 1
+    _startLocation: {x: 0.15, y: 0.5}
+  _visuals:
+    AnalogVisuals:
+      AllVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: e1e58db3bdab548c394716bfda56d2df, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      EightWayVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 93e38aee487c445748bff3dab7266f2f, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      FourWayVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 8828a6bec7d08484784a61374b22c243, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      HorizontalVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: a6fd19b16cd93430ca06a492fffe2036, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      VerticalVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 2e87e3ac5ad61487aaa8848af8e5eae1, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      UpVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: f5d19026e465e46b0a3ce05333bd7c62, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      DownVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 66d3e35a9c5a043c49f8de999eec7ed2, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      LeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 5a97839ce2f844812a177081df8d4c55, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      RightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 3af2019ac9ca944c9805beea86a2c732, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      HalfCircleUpVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 2a2ef8ad7eb3148a3b60ac5163169fa6, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      HalfCircleDownVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 8f99b7d09d1e84df3a1b55f5ca5866d2, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      HalfCircleLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: ecb244537261140a699a6c6b79a912e7, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      HalfCircleRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 0fd0d1ce9db904816bfaf462d72b2530, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      UpAndLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 2af7d2dd6292f4fe88cfa9a30ca70953, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      UpAndRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: b0d65abb31dca48a7a8a06d90b62532d, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      DownAndLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 0493ea8cfd92f499fa72e26731508e05, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      DownAndRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 5177327dc31694ed0ab33bd2c947b999, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+    DigitalVisuals:
+      AllVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 021c4f785e160406698749f995e32ee5, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: 50a06d437103d402ba60ae47d324a391, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 2
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      EightWayVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: dbe482ef24c744fe0aa53978b2a53acd, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: 50a06d437103d402ba60ae47d324a391, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 2
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      FourWayVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 8f0129321a5584c0da6fdbdfe8334a2f, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      HorizontalVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 6968295abf8aa4aa0adfb5a1b7aa9111, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      VerticalVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: e87e81a9144e948d5af5e82751779922, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      UpVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 20f77db5b86d2449e9cf816330fbf2a4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      DownVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 6cf26560d62e74a94bd4a90ac2633879, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      LeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 532e07d6334f54b88b9b581c41224ff8, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      RightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: bb27d5c58eda843199d2d395263f570f, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      HalfCircleUpVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 3df6d4e7225de43bda750e0be3795abe, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      HalfCircleDownVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 26a07574890f24d0892aa361a79e6d45, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      HalfCircleLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 80a2cc93d54ea4b698de58d3f65bc1c8, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      HalfCircleRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: faf96e43662604947abe62d19aac6a70, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      UpAndLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 1558f4a5bfaef4b939feca4acf11bd2e, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      UpAndRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 2366eb0e9d06349c1b304cc57732c2e0, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      DownAndLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: f56edf86e2c66409688e57350330c402, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      DownAndRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: dc138f15043ee4220af6d2c964dc32ea, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+  _rootRect: {fileID: 5193745064510223285}
+  _backgroundRect: {fileID: 7103637418753063920}
+  _handleRect: {fileID: 1806729560752468928}
+  _pointerRect: {fileID: 2108746748547841994}
+  _backgroundImage: {fileID: 94867765572558619}
+  _handleImage: {fileID: 3529960646688604781}
+  _pointerImage: {fileID: 5042312698626705845}
+--- !u!1 &8165071564863886444
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5575424766679271600}
+  - component: {fileID: 7007567385678688407}
+  - component: {fileID: 7496880579944714323}
+  m_Layer: 5
+  m_Name: Background
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5575424766679271600
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8165071564863886444}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1856850242026470078}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 256, y: 256}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &7007567385678688407
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8165071564863886444}
+  m_CullTransparentMesh: 1
+--- !u!114 &7496880579944714323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8165071564863886444}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &8468179486665593699
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7103637418753063920}
+  - component: {fileID: 2308471025790873987}
+  - component: {fileID: 94867765572558619}
+  m_Layer: 5
+  m_Name: Background
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7103637418753063920
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8468179486665593699}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5193745064510223285}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 256, y: 256}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &2308471025790873987
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8468179486665593699}
+  m_CullTransparentMesh: 1
+--- !u!114 &94867765572558619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8468179486665593699}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &9057814020346326785
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2586229405250500362}
+  - component: {fileID: 7817749859752260410}
+  - component: {fileID: 5120005423589203522}
+  - component: {fileID: 6100297015960604444}
+  m_Layer: 5
+  m_Name: Pad_Right
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &2586229405250500362
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9057814020346326785}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1856850242026470078}
+  m_Father: {fileID: 1135491204818416061}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
+--- !u!222 &7817749859752260410
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9057814020346326785}
+  m_CullTransparentMesh: 1
+--- !u!114 &5120005423589203522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9057814020346326785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6100297015960604444
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9057814020346326785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f0e50f2b8b5843cbacf5f3142a6e221, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ScreenSide: 10
+  _opposingJoypad: {fileID: 5470621896222120738}
+  _parameters:
+    Enabled: 1
+    InputType: 0
+    Axes: 0
+    ControlType: 0
+    Placement: 10
+    MoveMagnitude: 0
+    Visiblity: 0
+    _deadZone: 0.25
+    _size: 1
+    _handleExtents: 1
+    _trackingThreshold: 1
+    _startLocation: {x: 0.15, y: 0.5}
+  _visuals:
+    AnalogVisuals:
+      AllVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: e1e58db3bdab548c394716bfda56d2df, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      EightWayVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 93e38aee487c445748bff3dab7266f2f, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      FourWayVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 8828a6bec7d08484784a61374b22c243, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      HorizontalVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: a6fd19b16cd93430ca06a492fffe2036, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      VerticalVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 2e87e3ac5ad61487aaa8848af8e5eae1, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      UpVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: f5d19026e465e46b0a3ce05333bd7c62, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      DownVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 66d3e35a9c5a043c49f8de999eec7ed2, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      LeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 5a97839ce2f844812a177081df8d4c55, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      RightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 3af2019ac9ca944c9805beea86a2c732, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      HalfCircleUpVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 2a2ef8ad7eb3148a3b60ac5163169fa6, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      HalfCircleDownVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 8f99b7d09d1e84df3a1b55f5ca5866d2, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      HalfCircleLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: ecb244537261140a699a6c6b79a912e7, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      HalfCircleRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 0fd0d1ce9db904816bfaf462d72b2530, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      UpAndLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 2af7d2dd6292f4fe88cfa9a30ca70953, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      UpAndRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: b0d65abb31dca48a7a8a06d90b62532d, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      DownAndLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 0493ea8cfd92f499fa72e26731508e05, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+      DownAndRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 5177327dc31694ed0ab33bd2c947b999, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: c3d0850f4689a439fb6f436c6a8754b3, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2.25
+          _sizePixels: 256
+        InputScalesPointer: 10
+        _minScalePercentage: 0.5
+        InputFadesPointer: 10
+        _minFadePercentage: 0
+    DigitalVisuals:
+      AllVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 021c4f785e160406698749f995e32ee5, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: 50a06d437103d402ba60ae47d324a391, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 2
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      EightWayVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: dbe482ef24c744fe0aa53978b2a53acd, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 2
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 21300000, guid: 601694757f46046a8ac66577c2c7dbe4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: 50a06d437103d402ba60ae47d324a391, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 2
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      FourWayVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 8f0129321a5584c0da6fdbdfe8334a2f, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      HorizontalVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 6968295abf8aa4aa0adfb5a1b7aa9111, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      VerticalVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: e87e81a9144e948d5af5e82751779922, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      UpVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 20f77db5b86d2449e9cf816330fbf2a4, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      DownVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 6cf26560d62e74a94bd4a90ac2633879, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      LeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 532e07d6334f54b88b9b581c41224ff8, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      RightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: bb27d5c58eda843199d2d395263f570f, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      HalfCircleUpVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 3df6d4e7225de43bda750e0be3795abe, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      HalfCircleDownVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 26a07574890f24d0892aa361a79e6d45, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      HalfCircleLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 80a2cc93d54ea4b698de58d3f65bc1c8, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      HalfCircleRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: faf96e43662604947abe62d19aac6a70, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      UpAndLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 1558f4a5bfaef4b939feca4acf11bd2e, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      UpAndRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: 2366eb0e9d06349c1b304cc57732c2e0, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      DownAndLeftVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: f56edf86e2c66409688e57350330c402, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+      DownAndRightVisuals:
+        Background:
+          ElementSprite: {fileID: 21300000, guid: dc138f15043ee4220af6d2c964dc32ea, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 0
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        Handle:
+          ElementSprite: {fileID: 0}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 10
+          SizeType: 0
+          _sizePercentage: 0.5
+          _sizePixels: 128
+        Pointer:
+          ElementSprite: {fileID: 21300000, guid: ac998d236702a458a88e3aec35863bad, type: 3}
+          ElementColor: {r: 1, g: 1, b: 1, a: 1}
+          DisplayType: 20
+          SizeType: 0
+          _sizePercentage: 1
+          _sizePixels: 256
+        InputScalesPointer: 0
+        _minScalePercentage: 0.1
+        InputFadesPointer: 0
+        _minFadePercentage: 0.1
+  _rootRect: {fileID: 1856850242026470078}
+  _backgroundRect: {fileID: 5575424766679271600}
+  _handleRect: {fileID: 2020347132448095260}
+  _pointerRect: {fileID: 4637826594300554599}
+  _backgroundImage: {fileID: 7496880579944714323}
+  _handleImage: {fileID: 6063545407096201263}
+  _pointerImage: {fileID: 8782209288187885919}

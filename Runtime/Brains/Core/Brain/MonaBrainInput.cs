@@ -56,6 +56,9 @@ namespace Mona.SDK.Brains.Core.Brain
         private List<KeyState> _activeKeyListeners = new List<KeyState>();
         private IMonaBrainPlayer _player;
 
+        [HideInInspector] public Vector2 ScreenMoveVector = Vector2.zero;
+        [HideInInspector] public Vector2 ScreenLookVector = Vector2.zero;
+
         public const float DEAD_ZONE = .1f;
 
         private void Awake()
@@ -442,12 +445,34 @@ namespace Mona.SDK.Brains.Core.Brain
 
         protected void ProcessAxis(MonaInputType type, Vector2 value, float deadZone)
         {
-            if (type == MonaInputType.Move)
-                _moveValue = value;
-            else if (type == MonaInputType.Look)
-                _lookValue = value;
+            bool usingScreenInput = false;
 
-            if (value.magnitude > deadZone)
+            if (type == MonaInputType.Move)
+            {
+                if (value.magnitude < ScreenMoveVector.magnitude)
+                {
+                    usingScreenInput = true;
+                    _moveValue = ScreenMoveVector;
+                }
+                else
+                {
+                    _moveValue = value;
+                }
+            }
+            else if (type == MonaInputType.Look)
+            {
+                if (value.magnitude < ScreenLookVector.magnitude)
+                {
+                    usingScreenInput = true;
+                    _lookValue = ScreenMoveVector;
+                }
+                else
+                {
+                    _lookValue = value;
+                }
+            }
+
+            if (value.magnitude > deadZone || usingScreenInput)
                 PerformInput(type);
             else
                 ProcessAxis(MonaInputType.Move, _inputs.Player.Move);
@@ -456,13 +481,34 @@ namespace Mona.SDK.Brains.Core.Brain
         protected void ProcessAxis(MonaInputType type, InputAction action)
         {
             var value = action.ReadValue<Vector2>();
+            bool usingScreenInput = false;
 
             if (type == MonaInputType.Move)
-                _moveValue = value;
+            {
+                if (value.magnitude < ScreenMoveVector.magnitude)
+                {
+                    usingScreenInput = true;
+                    _moveValue = ScreenMoveVector;
+                }
+                else
+                {
+                    _moveValue = value;
+                }
+            }
             else if (type == MonaInputType.Look)
-                _lookValue = value;
+            {
+                if (value.magnitude < ScreenLookVector.magnitude)
+                {
+                    usingScreenInput = true;
+                    _lookValue = ScreenMoveVector;
+                }
+                else
+                {
+                    _lookValue = value;
+                }
+            }
 
-            if (value.magnitude > DEAD_ZONE)
+            if (value.magnitude > DEAD_ZONE || usingScreenInput)
                 PerformInput(type);
             else
                 ReleaseInput(type);

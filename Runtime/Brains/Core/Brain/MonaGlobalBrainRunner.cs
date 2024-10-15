@@ -15,6 +15,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Mona.SDK.Brains.EasyUI;
 using Mona.SDK.Brains.EasyUI.Leaderboards;
+using Mona.SDK.Brains.EasyUI.ScreenInput;
 using Mona.SDK.Brains.Core.Utils.Interfaces;
 using Mona.SDK.Brains.Core.Utils;
 using Mona.SDK.Core.Utils;
@@ -111,6 +112,9 @@ namespace Mona.SDK.Brains.Core.Brain
 
         private IBrainLeaderboardAsync _brainLeaderboards;
         public IBrainLeaderboardAsync BrainLeaderboards { get => _brainLeaderboards; set => _brainLeaderboards = value; }
+
+        private EasyUIScreenInput _screenInput;
+        public EasyUIScreenInput ScreenInput { get => _screenInput; set => _screenInput = value; }
 
         private IBrainStorageAsync _localStorage;
         public IBrainStorageAsync LocalStorage { get => _localStorage; set => _localStorage = value; }
@@ -239,6 +243,7 @@ namespace Mona.SDK.Brains.Core.Brain
             SetupStorageSolutions();
             SetupSocialUser();
             SetupLeaderboards();
+            SetupScreenInput();
             CacheCamera();
         }
 
@@ -516,6 +521,14 @@ namespace Mona.SDK.Brains.Core.Brain
                         _brainLeaderboards = leaderboardComponents[i];
                 }
             }
+        }
+
+        private void SetupScreenInput()
+        {
+            _screenInput = FindFirstObjectByType<EasyUIScreenInput>();
+
+            if (_screenInput == null)
+                _screenInput = gameObject.AddComponent<EasyUIScreenInput>();
         }
     }
 }
