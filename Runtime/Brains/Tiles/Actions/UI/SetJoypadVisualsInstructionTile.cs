@@ -25,14 +25,14 @@ namespace Mona.SDK.Brains.Tiles.Actions.UI
         [SerializeField] private ScreenJoypadDefaultScreenSide _screenSide = ScreenJoypadDefaultScreenSide.Left;
         [BrainPropertyEnum(true)] public ScreenJoypadDefaultScreenSide ScreenSide { get => _screenSide; set => _screenSide = value; }
 
-        [SerializeField] private ScreenJoypadElementBaseType _element = ScreenJoypadElementBaseType.Background;
-        [BrainPropertyEnum(true)] public ScreenJoypadElementBaseType Element { get => _element; set => _element = value; }
+        [SerializeField] private ScreenJoypadElementBaseType _elementType = ScreenJoypadElementBaseType.Background;
+        [BrainPropertyEnum(true)] public ScreenJoypadElementBaseType ElementType { get => _elementType; set => _elementType = value; }
 
-        [SerializeField] private string _sprite = null;
-        [BrainPropertyMonaAsset(typeof(IMonaTextureAssetItem))] public string Sprite { get => _sprite; set => _sprite = value; }
+        [SerializeField] private string _spriteAsset = null;
+        [BrainPropertyMonaAsset(typeof(IMonaTextureAssetItem))] public string SpriteAsset { get => _spriteAsset; set => _spriteAsset = value; }
 
-        [SerializeField] private Color _value = Color.white;
-        [BrainProperty(false)] public Color Value { get => _value; set => _value = value; }
+        [SerializeField] private Color _elementColor = Color.white;
+        [BrainProperty(false)] public Color ElementColor { get => _elementColor; set => _elementColor = value; }
 
         [SerializeField] private ScreenJoypadElementDisplayType _displayType = ScreenJoypadElementDisplayType.AlwaysEnabled;
         [BrainPropertyEnum(false)] public ScreenJoypadElementDisplayType DisplayType { get => _displayType; set => _displayType = value; }
@@ -40,25 +40,66 @@ namespace Mona.SDK.Brains.Tiles.Actions.UI
         [SerializeField] private ScreenJoypadElementSize _sizeType = ScreenJoypadElementSize.Percentage;
         [BrainPropertyEnum(false)] public ScreenJoypadElementSize SizeType { get => _sizeType; set => _sizeType = value; }
 
-        [SerializeField] private float _sizePercentage;
-        [SerializeField] private string _sizePercentageName;
-        [BrainProperty(true)] public float SizePercentage { get => _sizePercentage; set => _sizePercentage = value; }
-        [BrainPropertyValueName("SizePercentage", typeof(IMonaVariablesFloatValue))] public string SizePercentageName { get => _sizePercentageName; set => _sizePercentageName = value; }
+        [SerializeField] private float _sizePercentageGeneral = 1f;
+        [SerializeField] private string _sizePercentageGeneralName;
+        [BrainPropertyShow(nameof(SizeGeneralPercentageDisplay), (int)UIDisplayType.Show)]
+        [BrainPropertyShowLabel(nameof(SizeGeneralPercentageDisplay), (int)UIDisplayType.Show, "Size")]
+        [BrainProperty(false)] public float SizePercentageGeneral { get => _sizePercentageGeneral; set => _sizePercentageGeneral = value; }
+        [BrainPropertyValueName("SizePercentageGeneral", typeof(IMonaVariablesFloatValue))] public string SizePercentageGeneralName { get => _sizePercentageGeneralName; set => _sizePercentageGeneralName = value; }
+
+        [SerializeField] private float _sizePixelsGeneral = 256f;
+        [SerializeField] private string _sizePixelsGeneralName;
+        [BrainPropertyShow(nameof(SizeGeneralPixelDisplay), (int)UIDisplayType.Show)]
+        [BrainPropertyShowLabel(nameof(SizeGeneralPixelDisplay), (int)UIDisplayType.Show, "Size")]
+        [BrainProperty(false)] public float SizePixelsGeneral { get => _sizePixelsGeneral; set => _sizePixelsGeneral = value; }
+        [BrainPropertyValueName("SizePixelsGeneral", typeof(IMonaVariablesFloatValue))] public string SizePixelsGeneralName { get => _sizePixelsGeneralName; set => _sizePixelsGeneralName = value; }
+
+        [SerializeField] private float _sizePercentageHandle = 0.5f;
+        [SerializeField] private string _sizePercentageHandleName;
+        [BrainPropertyShow(nameof(SizeHandlePercentageDisplay), (int)UIDisplayType.Show)]
+        [BrainPropertyShowLabel(nameof(SizeHandlePercentageDisplay), (int)UIDisplayType.Show, "Size")]
+        [BrainProperty(false)] public float SizePercentageHandle { get => _sizePercentageHandle; set => _sizePercentageHandle = value; }
+        [BrainPropertyValueName("SizePercentageHandle", typeof(IMonaVariablesFloatValue))] public string SizePercentageHandleName { get => _sizePercentageHandleName; set => _sizePercentageHandleName = value; }
+
+        [SerializeField] private float _sizePixelsHandle = 128f;
+        [SerializeField] private string _sizePixelsHandleName;
+        [BrainPropertyShow(nameof(SizeHandlePixelDisplay), (int)UIDisplayType.Show)]
+        [BrainPropertyShowLabel(nameof(SizeHandlePixelDisplay), (int)UIDisplayType.Show, "Size")]
+        [BrainProperty(false)] public float SizePixelsHandle { get => _sizePixelsHandle; set => _sizePixelsHandle = value; }
+        [BrainPropertyValueName("SizePixelsHandle", typeof(IMonaVariablesFloatValue))] public string SizePixelsHandleName { get => _sizePixelsHandleName; set => _sizePixelsHandleName = value; }
+
+        [SerializeField] private ScreenJoypadScaleWithMagnitudeType _inputScalesElement = ScreenJoypadScaleWithMagnitudeType.DoNotChange;
+        [BrainPropertyEnum(false)] public ScreenJoypadScaleWithMagnitudeType InputScalesElement { get => _inputScalesElement; set => _inputScalesElement = value; }
+
+        [SerializeField] private float _minScalePercentage = 0.5f;
+        [SerializeField] private string _minScalePercentageName;
+        [BrainPropertyShow(nameof(InputScalesElement), (int)ScreenJoypadScaleWithMagnitudeType.ChangeWithMagnitude)]
+        [BrainProperty(false)] public float MinScalePercentage { get => _minScalePercentage; set => _minScalePercentage = value; }
+        [BrainPropertyValueName("MinScalePercentage", typeof(IMonaVariablesFloatValue))] public string MinScalePercentageName { get => _minScalePercentageName; set => _minScalePercentageName = value; }
+
+        [SerializeField] private ScreenJoypadScaleWithMagnitudeType _inputFadesElement = ScreenJoypadScaleWithMagnitudeType.DoNotChange;
+        [BrainPropertyEnum(false)] public ScreenJoypadScaleWithMagnitudeType InputFadesElement { get => _inputFadesElement; set => _inputFadesElement = value; }
+
+        [SerializeField] private float _minFadePercentage = 0f;
+        [SerializeField] private string _minFadePercentageName;
+        [BrainPropertyShow(nameof(InputFadesElement), (int)ScreenJoypadScaleWithMagnitudeType.ChangeWithMagnitude)]
+        [BrainProperty(false)] public float MinFadePercentage { get => _minFadePercentage; set => _minFadePercentage = value; }
+        [BrainPropertyValueName("MinFadePercentage", typeof(IMonaVariablesFloatValue))] public string MinFadePercentageName { get => _minFadePercentageName; set => _minFadePercentageName = value; }
 
         public SetJoypadVisualsInstructionTile() { }
 
         private IMonaBrain _brain;
         private EasyUIScreenInput _screenInput;
+        private Sprite _formattedSprite;
 
-        //public UIDisplayType GeneralDisplay => _enableInput ? UIDisplayType.Show : UIDisplayType.Hide;
-        //public UIDisplayType AnalogDisplay => _enableInput && _inputType == ScreenJoypadInputType.Analog ? UIDisplayType.Show : UIDisplayType.Hide;
-        //public UIDisplayType DigitalDisplay => _enableInput && _inputType == ScreenJoypadInputType.Digital ? UIDisplayType.Show : UIDisplayType.Hide;
-        //public UIDisplayType TrackingDisplay => _enableInput && ((_inputType == ScreenJoypadInputType.Analog && _analogPlacement == ScreenJoypadPlacementType.Tracking) || (_inputType == ScreenJoypadInputType.Digital && _digitalPlacement == ScreenJoypadPlacementType.Tracking)) ? UIDisplayType.Show : UIDisplayType.Hide;
+        public UIDisplayType SizeGeneralPercentageDisplay => _elementType != ScreenJoypadElementBaseType.Handle && _sizeType == ScreenJoypadElementSize.Percentage ? UIDisplayType.Show : UIDisplayType.Hide;
+        public UIDisplayType SizeGeneralPixelDisplay => _elementType != ScreenJoypadElementBaseType.Handle && _sizeType == ScreenJoypadElementSize.Pixels ? UIDisplayType.Show : UIDisplayType.Hide;
+        public UIDisplayType SizeHandlePercentageDisplay => _elementType == ScreenJoypadElementBaseType.Handle && _sizeType == ScreenJoypadElementSize.Percentage ? UIDisplayType.Show : UIDisplayType.Hide;
+        public UIDisplayType SizeHandlePixelDisplay => _elementType == ScreenJoypadElementBaseType.Handle && _sizeType == ScreenJoypadElementSize.Pixels ? UIDisplayType.Show : UIDisplayType.Hide;
 
-        //private ScreenJoypadAxisType InputAxes => _inputType == ScreenJoypadInputType.Analog ? _analogAxes : _digitalAxes;
-        //private ScreenJoypadPlacementType InputPlacement => _inputType == ScreenJoypadInputType.Analog ? _analogPlacement : _digitalPlacement;
-        //private float InputDeadZone => _inputType == ScreenJoypadInputType.Analog ? _analogDeadZone : _digitalDeadZone;
-
+        private float ElementSizePercentage => _elementType != ScreenJoypadElementBaseType.Handle ? _sizePercentageGeneral : _sizePercentageHandle;
+        private float ElementSizePixels => _elementType != ScreenJoypadElementBaseType.Handle ? _sizePixelsGeneral : _sizePixelsHandle;
+        
 
         public enum UIDisplayType
         {
@@ -71,6 +112,35 @@ namespace Mona.SDK.Brains.Tiles.Actions.UI
             _brain = brain;
             _screenInput = MonaGlobalBrainRunner.Instance.ScreenInput;
             _screenInput.Initialize();
+            SetupTexture();
+        }
+
+        private void SetupTexture()
+        {
+            if (string.IsNullOrEmpty(_spriteAsset))
+                return;
+
+            IMonaTextureAssetItem textureAsset = (IMonaTextureAssetItem)_brain.GetMonaAsset(_spriteAsset);
+            Texture2D tex = TextureToTexture2D(textureAsset.Value);
+            _formattedSprite = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100.0f);
+        }
+
+        private Texture2D TextureToTexture2D(Texture texture)
+        {
+            Texture2D texture2D = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
+
+            RenderTexture currentRT = RenderTexture.active;
+            RenderTexture renderTexture = RenderTexture.GetTemporary(texture.width, texture.height, 32);
+            Graphics.Blit(texture, renderTexture);
+
+            RenderTexture.active = renderTexture;
+            texture2D.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+            texture2D.Apply();
+
+            RenderTexture.active = currentRT;
+            RenderTexture.ReleaseTemporary(renderTexture);
+
+            return texture2D;
         }
 
         public override InstructionTileResult Do()
@@ -78,45 +148,43 @@ namespace Mona.SDK.Brains.Tiles.Actions.UI
             if (_brain == null || _screenInput == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-            //if (!string.IsNullOrEmpty(_enableInputName))
-            //    _enableInput = _brain.Variables.GetBool(_enableInputName);
+            if (!string.IsNullOrEmpty(_sizePercentageGeneralName))
+                _sizePercentageGeneral = _brain.Variables.GetFloat(_sizePercentageGeneralName);
 
-            //if (!string.IsNullOrEmpty(_analogDeadZoneName))
-            //    _analogDeadZone = _brain.Variables.GetFloat(_analogDeadZoneName);
+            if (!string.IsNullOrEmpty(_sizePixelsGeneralName))
+                _sizePixelsGeneral = _brain.Variables.GetFloat(_sizePixelsGeneralName);
 
-            //if (!string.IsNullOrEmpty(_digitalDeadZoneName))
-            //    _digitalDeadZone = _brain.Variables.GetFloat(_digitalDeadZoneName);
+            if (!string.IsNullOrEmpty(_sizePercentageHandleName))
+                _sizePercentageHandle = _brain.Variables.GetFloat(_sizePercentageHandleName);
 
-            //if (!string.IsNullOrEmpty(_handleExtentsName))
-            //    _handleExtents = _brain.Variables.GetFloat(_handleExtentsName);
+            if (!string.IsNullOrEmpty(_sizePixelsHandleName))
+                _sizePixelsHandle = _brain.Variables.GetFloat(_sizePixelsHandleName);
 
-            //if (!string.IsNullOrEmpty(_trackingThresholdName))
-            //    _trackingThreshold = _brain.Variables.GetFloat(_trackingThresholdName);
+            if (!string.IsNullOrEmpty(_minScalePercentageName))
+                _minScalePercentage = _brain.Variables.GetFloat(_minScalePercentageName);
 
-            //if (HasVector2Values(_startLocationName))
-            //    _startLocation = GetVector2Value(_brain, _startLocationName);
+            if (!string.IsNullOrEmpty(_minFadePercentageName))
+                _minFadePercentage = _brain.Variables.GetFloat(_minFadePercentageName);
 
-            //if (!_enableInput)
-            //    _screenInput.SetJoypadEnabledState(_screenSide, _enableInput);
+            EasyUIJoypadVisualElement element = new EasyUIJoypadVisualElement
+            {
+                ElementSprite = _formattedSprite,
+                ElementColor = _elementColor,
+                DisplayType = _displayType,
+                SizeType = _sizeType,
+                SizePercentage = ElementSizePercentage,
+                SizePixels = ElementSizePixels,
+                InputScalesElement = _inputScalesElement,
+                MinScalePercentage = _minScalePercentage,
+                InputFadesElement = _inputFadesElement,
+                MinFadePercentage = _minFadePercentage,
+            };
 
-            //EasyUIJoypadInputParameters parameters = new EasyUIJoypadInputParameters
-            //{
-            //    Enabled = _enableInput,
-            //    InputType = _inputType,
-            //    Axes = InputAxes,
-            //    ControlType = _controlType,
-            //    Placement = InputPlacement,
-            //    MoveMagnitude = _movementMagnitude,
-            //    Visiblity = _visiblity,
-            //    DeadZone = InputDeadZone,
-            //    HandleExtents = _handleExtents,
-            //    TrackingThreshold = _trackingThreshold,
-            //    StartLocation = _startLocation
-            //};
-
-            //_screenInput.UpdateJoypadParameters(_screenSide, parameters);
+            _screenInput.UpdateJoypadVisualElement(_screenSide, _elementType, element);
 
             return Complete(InstructionTileResult.Success);
         }
     }
+
+
 }

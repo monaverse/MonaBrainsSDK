@@ -17,6 +17,15 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput.Structs
         [SerializeField] private float _sizePercentage = 1f;
         [SerializeField] private float _sizePixels = 256f;
 
+        public ScreenJoypadScaleWithMagnitudeType InputScalesElement = ScreenJoypadScaleWithMagnitudeType.DoNotChange;
+        [SerializeField] private float _minScalePercentage = 0.1f;
+
+        public ScreenJoypadScaleWithMagnitudeType InputFadesElement = ScreenJoypadScaleWithMagnitudeType.DoNotChange;
+        [SerializeField] private float _minFadePercentage = 0.1f;
+
+        [HideInInspector] public bool ScaleWasLerped;
+        [HideInInspector] public bool AlphaWasLerped;
+
         public float SizePercentage
         {
             get { return _sizePercentage; }
@@ -28,20 +37,6 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput.Structs
             get { return _sizePixels; }
             set { _sizePixels = Mathf.Abs(value); }
         }
-    }
-
-    [System.Serializable]
-    public class EasyUIJoypadBaseVisuals
-    {
-        public EasyUIJoypadVisualElement Background = new EasyUIJoypadVisualElement();
-        public EasyUIJoypadVisualElement Handle = new EasyUIJoypadVisualElement();
-        public EasyUIJoypadVisualElement Pointer = new EasyUIJoypadVisualElement();
-
-        public ScreenJoypadScaleWithMagnitudeType InputScalesPointer = ScreenJoypadScaleWithMagnitudeType.DoNotChange;
-        [SerializeField] private float _minScalePercentage = 0.1f;
-
-        public ScreenJoypadScaleWithMagnitudeType InputFadesPointer = ScreenJoypadScaleWithMagnitudeType.DoNotChange;
-        [SerializeField] private float _minFadePercentage = 0.1f;
 
         public float MinScalePercentage
         {
@@ -54,6 +49,14 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput.Structs
             get { return _minFadePercentage; }
             set { _minFadePercentage = Mathf.Clamp01(Mathf.Abs(value)); }
         }
+    }
+
+    [System.Serializable]
+    public class EasyUIJoypadBaseVisuals
+    {
+        public EasyUIJoypadVisualElement Background = new EasyUIJoypadVisualElement();
+        public EasyUIJoypadVisualElement Handle = new EasyUIJoypadVisualElement();
+        public EasyUIJoypadVisualElement Pointer = new EasyUIJoypadVisualElement();
     }
 
     [System.Serializable]

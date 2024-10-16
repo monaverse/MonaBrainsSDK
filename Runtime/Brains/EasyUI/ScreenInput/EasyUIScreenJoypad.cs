@@ -24,8 +24,6 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
         [SerializeField] private Image _handleImage;
         [SerializeField] private Image _pointerImage;
 
-        private bool _pointerScaleChanged;
-        private bool _pointerAlphaChanged;
         private Vector2 _inputVector = Vector2.zero;
         private RectTransform _baseRect;
         private Canvas _inputCanvas;
@@ -110,9 +108,6 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             if (_brainInput == null && MonaGlobalBrainRunner.Instance != null)
                 _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();
 
-            _pointerScaleChanged = false;
-            _pointerAlphaChanged = false;
-
             SetScreenArea();
             SetOpposingScreenArea();
             Vector2 center = new Vector2(0.5f, 0.5f);
@@ -162,7 +157,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             MoveHandle(_inputVector, radius);
             SetPointerRotation(_inputVector, overcameDeadzone);
             UpdateActiveStates(overcameDeadzone);
-            LerpPointerWithInput(magnitude);
+            LerpVisualsWithInput(magnitude);
         }
 
         private void SetBrainInput()
@@ -188,7 +183,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
 
             SetBrainInput();
             UpdateActiveStates();
-            LerpPointerWithInput();
+            LerpVisualsWithInput();
             _currentUserInputState = UserInputState.Idle;
         }
 
@@ -557,36 +552,43 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             UpdateVisuals();
         }
 
-        private void LerpPointerWithInput(float magnitude = 0f)
+        private void LerpVisualsWithInput(float magnitude = 0f)
         {
-            if (_pointerImage.sprite == null)
-                return;
-
             EasyUIJoypadBaseVisuals visuals = CurrentBaseVisuals;
 
-            if (visuals.InputScalesPointer == ScreenJoypadScaleWithMagnitudeType.ChangeWithMagnitude)
+            LerpElementWithInput(visuals.Background, _backgroundRect, _backgroundImage, magnitude);
+            LerpElementWithInput(visuals.Handle, _handleRect, _handleImage, magnitude);
+            LerpElementWithInput(visuals.Pointer, _pointerRect, _pointerImage, magnitude);
+        }
+
+        private void LerpElementWithInput(EasyUIJoypadVisualElement element, RectTransform elemeentRect, Image elementImage, float magnitude = 0f)
+        {
+            if (element.ElementSprite == null)
+                return;
+
+            if (element.InputScalesElement == ScreenJoypadScaleWithMagnitudeType.ChangeWithMagnitude)
             {
-                _pointerRect.sizeDelta = GetElementSizeDelta(visuals.Pointer) * Mathf.Lerp(visuals.MinScalePercentage, 1f, magnitude);
-                _pointerScaleChanged = true;
+                elemeentRect.sizeDelta = GetElementSizeDelta(element) * Mathf.Lerp(element.MinScalePercentage, 1f, magnitude);
+                element.ScaleWasLerped = true;
             }
-            else if (_pointerScaleChanged)
+            else if (element.ScaleWasLerped)
             {
-                _pointerRect.sizeDelta = GetElementSizeDelta(visuals.Pointer);
-                _pointerScaleChanged = false;
+                elemeentRect.sizeDelta = GetElementSizeDelta(element);
+                element.ScaleWasLerped = false;
             }
 
-            if (visuals.InputFadesPointer == ScreenJoypadScaleWithMagnitudeType.ChangeWithMagnitude)
+            if (element.InputFadesElement == ScreenJoypadScaleWithMagnitudeType.ChangeWithMagnitude)
             {
-                float percentage = Mathf.Lerp(visuals.MinFadePercentage, visuals.Pointer.ElementColor.a, magnitude);
+                float percentage = Mathf.Lerp(element.MinFadePercentage, element.ElementColor.a, magnitude);
                 Color color = _pointerImage.color;
                 color.a = percentage;
-                _pointerImage.color = color;
-                _pointerAlphaChanged = true;
+                elementImage.color = color;
+                element.AlphaWasLerped = true;
             }
-            else if (_pointerAlphaChanged)
+            else if (element.AlphaWasLerped)
             {
-                _pointerImage.color = visuals.Pointer.ElementColor;
-                _pointerAlphaChanged = false;
+                elementImage.color = element.ElementColor;
+                element.AlphaWasLerped = false;
             }
         }
 
@@ -681,7 +683,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             UpdateVisualElement(visuals.Handle, _handleRect, _handleImage);
             UpdateVisualElement(visuals.Pointer, _pointerRect, _pointerImage);
             UpdateActiveStates();
-            LerpPointerWithInput();
+            LerpVisualsWithInput();
         }
 
         private void UpdateVisualElement(EasyUIJoypadVisualElement element, RectTransform rt, Image image)
@@ -725,21 +727,27 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             switch (type)
             {
                 case ScreenJoypadElementBaseType.Background:
+                    if (element.ElementSprite == null)
+                        element.ElementSprite = visuals.Background.ElementSprite;
                     visuals.Background = element;
                     UpdateVisualElement(visuals.Background, _backgroundRect, _backgroundImage);
                     break;
                 case ScreenJoypadElementBaseType.Handle:
+                    if (element.ElementSprite == null)
+                        element.ElementSprite = visuals.Handle.ElementSprite;
                     visuals.Handle = element;
                     UpdateVisualElement(visuals.Handle, _handleRect, _handleImage);
                     break;
                 case ScreenJoypadElementBaseType.Pointer:
+                    if (element.ElementSprite == null)
+                        element.ElementSprite = visuals.Pointer.ElementSprite;
                     visuals.Pointer = element;
                     UpdateVisualElement(visuals.Pointer, _pointerRect, _pointerImage);
                     break;
             }
 
             UpdateActiveStates();
-            LerpPointerWithInput();
+            LerpVisualsWithInput();
         }
     }
 }
