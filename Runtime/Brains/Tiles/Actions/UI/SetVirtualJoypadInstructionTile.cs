@@ -46,7 +46,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.UI
         [BrainPropertyEnum(false)] public ScreenJoypadPlacementType AnalogPlacement { get => _analogPlacement; set => _analogPlacement = value; }
 
         [SerializeField] private ScreenJoypadPlacementType _digitalPlacement = ScreenJoypadPlacementType.Fixed;
-        [BrainPropertyShow(nameof(AnalogDisplay), (int)UIDisplayType.Show)]
+        [BrainPropertyShow(nameof(DigitalDisplay), (int)UIDisplayType.Show)]
         [BrainPropertyEnum(false)] public ScreenJoypadPlacementType DigitalPlacement { get => _digitalPlacement; set => _digitalPlacement = value; }
 
         [SerializeField] private ScreenJoypadMoveMagnitudeType _movementMagnitude = ScreenJoypadMoveMagnitudeType.StartAtDeadzone;
