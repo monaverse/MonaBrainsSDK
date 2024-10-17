@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mona.SDK.Brains.Tiles.Actions.UI.ScriptableObjects
 {
-    [CreateAssetMenu(menuName = "Mona Brains/Tiles/UI/SetJoypadVisuals", fileName = "SetJoypadVisuals")]
+    [CreateAssetMenu(menuName = "Mona Brains/Tiles/Controls/SetJoypadVisuals", fileName = "SetJoypadVisuals")]
     public class SetJoypadVisualsInstructionTileDefinition : ScriptableObject, IInstructionTileDefinition
     {
         [SerializeReference] protected IInstructionTile _tile = new SetJoypadVisualsInstructionTile();

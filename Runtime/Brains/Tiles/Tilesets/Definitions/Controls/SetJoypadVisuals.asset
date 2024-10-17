@@ -16,16 +16,16 @@ MonoBehaviour:
     rid: 5691568430591508556
   _id: SetJoypadVisuals
   _name: Set Joypad Visuals
-  _category: User Interface
+  _category: Controls
   references:
     version: 2
     RefIds:
     - rid: 5691568430591508556
       type: {class: SetJoypadVisualsInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.UI, asm: com.monaverse.sdk.brains.runtime}
       data:
-        _id: 
-        _name: 
-        _category: 
+        _id: SetJoypadVisuals
+        _name: Set Joypad Visuals
+        _category: User Interface
         _tileVersion: 0
         _muted: 0
         _screenSide: 0
@@ -42,3 +42,9 @@ MonoBehaviour:
         _sizePercentageHandleName: 
         _sizePixelsHandle: 128
         _sizePixelsHandleName: 
+        _inputScalesElement: 0
+        _minScalePercentage: 0.5
+        _minScalePercentageName: 
+        _inputFadesElement: 0
+        _minFadePercentage: 0
+        _minFadePercentageName: 

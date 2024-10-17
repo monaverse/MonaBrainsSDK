@@ -16,7 +16,7 @@ MonoBehaviour:
     rid: 5691568404234764626
   _id: SetScreenJoypad
   _name: Set Screen Joypad
-  _category: User Interface
+  _category: Controls
   references:
     version: 2
     RefIds:
@@ -34,7 +34,8 @@ MonoBehaviour:
         _inputType: 0
         _analogAxes: 0
         _digitalAxes: 20
-        _placement: 0
+        _analogPlacement: 0
+        _digitalPlacement: 20
         _movementMagnitude: 0
         _visiblity: 0
         _trackingThreshold: 1
@@ -45,6 +46,8 @@ MonoBehaviour:
         _digitalDeadZoneName: 
         _handleExtents: 1
         _handleExtentsName: 
+        _diagonalThreshold: 0.25
+        _diagonalThresholdName: 
         _startLocation: {x: 0.15, y: 0.5}
         _startLocationName: []
         _controlType: 0

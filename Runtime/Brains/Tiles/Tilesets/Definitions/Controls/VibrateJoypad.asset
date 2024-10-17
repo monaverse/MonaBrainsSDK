@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38f1b9918f62848b8a5f5fb7cae5dbea, type: 3}
+  m_Name: VibrateJoypad
+  m_EditorClassIdentifier: 
+  _tile:
+    rid: 5691568465624170500
+  _id: VibrateJoypad
+  _name: Vibrate Joypad
+  _category: Controls
+  references:
+    version: 2
+    RefIds:
+    - rid: 5691568465624170500
+      type: {class: VibrateJoypadInstructionTile, ns: Mona.SDK.Brains.Tiles.Actions.Timing, asm: com.monaverse.sdk.brains.runtime}
+      data:
+        _id: 
+        _name: 
+        _category: 
+        _tileVersion: 0
+        _muted: 0
+        _device: 0
+        _strength: 0.5
+        _strengthName: 
+        _seconds: 0.2
+        _secondsValueName: 

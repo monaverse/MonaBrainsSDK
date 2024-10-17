@@ -259,7 +259,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
                         float absX = Mathf.Abs(input.x);
                         float absY = Mathf.Abs(input.y);
 
-                        if (absX < 0.25 || absY < 0.25)
+                        if (absX < _parameters.DigitalDiagonalThreshold || absY < _parameters.DigitalDiagonalThreshold)
                         {
                             if (absY > absX) x = 0f;
                             else y = 0f;

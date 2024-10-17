@@ -19,6 +19,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput.Structs
         [SerializeField] private float _deadZone = 0f;
         [SerializeField] private float _handleExtents = 1f;
         [SerializeField] private float _trackingThreshold = 1f;
+        [SerializeField] private float _digitalDiagonalThreshold = 0.25f;
         [SerializeField] private Vector2 _startLocation = new Vector2(0.15f, 0.5f);
 
         public float DeadZone
@@ -43,6 +44,12 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput.Structs
         {
             get { return _startLocation; }
             set { _startLocation = value; }
+        }
+
+        public float DigitalDiagonalThreshold
+        {
+            get { return _digitalDiagonalThreshold; }
+            set { _digitalDiagonalThreshold = Mathf.Clamp(Mathf.Abs(value), 0f, 0.4f); }
         }
     }
 }

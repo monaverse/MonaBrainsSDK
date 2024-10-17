@@ -81,6 +81,12 @@ namespace Mona.SDK.Brains.Tiles.Actions.UI
         [BrainProperty(false)] public float HandleExtents { get => _handleExtents; set => _handleExtents = value; }
         [BrainPropertyValueName("HandleExtents", typeof(IMonaVariablesFloatValue))] public string HandleExtentsName { get => _handleExtentsName; set => _handleExtentsName = value; }
 
+        [SerializeField] private float _diagonalThreshold = 0.25f;
+        [SerializeField] private string _diagonalThresholdName;
+        [BrainPropertyShow(nameof(DigitalDirectionThresholdDisplay), (int)UIDisplayType.Show)]
+        [BrainProperty(false)] public float DiagonalThreshold { get => _diagonalThreshold; set => _diagonalThreshold = value; }
+        [BrainPropertyValueName("DiagonalThreshold", typeof(IMonaVariablesFloatValue))] public string DiagonalThresholdName { get => _diagonalThresholdName; set => _diagonalThresholdName = value; }
+
         [SerializeField] private Vector2 _startLocation = new Vector2(0.15f, 0.5f);
         [SerializeField] private string[] _startLocationName;
         [BrainPropertyShow(nameof(GeneralDisplay), (int)UIDisplayType.Show)]
@@ -100,6 +106,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.UI
         public UIDisplayType AnalogDisplay => _enableInput && _inputType == ScreenJoypadInputType.Analog ? UIDisplayType.Show : UIDisplayType.Hide;
         public UIDisplayType DigitalDisplay => _enableInput && _inputType == ScreenJoypadInputType.Digital ? UIDisplayType.Show : UIDisplayType.Hide;
         public UIDisplayType TrackingDisplay => _enableInput && ((_inputType == ScreenJoypadInputType.Analog && _analogPlacement == ScreenJoypadPlacementType.Tracking) || (_inputType == ScreenJoypadInputType.Digital && _digitalPlacement == ScreenJoypadPlacementType.Tracking)) ? UIDisplayType.Show : UIDisplayType.Hide;
+        public UIDisplayType DigitalDirectionThresholdDisplay => DigitalDisplay == UIDisplayType.Show && DigitalAxes != ScreenJoypadAxisType.EightWay ? UIDisplayType.Show : UIDisplayType.Hide;
+
 
         private ScreenJoypadAxisType InputAxes => _inputType == ScreenJoypadInputType.Analog ? _analogAxes : _digitalAxes;
         private ScreenJoypadPlacementType InputPlacement => _inputType == ScreenJoypadInputType.Analog ? _analogPlacement : _digitalPlacement;
@@ -139,6 +147,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.UI
             if (!string.IsNullOrEmpty(_trackingThresholdName))
                 _trackingThreshold = _brain.Variables.GetFloat(_trackingThresholdName);
 
+            if (!string.IsNullOrEmpty(_diagonalThresholdName))
+                _diagonalThreshold = _brain.Variables.GetFloat(_diagonalThresholdName);
+
             if (HasVector2Values(_startLocationName))
                 _startLocation = GetVector2Value(_brain, _startLocationName);
 
@@ -157,7 +168,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.UI
                 DeadZone = InputDeadZone,
                 HandleExtents = _handleExtents,
                 TrackingThreshold = _trackingThreshold,
-                StartLocation = _startLocation
+                StartLocation = _startLocation,
+                DigitalDiagonalThreshold = _diagonalThreshold
             };
 
             _screenInput.UpdateJoypadParameters(_screenSide, parameters);
