@@ -71,6 +71,14 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             _setupComplete = true;
         }
 
+        public ScreenJoypadInteractionState GetJoypadState(ScreenJoypadDefaultScreenSide screenSide)
+        {
+            if (_joypadLeft == null || _joypadRight == null)
+                Initialize();
+
+            return screenSide == ScreenJoypadDefaultScreenSide.Left ? _joypadLeft.InputState : _joypadRight.InputState;
+        }
+
         public void SetJoypadEnabledState(ScreenJoypadDefaultScreenSide screenSide, bool enabled)
         {
             if (_joypadLeft == null || _joypadRight == null)

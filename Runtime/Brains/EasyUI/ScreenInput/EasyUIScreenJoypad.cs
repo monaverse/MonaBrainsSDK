@@ -29,12 +29,12 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
         private Canvas _inputCanvas;
         private Camera _camera;
         private MonaBrainInput _brainInput;
-        private UserInputState _currentUserInputState = UserInputState.Idle;
 
         private readonly float _referenceElementPixels = 256f;
         private readonly float _referenceScreenPixels = 1080f;
 
-        public Vector2 InputVector => _inputVector;
+        [HideInInspector] public Vector2 InputVector => _inputVector;
+        [HideInInspector] public ScreenJoypadInteractionState InputState = ScreenJoypadInteractionState.Idle;
         private EasyUIJoypadBaseVisuals CurrentBaseVisuals => _visuals.GetVisuals(_parameters.InputType, _parameters.Axes);
 
         private ScreenJoypadBaseControlType ControlType
@@ -56,7 +56,12 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
                 bool updateDefaultPosition = _parameters.StartLocation != value.StartLocation;
 
                 _parameters = value;
+                bool enabled = _parameters.Enabled;
                 gameObject.SetActive(_parameters.Enabled);
+                EnableScreenBrainInput(_parameters.Enabled);
+
+                if (!enabled)
+                    return;
 
                 SetScreenArea();
 
@@ -75,14 +80,6 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
                 Visuals = value;
                 UpdateVisuals();
             }
-        }
-
-        private enum UserInputState
-        {
-            Down = 0,
-            Drag = 10,
-            Up = 20,
-            Idle = 30
         }
 
         private static readonly Vector2[] directions = new Vector2[]
@@ -108,6 +105,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             if (_brainInput == null && MonaGlobalBrainRunner.Instance != null)
                 _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();
 
+            EnableScreenBrainInput(true);
             SetScreenArea();
             SetOpposingScreenArea();
             Vector2 center = new Vector2(0.5f, 0.5f);
@@ -123,7 +121,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
         private void OnDisable()
         {
             _inputVector = Vector2.zero;
-
+            EnableScreenBrainInput(false);
             SetBrainInput();
             SetOpposingScreenArea(true);
             _backgroundImage.enabled = false;
@@ -131,10 +129,8 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             _pointerImage.enabled = false;
         }
 
-        public void OnDrag(PointerEventData eventData)
+        private void UpdateActiveInput(PointerEventData eventData)
         {
-            _currentUserInputState = UserInputState.Drag;
-
             if (!_parameters.Enabled)
                 return;
 
@@ -147,6 +143,9 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             Vector2 input = (eventData.position - position) / (radius * _inputCanvas.scaleFactor);
             _inputVector = FormatInput(input, out float magnitude, out bool overcameDeadzone);
 
+            if (magnitude <= Mathf.Epsilon)
+                _inputVector = Vector2.zero;
+
             if (_parameters.Placement == ScreenJoypadPlacementType.Tracking && input.magnitude > _parameters.TrackingThreshold)
             {
                 Vector2 difference = input.normalized * (input.magnitude - _parameters.TrackingThreshold) * radius;
@@ -158,6 +157,12 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             SetPointerRotation(_inputVector, overcameDeadzone);
             UpdateActiveStates(overcameDeadzone);
             LerpVisualsWithInput(magnitude);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            InputState = ScreenJoypadInteractionState.Drag;
+            UpdateActiveInput(eventData);
         }
 
         private void SetBrainInput()
@@ -173,7 +178,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
 
         public virtual void OnPointerUp(PointerEventData eventData)
         {
-            _currentUserInputState = UserInputState.Up;
+            InputState = ScreenJoypadInteractionState.Up;
 
             if (!_parameters.Enabled)
                 return;
@@ -184,12 +189,12 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             SetBrainInput();
             UpdateActiveStates();
             LerpVisualsWithInput();
-            _currentUserInputState = UserInputState.Idle;
+            StartCoroutine(ResetInput());
         }
 
         public virtual void OnPointerDown(PointerEventData eventData)
         {
-            _currentUserInputState = UserInputState.Down;
+            InputState = ScreenJoypadInteractionState.Down;
 
             if (!_parameters.Enabled)
                 return;
@@ -197,7 +202,15 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             if (_parameters.Placement != ScreenJoypadPlacementType.Fixed)
                 _rootRect.anchoredPosition = ScreenPointToAnchoredPosition(eventData.position);
 
-            OnDrag(eventData);
+            UpdateActiveInput(eventData);
+        }
+
+        private IEnumerator ResetInput()
+        {
+            yield return new WaitForEndOfFrame();
+
+            if (InputState == ScreenJoypadInteractionState.Up)
+                InputState = ScreenJoypadInteractionState.Idle;
         }
 
         private protected Vector2 ScreenPointToAnchoredPosition(Vector2 screenPosition)
@@ -597,7 +610,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             ScreenJoypadDisplayType visibility = _parameters.Visiblity;
             GameObject root = _rootRect.gameObject;
 
-            if (_currentUserInputState == UserInputState.Down || _currentUserInputState == UserInputState.Drag)
+            if (InputState == ScreenJoypadInteractionState.Down || InputState == ScreenJoypadInteractionState.Drag)
             {
                 switch (visibility)
                 {
@@ -644,7 +657,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
                 return;
             }
 
-            if (_currentUserInputState == UserInputState.Down || _currentUserInputState == UserInputState.Drag)
+            if (InputState == ScreenJoypadInteractionState.Down || InputState == ScreenJoypadInteractionState.Drag)
             {
                 switch (element.DisplayType)
                 {
@@ -748,6 +761,18 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
 
             UpdateActiveStates();
             LerpVisualsWithInput();
+        }
+
+        private void EnableScreenBrainInput(bool enabled)
+        {
+            if (_brainInput == null && MonaGlobalBrainRunner.Instance != null)
+                _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();
+
+            if (ControlType == ScreenJoypadBaseControlType.Movement)
+                _brainInput.UsingScreenMove = enabled;
+
+            if (ControlType == ScreenJoypadBaseControlType.Look)
+                _brainInput.UsingScreenLook = enabled;
         }
     }
 }

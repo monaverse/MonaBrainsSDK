@@ -180,9 +180,11 @@ namespace Mona.SDK.Brains.Tiles.Conditions
             var input = _bodyInput.MoveValue;
             if (InputType == MonaInputType.Look)
                 input = _bodyInput.LookValue;
-            
-            var xDown = Mathf.Abs(input.x) > TrueDeadZone / TrueJoystickSize;
-            var yDown = Mathf.Abs(input.y) > TrueDeadZone / TrueJoystickSize;
+
+            float deadZone = _allowTouch ? TrueDeadZone / TrueJoystickSize : 0f;
+
+            var xDown = Mathf.Abs(input.x) >  deadZone;
+            var yDown = Mathf.Abs(input.y) > deadZone;
 
             if (!xDown) input.x = 0;
             if (!yDown) input.y = 0;
@@ -336,8 +338,10 @@ namespace Mona.SDK.Brains.Tiles.Conditions
 
         private Vector2 LockDiagonal(Vector2 input)
         {
-            var xDown = Mathf.Abs(input.x) > TrueDeadZone / JoystickSize;
-            var yDown = Mathf.Abs(input.y) > TrueDeadZone / JoystickSize;
+            float deadZone = _allowTouch ? TrueDeadZone / JoystickSize : 0f;
+
+            var xDown = Mathf.Abs(input.x) > deadZone;
+            var yDown = Mathf.Abs(input.y) > deadZone;
 
             if (!xDown || !yDown)
                 input.x = input.y = 0;

@@ -56,6 +56,8 @@ namespace Mona.SDK.Brains.Core.Brain
         private List<KeyState> _activeKeyListeners = new List<KeyState>();
         private IMonaBrainPlayer _player;
 
+        [HideInInspector] public bool UsingScreenMove;
+        [HideInInspector] public bool UsingScreenLook;
         [HideInInspector] public Vector2 ScreenMoveVector = Vector2.zero;
         [HideInInspector] public Vector2 ScreenLookVector = Vector2.zero;
 
@@ -449,7 +451,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
             if (type == MonaInputType.Move)
             {
-                if (value.magnitude < ScreenMoveVector.magnitude)
+                if (UsingScreenMove)
                 {
                     usingScreenInput = true;
                     _moveValue = ScreenMoveVector;
@@ -461,10 +463,10 @@ namespace Mona.SDK.Brains.Core.Brain
             }
             else if (type == MonaInputType.Look)
             {
-                if (value.magnitude < ScreenLookVector.magnitude)
+                if (UsingScreenLook)
                 {
                     usingScreenInput = true;
-                    _lookValue = ScreenMoveVector;
+                    _lookValue = ScreenLookVector;
                 }
                 else
                 {
@@ -485,7 +487,7 @@ namespace Mona.SDK.Brains.Core.Brain
 
             if (type == MonaInputType.Move)
             {
-                if (value.magnitude < ScreenMoveVector.magnitude)
+                if (UsingScreenMove)
                 {
                     usingScreenInput = true;
                     _moveValue = ScreenMoveVector;
@@ -497,10 +499,10 @@ namespace Mona.SDK.Brains.Core.Brain
             }
             else if (type == MonaInputType.Look)
             {
-                if (value.magnitude < ScreenLookVector.magnitude)
+                if (UsingScreenLook)
                 {
                     usingScreenInput = true;
-                    _lookValue = ScreenMoveVector;
+                    _lookValue = ScreenLookVector;
                 }
                 else
                 {
