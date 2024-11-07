@@ -103,6 +103,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
         private LeaderboardWindow _window;
         private UnityEngine.SocialPlatforms.Range _pageRange;
 
+        private int PageRangeStart => (int)(_truePageIndex * _scoresPerPage);
         private bool PageLoadRequiresUserData => _alwaysShowClient || _pageToLoad == PageDisplay.ClientPage || _pageToLoad == PageDisplay.UserPage;
         public UIDisplayType DisplayAlternateName => _useAlternateTitle ? UIDisplayType.Show : UIDisplayType.Hide;
 
@@ -250,7 +251,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                             break;
                     }
 
-                    _pageRange = new UnityEngine.SocialPlatforms.Range(_truePageIndex, (int)_scoresPerPage);
+                    _pageRange = new UnityEngine.SocialPlatforms.Range(PageRangeStart, (int)_scoresPerPage);
                     ProcessPageData();
                 }
             }
@@ -291,6 +292,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                 if (_userProcess != null)
                     page.ClientScore = _userProcess.GetUserScore();
 
+                _window.LeaderboardAsync = _leaderboardServer;
+                _window.Scope = _scope;
+                _window.PageRange = _pageRange;
+                _window.ScoreOrder = _scoreOrder;
                 _window.Display();
                 _window.Page = page;
             }
@@ -397,7 +402,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
         {
             _pageProcessingState = BoardProcessingState.CanProcess;
             _truePageIndex = _pageToLoad == PageDisplay.PageIndex ? (int)_pageIndex : 0;
-            _pageRange = new UnityEngine.SocialPlatforms.Range(_truePageIndex, (int)_scoresPerPage);
+            _pageRange = new UnityEngine.SocialPlatforms.Range(PageRangeStart, (int)_scoresPerPage);
             await ProcessPageData();
         }
 

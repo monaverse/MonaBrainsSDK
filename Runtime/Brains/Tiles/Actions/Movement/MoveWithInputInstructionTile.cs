@@ -9,6 +9,11 @@ using Mona.SDK.Core.State.Structs;
 using Mona.SDK.Brains.Core.Control;
 using Mona.SDK.Core.Body;
 using Mona.SDK.Brains.Core.Brain.Interfaces;
+using Mona.SDK.Core.Events;
+using Mona.SDK.Core.Input;
+using Mona.SDK.Brains.Tiles.Actions.Movement.Enums;
+using Mona.SDK.Brains.Core.Animation;
+
 
 namespace Mona.SDK.Brains.Tiles.Actions.Movement
 {
@@ -100,6 +105,15 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
         private List<LayerMask> _bodyLayers = new List<LayerMask>();
         private List<IMonaBody> _targetBodies = new List<IMonaBody>();
 
+        private bool _active;
+        private bool _listenToInput;
+        private IMonaAnimationController _controller;
+        private MonaInput _bodyInput;
+        private Action<MonaBodyFixedTickEvent> OnFixedTick;
+        private Action<MonaBodyEvent> OnBodyEvent;
+        protected MovingStateType _movingState;
+        private Vector3 _moveVector;
+
         public MoveWithInputInstructionTile() { }
 
         public MovementSnapType SnapType => _gridSnapUnits > 0 ? MovementSnapType.SnapToGrid : MovementSnapType.NoSnap;
@@ -175,6 +189,8 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
 
             if (_device != PlayerInputDeviceType.Vector2)
                 _brainInput.StartListening(this);
+
+            //UpdateActive();
         }
 
         public override void Unload(bool destroyed = false)
@@ -189,13 +205,20 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             float deltaTime = Time.time - _previousTime;
             _previousTime = time;
 
-            return deltaTime < 0.1f ? deltaTime : 0;
+            return deltaTime < 0.25f ? deltaTime : 0;
         }
+
+        float _lastFixedTime = 0f;
 
         public override InstructionTileResult Do()
         {
             if (_brain == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
+
+            float currentFixedTime = Time.fixedTime;
+
+            if (_lastFixedTime >= currentFixedTime)
+                return Complete(InstructionTileResult.Success);
 
             _mainCamera = MonaGlobalBrainRunner.Instance.SceneCamera;
             _targetBodies.Clear();
@@ -218,7 +241,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
             if (!string.IsNullOrEmpty(_placeOnSurfaceName))
                 _placeOnSurface = _brain.Variables.GetBool(_placeOnSurfaceName);
 
-            _deltaTime = GetAndUpdateDeltaTime();
+            float fixedDeltaTime = currentFixedTime - _lastFixedTime;
+            _deltaTime = fixedDeltaTime > 0.25f ? 0.02f : fixedDeltaTime; //GetAndUpdateDeltaTime();
+            _lastFixedTime = currentFixedTime;
 
             if (_range <= 0)
                 _range = Mathf.Infinity;
@@ -554,6 +579,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     cameraRight.y = 0;
                     cameraRight.Normalize();
                     cameraUp.Normalize();
+
                     move = cameraUp * (Mathf.Approximately(inputVector.y, 0) ?
                         0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
                             0 : Mathf.Sign(inputVector.x));
@@ -563,9 +589,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     cameraRight.y = 0;
                     cameraForward.Normalize();
                     cameraRight.Normalize();
-                    move = cameraForward * (Mathf.Approximately(inputVector.y, 0) ?
-                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
-                            0 : Mathf.Sign(inputVector.x));
+                    move = ((cameraRight * inputVector.x) + (cameraForward * inputVector.y)).normalized;
+                    //move = cameraForward * (Mathf.Approximately(inputVector.y, 0) ?
+                    //    0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                    //        0 : Mathf.Sign(inputVector.x));
                     break;
                 case MovementMode.YZ:
                     cameraUp.z = 0;
@@ -628,9 +655,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Movement
                     cameraRight.y = 0;
                     cameraForward.Normalize();
                     cameraRight.Normalize();
-                    move = cameraForward * (Mathf.Approximately(inputVector.y, 0) ?
-                        0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
-                            0 : Mathf.Sign(inputVector.x));
+                    move = ((cameraRight * inputVector.x) + (cameraForward * inputVector.y));
+                    //move = cameraForward * (Mathf.Approximately(inputVector.y, 0) ?
+                    //    0 : Mathf.Sign(inputVector.y)) + cameraRight * (Mathf.Approximately(inputVector.x, 0) ?
+                    //        0 : Mathf.Sign(inputVector.x));
                     break;
                 case MovementMode.YZ:
                     cameraForward.Normalize();

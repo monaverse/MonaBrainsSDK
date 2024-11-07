@@ -2,12 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using Mona.SDK.Core.EasyUI;
 using Mona.SDK.Brains.Core.Utils.Structs;
+using Mona.SDK.Brains.Core.Brain;
+using Mona.SDK.Brains.Core.Enums;
 
 using TMPro;
 
@@ -18,14 +19,48 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
         [SerializeField] private TMP_Text[] _rankTexts;
         [SerializeField] private TMP_Text[] _usernameTexts;
         [SerializeField] private TMP_Text[] _scoreTexts;
+        [SerializeField] private float _initialDelay = 0.2f;
+        [SerializeField] private float _revealTime = 0.15f;
+        [SerializeField] private string _animRevealTrigger = "Reveal";
         [SerializeField] private string _animBounceTrigger = "Bounce";
         [SerializeField] private string _emptyText = "- - -";
+        [SerializeField] private AudioClassificationType _audioType = AudioClassificationType.SoundEffect;
+        [SerializeField] private AudioClip _revealClip;
+        [SerializeField] private float _clipVolume = 1f;
 
         private Animator _animator;
+        private AudioSource _audioSource;
+        private MonaBrainAudio _brainAudio;
+
+        [HideInInspector] public int EntryIndex;
 
         private void Awake()
         {
             _animator = GetComponent<Animator>();
+            _audioSource = GetComponent<AudioSource>();
+            _brainAudio = MonaBrainAudio.Instance;
+        }
+
+        private void Start()
+        {
+            if (_animator != null)
+                StartCoroutine(RevealEntry());
+        }
+
+        private IEnumerator RevealEntry()
+        {
+            yield return new WaitForSeconds(_initialDelay);
+            float revealDelay = EntryIndex * _revealTime;
+            yield return new WaitForSeconds(revealDelay);
+            _animator.SetTrigger(_animRevealTrigger);
+
+            if (_brainAudio != null && _audioSource != null && _revealClip != null)
+            {
+                float volume = _brainAudio.GetVolumeLevel(_audioType) * _clipVolume;
+                _audioSource.volume = volume;
+                _audioSource.clip = _revealClip;
+                _audioSource.Play();
+            }
         }
 
         public void SetEmpty()
@@ -54,6 +89,9 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
 
         public void PlayBounceAnimation()
         {
+            if (!_animator)
+                _animator = GetComponent<Animator>();
+
             if (_animator)
                 _animator.SetTrigger(_animBounceTrigger);
         }

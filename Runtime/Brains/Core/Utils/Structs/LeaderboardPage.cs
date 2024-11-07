@@ -19,16 +19,17 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
         public LeaderboardScore ClientScore;
         public List<LeaderboardScore> Scores = new List<LeaderboardScore>();
 
-        public bool AddClientScoreDisplay => AlwaysShowClient && !string.IsNullOrEmpty(ClientScore.UserName) && !ScoresContainsClient;
-        public bool UserPageBefore => AlwaysShowClient && ClientScore.Page < CurrentPage;
-        public bool UserPageAfter => AlwaysShowClient && ClientScore.Page > CurrentPage;
+        public bool ClientScoreRecorded => !string.IsNullOrEmpty(ClientScore.UserName);
+        public bool AddClientScoreDisplay => AlwaysShowClient && ClientScoreRecorded && !ScoresContainsClient;
+        public bool UserPageBefore => ClientScoreRecorded && AlwaysShowClient && ClientScore.Page < CurrentPage;
+        public bool UserPageAfter => ClientScoreRecorded && AlwaysShowClient && ClientScore.Page > CurrentPage;
         public bool DisplayButtonPageLeft => true;
         public bool DisplayButtonPageRight => true;
         public bool DisplayButtonUserPage => true;
 
         public int EmptyDisplayCount => EntriesPerPage - Scores.Count;
 
-        private bool ScoresContainsClient
+        public bool ScoresContainsClient
         {
             get
             {

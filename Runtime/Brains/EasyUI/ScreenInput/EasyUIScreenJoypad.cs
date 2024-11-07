@@ -593,7 +593,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             if (element.InputFadesElement == ScreenJoypadScaleWithMagnitudeType.ChangeWithMagnitude)
             {
                 float percentage = Mathf.Lerp(element.MinFadePercentage, element.ElementColor.a, magnitude);
-                Color color = _pointerImage.color;
+                Color color = elementImage.color;
                 color.a = percentage;
                 elementImage.color = color;
                 element.AlphaWasLerped = true;
