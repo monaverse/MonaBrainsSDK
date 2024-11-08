@@ -194,7 +194,7 @@ namespace Mona.SDK.Brains.Tiles.Conditions.Behaviours
             }
             else if (collision.collider.tag == _monaTag)
             {
-                Debug.Log($"{nameof(ColliderHitBehaviour)} {_monaTag} {collision.collider}", collision.collider.gameObject);
+                //Debug.Log($"{nameof(ColliderHitBehaviour)} {_monaTag} {collision.collider}", collision.collider.gameObject);
                 var found = false;
                 for (var i = 0; i < _collidersThatHit.Count; i++)
                 {

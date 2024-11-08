@@ -265,7 +265,7 @@
                     "path": "<Keyboard>/upArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "PlayerControlls",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -276,7 +276,7 @@
                     "path": "<Keyboard>/downArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "PlayerControlls",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -287,7 +287,7 @@
                     "path": "<Keyboard>/leftArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "PlayerControlls",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -298,7 +298,62 @@
                     "path": "<Keyboard>/rightArrow",
                     "interactions": "",
                     "processors": "",
+                    "groups": "PlayerControlls",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "D-Pad",
+                    "id": "203a697e-57ce-4a30-8e6e-a9886fb4fa1c",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
                     "groups": "",
+                    "action": "Move",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "baf230a3-8a03-43bd-b536-2c4811576653",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "PlayerControlls",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "9efcb4e0-e8af-4741-9c7b-835cd75cfb5f",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "PlayerControlls",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "5c484c16-797b-4f4b-b3a0-74f31909fa2e",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "PlayerControlls",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "611e0be5-2f9e-4a47-9ac2-bed269885442",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "PlayerControlls",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true

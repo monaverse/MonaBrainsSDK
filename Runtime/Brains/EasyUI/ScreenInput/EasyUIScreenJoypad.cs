@@ -37,6 +37,8 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
         [HideInInspector] public ScreenJoypadInteractionState InputState = ScreenJoypadInteractionState.Idle;
         private EasyUIJoypadBaseVisuals CurrentBaseVisuals => _visuals.GetVisuals(_parameters.InputType, _parameters.Axes);
 
+        private bool _parametersUpdated;
+
         private ScreenJoypadBaseControlType ControlType
         {
             get
@@ -55,6 +57,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             {
                 bool updateDefaultPosition = _parameters.StartLocation != value.StartLocation;
 
+                _parametersUpdated = true;
                 _parameters = value;
                 bool enabled = _parameters.Enabled;
                 gameObject.SetActive(_parameters.Enabled);
@@ -69,6 +72,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
                     StartCoroutine(SetDefaultPosition());
                 else
                     UpdateVisuals();
+
             }
         }
 
@@ -105,7 +109,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             if (_brainInput == null && MonaGlobalBrainRunner.Instance != null)
                 _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();
 
-            EnableScreenBrainInput(true);
+            EnableScreenBrainInput(_parameters.Enabled);
             SetScreenArea();
             SetOpposingScreenArea();
             Vector2 center = new Vector2(0.5f, 0.5f);
@@ -134,14 +138,31 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             if (!_parameters.Enabled)
                 return;
 
+            Vector2 position = RectTransformUtility.WorldToScreenPoint(_camera, _rootRect.position);
+            Vector2 radius = _rootRect.sizeDelta / 2;
+            if (InputState != ScreenJoypadInteractionState.Idle && _parametersUpdated)
+            {
+                _parametersUpdated = false;
+                _inputVector = Vector2.zero;
+                _handleRect.anchoredPosition = Vector2.zero;
+                //_rootRect.position = eventData.position;
+                position = eventData.position;
+
+                SetBrainInput();
+                OnPointerDown(eventData);
+
+                //Debug.Log($"Joystick constrained: {_parameters.Axes} fr: {Time.frameCount}");
+            }
+
             _camera = null;
             if (_inputCanvas.renderMode == RenderMode.ScreenSpaceCamera)
                 _camera = _inputCanvas.worldCamera;
 
-            Vector2 position = RectTransformUtility.WorldToScreenPoint(_camera, _rootRect.position);
-            Vector2 radius = _rootRect.sizeDelta / 2;
             Vector2 input = (eventData.position - position) / (radius * _inputCanvas.scaleFactor);
             _inputVector = FormatInput(input, out float magnitude, out bool overcameDeadzone);
+
+            //if(overcameDeadzone)
+            //   Debug.Log($"Joystick Moved: {_parameters.Axes} {_inputVector} fr: {Time.frameCount}");
 
             if (magnitude <= Mathf.Epsilon)
                 _inputVector = Vector2.zero;
@@ -226,6 +247,7 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
             return localPoint;
         }
 
+        private bool _shouldFilter = false;
         private Vector2 FormatInput(Vector2 input, out float magnitude, out bool overcameDeadzone)
         {
             magnitude = input.magnitude;
@@ -236,6 +258,35 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
                 magnitude = 0;
                 overcameDeadzone = false;
                 return Vector2.zero;
+            }
+            else
+            {
+                switch (_parameters.Axes)
+                {
+                    case ScreenJoypadAxisType.Horizontal:
+                        input.y = 0f;
+
+                        if (input.magnitude < _parameters.DeadZone)
+                        {
+                            magnitude = 0;
+                            overcameDeadzone = false;
+                            return Vector2.zero;
+                        }
+
+                        break;
+
+                    case ScreenJoypadAxisType.Vertical:
+                        input.x = 0f;
+
+                        if (input.magnitude < _parameters.DeadZone)
+                        {
+                            magnitude = 0;
+                            overcameDeadzone = false;
+                            return Vector2.zero;
+                        }
+
+                        break;
+                }
             }
 
             overcameDeadzone = true;
@@ -299,8 +350,43 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
                     return closestDirection * input.magnitude;
 
                 case ScreenJoypadAxisType.FourWay:
-                    if (Mathf.Abs(input.y) > Mathf.Abs(input.x)) x = 0f;
-                    else y = 0f;
+
+                    var fourWayDeadAngle = 42f;
+                    var normalizedInput = input.normalized;
+                    var filtered = false;
+                    var isUp = Mathf.Abs(Vector2.Angle(normalizedInput, -Vector2.up)) < fourWayDeadAngle;
+                    var isDown = Mathf.Abs(Vector2.Angle(normalizedInput, Vector2.up)) < fourWayDeadAngle;
+                    var isLeft = Mathf.Abs(Vector2.Angle(normalizedInput, -Vector2.right)) < fourWayDeadAngle;
+                    var isRight = Mathf.Abs(Vector2.Angle(normalizedInput, Vector2.right)) < fourWayDeadAngle;
+
+                    if (Mathf.Abs(input.y) > Mathf.Abs(input.x))
+                    {
+                        if (isUp || isDown || !_shouldFilter)
+                        {
+                            x = 0;
+                            filtered = true;
+                        }
+                    }
+                    else
+                    {
+                        if (isLeft || isRight || !_shouldFilter)
+                        {
+                            y = 0;
+                            filtered = true;
+                        }
+                    }
+
+                    if (!filtered)
+                    {
+                        x = y = 0;
+                        _shouldFilter = false;
+                    }
+                    else
+                        _shouldFilter = true;
+
+                    //Debug.Log($"{nameof(ScreenJoypadAxisType.FourWay)} input {input} normalized {normalizedInput} filtered {x} {y} up {isUp} down {isDown} left {isLeft} right {isRight}");
+
+
                     break;
 
                 case ScreenJoypadAxisType.Horizontal:
@@ -769,10 +855,14 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
                 _brainInput = MonaGlobalBrainRunner.Instance.GetBrainInput();
 
             if (ControlType == ScreenJoypadBaseControlType.Movement)
+            {
                 _brainInput.UsingScreenMove = enabled;
+            }
 
             if (ControlType == ScreenJoypadBaseControlType.Look)
+            {
                 _brainInput.UsingScreenLook = enabled;
+            }
         }
     }
 }

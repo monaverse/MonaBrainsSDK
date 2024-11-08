@@ -159,7 +159,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Blockchain
                         return false;
                     });
 
-                    Debug.Log($"{nameof(CopyTokenInstructionTile)} copy trait : {_traitName} {tokens.Count}");
+                    //Debug.Log($"{nameof(CopyTokenInstructionTile)} copy trait : {_traitName} {tokens.Count}");
 
                     if (tokens.Count > 0)
                     {

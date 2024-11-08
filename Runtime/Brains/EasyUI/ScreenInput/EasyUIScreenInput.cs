@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Mona.SDK.Brains.EasyUI.ScreenInput.Enums;
 using Mona.SDK.Brains.EasyUI.ScreenInput.Structs;
+using UnityEngine.InputSystem.UI;
 
 namespace Mona.SDK.Brains.EasyUI.ScreenInput
 {
@@ -18,8 +19,11 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
         [SerializeField] private EasyUIScreenJoypad _joypadRight;
         [SerializeField] private EventSystem _eventSystem;
 
+        public EasyUIScreenJoypad JoypadLeft => _joypadLeft;
+        public EasyUIScreenJoypad JoypadRight => _joypadRight;
+
         private bool _setupComplete;
-        private StandaloneInputModule _baseInputModule;
+        private InputSystemUIInputModule _baseInputModule;
 
         private void Awake()
         {
@@ -44,11 +48,11 @@ namespace Mona.SDK.Brains.EasyUI.ScreenInput
 
             if (_baseInputModule == null)
             {
-                _baseInputModule = FindFirstObjectByType<StandaloneInputModule>();
+                _baseInputModule = FindFirstObjectByType<InputSystemUIInputModule>();
 
                 if (_baseInputModule == null)
                 {
-                    _baseInputModule = gameObject.AddComponent<StandaloneInputModule>();
+                    _baseInputModule = gameObject.AddComponent<InputSystemUIInputModule>();
                 }
             }
 

@@ -36,8 +36,8 @@ namespace Mona.SDK.Brains.Core.Brain
 
     public class MonaBrainInput : MonoBehaviour, IMonaBrainInput
     {
-        private Inputs _inputs;
-        public Inputs Inputs => _inputs;
+        private MonaBrainInputs _inputs;
+        public MonaBrainInputs Inputs => _inputs;
 
         private Vector2 _externalMove;
         public bool _externalMoveSet = false;
@@ -67,22 +67,28 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             EnhancedTouchSupport.Enable();
 
-            _inputs = new Inputs();
-            _playerInput = GetComponent<PlayerInput>();
+            _inputs = FindFirstObjectByType<MonaBrainInputs>();
+            if (_inputs == null)
+                _inputs = gameObject.AddComponent<MonaBrainInputs>();
+
+            /*_playerInput = FindFirstObjectByType<PlayerInput>();
             if (_playerInput == null)
+            {
                 _playerInput = gameObject.AddComponent<PlayerInput>();
+                _playerInput.defaultControlScheme = "Keyboard&Mouse";
+            }
 
             _playerInput.onDeviceLost += OnDeviceLost;
-            _playerInput.onDeviceRegained += OnDeviceRegained;
+            _playerInput.onDeviceRegained += OnDeviceRegained;*/
         }
 
         private void OnDestroy()
         {
-            if (_playerInput != null)
+            /*if (_playerInput != null)
             {
                 _playerInput.onDeviceLost -= OnDeviceLost;
                 _playerInput.onDeviceRegained -= OnDeviceRegained;
-            }
+            }*/
         }
 
         public void SetPlayer(IMonaBrainPlayer player)
@@ -151,19 +157,19 @@ namespace Mona.SDK.Brains.Core.Brain
         {
             if (_activeListeners.Count > 0)
             {
-                _inputs.Player.Enable();
-                _playerInput.ActivateInput();
+                _inputs.Enable();
+                //_playerInput.ActivateInput();
             }
             else
             {
-                _inputs.Player.Disable();
-                _playerInput.DeactivateInput();
+                _inputs.Disable();
+                //_playerInput.DeactivateInput();
             }
         }
 
-        public void EnableInput() => _inputs.Player.Enable();
-        public void DisableInput() => _inputs.Player.Disable();
-        public bool IsInputEnabled() => _inputs.Player.enabled;
+        public void EnableInput() => _inputs.Enable();
+        public void DisableInput() => _inputs.Disable();
+        public bool IsInputEnabled() => _inputs.Enabled;
 
         private Dictionary<MonaInputType, MonaInputState> _buttons = new Dictionary<MonaInputType, MonaInputState>();
         private Vector2 _moveValue;
@@ -191,7 +197,7 @@ namespace Mona.SDK.Brains.Core.Brain
         public MonaInput ProcessInput(bool logOutput, MonaInputType logType, MonaInputState logState = MonaInputState.Pressed)
         {
             if (_player == null) return default;
-            if (!_inputs.Player.enabled) return default;
+            if (!_inputs.Enabled) return default;
 
             if (_lastFrame != Time.frameCount)
             {
@@ -206,6 +212,7 @@ namespace Mona.SDK.Brains.Core.Brain
                         _startTouchTime = Time.time;
                         _startTouchPosition = Touch.activeTouches[0].screenPosition;                        
                     }
+
                     _lastTouchPosition = Touch.activeTouches[0].screenPosition;
                     value = _lastTouchPosition - _startTouchPosition;
                     value /= JoystickSize;
@@ -235,31 +242,31 @@ namespace Mona.SDK.Brains.Core.Brain
                         }
                         else
                         {
-                            ProcessButton(MonaInputType.Action, _inputs.Player.Action);
+                            ProcessButton(MonaInputType.Action, _inputs.Action);
                         }
                     }
                     else
                     {
-                        ProcessAxis(MonaInputType.Move, _inputs.Player.Move);
-                        ProcessButton(MonaInputType.Action, _inputs.Player.Action);
+                        ProcessAxis(MonaInputType.Move, _inputs.Move);
+                        ProcessButton(MonaInputType.Action, _inputs.Action);
                     }
                 }
                 //Debug.Log($"move {JoystickDeadZone} {JoystickSize} {_moveValue} {_buttons[MonaInputType.Move]}");
                 
 
-                ProcessAxis(MonaInputType.Look, _inputs.Player.Look);
-                ProcessButton(MonaInputType.Jump, _inputs.Player.Jump);
-                ProcessButton(MonaInputType.Sprint, _inputs.Player.Sprint);
-                ProcessButton(MonaInputType.SwitchCamera, _inputs.Player.SwitchCamera);
-                ProcessButton(MonaInputType.Respawn, _inputs.Player.Respawn);
-                ProcessButton(MonaInputType.Debug, _inputs.Player.Debug);
-                ProcessButton(MonaInputType.ToggleUI, _inputs.Player.ToggleUI);
-                ProcessButton(MonaInputType.EmoteWheel, _inputs.Player.EmoteWheel);
-                ProcessButton(MonaInputType.EmojiTray, _inputs.Player.EmojiTray);
-                ProcessButton(MonaInputType.ToggleNametags, _inputs.Player.ToggleNametags);
-                ProcessButton(MonaInputType.Escape, _inputs.Player.Escape);
-                ProcessButton(MonaInputType.OpenChat, _inputs.Player.OpenChat);
-                ProcessButton(MonaInputType.ToggleMouseCapture, _inputs.Player.ToggleMouseCapture);
+                ProcessAxis(MonaInputType.Look, _inputs.Look);
+                ProcessButton(MonaInputType.Jump, _inputs.Jump);
+                ProcessButton(MonaInputType.Sprint, _inputs.Sprint);
+                ProcessButton(MonaInputType.SwitchCamera, _inputs.SwitchCamera);
+                ProcessButton(MonaInputType.Respawn, _inputs.Respawn);
+                ProcessButton(MonaInputType.Debug, _inputs.Debug);
+                ProcessButton(MonaInputType.ToggleUI, _inputs.ToggleUI);
+                ProcessButton(MonaInputType.EmoteWheel, _inputs.EmoteWheel);
+                ProcessButton(MonaInputType.EmojiTray, _inputs.EmojiTray);
+                ProcessButton(MonaInputType.ToggleNametags, _inputs.ToggleNametags);
+                ProcessButton(MonaInputType.Escape, _inputs.Escape);
+                ProcessButton(MonaInputType.OpenChat, _inputs.OpenChat);
+                ProcessButton(MonaInputType.ToggleMouseCapture, _inputs.ToggleMouseCapture);
 
                 for (var i = 0; i < _activeKeyListeners.Count; i++)
                 {
@@ -458,6 +465,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 }
                 else
                 {
+                    usingScreenInput = false;
                     _moveValue = value;
                 }
             }
@@ -477,7 +485,7 @@ namespace Mona.SDK.Brains.Core.Brain
             if (value.magnitude > deadZone || usingScreenInput)
                 PerformInput(type);
             else
-                ProcessAxis(MonaInputType.Move, _inputs.Player.Move);
+                ProcessAxis(MonaInputType.Move, _inputs.Move);
         }
 
         protected void ProcessAxis(MonaInputType type, InputAction action)
@@ -494,6 +502,7 @@ namespace Mona.SDK.Brains.Core.Brain
                 }
                 else
                 {
+                    usingScreenInput = false;
                     _moveValue = value;
                 }
             }
@@ -526,6 +535,12 @@ namespace Mona.SDK.Brains.Core.Brain
 
         protected void ProcessButton(MonaInputType type, InputAction action)
         {
+            if (action == null)
+            {
+                if (!_buttons.ContainsKey(type))
+                    _buttons.Add(type, MonaInputState.None);
+                return;
+            }
             if (action.IsPressed())
                 PerformInput(type);
             else
