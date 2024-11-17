@@ -137,8 +137,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Timing
 
                 if (_device == VibrationDeviceType.PhoneOrTablet)
                 {
+#if UNITY_IOS || UNITY_ANDROID
                     if (Application.isMobilePlatform)
                         Handheld.Vibrate();
+#endif
 
                     return Complete(InstructionTileResult.Success);
                 }
