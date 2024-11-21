@@ -14,6 +14,7 @@ using Mona.SDK.Core.Events;
 using Unity.VisualScripting;
 using Mona.SDK.Core.Utils;
 using System.Threading.Tasks;
+using Mona.SDK.Brains.Core.Utils.Enums;
 
 namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 {
@@ -55,6 +56,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 
         [SerializeField] private string _storeSuccessOn;
         [BrainPropertyValue(typeof(IMonaVariablesBoolValue), false)] public string StoreSuccessOn { get => _storeSuccessOn; set => _storeSuccessOn = value; }
+
+        [SerializeField] private LeaderboardOrderType _scoreOrder = LeaderboardOrderType.Default;
+        [BrainPropertyEnum(false)] public LeaderboardOrderType ScoreOrder { get => _scoreOrder; set => _scoreOrder = value; }
 
         private bool _active;
         private bool _isRunning;
@@ -160,7 +164,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
 
         private void FixedTick()
         {
-            if (_leaderboard == null || _serverProcess == null || _serverProcess.IsProcessing)
+            if (_leaderboard == null || _serverProcess == null || _serverProcess.IsProcessing || !_leaderboardProcessed)
                 return;
 
             _leaderboardProcessed = false;
@@ -193,10 +197,10 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
             if (_brain == null || _globalBrainRunner == null)
                 return Complete(InstructionTileResult.Failure, MonaBrainConstants.INVALID_VALUE);
 
-            _leaderboardProcessed = false;
-
             if (!_isRunning)
             {
+                _leaderboardProcessed = false;
+
                 if (!string.IsNullOrEmpty(_leaderboardNameName))
                     _leaderboardName = _brain.Variables.GetString(_leaderboardNameName);
 
@@ -237,7 +241,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
             switch (_userType)
             {
                 case LeaderboardUserType.ClientUser:
-                    _serverProcess = await _leaderboard.LoadClientScore(_leaderboardName, (int)_scoresPerPage);
+                    _serverProcess = await _leaderboard.LoadClientScore(_leaderboardName, (int)_scoresPerPage, _scoreOrder.ToString());
                     break;
                 case LeaderboardUserType.DefinedUser:
                     _serverProcess = await _leaderboard.LoadUserScore(_leaderboardName, _username, (int)_scoresPerPage);
