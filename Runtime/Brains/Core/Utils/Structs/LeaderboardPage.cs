@@ -16,6 +16,7 @@ namespace Mona.SDK.Brains.Core.Utils.Structs
         public Range BoardRange;
         public int EntriesPerPage = 10;
         public EasyUINumericalBaseFormatType ScoreFormatType = EasyUINumericalBaseFormatType.Default;
+        public bool RoundScore = false;
         public LeaderboardScore ClientScore;
         public List<LeaderboardScore> Scores = new List<LeaderboardScore>();
 

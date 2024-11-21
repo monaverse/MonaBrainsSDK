@@ -53,6 +53,9 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
         [SerializeField] private EasyUINumericalBaseFormatType _scoreFormat = EasyUINumericalBaseFormatType.Default;
         [BrainPropertyEnum(true)] public EasyUINumericalBaseFormatType ScoreFormat { get => _scoreFormat; set => _scoreFormat = value; }
 
+        [SerializeField] private bool _roundScore = false;
+        [BrainProperty(true)] public bool RoundScore { get => _roundScore; set => _roundScore = value; }
+        
         [SerializeField] private TimeScope _scope = TimeScope.AllTime;
         [BrainPropertyEnum(false)] public TimeScope Scope { get => _scope; set => _scope = value; }
 
@@ -286,6 +289,7 @@ namespace Mona.SDK.Brains.Tiles.Actions.Leaderboards
                     BoardRange = _pageRange,
                     EntriesPerPage = (int)_scoresPerPage,
                     ScoreFormatType = _scoreFormat,
+                    RoundScore = _roundScore,
                     Scores = _pageProcess.GetScores()
                 };
 

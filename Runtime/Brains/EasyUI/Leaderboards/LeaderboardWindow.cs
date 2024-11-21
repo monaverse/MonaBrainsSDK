@@ -128,7 +128,7 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
             {
                 LeaderboardScoreDisplay scoreDisplay = CreateScoreDisplay();
                 scoreDisplay.EntryIndex = entryIndex;
-                scoreDisplay.SetScore(_page.ClientScore, _page.ScoreFormatType);
+                scoreDisplay.SetScore(_page.ClientScore, _page.ScoreFormatType, _page.RoundScore);
                 scoreDisplay.PlayBounceAnimation();
                 entryIndex++;
             }
@@ -137,7 +137,7 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
             {
                 LeaderboardScoreDisplay scoreDisplay = CreateScoreDisplay();
                 scoreDisplay.EntryIndex = entryIndex;
-                scoreDisplay.SetScore(_page.Scores[i], _page.ScoreFormatType);
+                scoreDisplay.SetScore(_page.Scores[i], _page.ScoreFormatType, _page.RoundScore);
 
                 if (_page.ScoresContainsClient && _page.ClientScore.UserName == _page.Scores[i].UserName)
                     scoreDisplay.PlayBounceAnimation();
@@ -158,7 +158,7 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
             {
                 LeaderboardScoreDisplay scoreDisplay = CreateScoreDisplay();
                 scoreDisplay.EntryIndex = entryIndex;
-                scoreDisplay.SetScore(_page.ClientScore, _page.ScoreFormatType);
+                scoreDisplay.SetScore(_page.ClientScore, _page.ScoreFormatType, _page.RoundScore);
                 scoreDisplay.PlayBounceAnimation();
                 entryIndex++;
             }

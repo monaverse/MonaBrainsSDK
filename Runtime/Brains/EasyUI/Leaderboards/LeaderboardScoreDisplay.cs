@@ -75,7 +75,7 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
                 _scoreTexts[i].text = _emptyText;
         }
 
-        public void SetScore(LeaderboardScore score, EasyUINumericalBaseFormatType formatType)
+        public void SetScore(LeaderboardScore score, EasyUINumericalBaseFormatType formatType, bool roundScore)
         {
             for (int i = 0; i < _rankTexts.Length; i++)
                 _rankTexts[i].text = score.Rank.ToString();
@@ -84,7 +84,7 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
                 _usernameTexts[i].text = score.UserName;
 
             for (int i = 0; i < _scoreTexts.Length; i++)
-                _scoreTexts[i].text = FormatScore(float.Parse(score.Score), formatType);
+                _scoreTexts[i].text = FormatScore(float.Parse(score.Score), formatType, roundScore);
         }
 
         public void PlayBounceAnimation()
@@ -96,7 +96,7 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
                 _animator.SetTrigger(_animBounceTrigger);
         }
 
-        public string FormatScore(float value, EasyUINumericalBaseFormatType formatType)
+        public string FormatScore(float value, EasyUINumericalBaseFormatType formatType, bool roundScore)
         {
             // Get the current culture info
             CultureInfo currentCulture = CultureInfo.CurrentCulture;
@@ -115,10 +115,16 @@ namespace Mona.SDK.Brains.EasyUI.Leaderboards
                     return value.ToString("C", currentCulture);
 
                 case EasyUINumericalBaseFormatType.Percentage:
-                    return (value * 100f).ToString("N", currentCulture) + "%";
+                    if(roundScore)
+                        return (value * 100f).ToString("0") + "%";
+                    else
+                        return (value * 100f).ToString("N", currentCulture) + "%";
 
                 default:
-                    return value.ToString("N", currentCulture);
+                    if (roundScore)
+                        return value.ToString("0");
+                    else
+                        return value.ToString("N", currentCulture);
             }
         }
     }
